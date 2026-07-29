@@ -1,0 +1,344 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "SD07 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "SD07-001",
+      "name": "กวนอู ขุนพลภักดีแห่งจ๊กก๊ก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ลูกฮึด ต่อเนื่อง Avatar ใบนี้ไม่สามารถเปลี่ยนการควบคุมได้ ต่อเนื่อง ผู้เล่นฝ่ายตรงข้าม ไม่สามารถเลือกเป้าหมายของความสามา"
+    },
+    {
+      "code": "SD07-002",
+      "name": "เตียวหุย ขุนพลจอมบุกแห่งจ๊กก๊ก",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-003",
+      "name": "แฮหัวตุ้น ขุนพลตาเดียวแห่งวุยก๊ก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
+    },
+    {
+      "code": "SD07-004",
+      "name": "แฮหัวเอี๋ยน ขุนพลธนูแห่งวุยก๊ก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
+    },
+    {
+      "code": "SD07-005",
+      "name": "ซุนเกี๋ยน ขุนพลพยัคฆ์แห่งง่อก๊ก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "โล่มนุษย์ คำสั่งเสีย : เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา Avatar ใบที่เลือก POW"
+    },
+    {
+      "code": "SD07-006",
+      "name": "ซุนเซ็ก ขุนพลไฟแรงแห่งง่อก๊ก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
+    },
+    {
+      "code": "SD07-007",
+      "name": "ลิโป้ ขุนพลเทพสงคราม",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ในช่วง Battle Phase Avatar ฝ่ายตรงข้ามทุกใบได้รับ โล่มนุษย์ อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : ฝ่ายตรงข้ามจะต"
+    },
+    {
+      "code": "SD07-008",
+      "name": "อ้วนเสี้ยว ผู้นำขุนพล 18 หัวเมือง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มใ"
+    },
+    {
+      "code": "SD07-009",
+      "name": "ขุนศึกแบงค์ แซ่อู๋",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั"
+    },
+    {
+      "code": "SD07-010",
+      "name": "พลเดินทัพ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD07-011",
+      "name": "พลเสบียง",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD07-012",
+      "name": "ชาวบ้านจ้าน",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD07-013",
+      "name": "คำสาบานสวนท้อ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เลือกปฏิบัติ : 1) เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา นำ Avatar \"ขุนพล\" ที่เป็น "
+    },
+    {
+      "code": "SD07-014",
+      "name": "ยืมมือสังหาร",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สามารถใช้การ์ดใบนี้ได้เมื่อ Avatar Zone ฝ่ายเรามี Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ เท่านั้น ทิ้งการ์ดบนมือ 1 ใบ"
+    },
+    {
+      "code": "SD07-015",
+      "name": "เสบียงหลวง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ผู้เล่นทุกคน จั่วการ์ด 1 ใบ ถ้าบน Avatar Zone ฝ่ายเรามี \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ ตั้งแต่ 2 ใบขึ้นไป เปลี่ยนควา"
+    },
+    {
+      "code": "SD07-016",
+      "name": "หนีคือยอดกลยุทธ์",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [],
+          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "เมื่อ Avatar ฝ่ายเรา ถูกโจมตี : นำ Avatar ใบที่ถูกโจมตี กลับขึ้นมือ"
+    },
+    {
+      "code": "SD07-017",
+      "name": "หมอมาแล้วววว",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
+    },
+    {
+      "code": "SD07-018",
+      "name": "ง้าวมังกรเขียว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": "ขุนพล"
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-019",
+      "name": "เมืองลกเอี๋ยง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-020",
+      "name": "ด่านเฮาโลก๋วน",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-021",
+      "name": "ไม่นะ เล่าปี่",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-022",
+      "name": "ไม่นะ โจโฉ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-023",
+      "name": "ไม่นะ ซุนกวน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-024",
+      "name": "ตั๋งโต๊ะตายแล้วววว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD07-025",
+      "name": "ไม่นะ อาม่า",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

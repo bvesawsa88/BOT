@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f11">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="icon" type="image/png" href="assets/icon-192.png">
+<title>Battle of Talingchan — โต๊ะออนไลน์</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20260729u">
+</head>
+<body>
+
+<!-- ═══ เมนูหลัก ═══ -->
+<div id="menu" class="screen">
+  <div id="userBar">
+    <button id="btnLogin" class="btn-ghost">🔑 เข้าสู่ระบบ / สมัคร</button>
+    <span id="userChip" class="hidden">👤 <b id="userName"></b> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
+  </div>
+  <div class="float-card f1"><img src="https://cdn.bangbon.app/cards/SD01-001.png" alt=""></div>
+  <div class="float-card f2"><img src="https://cdn.bangbon.app/cards/SD01-015.png" alt=""></div>
+  <div class="float-card f3"><img src="https://cdn.bangbon.app/cards/SD01-004.png" alt=""></div>
+  <div class="menu-tag">การ์ดเกมสุดมันจากตลิ่งชัน — ฉบับออนไลน์</div>
+  <img id="menuLogo" class="menu-logo" src="https://cdn.bangbon.app/assets/bottcg/logo_full_white.png" alt="Battle of Talingchan">
+  <div id="menuTitleFallback" class="menu-title" style="display:none">BATTLE OF<br>TALINGCHAN</div>
+  <div class="menu-sub">Table Simulator · เฟส A (กฎไม่บังคับ — เล่นกับเพื่อนแบบโต๊ะจริง)</div>
+
+  <!-- เมนูหลัก: เลือกหน้า — โหมดเล่นอยู่ในเมนูย่อยแยก -->
+  <div id="menuHome" class="menu-btns">
+    <button id="mnuPlay" class="btn-primary big">เล่นเกม</button>
+    <button id="mnuDeck" class="btn-dark big">จัดเด็ค (Deck Builder)</button>
+    <button id="mnuGallery" class="btn-dark big">ดูการ์ด / เปิดซอง</button>
+    <button id="mnuHowTo" class="btn-dark big">📖 วิธีเล่น / วิธีจัดเด็ค</button>
+  </div>
+
+  <!-- เมนูย่อย: เลือกโหมดเล่นเท่านั้น -->
+  <div id="menuPlay" class="menu-btns menu-play hidden">
+    <div class="menu-group-label">เด็คที่ชนกัน (ซ้อมมือ)</div>
+    <div class="menu-matchup">
+      <label class="menu-deck-lab" for="selMenuDeck">ฝั่ง A</label>
+      <select id="selMenuDeck" class="menu-deck-select" title="เด็คฝั่ง A">
+        <option value="starter:SD01">SD01 Starter (50+5)</option>
+      </select>
+      <div class="menu-vs" aria-hidden="true">VS</div>
+      <label class="menu-deck-lab" for="selMenuDeckB">ฝั่ง B</label>
+      <select id="selMenuDeckB" class="menu-deck-select" title="เด็คฝั่ง B">
+        <option value="starter:SD01">SD01 Starter (50+5)</option>
+      </select>
+    </div>
+    <div class="menu-group-label">เลือกโหมดเล่น</div>
+    <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
+    <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
+    <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
+    <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
+    <button id="mnuPlayBack" class="link-btn menu-back">← กลับเมนูหลัก</button>
+  </div>
+
+  <button id="btnFeedbackMenu" class="link-btn">🐞 แจ้งบั๊ก / เสนอความเห็น</button>
+  <div class="menu-copy">© PASULOL Co.,Ltd / Lion House Co.,Ltd · Rule Book Ver. 3.2</div>
+</div>
+
+<!-- ═══ ล็อบบี้: สร้าง/เข้าห้อง ═══ -->
+<div id="lobby" class="screen hidden">
+  <div class="lobby-flex">
+    <div class="panel">
+      <div class="panel-title">สร้างห้องใหม่</div>
+      <input id="inpNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off">
+      <div class="panel-note">ระบบจะสร้างรหัสห้อง 6 ตัว — ส่งให้เพื่อนเพื่อเข้าห้องเดียวกัน ผู้ชมเข้าดูได้ไม่จำกัด</div>
+      <button id="btnCreate" class="btn-primary big">สร้างห้อง</button>
+    </div>
+    <div class="lobby-or">หรือ</div>
+    <div class="panel">
+      <div class="panel-title">เข้าห้องเพื่อน</div>
+      <input id="inpRoom" class="code-input" maxlength="6" placeholder="รหัสห้อง เช่น K7M2QF" autocomplete="off">
+      <div class="row-2">
+        <button id="btnJoin" class="btn-dark">เข้าห้อง (ผู้เล่น)</button>
+        <button id="btnSpec" class="btn-ghost">เข้าดู (ผู้ชม)</button>
+      </div>
+      <div id="lobbyMsg" class="lobby-msg"></div>
+    </div>
+  </div>
+  <button id="btnLobbyBack" class="link-btn">← กลับเมนูหลัก</button>
+</div>
+
+<!-- ═══ ห้องรอ ═══ -->
+<div id="room" class="screen hidden">
+  <div class="room-share">แชร์รหัสนี้ให้เพื่อน</div>
+  <div id="roomCode" class="room-code">——————</div>
+  <button id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
+  <div class="room-cards">
+    <div class="panel me-panel">
+      <div class="player-name" id="rmMyName">คุณ</div>
+      <select id="selDeck"><option value="starter:SD01">SD01 Starter (50+5)</option></select>
+      <button id="btnReady" class="btn-dark big">กดเมื่อพร้อม</button>
+    </div>
+    <div class="panel opp-panel"><div id="rmOppBody" class="opp-waiting">รอผู้เล่นอีกคน…</div></div>
+  </div>
+  <div id="rmSpecs" class="room-specs"></div>
+  <button id="btnStart" class="btn-primary big start-btn hidden">เริ่มเกม ▸</button>
+  <div id="rmHint" class="room-specs"></div>
+  <button id="btnLeaveRoom" class="link-btn">ออกจากห้อง</button>
+</div>
+
+<!-- ═══ Deck Builder ═══ -->
+<div id="deckbuilder" class="screen-page hidden">
+  <header class="db-top">
+    <div class="brand">Battle of Talingchan <span>· Deck Builder</span></div>
+    <div class="spacer"></div>
+    <div id="dbCount" class="room-info"></div>
+    <button id="dbFiltersBtn" class="btn-mini only-mobile">ฟิลเตอร์</button>
+    <button id="dbDeckBtn" class="btn-mini only-mobile">เด็ค 0/50</button>
+    <button id="dbBack" class="btn-mini">← เมนูหลัก</button>
+  </header>
+  <div class="db-main">
+    <aside class="db-side">
+      <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect…" autocomplete="off">
+      <div class="db-label">ประเภท</div><div id="dbTypeChips" class="chip-row"></div>
+      <div class="db-label">สี</div><div id="dbColorChips" class="chip-row"></div>
+      <div class="db-label">COST</div><div id="dbCostChips" class="chip-row"></div>
+      <div class="db-label">SYMBOL / ซีรีส์ / ชนิด Magic</div>
+      <select id="dbSymbol"></select>
+      <select id="dbSeries"></select>
+      <select id="dbSubtype">
+        <option value="">ชนิด Magic — ทั้งหมด</option>
+        <option value="Normal">Normal</option><option value="React">React</option>
+        <option value="Modification">Modification</option><option value="Land">Land</option>
+      </select>
+      <button id="dbClear" class="btn-dark small">ล้างฟิลเตอร์</button>
+      <div class="db-pv" id="dbPv"></div>
+    </aside>
+    <section class="db-grid-wrap">
+      <div class="db-result">
+        <span id="dbResult"></span>
+        <div class="spacer"></div>
+        <span class="db-hint">เรียงตาม</span>
+        <select id="dbSort">
+          <option value="code">ซีรีส์/รหัส</option><option value="name">ชื่อ</option>
+          <option value="cost">ค่าใช้ (COST)</option><option value="power">พลัง (POWER)</option>
+          <option value="gem">เจม (GEM)</option><option value="rarity">ความหายาก</option>
+        </select>
+        <button id="dbDir" class="btn-mini" title="สลับ น้อย→มาก / มาก→น้อย">▲</button>
+        <span class="db-hint">· คลิกการ์ด = ดูรายละเอียด · ปุ่ม −/+ บนการ์ด = ปรับจำนวน</span>
+      </div>
+      <div class="db-scroll">
+        <div id="dbGrid" class="db-grid"></div>
+        <button id="dbMore" class="btn-dark hidden" style="margin:14px auto;display:block">โหลดเพิ่ม…</button>
+      </div>
+    </section>
+    <aside class="db-deck">
+      <div class="db-deck-head">
+        <input id="dbName" placeholder="ชื่อเด็ค…" autocomplete="off">
+        <button id="dbSave" class="btn-primary small">บันทึก</button>
+      </div>
+      <div class="db-deck-body">
+        <div id="dbChecks"></div>
+        <div id="dbCurve" class="db-curve"></div>
+        <div id="dbColors"></div>
+        <div class="db-sec gold">MAIN DECK · <span id="dbMainCount">0</span>/50</div>
+        <div id="dbMainList"></div>
+        <div class="db-sec green">LIFE CARD · <span id="dbLifeCount">0</span>/5</div>
+        <div id="dbLifeList"></div>
+      </div>
+      <div class="db-deck-foot">
+        <div class="row-2">
+          <select id="dbFillStarter" class="small" style="flex:1">
+            <option value="SD01">SD01 Starter</option>
+            <option value="SD02">SD02 Starter</option>
+            <option value="SD03">SD03 Starter</option>
+            <option value="SD04">SD04 Starter</option>
+            <option value="SD05">SD05 Starter</option>
+            <option value="SD06">SD06 Starter</option>
+            <option value="SD07">SD07 Starter</option>
+            <option value="SD08">SD08 Starter</option>
+            <option value="KD01">KD01 Starter</option>
+            <option value="KD02">KD02 Starter</option>
+            <option value="KD03">KD03 Starter</option>
+            <option value="KD04">KD04 Starter</option>
+          </select>
+          <button id="dbFillSD01" class="btn-dark small">ใส่เด็คตัวอย่าง</button>
+          <button id="dbClearDeck" class="btn-dark small">ล้างเด็ค</button>
+        </div>
+        <div class="row-2"><button id="dbExport" class="btn-dark small">Export โค้ด</button><button id="dbImport" class="btn-dark small">Import โค้ด</button></div>
+        <div id="dbSaved" class="db-saved"></div>
+        <div id="dbMsg" class="db-msg"></div>
+      </div>
+    </aside>
+  </div>
+  <div id="dbZoom" class="hidden"></div>
+</div>
+
+<!-- ═══ Card Gallery + เปิดซอง ═══ -->
+<div id="gallery" class="screen-page hidden">
+  <header class="db-top">
+    <div class="brand">Battle of Talingchan <span>· Card Gallery</span></div>
+    <div class="spacer"></div>
+    <button id="glTabG" class="btn-primary small">ดูการ์ด</button>
+    <button id="glTabP" class="btn-dark small">เปิดซอง</button>
+    <button id="glBack" class="btn-mini">← เมนูหลัก</button>
+  </header>
+  <div id="glGalleryView" class="gl-view">
+    <div class="gl-filters">
+      <input id="glQ" placeholder="ค้นหาชื่อ / effect / รหัส…" autocomplete="off">
+      <select id="glSeries"></select>
+      <select id="glRarity"></select>
+      <span id="glResult" class="db-hint"></span>
+    </div>
+    <div class="db-scroll">
+      <div id="glGrid" class="gl-grid"></div>
+      <button id="glMore" class="btn-dark hidden" style="margin:14px auto;display:block">โหลดเพิ่ม…</button>
+    </div>
+  </div>
+  <div id="glPackView" class="gl-view hidden">
+    <div class="gl-pack-inner">
+      <div class="gl-pack-title">จำลองเปิดซอง Booster</div>
+      <div class="gl-pack-controls">
+        <select id="glPackSeries"></select>
+        <button id="glOpenPack" class="btn-primary">ฉีกซอง! (5 ใบ)</button>
+      </div>
+      <div class="gl-pack-note">ซองละ 5 ใบ: Common ×4 + การ์ดหายาก (Rare ขึ้นไป) ×1 อยู่ท้ายซองเสมอ · ลุ้น UR/SCR/USEC/PR/CBR — เพื่อความสนุก ไม่ใช่อัตราจริงของสินค้า</div>
+      <div id="glPackCards" class="gl-pack-cards"></div>
+    </div>
+  </div>
+  <div id="glZoom" class="hidden"></div>
+</div>
+
+<!-- ═══ โต๊ะเล่น ═══ -->
+<!-- ═══ วิธีเล่น (คู่มือ) ═══ -->
+<div id="howto" class="screen-page hidden">
+  <header class="db-top">
+    <div class="brand">Battle of Talingchan <span>· วิธีเล่น</span></div>
+    <div class="spacer"></div>
+    <button id="hwBack" class="btn-mini">← เมนูหลัก</button>
+  </header>
+  <div class="hw-main">
+    <nav class="hw-nav">
+      <a href="#hw-start">1 · เริ่มเล่น</a>
+      <a href="#hw-auto">2 · ระบบทำอะไรให้บ้าง</a>
+      <a href="#hw-board">3 · โซนบนสนาม</a>
+      <a href="#hw-card">4 · สั่งการ์ด</a>
+      <a href="#hw-deckops">5 · คำสั่งกองเด็ค</a>
+      <a href="#hw-end">6 · จบเกม</a>
+      <a href="#hw-build">7 · จัดเด็ค</a>
+      <a href="#hw-real">8 · เล่นกับการ์ดจริง</a>
+      <a href="#hw-keys">9 · คีย์ลัด</a>
+    </nav>
+    <article class="hw-body">
+
+      <div class="hw-lead">
+        เว็บนี้เป็น <b>โต๊ะจำลอง</b> ไม่ใช่เกมที่บังคับกติกา — ระบบจะไม่ห้ามคุณทำอะไรเกือบทั้งหมด
+        ผู้เล่นอ่านการ์ดแล้วตกลงกันเองเหมือนเล่นบนโต๊ะจริง เหมือนมีเสื่อกับการ์ดวางอยู่ตรงหน้า
+        คู่มือนี้เลยเป็น <b>วิธีใช้เว็บ</b> ว่าปุ่มไหนทำอะไร ไม่ใช่กติกาของตัวเกม
+      </div>
+
+      <section id="hw-start">
+        <h2>1 · เริ่มเล่น — เลือกโหมดไหนดี</h2>
+        <div class="hw-cards">
+          <div class="hw-c"><b>เล่นออนไลน์</b>
+            <p>เล่นกับเพื่อนคนละเครื่อง สร้างห้องได้รหัส 6 ตัว ส่งให้เพื่อนเข้า หรือกด "คัดลอกลิงก์เชิญ" แล้ววางในแชท</p>
+            <p class="hw-dim">ผู้ชมเข้าดูได้ไม่จำกัด — กด "เข้าดู (ผู้ชม)" แล้วใส่รหัสห้อง ผู้ชมเห็นสนามแต่ไม่เห็นการ์ดในมือใคร</p></div>
+          <div class="hw-c"><b>ซ้อมมือคนเดียว</b>
+            <p>คุมทั้งสองฝั่งบนเครื่องเดียว เห็นมือทั้งคู่ เหมาะกับลองคอมโบหรือทดสอบเด็ค</p></div>
+          <div class="hw-c"><b>🎴 เล่นกับคนที่ใช้การ์ดจริง</b>
+            <p>คู่ต่อสู้เล่นการ์ดจริงบนโต๊ะ เราเล่นบนเว็บ — ซ่อนสนามฝั่งตรงข้ามให้อัตโนมัติ สนามเราเลยใหญ่ขึ้น</p>
+            <p class="hw-dim">ดูวิธีใช้กับ Discord ที่หัวข้อ 8</p></div>
+        </div>
+        <div class="hw-note">
+          <b>ก่อนเล่นครั้งแรก:</b> ถ้ายังไม่ได้จัดเด็ค ระบบจะใช้เด็คตัวอย่าง <b>SD01 Starter</b> ให้
+          อยากใช้เด็คตัวเอง ต้องไปจัดที่ Deck Builder → กด <b>บันทึก</b> → ตั้งเป็นเด็คหลักก่อน (ดูหัวข้อ 7)
+        </div>
+      </section>
+
+      <section id="hw-auto">
+        <h2>2 · ระบบทำอะไรให้อัตโนมัติบ้าง</h2>
+        <p>มีแค่ 5 อย่างนี้เท่านั้น <b>นอกจากนี้ทำเองหมด</b></p>
+        <ol class="hw-ol">
+          <li><b>สับเด็คและ LIFE</b> ตอนเปิดโต๊ะ</li>
+          <li><b>ทอยเหรียญ</b> หาคนเริ่มก่อน</li>
+          <li><b>คนเริ่มก่อนจั่วเพิ่ม 2 ใบ</b> (มือ 7 ใบ) แต่ <b>เทิร์นแรกโจมตีไม่ได้</b> — เป็นกฎเดียวที่ระบบยังห้าม</li>
+          <li><b>เริ่มเทิร์นตื่นทุกใบ</b> — ไม่จั่วให้ ต้องกดจั่วเอง</li>
+          <li><b>มือต่ำกว่า 3 ใบเติมให้อัตโนมัติ</b></li>
+        </ol>
+        <div class="hw-note warn">
+          <b>ที่ต้องทำเอง:</b> จ่าย GEM/Cost · เพดานจำนวนการ์ดในโซน · ลำดับเฟส · ผลของเอฟเฟกต์บนการ์ด · การปะทะว่าใครชนะ
+          — ทั้งหมดนี้อ่านการ์ดแล้วตกลงกับคู่ต่อสู้เอง แล้วค่อยลาก/นอน/หงาย/กด +− ให้ตรงกับที่ตกลง
+        </div>
+        <p class="hw-dim">เกมจะจบทันทีถ้ากดจั่วตอนเด็คหมด (ฝ่ายที่จั่วไม่ได้เป็นฝ่ายแพ้)</p>
+      </section>
+
+      <section id="hw-board">
+        <h2>3 · โซนบนสนาม</h2>
+        <table class="hw-tbl">
+          <tr><td><b>AVATAR</b></td><td>ตัวละครที่ลงสนาม แถวกลาง</td></tr>
+          <tr><td><b>MAGIC</b></td><td>การ์ดเวท — เวทที่ใช้จะหงายเสมอ ไม่มีการเซ็ตคว่ำ</td></tr>
+          <tr><td><b>CONSTRUCT</b></td><td>สิ่งก่อสร้าง อยู่แถวบนสุดของแต่ละฝั่ง</td></tr>
+          <tr><td><b>LAND</b></td><td>ช่องกลางสนาม ใช้ร่วมกันทั้งสองฝ่าย — มีได้แค่ <b>1 ใบ</b> (วางใบใหม่จะทำลายใบเดิมอัตโนมัติ)</td></tr>
+          <tr><td><b>LIFE</b></td><td>แถบการ์ดคว่ำด้านข้าง 5 ใบ — โดนตีทีหงายทีละใบ</td></tr>
+          <tr><td><b>นรก (HELL)</b></td><td>กองทิ้ง</td></tr>
+          <tr><td><b>มิติมืด</b></td><td>โซนนำการ์ดออกจากเกม</td></tr>
+          <tr><td><b>กองเด็ค</b></td><td>แตะ = จั่ว 1 ใบ · คลิกขวา/กดค้าง = เมนูคำสั่งเด็ค</td></tr>
+        </table>
+        <p class="hw-dim">ลากการ์ดไปวางโซนไหนก็ได้ ไม่มีข้อจำกัด — รวมถึงลากไปฝั่งตรงข้ามด้วย</p>
+      </section>
+
+      <section id="hw-card">
+        <h2>4 · สั่งการ์ด</h2>
+        <div class="hw-cards">
+          <div class="hw-c"><b>คลิกเดี่ยว</b><p>เปิดเมนูคำสั่งของการ์ดใบนั้น</p></div>
+          <div class="hw-c"><b>ดับเบิลคลิก</b><p>นอน / ตื่น</p></div>
+          <div class="hw-c"><b>ลาก</b><p>ย้ายไปโซนอื่น</p></div>
+          <div class="hw-c"><b>ชี้ค้าง (คอม)</b><p>ปุ่มลอย <b>⚡ ＋ －</b> โผล่บนการ์ด กดใช้ได้เลยไม่ต้องเปิดเมนู</p></div>
+        </div>
+
+        <h3>เมนูการ์ด — แถวไอคอน</h3>
+        <table class="hw-tbl">
+          <tr><td>⚡</td><td><b>ประกาศใช้</b> → แตะเป้าหมาย — เด้งป๊อปอัพให้อีกฝั่งเห็นว่าเราใช้ใบนี้ใส่ใคร (แตะใบเดิม = ประกาศแบบไม่มีเป้า)</td></tr>
+          <tr><td>😴 ☀️</td><td>นอน / ตื่น</td></tr>
+          <tr><td>＋ －</td><td>เพิ่ม-ลด POWER กดรัวได้ เมนูไม่ปิด</td></tr>
+          <tr><td>✋</td><td>เก็บขึ้นมือ</td></tr>
+          <tr><td>💀</td><td>ส่งลงนรก</td></tr>
+          <tr><td>📤</td><td>ส่งไปโซนอื่น (เลือกปลายทางเอง)</td></tr>
+        </table>
+
+        <h3>คำสั่งพิเศษ (โผล่เฉพาะการ์ดที่ใช้ได้)</h3>
+        <table class="hw-tbl">
+          <tr><td>⚔️</td><td><b>โจมตี</b> — ปุ่มแดงบน Avatar ที่หงายและตื่น กดแล้วเป้าฝั่งตรงข้ามจะกะพริบแดง แตะเลือก ระบบนอนตัวโจมตีให้ + โชว์ POWER ทั้งคู่ให้เทียบเอง <b>แล้วเก็บการ์ดกันเอง</b></td></tr>
+          <tr><td>🤝</td><td><b>สามัคคี</b> — นอนใบที่กด แล้วยก POWER ไปให้การ์ดที่เลือกจนจบเทิร์น</td></tr>
+          <tr><td>🤝</td><td><b>จับคู่หู</b> — ผูกการ์ด 2 ใบให้ขึ้นกรอบสีเดียวกัน กดซ้ำที่ใบเดิม = เลิกคู่</td></tr>
+          <tr><td>🔗</td><td><b>สวมใส่</b> — ใช้ได้เฉพาะการ์ดใน Magic Zone สวมให้ Avatar ได้ทั้งสองฝั่ง มีเส้นโยงให้เห็น · การ์ดยังอยู่ใน Magic Zone · 1 Avatar สวมได้ไม่จำกัด</td></tr>
+          <tr><td>🧬</td><td><b>สืบทอดคำสั่ง</b> — ยกความสามารถของใบหนึ่งไปให้ Avatar อีกใบ ผู้รับได้กรอบม่วง</td></tr>
+          <tr><td>👁</td><td>หงายการ์ดที่คว่ำอยู่</td></tr>
+          <tr><td>⛓️</td><td>ยึดการควบคุมมาฝั่งเรา</td></tr>
+          <tr><td>✨</td><td>อัญเชิญพิเศษ — ลงสนามโดยไม่จ่าย Cost</td></tr>
+        </table>
+
+        <h3>จ่าย Cost</h3>
+        <p>ระบบไม่หักการ์ดให้ — เลือกการ์ดในมือที่จะทิ้ง แล้วกดปุ่ม <b>"ทิ้งชุดนี้เพื่อจ่าย Cost"</b>
+        ระบบจะขึ้น log ชื่อทุกใบ + เด้งป๊อปอัพให้อีกฝั่งเห็นว่าเราทิ้งอะไรไป</p>
+
+        <h3>มัลลิแกน (เปลี่ยนมือตอนเริ่มเกม)</h3>
+        <p>ตอนเปิดโต๊ะจะมีแถบถาม "เปลี่ยนมือไหม?" ทีละคน (คนเริ่มก่อนตอบก่อน) เปลี่ยนกี่ใบก็ได้
+        การ์ดที่เปลี่ยนจะลงใต้กองเด็คแล้วจั่วใหม่ ทำได้ครั้งเดียวต่อเกม</p>
+      </section>
+
+      <section id="hw-deckops">
+        <h2>5 · คำสั่งกองเด็ค</h2>
+        <p>อยู่ที่ <b>แผงขวา</b> และกดค้าง/คลิกขวาที่กองเด็คก็ได้ — ตั้งจำนวนใบด้วยช่อง <b>−  N  +</b> ก่อนกด</p>
+        <table class="hw-tbl">
+          <tr><td>🃏 จั่ว</td><td>จั่วขึ้นมือ (แตะกองเด็คบนเสื่อก็ได้)</td></tr>
+          <tr><td>🔀 สับเด็ค</td><td>สับกองเด็ค</td></tr>
+          <tr><td>🔍 ค้นหาจากเด็ค</td><td><span class="hw-tag closed">ข้อมูลปิด</span> เปิดดูทั้งกอง หยิบใบไหนก็ได้ — อีกฝั่ง<b>ไม่เห็นเนื้อเด็ค</b> เห็นแค่ชื่อใบที่เราหยิบขึ้นมือ · ปิดแล้วสับให้อัตโนมัติ</td></tr>
+          <tr><td>🔍 สอดแนม</td><td><span class="hw-tag open">ข้อมูลเปิด</span> เปิดใบบนสุด N ใบ เลือกขึ้นมือได้ ที่เหลือเรียงลำดับแล้วเลือกวางบน/ใต้กอง</td></tr>
+          <tr><td>👁 บนกอง</td><td><span class="hw-tag open">ข้อมูลเปิด</span> เปิดใบบนสุดให้ทั้งสองฝั่งเห็น</td></tr>
+          <tr><td>🔽 กฏร้าน</td><td><span class="hw-tag open">ข้อมูลเปิด</span> เปิดจาก<b>ใต้กอง</b> — ซ้ายสุดคือใบล่างสุด</td></tr>
+          <tr><td>🌊 ธรณีสูบ</td><td>ทิ้งใบบนสุด N ใบลงนรกทันที</td></tr>
+          <tr><td>🔀 สับมือ</td><td>สลับลำดับการ์ดในมือ</td></tr>
+          <tr><td>🙈 ปิดที่เปิดไว้</td><td>ปิดการ์ดในมือที่เคยกดเปิดให้อีกฝั่งดู</td></tr>
+        </table>
+        <p class="hw-dim">ในหน้าต่างสอดแนม/กฏร้าน <b>ลากการ์ดสลับตำแหน่งได้</b> เพื่อจัดลำดับก่อนวางกลับกอง</p>
+        <div class="hw-note">คำสั่งเด็คทำกับ<b>กองของคนที่กด</b>เสมอ — กดยังไงก็ไม่ไปโดนเด็คคู่ต่อสู้</div>
+      </section>
+
+      <section id="hw-end">
+        <h2>6 · จบเกม</h2>
+        <p>ระหว่างเกม LIFE ที่โดนตี ให้ <b>แตะหงายเอง</b> ตามที่ตกลงกัน</p>
+        <p><b>สถานะสาหัส + ท่าปิดเกม</b> (ตาม Rule Book):</p>
+        <ol class="hw-ol">
+          <li>โจมตีหงาย LIFE ทีละใบ จนหงายครบทั้ง 5 ใบ → ฝ่ายนั้นเข้า <b>สถานะสาหัส</b> (ยังไม่แพ้)</li>
+          <li>ต้องโจมตีเข้า LIFE Zone ของฝ่ายสาหัสอีก <b>1 ครั้ง</b> จึงจะชนะ</li>
+          <li>ตอนประกาศท่าปิดเกม (โจมตีฝ่ายสาหัส) จะขึ้นแถบแดงถามฝั่งที่โดนว่าจะใช้การ์ดสวนไหม</li>
+          <li>กด <b>🛡️ ขอใช้การ์ดสวน</b> → ท่าปิดเกมเป็นโมฆะ เกมไปต่อ · กด <b>ไม่สวน — จบเกม</b> → ชนะทันที</li>
+        </ol>
+        <p class="hw-dim">อยากจบเกมด้วยวิธีอื่น (ยอมแพ้ / ตกลงเสมอ) กดปุ่ม <b>จบเกม</b> บนแถบบนได้เลย</p>
+      </section>
+
+      <section id="hw-build">
+        <h2>7 · จัดเด็ค</h2>
+        <h3>ขนาดเด็ค</h3>
+        <table class="hw-tbl">
+          <tr><td><b>Main Deck</b></td><td>50 ใบพอดี</td></tr>
+          <tr><td><b>LIFE Card</b></td><td>5 ใบพอดี</td></tr>
+        </table>
+        <p class="hw-dim">การ์ดประเภท Life จะเข้าช่อง LIFE ให้เอง ที่เหลือเข้า Main — ไม่ต้องแยกเอง</p>
+
+        <h3>ลิมิตต่อชื่อการ์ด</h3>
+        <ul class="hw-ul">
+          <li>ปกติ <b>4 ใบ</b> ต่อชื่อ — <b>นับรวมทุกรหัสและทุกความหายาก</b> ของชื่อนั้น ไม่ใช่นับแยกใบ</li>
+          <li>การ์ดที่เขียน <b>Only #1</b> = ใส่ได้ใบเดียว</li>
+          <li>การ์ดบางใบใส่ได้เกิน 4 ตามที่ระบุบนการ์ด เช่น <b>เอเจ้นท์สมูท / รัททาทุย ใส่ได้ 50 ใบ</b> · <b>พลทหารหิมะ 12 ใบ</b></li>
+        </ul>
+
+        <h3>Banlist</h3>
+        <table class="hw-tbl">
+          <tr><td>🚫 ห้ามใส่</td><td>ช็อตกัน นัยนาวุธ · ขวานเงิน</td></tr>
+          <tr><td>1️⃣ ใส่ได้ใบเดียว</td><td>ริกกี้ นักปลอมแปลง · เจ้ากล้าดียังไง · SD Plaza สายเหนือเก่า · น้ำซุปชาบู · หมู่บ้านเห็ด · ไม้กายสิทธิ์</td></tr>
+          <tr><td>2️⃣ ใส่ได้ 2 ใบ</td><td>ชายจากอนาคต · เพื่อชาติ · กุมภกรรณ ทดน้ำ · ความเจริญ · เจค นักฆ่ามือเก๋า · Micro Plaza สะพานพลาสติก · มยุราซัง ไอดอลยุค 80 · ครุฑวัสสวัส เจ้าโลก · อุบัติเหตุ!!! · พระพรหม · โคลัมบัส นักท่องเรือ · พี่หน่วง พิธีกรผมสวย</td></tr>
+          <tr><td>⚖️ เลือกอย่างเดียว</td><td>เจ้ากล้าดียังไง <b>หรือ</b> ริกกี้ นักปลอมแปลง<br>จอมเวทย์ กาลู <b>หรือ</b> โคกอีสานนูน</td></tr>
+        </table>
+        <p class="hw-dim">การ์ด PR "ลำเอียง" ใส่ได้ แต่จะขึ้นเตือนเหลือง — ห้ามใช้ในโหมดแข่ง</p>
+
+        <h3>วิธีจัดและเอาไปเล่น</h3>
+        <ol class="hw-ol">
+          <li>เมนูหลัก → <b>จัดเด็ค (Deck Builder)</b></li>
+          <li>ค้นหาการ์ดจากช่องซ้าย (ชื่อ / ข้อความ effect) หรือกรองด้วยประเภท · สี · COST · ซีรีส์</li>
+          <li>กด <b>+</b> บนการ์ดเพื่อใส่ · <b>−</b> เพื่อเอาออก · คลิกที่การ์ดเพื่อดูรายละเอียด</li>
+          <li>ดูแถบตรวจด้านขวาให้ขึ้น ✓ ครบทั้ง 3 ข้อ (50 ใบ · LIFE 5 · ไม่เกินลิมิต)</li>
+          <li>ตั้งชื่อเด็คแล้วกด <b>บันทึก</b> — ระบบตั้งให้เป็นเด็คหลักทันที</li>
+        </ol>
+        <div class="hw-note warn">
+          <b>สำคัญที่สุด:</b> จัดเสร็จต้องกด <b>บันทึก</b> ทุกครั้ง ถ้าไม่กด เกมจะยังใช้เด็คเดิม (หรือ SD01) — เป็นสาเหตุอันดับหนึ่งที่คนบ่นว่า "เข้าเกมแล้วเด็คไม่ใช่ของเรา"
+        </div>
+
+        <h3>รหัสเด็ค (import / export)</h3>
+        <p>ปุ่ม <b>Import โค้ด</b> รับรหัสแบบ bottcg.com วางได้เลย รองรับทั้งบรรทัดละใบและหลายใบในบรรทัดเดียว</p>
+        <pre class="hw-pre"># Main Deck
+4x BT08-009-C
+2x BT03-024-R
+# Life Deck
+1x BT05-071-C</pre>
+        <p class="hw-dim">ถ้าโค้ดมีการ์ดเกินลิมิต ระบบจะตัดส่วนเกินให้แล้วบอกว่าตัดอะไรไปบ้าง · กด <b>Export โค้ด</b> เพื่อคัดลอกเด็คไปแชร์ให้เพื่อน</p>
+      </section>
+
+      <section id="hw-real">
+        <h2>8 · เล่นกับคนที่ใช้การ์ดจริง (ผ่าน Discord)</h2>
+        <p>คู่ต่อสู้เล่นการ์ดจริงบนโต๊ะ เราเล่นบนเว็บ — คุยกันผ่าน Discord แล้วบอกกันว่าลงอะไร</p>
+        <ol class="hw-ol">
+          <li>เมนูหลัก → <b>🎴 เล่นกับคนที่ใช้การ์ดจริง</b> (สนามฝั่งตรงข้ามจะถูกซ่อน สนามเราใหญ่ขึ้น)</li>
+          <li>กดปุ่ม <b>📺 บานสนาม</b> บนแถบบน → เปิดหน้าต่างใหม่ที่มีแต่สนาม <b>ไม่มีการ์ดในมือ</b></li>
+          <li>ใน Discord กด Share Screen → เลือกแท็บ <b>Window</b> → เลือก "บานสนาม"</li>
+        </ol>
+        <div class="hw-note warn">
+          <b>ห้ามแชร์ทั้งจอ (Entire Screen)</b> — หน้าต่างที่คุณเล่นแสดงการ์ดในมือหงายอยู่ แชร์ทั้งจอ = คู่ต่อสู้เห็นมือคุณหมด
+          บานสนามถูกออกแบบให้ไม่มีข้อมูลการ์ดในมืออยู่ในหน้าต่างนั้นเลย จึงแชร์ได้อย่างปลอดภัย
+        </div>
+        <p class="hw-dim">ในบานสนามมีปุ่ม <b>⬍ โชว์ 2 บอร์ด</b> ถ้าอยากให้แสดงทั้งสองฝั่ง (เช่นตอนเล่นออนไลน์ปกติแล้วอยากถ่ายทอด)</p>
+      </section>
+
+      <section id="hw-keys">
+        <h2>9 · คีย์ลัด (เฉพาะตอนอยู่หน้าโต๊ะ)</h2>
+        <table class="hw-tbl hw-keys">
+          <tr><td><kbd>Space</kbd></td><td>ไปเฟสถัดไป (อยู่เฟสสุดท้าย = จบเทิร์น)</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>จบเทิร์น</td></tr>
+          <tr><td><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd></td><td>ไปเฟส Draw / Main / Battle / End</td></tr>
+          <tr><td><kbd>U</kbd></td><td>ตื่นทุกใบ</td></tr>
+          <tr><td><kbd>D</kbd></td><td>ทอยเต๋า d6</td></tr>
+          <tr><td><kbd>C</kbd></td><td>โยนเหรียญ</td></tr>
+          <tr><td><kbd>L</kbd></td><td>ซ่อน/แสดงแผงบันทึกเกม</td></tr>
+          <tr><td><kbd>F</kbd></td><td>เต็มจอ</td></tr>
+          <tr><td><kbd>H</kbd></td><td>ซ่อน UI (ถ่ายรูป/สตรีม)</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>ยกเลิกการชี้เป้า / ยกเลิกการเลือกการ์ด</td></tr>
+        </table>
+        <p class="hw-dim">คีย์ลัดจะไม่ทำงานตอนกำลังพิมพ์ในช่องแชท</p>
+      </section>
+
+      <div class="hw-foot">
+        เจอบั๊กหรืออยากเสนออะไร กดปุ่ม <b>🐞 แจ้งบั๊ก</b> ได้ทั้งในเมนูหลักและบนโต๊ะ
+      </div>
+    </article>
+  </div>
+</div>
+
+<div id="table" class="hidden">
+  <header id="topbar">
+    <div class="brand">Battle of Talingchan <span>· Table Simulator</span></div>
+    <div id="roomInfo" class="room-info"></div>
+    <button id="btnInvite" class="btn-mini hidden">คัดลอกลิงก์เชิญ</button>
+    <button id="btnBot" class="btn-mini hidden"></button>
+    <button id="btnRematchTop" class="btn-mini">รีแมตช์</button>
+    <button id="btnHowToTop" class="btn-mini" title="เปิดคู่มือวิธีเล่น (แท็บใหม่)">📖 วิธีเล่น</button>
+    <button id="btnFeedbackTop" class="btn-mini">🐞 แจ้งบั๊ก</button>
+    <button id="btnFull" class="btn-mini" title="สลับเต็มจอ (กด F)">⛶ เต็มจอ</button>
+    <button id="btnClean" class="btn-mini" title="ซ่อน/แสดง UI สำหรับถ่ายรูป/สตรีม (กด H)">🖼 ซ่อน UI</button>
+    <button id="btnOneSide" class="btn-mini" title="ซ่อนสนามฝั่งตรงข้าม เหลือสนามเราใบเดียวแบบใหญ่ — เหมาะตอนคู่ต่อสู้ใช้การ์ดจริง">⬍ สนามฝั่งเดียว</button>
+    <button id="btnStream" class="btn-mini" title="เปิดหน้าต่างสนามแยก (ไม่มีมือใคร) — เอาไปแชร์จอใน Discord ได้ปลอดภัย">📺 บานสนาม</button>
+    <!-- 📺 ปุ่มนี้โผล่เฉพาะในบานสนาม: สลับโชว์บอร์ดเดียว (ฝั่งเรา ใหญ่เต็มจอ) ↔ สองบอร์ด -->
+    <button id="btnStreamBoth" class="btn-mini stream-only" title="สลับระหว่างโชว์บอร์ดฝั่งเราใบเดียวแบบใหญ่ ↔ โชว์ทั้งสองบอร์ด">⬍ โชว์ 2 บอร์ด</button>
+    <button id="btnEnd" class="btn-mini">จบเกม</button>
+    <div class="spacer"></div>
+    <div id="chipOpp" class="chip"></div>
+    <div id="turnText" class="turn-text"></div>
+    <div id="chipMe" class="chip"></div>
+    <button id="btnLogToggle" class="btn-mini only-mobile">LOG</button>
+  </header>
+
+  <div id="phaseFlash" class="hidden"></div>
+  <div id="annFlash" class="ann-flash"></div>
+  <div id="main">
+    <aside id="previewPane">
+      <div class="pane-head only-desk">ตัวอย่างการ์ด (ชี้/แตะการ์ด)</div>
+      <div id="pvBody">
+        <div class="pv-empty">ชี้เมาส์หรือแตะการ์ดใบไหนก็ได้<br>เพื่อดูภาพเต็ม + ความสามารถ</div>
+      </div>
+      <div class="pane-hint only-desk">ดับเบิลคลิก/แตะสองครั้ง = นอน-ตื่น · คลิกขวา/กดค้าง = เมนู · ลากการ์ดไปโซนใดก็ได้ · คลิกเด็ค = จั่ว</div>
+      <div class="pane-hint only-desk kbd-hint">⌨ คีย์ลัด: <b>Space</b> เฟสถัดไป · <b>Enter</b> จบเทิร์น · <b>1-4</b> เลือกเฟส · <b>U</b> ตื่น · <b>D</b> เต๋า · <b>L</b> Log · <b>F</b> เต็มจอ · <b>Esc</b> ยกเลิก</div>
+    </aside>
+
+    <section id="board">
+      <!-- 🔗 เส้นเชื่อม "การ์ดสวมใส่ → Avatar" วาดทับกระดาน (drawLinks ใน game.js) -->
+      <svg id="linkLayer" class="hidden" preserveAspectRatio="none"></svg>
+      <div id="oppHandRow" class="hand-row"></div>
+
+      <!-- ฝั่งบอท/ตรงข้าม — playmat จริงเป็น background + โซนโปร่งใสวางทับตามช่องในรูป -->
+      <div class="mat mat-opp"><div class="mat-in">
+        <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="oppConstructZone"><div id="oppConstruct" class="zone-cards"></div></div>
+        <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="oppAvatarZone"><b id="oppAvatarTag" class="cap-badge"></b><div id="oppAvatar" class="zone-cards"></div></div>
+        <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="oppMagicZone"><div id="oppMagic" class="zone-cards"></div></div>
+        <div class="mz mz-life" data-lb="LIFE" id="oppLifeZone"><b id="oppLifeWho" class="hidden"></b><em id="oppCrit" class="crit"></em><div id="oppLife" class="zone-cards"></div></div>
+        <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="oppHell"><span class="pile-count" id="oppHellCount">0</span></div>
+        <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="oppDeck" title="คลิก = จั่ว"><span class="pile-count" id="oppDeckCount">0</span></div>
+        <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="oppDark"><span class="pile-count" id="oppDarkCount">0</span></div>
+      </div></div>
+
+      <!-- ฝั่งเรา -->
+      <div class="mat mat-my"><div class="mat-in">
+        <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="myConstructZone"><div id="myConstruct" class="zone-cards"></div></div>
+        <div class="mz mz-land" data-lb="LAND" data-drop="land" id="myLandZone"><div id="land" class="zone-cards"></div></div>
+        <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="myAvatarZone"><b id="myAvatarTag" class="cap-badge"></b><div id="myAvatar" class="zone-cards"></div></div>
+        <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="myMagicZone"><div id="myMagic" class="zone-cards"></div></div>
+        <div class="mz mz-life" data-lb="LIFE" id="myLifeZone"><em id="myCrit" class="crit"></em><div id="myLife" class="zone-cards"></div></div>
+        <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="myHell"><span class="pile-count" id="myHellCount">0</span></div>
+        <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="myDeck" title="คลิก = จั่ว · คลิกขวา/กดค้าง = สับ"><span class="pile-count" id="myDeckCount">0</span></div>
+        <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="myDark"><span class="pile-count" id="myDarkCount">0</span></div>
+      </div></div>
+
+      <div id="chainBar" class="attack-bar chain-bar hidden">
+        <span id="chainText"></span>
+        <button id="btnChainNegate" class="btn-dark small hidden">🚫 ยกเลิกเวทบนสุด</button>
+        <button id="btnChainPass" class="btn-primary small hidden">ผ่าน — ตัดสินเชน ▸</button>
+      </div>
+      <div id="promptBar" class="attack-bar prompt-bar hidden">
+        <span id="promptText"></span>
+        <span id="peekTopRow" class="hidden">
+          <button id="btnPeekTop" class="btn-primary small">ไว้บนเด็ค</button>
+          <button id="btnPeekBottom" class="btn-dark small">ไว้ใต้เด็ค</button>
+          <button id="btnPeekHell" class="btn-dark small hidden">ส่งนรก</button>
+        </span>
+        <span id="handOrSummonRow" class="hidden">
+          <button id="btnHosHand" class="btn-dark small">ขึ้นมือ</button>
+          <button id="btnHosSummon" class="btn-primary small">อัญเชิญ (ไม่จุติ)</button>
+        </span>
+        <span id="combatSurviveRow" class="hidden">
+          <button id="btnSurviveYes" class="btn-primary small">ใช้! POWER−1 รอด</button>
+          <button id="btnSurviveNo" class="btn-dark small">ไม่ใช้ — ตาย</button>
+        </span>
+        <span id="pickSymbolRow" class="hidden">
+          <select id="pickSymbolSelect" class="small"></select>
+          <button id="btnPickSymbol" class="btn-primary small">ประกาศ Symbol</button>
+        </span>
+        <button id="btnReactYes" class="btn-primary small hidden">เปิดใช้!</button>
+        <button id="btnReactNo" class="btn-dark small hidden">ไม่ใช้</button>
+        <button id="btnPromptSkip" class="btn-dark small hidden">ข้าม/ยกเลิก</button>
+      </div>
+      <!-- ⚠️ ท่าปิดเกม: ถามฝั่งที่โดนตีก่อนว่าจะใช้การ์ดสวนไหม (state.pendingLethal) -->
+      <div id="lethalBar" class="attack-bar lethal-bar hidden">
+        <span id="lethalText"></span>
+        <button id="btnLethalCounter" class="btn-gold small hidden">🛡️ ขอใช้การ์ดสวน</button>
+        <button id="btnLethalAccept" class="btn-primary small hidden">ไม่สวน — จบเกม</button>
+      </div>
+      <div id="attackBar" class="attack-bar hidden">
+        <span id="attackText"></span>
+        <span id="counterRow" class="counter-row hidden"></span>
+        <button id="btnHoldAtk" class="btn-dark small hidden">🛡️ ขอใช้การ์ดตอบโต้</button>
+        <button id="btnResolveAtk" class="btn-primary small hidden">ปะทะเลย ▸</button>
+        <button id="btnCancelAtk" class="btn-dark small hidden">ยกเลิกโจมตี</button>
+      </div>
+      <div id="selBar" class="sel-bar hidden">
+        <span id="selText"></span>
+        <button id="btnPay" class="btn-primary small">ทิ้งชุดนี้เพื่อจ่าย Cost</button>
+        <button id="btnRevealHand" class="btn-gold small" title="เปิดการ์ดที่เลือกให้อีกฝั่งดู (กดซ้ำที่ใบเดิม = ปิดกลับ)">👁 เปิดให้อีกฝั่งดู</button>
+        <button id="btnClearSel" class="btn-dark small">ยกเลิก</button>
+      </div>
+      <div id="mullBar" class="sel-bar hidden">
+        <span id="mullText"></span>
+        <button id="btnMullGo" class="btn-primary small">เปลี่ยน 0 ใบ ▸</button>
+        <button id="btnMullKeep" class="btn-dark small">เก็บมือนี้</button>
+      </div>
+
+      <div id="myHandRow" class="hand-row my-hand" data-drop=""></div>
+    </section>
+
+    <!-- ═══ แถบควบคุมล่างจอ — เฉพาะมือถือ (ปุ่มใหญ่ แตะง่าย) ═══ -->
+    <nav id="mobileBar" class="only-mobile-flex">
+      <button id="mbCard" title="ดูการ์ดที่แตะล่าสุด (ภาพเต็ม + ความสามารถ)"><b>🔍</b><span>การ์ด</span></button>
+      <button id="mbPhase" title="ไปเฟสถัดไป"><b>⏭</b><span id="mbPhaseTxt">เฟส</span></button>
+      <button id="mbUntap" title="ตื่นทุกใบ"><b>☀</b><span>ตื่น</span></button>
+      <button id="mbDeck" title="คำสั่งเด็ค: จั่ว/สับเด็ค/ค้นหาจากเด็ค/สอดแนม/กฏร้าน/ธรณีสูบ"><b>🃏</b><span>เด็ค</span></button>
+      <button id="mbEnd" class="mb-end" title="จบเทิร์น"><b>🏁</b><span>จบเทิร์น</span></button>
+      <button id="mbLog" title="บันทึกเกม + แชท"><b>📜</b><span>Log</span></button>
+    </nav>
+
+    <!-- แนะนำหมุนจอ (มือถือแนวตั้ง) — เล่นแนวนอนได้อารมณ์โต๊ะจริงกว่า -->
+    <div id="rotateHint">
+      <div class="rh-ico">📱</div>
+      <div class="rh-t">หมุนเครื่องเป็นแนวนอน</div>
+      <div class="rh-s">สนามจะเต็มจอ เห็นการ์ดทั้งสองฝั่งชัดกว่า<br>(แนะนำ — เหมือนเล่นบนโต๊ะจริง)</div>
+      <button id="btnRotateSkip" class="btn-dark">เล่นแนวตั้งต่อไป</button>
+    </div>
+
+    <aside id="logPane">
+      <div class="pane-head rp-head">ตัวควบคุม <button id="btnLogClose" class="btn-mini only-mobile">ปิด</button></div>
+      <div id="pvControls">
+        <div id="phaseBar" class="phase-bar"></div>
+        <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
+        <div class="ctrl-row hidden" id="mullRow"><button id="btnMulligan" class="btn-gold" style="width:100%">🔄 มัลลิแกน (เปลี่ยนมือเปิด)</button></div>
+        <div class="ctrl-row">
+          <button id="btnEndTurn" class="btn-primary">จบเทิร์น ▸</button>
+          <button id="btnUntap" class="btn-dark">ตื่นทุกใบ</button>
+        </div>
+        <div class="ctrl-row">
+          <button id="btnDice" class="btn-gold">🎲 ทอยเต๋า d6</button>
+          <button id="btnCoin" class="btn-dark">🪙 โยนเหรียญ</button>
+        </div>
+        <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
+      </div>
+      <!-- 🃏 ปุ่มคำสั่งเด็ค — ใต้ตัวควบคุมเทิร์น เหนือบันทึกเกม · มีที่กองเด็ค (กดค้าง) ด้วย -->
+      <div id="deckOps" title="สอดแนม/เปิดท็อป = เปิดให้ทั้งสองฝั่งเห็น เลือกขึ้นมือได้ แล้วเลือกว่าใบที่เหลือไว้บนกองหรือใต้กอง · ธรณีสูบ = ทิ้งการ์ดบนสุดลงนรกทันที">
+        <div class="dop-row">
+          <span class="dop-lbl">🃏 เด็ค</span>
+          <button class="dop-step" data-dop-adj="-1">−</button>
+          <input id="dopN" type="number" min="1" max="30" value="5" inputmode="numeric">
+          <button class="dop-step" data-dop-adj="1">+</button>
+          <span class="dop-unit">ใบ</span>
+        </div>
+        <div class="dop-btns">
+          <button id="btnDeckDraw" class="btn-dark" title="จั่ว 1 ใบ (แตะกองเด็คบนเสื่อก็ได้)">🃏 จั่ว</button>
+          <button id="btnDeckShuffle" class="btn-dark" title="สับเด็ค">🔀 สับเด็ค</button>
+          <button id="btnDeckSearch" class="btn-dark" title="ค้นหาจากเด็ค — 🔒 อีกฝั่งไม่เห็นเนื้อหาเด็ค แต่จะเห็นชื่อใบที่เราหยิบขึ้นมือ · ปิดแล้วสับให้อัตโนมัติ">🔍 ค้นหาจากเด็ค</button>
+        </div>
+        <div class="dop-btns">
+          <button id="btnScout" class="btn-gold" title="สอดแนม — เปิดดู N ใบบนสุด เลือกขึ้นมือ แล้วจัดที่เหลือบน/ใต้กอง">🔍 สอดแนม</button>
+          <button id="btnPeekTop" class="btn-dark" title="เปิดจากบนกอง — เหมือนสอดแนม">👁 บนกอง</button>
+        </div>
+        <div class="dop-btns">
+          <button id="btnPeekBottom" class="btn-dark" title="กฏร้าน — เปิดการ์ดจากล่างกอง (ก้นเด็ค) เลือกขึ้นมือได้ แล้วจัดที่เหลือบน/ใต้กอง">🔽 กฏร้าน</button>
+          <button id="btnMill" class="btn-dark dop-mill" title="ธรณีสูบ — ทิ้งการ์ดบนสุด N ใบลงนรกทันที">🌊 ธรณีสูบ</button>
+        </div>
+        <div class="dop-btns">
+          <button id="btnShuffleHand" class="btn-dark" title="สับการ์ดบนมือ (สลับลำดับในมือ)">🔀 สับมือ</button>
+          <button id="btnHideHand" class="btn-dark" title="ปิดการ์ดในมือที่เปิดให้อีกฝั่งดูไว้ทั้งหมด">🙈 ปิดที่เปิดไว้</button>
+        </div>
+      </div>
+      <div class="pane-head rp-head">📜 บันทึกเกม</div>
+      <div id="logBody"></div>
+      <div class="pane-head rp-head">💬 แชท</div>
+      <div id="chatBody"></div>
+      <div class="chat-row">
+        <input id="inpChat" placeholder="พิมพ์แชท… (Enter)" autocomplete="off">
+        <button id="btnChat" class="btn-primary small">ส่ง</button>
+      </div>
+    </aside>
+    <div id="magicCounter" class="magic-counter hidden"></div>
+  </div>
+</div>
+
+<!-- ═══ จอจบเกม ═══ -->
+<div id="endOv" class="hidden">
+  <div class="end-inner">
+    <div class="end-tag">จบเกม</div>
+    <div id="endTitle" class="end-title"></div>
+    <div id="endSub" class="end-sub">ผลตัดสินตามที่ผู้เล่นตกลงกันบนโต๊ะเสรี</div>
+    <div class="end-stats">
+      <div><b id="stTurns">-</b><span>เทิร์นทั้งหมด</span></div>
+      <div><b id="stTime">-</b><span>เวลาเล่น</span></div>
+      <div><b id="stHell">-</b><span>Avatar ที่ลงนรก</span></div>
+      <div><b id="stLife">-</b><span>LIFE ของคุณที่หงาย</span></div>
+    </div>
+    <div class="row-2">
+      <button id="btnRematch" class="btn-primary big">รีแมตช์</button>
+      <button id="btnEndMenu" class="btn-dark big">กลับเมนูหลัก</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal แจ้งบั๊ก / ความเห็น -->
+<div id="fbModal" class="hidden">
+  <div class="dc-modal">
+    <div class="dc-head">
+      <div><div class="dc-title">🐞 แจ้งบั๊ก / ความเห็น</div><div class="dc-sub">เจออะไรผิด เล่นแล้วงงตรงไหน หรืออยากให้ปรับอะไร — พิมพ์บอกได้เลย</div></div>
+      <button id="fbClose" class="dc-x">✕</button>
+    </div>
+    <div class="dc-body">
+      <div class="dc-label">รายละเอียด (เจอที่การ์ด/จังหวะไหน จะช่วยให้แก้ตรงจุด)</div>
+      <textarea id="fbText" spellcheck="false" placeholder="เช่น: การ์ด X ตอนอัญเชิญแล้วเอฟเฟกต์ไม่ทำงาน / ปุ่ม Y กดแล้วไม่มีอะไรเกิด / อยากให้ตรงนี้เข้าใจง่ายกว่านี้…"></textarea>
+      <label class="fb-check"><input type="checkbox" id="fbIncludeLog" checked> แนบสถานะเกม + log ล่าสุด (ช่วยให้ผมหาบั๊กเจอเร็วขึ้น)</label>
+      <div id="fbMsg" class="dc-note"></div>
+    </div>
+    <div class="dc-foot">
+      <button id="fbCancel" class="btn-dark">ปิด</button>
+      <button id="fbSend" class="btn-primary">ส่ง</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal เข้าสู่ระบบ / สมัคร -->
+<div id="authModal" class="hidden">
+  <div class="dc-modal" style="max-width:380px">
+    <div class="dc-head">
+      <div><div class="dc-title" id="authTitle">เข้าสู่ระบบ</div><div class="dc-sub">มีบัญชีไว้จำชื่อผู้เล่น (ไม่บังคับ — เล่นแบบไม่ล็อกอินก็ได้)</div></div>
+      <button id="authClose" class="dc-x">✕</button>
+    </div>
+    <div class="dc-body">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="auth-tab on">เข้าสู่ระบบ</button>
+        <button id="tabRegister" class="auth-tab">สมัครสมาชิก</button>
+      </div>
+      <input id="authUser" class="auth-input" placeholder="ชื่อผู้ใช้ (3-20 ตัว)" autocomplete="username" maxlength="20">
+      <input id="authPass" class="auth-input" type="password" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)" autocomplete="current-password" maxlength="64">
+      <div id="authMsg" class="dc-note"></div>
+    </div>
+    <div class="dc-foot">
+      <button id="authCancel" class="btn-dark">ปิด</button>
+      <button id="authSubmit" class="btn-primary">เข้าสู่ระบบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal เลือกปฏิบัติ (เลือก 1 ใน N ข้อ) -->
+<div id="choiceModal" class="hidden">
+  <div class="dc-modal">
+    <div class="dc-head">
+      <div><div class="dc-title">🎯 เลือกปฏิบัติ</div><div id="choiceCardName" class="dc-sub"></div></div>
+      <button id="choiceX" class="dc-x">✕</button>
+    </div>
+    <div class="dc-body">
+      <div id="choiceOptions" class="choice-opts"></div>
+      <div class="dc-note">เลือกจาก <b>นรก</b> หรือ <b>เด็ค</b> แล้วกดยืนยัน — ระบบจะเปิดการ์ดที่เลือกได้ให้แตะต่อ</div>
+    </div>
+    <div class="dc-foot">
+      <button id="choiceCancel" class="btn-dark">ยกเลิก</button>
+      <button id="choiceConfirm" class="btn-primary">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal เป่ายิ้งฉุบ (ฉุบสั่งตาย) -->
+<div id="rpsModal" class="hidden">
+  <div class="dc-modal" style="max-width:420px">
+    <div class="dc-head">
+      <div><div class="dc-title">✊ เป่ายิ้งฉุบ</div><div id="rpsCardName" class="dc-sub">ฉุบสั่งตาย</div></div>
+    </div>
+    <div class="dc-body">
+      <div id="rpsTimer" class="dc-note" style="font-size:1.2rem;font-weight:700;text-align:center;margin-bottom:10px">10</div>
+      <div id="rpsHint" class="dc-note" style="text-align:center;margin-bottom:12px">เลือกค้อน / กระดาษ / กรรไกร</div>
+      <div id="rpsA" class="rps-row" style="margin-bottom:10px">
+        <div class="dc-label">ฝ่าย A</div>
+        <div class="rps-btns" style="display:flex;gap:8px;justify-content:center">
+          <button type="button" class="btn-dark" data-rps="A" data-v="rock">✊ ค้อน</button>
+          <button type="button" class="btn-dark" data-rps="A" data-v="paper">✋ กระดาษ</button>
+          <button type="button" class="btn-dark" data-rps="A" data-v="scissors">✌ กรรไกร</button>
+        </div>
+      </div>
+      <div id="rpsB" class="rps-row">
+        <div class="dc-label">ฝ่าย B</div>
+        <div class="rps-btns" style="display:flex;gap:8px;justify-content:center">
+          <button type="button" class="btn-dark" data-rps="B" data-v="rock">✊ ค้อน</button>
+          <button type="button" class="btn-dark" data-rps="B" data-v="paper">✋ กระดาษ</button>
+          <button type="button" class="btn-dark" data-rps="B" data-v="scissors">✌ กรรไกร</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal รหัสเด็ค (export/import แบบ bottcg.com) -->
+<div id="deckCodeModal" class="hidden">
+  <div class="dc-modal">
+    <div class="dc-head">
+      <div><div class="dc-title">รหัสเด็ค</div><div id="dcSub" class="dc-sub"></div></div>
+      <button id="dcClose" class="dc-x">✕</button>
+    </div>
+    <div class="dc-body">
+      <div class="dc-label" id="dcLabel">รหัสเด็ค</div>
+      <textarea id="dcText" spellcheck="false" placeholder="วางรหัสเด็คจาก bottcg.com เช่น&#10;# Main Deck&#10;2x BT02-045-C&#10;4x BT09-002-SCR&#10;..."></textarea>
+      <div id="dcMsg" class="dc-note"></div>
+    </div>
+    <div class="dc-foot">
+      <button id="dcCancel" class="btn-dark">ปิด</button>
+      <button id="dcAction" class="btn-primary"></button>
+    </div>
+  </div>
+</div>
+
+<!-- overlay ดูกองการ์ด (นรก/มิติมืด/ค้นเด็ค/ดูท็อปเด็ค) -->
+<div id="pileView" class="hidden">
+  <div class="pile-view-card">
+    <div class="pile-view-head">
+      <span id="pileTitle"></span>
+      <span id="pileHint" class="db-hint">คลิกการ์ด = เมนูส่งไปโซนต่างๆ</span>
+      <div class="spacer"></div>
+      <button id="btnPileShuffle" class="btn-dark small hidden">🔀 ไม่หยิบ + สับเด็ค</button>
+      <button id="btnPileClose" class="btn-primary small">ปิด</button>
+    </div>
+    <div id="scoutBar" class="scout-bar hidden">
+      <span id="scoutText"></span>
+      <div class="spacer"></div>
+      <button id="btnScoutTop" class="btn-primary small" title="วางไว้บนกอง — ใบซ้ายสุดจะเป็นใบที่จั่วได้ใบถัดไป">⬆️ ไว้บนกอง (ซ้ายสุด = จั่วได้ก่อน)</button>
+      <button id="btnScoutBottom" class="btn-dark small" title="วางไว้ใต้กอง — ใบขวาสุดจะไปอยู่ล่างสุดของเด็ค">⬇️ ไว้ใต้กอง (ขวาสุด = ล่างสุด)</button>
+    </div>
+    <div id="pileGrid" class="pile-grid"></div>
+  </div>
+</div>
+
+<!-- popup ยืนยันรีแมตช์ -->
+<div id="rematchAsk" class="hidden">
+  <div class="endask-card">
+    <div class="tut-title" style="font-size:16px">เริ่มเกมใหม่ (รีแมตช์)?</div>
+    <div class="panel-note">กระดานปัจจุบันจะถูกล้าง — ห้องออนไลน์จะกลับไปหน้าห้องรอให้กดพร้อมใหม่ทั้งคู่</div>
+    <div class="row-2">
+      <button id="rmYes" class="btn-primary">รีแมตช์เลย</button>
+      <button id="rmNo" class="btn-ghost">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- popup ยืนยันจบเกม -->
+<div id="endAsk" class="hidden">
+  <div class="endask-card">
+    <div class="tut-title" style="font-size:16px">ประกาศจบเกม — ใครชนะ?</div>
+    <div class="row-2">
+      <button id="askMeWin" class="btn-primary">ฝั่งเราชนะ</button>
+      <button id="askOppWin" class="btn-dark">อีกฝั่งชนะ</button>
+    </div>
+    <div class="row-2">
+      <button id="askDraw" class="btn-dark">เสมอ</button>
+      <button id="askCancel" class="btn-ghost">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- overlay โยนเหรียญ (หมุนกลางจอ) -->
+<div id="coinOv" class="hidden" aria-hidden="true">
+  <div class="coin-stage">
+    <div class="coin-shadow"></div>
+    <div id="coinDisc" class="coin-disc">
+      <div class="coin-face coin-heads"><span>หัว</span><small>HEADS</small></div>
+      <div class="coin-face coin-tails"><span>ก้อย</span><small>TAILS</small></div>
+    </div>
+    <div id="coinLabel" class="coin-label"></div>
+  </div>
+</div>
+
+<!-- overlay ทอยเต๋า (ลูกเต๋าหมุนกลางจอ) -->
+<div id="diceOv" class="hidden" aria-hidden="true">
+  <div class="dice-stage">
+    <div class="dice-shadow"></div>
+    <div id="diceCube" class="dice-cube">
+      <div class="dice-face df1" data-n="1"><i></i></div>
+      <div class="dice-face df2" data-n="2"><i></i><i></i></div>
+      <div class="dice-face df3" data-n="3"><i></i><i></i><i></i></div>
+      <div class="dice-face df4" data-n="4"><i></i><i></i><i></i><i></i></div>
+      <div class="dice-face df5" data-n="5"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="dice-face df6" data-n="6"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div id="diceLabel" class="coin-label"></div>
+  </div>
+</div>
+
+<!-- overlay ต่างๆ -->
+<div id="ctxMenu" class="hidden"></div>
+<div id="clash" class="hidden"></div>
+<div id="toast" class="hidden"></div>
+<div id="tut" class="hidden">
+  <div class="tut-card">
+    <div class="tut-title">วิธีใช้โต๊ะ (30 วินาทีจบ)</div>
+    <div class="tut-body">
+      <b>อัญเชิญ</b>: แตะการ์ดในมือเลือกเป็น GEM ให้พอ Cost → ลากการ์ดที่จะลงสนาม ระบบจ่ายให้เอง<br>
+      <b>ใช้เวท</b>: ลาก Magic จากมือไปวางบนสนาม (Magic / Land / Avatar Zone ก็ได้) — เอฟเฟกต์ทำงานอัตโนมัติ<br>
+      <b>ลาก Avatar ทับตัวศัตรู</b> = ประกาศโจมตี (เฟส Battle) — เทียบ POWER แล้วส่งฝ่ายแพ้ลงนรกให้เลย<br>
+      <b>ลาก Avatar ทับ LIFE</b> = โจมตี LIFE หงายให้เลย<br>
+      <b>จบเทิร์น</b> = ตื่นทุกใบ + จั่ว 1 ใบให้อัตโนมัติ<br>
+      <b>ดับเบิลคลิก / แตะสองครั้ง</b> = นอน/ตื่น · <b>คลิกขวา / กดค้าง</b> = เมนูการ์ด · คลิกเด็ค = จั่ว<br>
+      ปุ่ม <b>"กติกา"</b> บนขวา สลับได้ระหว่างบังคับกฎ ↔ โต๊ะเสรี (ไว้ใช้ตอน effect การ์ดต้องทำนอกกฎ)
+    </div>
+    <button id="btnTutClose" class="btn-primary big">เข้าใจแล้ว เริ่มเลย</button>
+  </div>
+</div>
+
+<script src="js/util.js?v=20260729x"></script>
+<script src="js/carddb.js?v=20260728v"></script>
+<script src="js/game.js?v=20260729w"></script>
+<script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
+</body>
+</html>

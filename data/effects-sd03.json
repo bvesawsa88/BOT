@@ -1,0 +1,328 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "SD03 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "SD03-001",
+      "name": "พญายม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
+    },
+    {
+      "code": "SD03-002",
+      "name": "นายนิรยบาล พ่อจีจ้า",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-003",
+      "name": "นายนิรยบาล แว่น",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรก"
+    },
+    {
+      "code": "SD03-004",
+      "name": "นายนิรยบาล อ้วน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์"
+    },
+    {
+      "code": "SD03-005",
+      "name": "สุวาน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง Avatar ใบนี้จะ เพื่ม POWER ตามจำนวน Avatar \"นายนิรยบาล\" ที่ชื่อต่างกันในนรกเราชื่อละ 1"
+    },
+    {
+      "code": "SD03-006",
+      "name": "นายนิรยบาล ชาวนา",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-007",
+      "name": "นายนิรยบาล ปฎิรูป",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-008",
+      "name": "นายนิรยบาล กล้าม",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-009",
+      "name": "นายนิรยบาล แบงค์",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-010",
+      "name": "แม่นีโม่ขยับไม่ได้",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-011",
+      "name": "ปื้ด คนดี",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-012",
+      "name": "พวกบาปหนา",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-013",
+      "name": "เจ้าที่",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-014",
+      "name": "ตำรวจสัมภเวสี ปวิณ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-015",
+      "name": "ตำรวจสัมภเวสี นิวัต",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD03-016",
+      "name": "กระทะทองแดง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ส่ง Avatar {symbol นรก} 1 ใบจากมือลงนรก : ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) 2 ใบ แล้วจั่วการ์ดจาก Deck 2 ใบ"
+    },
+    {
+      "code": "SD03-017",
+      "name": "บัญชีหนังหมา",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "นำ Avatar \"นายนิรยบาล\" Cost 4 หรือต่ำกว่า 1 ใบจาก Deck ขึ้นมือหลังจากนั้นสับ Deck จนกว่าจะจบเกมนี้ Avatar ชื่อที่นำขึ้นม"
+    },
+    {
+      "code": "SD03-018",
+      "name": "หอกแหลมแทงทุกวัน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-019",
+      "name": "สิมพลีนรก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone",
+                "symbol": "นรก"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-020",
+      "name": "จิ้มมันเลย จิ้ม!",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-021",
+      "name": "ไม่นะ แม่นีโม่ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-022",
+      "name": "ไม่นะ เต๋า !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-023",
+      "name": "ไม่นะ ไอ้ดำ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-024",
+      "name": "ไม่นะ แบงค์ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD03-025",
+      "name": "ไม่นะ พญายม !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

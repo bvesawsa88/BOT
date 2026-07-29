@@ -1,0 +1,618 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "KD01 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "KD01-001",
+      "name": "พระนารายณ์ เทพผดุงธรรม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "scoutNaraiExile",
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
+    },
+    {
+      "code": "KD01-002",
+      "name": "ร่างอวตารพระนารายณ์ - นรสิง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - นรสิง",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "enemy",
+                    "costMax": 4,
+                    "count": 1
+                  },
+                  "optional": true
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
+    },
+    {
+      "code": "KD01-003",
+      "name": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "untap",
+                  "from": "own",
+                  "filter": {
+                    "symbol": "เทพ",
+                    "requireTapped": true
+                  },
+                  "optional": true
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
+    },
+    {
+      "code": "KD01-004",
+      "name": "พระลักษมี",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:พระนารายณ์"
+          },
+          "actions": [
+            {
+              "op": "grantBuffSummoned",
+              "amount": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-001"
+    },
+    {
+      "code": "KD01-005",
+      "name": "พระนารายณ์ เทพผู้พิทักษ์",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "โล่มนุษย์ เตะไข่ อัตโนมัติ เมื่อ Avatar ใบนี้จะถูกทำลาย : ปรับ POWER ตั้งต้นของ Avatar ใบนี้ลดลงครึ่งหนึ่งแทนการถูกทำลาย",
+      "keywords": [
+        "โล่มนุษย์",
+        "เตะไข่"
+      ],
+      "halvePrintedInsteadDestroy": true
+    },
+    {
+      "code": "KD01-006",
+      "name": "พระนารายณ์",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD01-002",
+      "keywords": [
+        "อัตโนมัติ"
+      ]
+    },
+    {
+      "code": "KD01-007",
+      "name": "พระอินทร์ เทพขยัน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 3 ใบ เลือก การ์ด {Symbol เทพ} 1 ใบ จากที่สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำไปไว้ใต้ D"
+    },
+    {
+      "code": "KD01-008",
+      "name": "พระพรหม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 8,
+                    "sameSymbolAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT02-008"
+    },
+    {
+      "code": "KD01-009",
+      "name": "นางอัปสร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "blockReactUntilCombatEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-002"
+    },
+    {
+      "code": "KD01-010",
+      "name": "หนุมาน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarSymbol",
+              "symbol": "เทพ",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-004"
+    },
+    {
+      "code": "KD01-011",
+      "name": "เทวดาตัวเปิด",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD01-012",
+      "name": "ช่างแอร์ดวงซวย",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD01-013",
+      "name": "ความเจริญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-038"
+    },
+    {
+      "code": "KD01-014",
+      "name": "ความกล้าหาญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "destroyAtEnd": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT02-045"
+    },
+    {
+      "code": "KD01-015",
+      "name": "เลือกมันสำหรับพวก จน !!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "จากนรก — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only)",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand"
+                }
+              ]
+            },
+            {
+              "label": "จากเด็ค — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only) แล้วสับ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD08-013"
+    },
+    {
+      "code": "KD01-016",
+      "name": "ขวานทอง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-055"
+    },
+    {
+      "code": "KD01-017",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก KD01-017"
+    },
+    {
+      "code": "KD01-018",
+      "name": "ไปเลยมอนตี้",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "weakenAttacker",
+              "per": 2,
+              "count": [
+                "ownSide"
+              ],
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก KD01-018"
+    },
+    {
+      "code": "KD01-019",
+      "name": "เขาไกรลาส",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD01-020"
+    },
+    {
+      "code": "KD01-020",
+      "name": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "op": "discard",
+            "count": 1
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3,
+                "requireTapped": true
+              },
+              "until": "endOfTurn",
+              "keepTapped": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น {Symbol เทพ} เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด 1 ใบ แล้วเลือก Avatar 1 ",
+      "forceAllAvatarSymbol": "เทพ"
+    },
+    {
+      "code": "KD01-021",
+      "name": "ไม่นะ อิศวร !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD01-021"
+    },
+    {
+      "code": "KD01-022",
+      "name": "ไม่นะ พระอินทร์ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD01-023",
+      "name": "ไม่นะ นนทก !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD01-022"
+    },
+    {
+      "code": "KD01-024",
+      "name": "ไม่นะ อัปสร !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD01-023"
+    },
+    {
+      "code": "KD01-025",
+      "name": "ไม่นะ โดม !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-075"
+    }
+  ]
+}

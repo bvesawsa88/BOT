@@ -1,0 +1,687 @@
+{
+  "$schema": "bot-effect-schema v0.2",
+  "note": "SD08 รัททาทุย — auto = ชัดจากข้อความ, partial/manual = รอถาม",
+  "cards": [
+    {
+      "code": "SD08-001",
+      "name": "ไพรมอล รัททาทุย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "note": "สั่งใช้เทิร์นละครั้ง: เรียกหนู C1G1P1 จากเด็คหรือนรก 1 ตัว",
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญหนู C1G1P1 จากเด็ค",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "symbol": "รัททาทุย",
+                        "cost": 1,
+                        "gem": 1,
+                        "power": 1
+                      },
+                      "dest": "avatar",
+                      "paidCost": false,
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "label": "อัญเชิญหนู C1G1P1 จากนรก",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "symbol": "รัททาทุย",
+                        "cost": 1,
+                        "gem": 1,
+                        "power": 1
+                      },
+                      "dest": "avatar",
+                      "paidCost": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "whenAttacking": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "excludeSelf": true
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "preventLeaveExileHell": {
+        "oncePerTurn": true,
+        "filter": {
+          "symbol": "รัททาทุย"
+        },
+        "count": 5
+      },
+      "parseStatus": "auto",
+      "note": "อัตโนมัติเทิร์นละครั้ง: จะออกจากสนาม → เนรเทศรัททาทุยในนรก 5 ใบ (เลือกเอง) เพื่อไม่ออกสนาม · รวมลาก/ทำลาย/ย้าย"
+    },
+    {
+      "code": "SD08-002",
+      "name": "รัททาทุย พาหะ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "onFight"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "duration": "permanent",
+              "target": {
+                "select": "foe"
+              }
+            }
+          ]
+        }
+      ],
+      "deckMax": 50,
+      "parseStatus": "auto",
+      "note": "POWER -1 ถาวรจนกว่าเป้าหมายออกจากสนาม (ข้อความการ์ดไม่ระบุจบการต่อสู้)"
+    },
+    {
+      "code": "SD08-003",
+      "name": "โดมรัททาทุย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "sacrificeSelf"
+            },
+            {
+              "op": "showHandBuildConstruct",
+              "filter": {
+                "type": "Construct",
+                "symbol": "รัททาทุย"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เซ่นตัวเองแล้วก่อสร้าง Construct จากมือทันที ไม่จ่าย Cost"
+    },
+    {
+      "code": "SD08-004",
+      "name": "รัททาทุย 2 แสนโวลต์",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-005",
+      "name": "รัททาทุยกินซาก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "exileHellDistinctNames",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              },
+              "thenBuffSelfPer": 1,
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-006",
+      "name": "รัททาทุย พาราไซท์",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-007",
+      "name": "รัทาทุย หัวค้อน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Construct",
+                "symbol": "รัททาทุย"
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-008",
+      "name": "รัททาทุยโป๊",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-009",
+      "name": "รัททาทุย แบงค์",
+      "abilities": [],
+      "parseStatus": "auto",
+      "note": "ไม่มีเอฟเฟกต์"
+    },
+    {
+      "code": "SD08-010",
+      "name": "ตุ๊กตารัททาทุย",
+      "costOnlyForSymbol": "รัททาทุย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้เป็น Cost ได้เฉพาะรัททาทุย · ทิ้งเป็น Cost ให้ชื่อมี รัททาทุย → อัญเชิญ C1G1P1"
+    },
+    {
+      "code": "SD08-011",
+      "name": "รัททาทุย เฝ้าทวาร",
+      "abilities": [],
+      "parseStatus": "auto",
+      "note": "ไม่มีเอฟเฟกต์"
+    },
+    {
+      "code": "SD08-012",
+      "name": "กรุงโรมใน 1 วัน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellBuildConstructMulti",
+              "filter": {
+                "type": "Construct",
+                "excludeOnly": true
+              },
+              "countMax": 2,
+              "costSumMax": 5
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-013",
+      "name": "เลือกมันสำหรับพวก จน !!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "จากนรก — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only)",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand"
+                }
+              ]
+            },
+            {
+              "label": "จากเด็ค — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only) แล้วสับ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "lifeBothModes": true
+    },
+    {
+      "code": "SD08-014",
+      "name": "แพร่พันธ์ุทันใจ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "discardAnyThenSummon",
+              "discardFilter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              },
+              "summonFilter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              },
+              "costLteDiscardedSum": true,
+              "from": "deck",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งกี่ใบก็ได้ → อัญเชิญ printed Cost ≤ ผลรวม ฟรีไม่จุติ"
+    },
+    {
+      "code": "SD08-015",
+      "name": "รัททาท่วม",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "symbol:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "deckPickMulti",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "multiAvatar",
+              "multiMin": 1,
+              "multiMax": 2,
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React อัญเชิญ C1G1P1 1-2 ใบ ไม่จุติ"
+    },
+    {
+      "code": "SD08-016",
+      "name": "นวมรัททาทุย",
+      "attachOnly": {
+        "symbol": "รัททาทุย"
+      },
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarSymbol",
+              "symbol": "รัททาทุย",
+              "per": 1,
+              "includeSelf": true,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-017",
+      "name": "พิภพรัททาทุย",
+      "pipopRatExpand": true,
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "combat",
+              "target": {
+                "select": "attacker"
+              },
+              "ifAttackerSymbol": "รัททาทุย"
+            }
+          ],
+          "fromLand": true
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "cap 6 ผ่านชื่อพิภพรัททาทุยใน avatarCap · +2 ตอนรัททาทุยโจมตี"
+    },
+    {
+      "code": "SD08-018",
+      "name": "รังรักรัททาทุย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "constructed"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ก่อสร้าง / สั่งใช้ (เทิร์นละครั้ง ⚡): เลือก Avatar รัททาทุย C1G1P1 จากเด็คขึ้น Avatar Zone แล้วสับ"
+    },
+    {
+      "code": "SD08-019",
+      "name": "วงล้อรัททาทุย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==construct"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-020",
+      "name": "บ่อหมัก รัททาทุย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonType:Avatar&summonSymbol:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "buildSelfAsConstruct"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "symbol:รัททาทุย"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งเป็น Cost เพื่ออัญเชิญ Avatar Symbol รัททาทุยเท่านั้น → ก่อสร้างตัวเอง · จั่วเมื่อรัททาทุยถูกทำลาย"
+    },
+    {
+      "code": "SD08-021",
+      "name": "เฮ้ย รัททาทุย ตาย !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4
+                  },
+                  "paidCost": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Main ถัดไปอัญเชิญ Cost≤4 จากมือ ฟรีไม่จุติ"
+    },
+    {
+      "code": "SD08-022",
+      "name": "ไม่นะ มณโท !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 2
+                  },
+                  "dest": "avatar",
+                  "paidCost": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-023",
+      "name": "เฮ้ย นางพญา ตาย !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-024",
+      "name": "เฮ้ย พ่อพันธุ์ ตาย !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD08-025",
+      "name": "เฮ้ย รัททาทุย โป๊ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

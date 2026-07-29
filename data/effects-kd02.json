@@ -1,0 +1,579 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "KD02 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "KD02-001",
+      "name": "ปีศาจแห่งพันรเลือด เมฟิสโตเฟเลส",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "requireUniqueHellSymbolNames": {
+            "symbol": "นรก",
+            "min": 7
+          },
+          "cost": {
+            "discardHand": 2
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "noJuti": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "mill",
+              "count": 5,
+              "who": "self"
+            },
+            {
+              "op": "destroyAllAvatarsExceptSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สั่งใช้ จากมือ ถ้าในนรกฝ่ายเรา มี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 7 ชื่อขึ้นไป ทั้งการ์ดจากบนมือ 2 ใบ : อัญเ",
+      "noPaidSummon": true,
+      "addToHandWhenScoutedByNameIncludes": "สุวรรณ"
+    },
+    {
+      "code": "KD02-002",
+      "name": "ลิลิธ ปีศาจสาวตนแรก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireUniqueHellSymbolNames": {
+            "symbol": "นรก",
+            "min": 4
+          },
+          "cost": {
+            "exileHell": 2
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "symbol": "นรก"
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในนรกฝ่ายเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 4 ใบขึ้นไป เนรเทศ การ์ดในนรกฝ่ายเรา ",
+      "nameAliases": [
+        "นายนิรยบาล"
+      ]
+    },
+    {
+      "code": "KD02-003",
+      "name": "พญายม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญเชิญลง Avatar Zone ฝ่ายเรา"
+    },
+    {
+      "code": "KD02-004",
+      "name": "สุวรรณ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "พญายม",
+                  "นายนิรยบาล"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-016"
+    },
+    {
+      "code": "KD02-005",
+      "name": "นายนิรยบาล หมอ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "mill",
+              "who": "self",
+              "count": 3
+            },
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "นรก",
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT04-024"
+    },
+    {
+      "code": "KD02-006",
+      "name": "นายนิรยบาล พ่อจีจ้า",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD02-007",
+      "name": "นายนิรยบาล แว่น",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "offerSummonSelfFromHell",
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรกได้ #การ์ดใบนี้ไม่สามา",
+      "noHandSummon": true
+    },
+    {
+      "code": "KD02-008",
+      "name": "นายนิรยบาล อ้วน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง เมื่อมีการ ธรณีสูบ จากความสามารถของการ์ดฝ่ายเรา ยกเว้น \"นายนิรยบาล อ้วน\" ธรณีสูบ เพิ่ม 2 ใบ",
+      "millBonusExtra": 2,
+      "millBonusExceptSelf": true
+    },
+    {
+      "code": "KD02-009",
+      "name": "นายนิรยบาล \"เต๋า\"",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "both",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-015"
+    },
+    {
+      "code": "KD02-010",
+      "name": "นายนิรยบาล กล้าม",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD02-011",
+      "name": "นายนิรยบาล ปฎิรูป",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD02-012",
+      "name": "นายนิรยบาล ตัวใหญ่พิเศษ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD02-013",
+      "name": "นายนิรยบาล ชาวนา",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD02-014",
+      "name": "สัญญาเลือด",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "drawHellUnique",
+              "symbol": "นรก",
+              "threshold": 5,
+              "countBelow": 1,
+              "countAtLeast": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์",
+      "milledOptional": {
+        "actions": [
+          {
+            "op": "exileSelf"
+          },
+          {
+            "op": "hellPick",
+            "filter": {
+              "nameIncludes": [
+                "นายนิรยบาล"
+              ]
+            },
+            "dest": "avatar",
+            "paidCost": false
+          }
+        ]
+      }
+    },
+    {
+      "code": "KD02-015",
+      "name": "ร้อนมากก็เปิดหน้าต่างสิว๊ากกกก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bounce",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT02-046"
+    },
+    {
+      "code": "KD02-016",
+      "name": "เลือกมันสำหรับพวก จน !!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "จากนรก — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only)",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand"
+                }
+              ]
+            },
+            {
+              "label": "จากเด็ค — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only) แล้วสับ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD08-013"
+    },
+    {
+      "code": "KD02-017",
+      "name": "อย่าให้มีครั้งที่ 2",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyPlayReact"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-058"
+    },
+    {
+      "code": "KD02-018",
+      "name": "ชายจากอนาคต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
+    },
+    {
+      "code": "KD02-019",
+      "name": "หอกแหลมแทงทุกวัน ทุกวัน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD02-020",
+      "name": "ประตูนรก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHandFilter": {
+              "type": "Avatar",
+              "symbol": "นรก"
+            }
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ทิ้ง Avatar {Symbol นรก} 1 ใบจากบนมือ : อัญเชิญ Avatar \"นายนิรยบาล\" ค่า Cost ไม่เกิน 4 จาก นรกฝ่าย"
+    },
+    {
+      "code": "KD02-021",
+      "name": "ไม่นะ พญายม !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD02-022",
+      "name": "ไม่นะ โดม !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-075"
+    },
+    {
+      "code": "KD02-023",
+      "name": "ไม่นะ มีมมิจัง !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-073"
+    },
+    {
+      "code": "KD02-024",
+      "name": "ไม่นะ อู๊ด !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-071"
+    },
+    {
+      "code": "KD02-025",
+      "name": "ไม่นะ ลูก !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-054"
+    }
+  ]
+}

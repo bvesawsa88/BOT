@@ -1,0 +1,304 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "SD05 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "SD05-001",
+      "name": "บึงทมิฬ  People - CEO คุณจิระ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัติโนมัติ เมื่อการ์ดใบนี้สั่งโจมตีหรือตกเป็นเป้าหมายการโจมตี : POWER ของการ์ดใบนี้จะเพิ่มขึ้นตาม Avatar ที่อยู่ในสภาพนอ"
+    },
+    {
+      "code": "SD05-002",
+      "name": "บึงทมิฬ  People - คุณเค้นท์",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Avatar ใบนี้สั่งโจมตีและไม่ถูกทำลายจากการต่อสู้ ถ้าบน Avatar Zone ฝ่ายเรา มี Avatar \"บึงทมิฬ"
+    },
+    {
+      "code": "SD05-003",
+      "name": "บึงทมิฬ  People - คุณฮาร์วี่",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ : แสดงการ์ดจากล่างสุดของ Deck ตามจำนวน Avatar ที่อยู่ในสภาพนอนทั้งสนาม เลือก Avatar {symbol ปลา"
+    },
+    {
+      "code": "SD05-004",
+      "name": "บึงทมิฬ  People - คุณอังคณา",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "\"โล่มนุษย์\" อัติโนมัติ เมื่อการ์ดใบนี้ใช้ความสามารถ \"โล่มนุษย์\" POWER+2 จนจบการต่อสู้นั้น"
+    },
+    {
+      "code": "SD05-005",
+      "name": "บึงทมิฬ  People - คุณพยาบาล",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เปลี่ยนการ์ดใบนี้จากสภาพตื่นเป็นสภาพนอน เลือก Avatar \"บึงทมิฬ People\" ใบอื่นบนสนามฝ่ายเรา 1 ใบ : A"
+    },
+    {
+      "code": "SD05-006",
+      "name": "วอเตอร์แมน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ : อัญเชิญ \"บึงทมิฬ People\" จากใน Deck เรา 2 ใบ ในสภาพนอน แต่ถ้า Land Magic Zone มี \"บึงทมิฬ\" ให"
+    },
+    {
+      "code": "SD05-007",
+      "name": "บึงทมิฬ People - คุณบึกบึน",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-008",
+      "name": "ปลาชโด กรามกุด",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-009",
+      "name": "ปลาดาวกระจาย",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-010",
+      "name": "กระเบนหางแหลมมาก",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-011",
+      "name": "พิธีกรสารคดีดวงโบ๋",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-012",
+      "name": "ปลาแบงค์",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-013",
+      "name": "เหยื่อปลอม",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD05-014",
+      "name": "บึงทมิฬ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เลือก Avatar 1 ใบ ใน Avatar Zone ฝ่ายเรา เปลี่ยนสภาพ Avatar ใบนั้นเป็นสภาพนอน : จั่วการ์ด 1 ใบ"
+    },
+    {
+      "code": "SD05-015",
+      "name": "กำเนิดจากน้ำ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เลือก Avatar {symbol ปลา}ในนรกเรา 1 ใบ : อัญเชิญลงบน Avatar Zone ฝ่ายเราในสภาพนอน ถ้าบนสนามมี Land Magic \"บึงทมิฬ\" อัญเช"
+    },
+    {
+      "code": "SD05-016",
+      "name": "น้ำวนชักโครก",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [],
+          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "เมื่อ Avatar \"บึงทมิฬ People\" เป็นเป้าหมายการโจมตี : ยกเลิกการโจมตีนั้น และเปลี่"
+    },
+    {
+      "code": "SD05-017",
+      "name": "ปืนฉมวก",
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "บึงทมิฬ People"
+      },
+      "parseStatus": "partial"
+    },
+    {
+      "code": "SD05-018",
+      "name": "ตรีศูล ไตรตัน",
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "บึงทมิฬ People"
+      },
+      "parseStatus": "partial"
+    },
+    {
+      "code": "SD05-019",
+      "name": "ประมาทร่วม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "both",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-035"
+    },
+    {
+      "code": "SD05-020",
+      "name": "ชายจากอนาคต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
+    },
+    {
+      "code": "SD05-021",
+      "name": "ไม่นะ กัปตันไกร !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD05-022",
+      "name": "ไม่นะ มาวิน !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD05-023",
+      "name": "ไม่นะ วอเตอร์แมน !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD05-024",
+      "name": "ไม่นะ คุณจิระ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD05-025",
+      "name": "ไม่นะ ไตรตั้น !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

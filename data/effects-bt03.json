@@ -1,0 +1,289 @@
+{
+  "$schema": "bot-effect-schema v0.2",
+  "note": "BT03 — แปลงรอบออโต้ · ใบ manual รอคำอธิบาย (มีชื่อไทยใน note)",
+  "cards": [
+    { "code": "BT03-001", "name": "พระลักษมี", "abilities": [
+      { "trigger": { "on": "paidAsCost", "if": "summonNameIncludes:พระนารายณ์" }, "actions": [ { "op": "grantBuffSummoned", "amount": 3 } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-002", "name": "นางอัปสร", "abilities": [
+      { "trigger": { "on": "declareAttack" }, "actions": [ { "op": "blockReactUntilCombatEnd" } ] }
+    ], "nameAliases": ["พระนารายณ์"], "parseStatus": "auto" },
+
+    { "code": "BT03-003", "name": "อินทรีย์แมน", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "deckPick", "filter": { "subtype": "Modification" }, "dest": "attachSelf", "shuffleAfter": true }
+      ] },
+      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [
+        { "op": "modifyPower", "amountPer": "allFieldModifications", "per": 1, "layer": 3, "target": { "select": "self" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-004", "name": "หุ่นนักรบผู้กล้า : ไมเกรน", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "scout", "count": 5, "filter": { "nameIncludes": ["อาวุธหุ่นนักรบผู้กล้า"] }, "dest": "hand", "restTo": "bottom" }
+      ] },
+      { "trigger": { "on": "weaponModAttached" }, "oncePerTurn": true, "actions": [ { "op": "draw", "count": 1 } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-005", "name": "โดรนสอดแนมผู้กล้า : เก๊าท์", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "requireOwnNameIncludes": "ผู้กล้า", "requireOwnSymbol": "หุ่นยนต์", "actions": [
+        { "op": "scoutOppTop" }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-006", "name": "ยานเกราะผู้กล้า : ไดบาเรีย", "abilities": [
+      { "trigger": { "on": "paidAsCost" }, "actions": [ { "op": "draw", "count": 1 } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-007", "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์", "abilities": [], "protectReplaceForNameIncludes": "ไมเกรน", "parseStatus": "auto", "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)" },
+
+    { "code": "BT03-008", "name": "กาฬสินธุ์แมน", "abilities": [
+      { "trigger": { "on": "battleDestroy" }, "actions": [
+        { "op": "modifyPower", "amount": 1, "duration": "permanent", "target": { "select": "self" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-009", "name": "จีสัส", "abilities": [], "attackIf": "emptyHand", "parseStatus": "auto" },
+
+    { "code": "BT03-010", "name": "ไดโนกาฬสินธุ์ - ภูเวียงสิรินเน", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "hellPickMulti", "filter": { "type": "Avatar", "symbol": "กะปอม", "costMax": 3 }, "countMax": 4, "thenDraw": 1, "buffPer": 1 }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-011", "name": "ไดโนกาฬสินธุ์ - กินรีมิมัส", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "scout", "count": 5, "filter": { "symbol": "กะปอม", "costMax": 3 }, "dest": "avatar", "restTo": "bottom", "shuffleAfter": true }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-012", "name": "ไดโนกาฬสินธุ์ - อิสานโนซอรัส", "abilities": [
+      { "trigger": { "on": "paidAsCost", "if": "summonSymbol:กะปอม" }, "actions": [ { "op": "peekOwnTop" } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-013", "name": "ไดโนกาฬสินธุ์ - สัตยาซอรัส", "abilities": [
+      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [
+        { "op": "modifyPower", "amount": 1, "layer": 3, "target": { "select": "all", "type": "Avatar", "side": "own", "symbol": "กะปอม", "zone": "avatarZone" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-014", "name": "โอตะปุส", "abilities": [
+      { "trigger": { "on": "chooseMode" }, "options": [
+        { "label": "สวมใส่ให้ไอดอล", "actions": [ { "op": "attach", "from": "self", "targetFilter": { "nameIncludes": ["ไอดอล"] } } ] },
+        { "label": "อัญเชิญจากสภาพสวมใส่", "actions": [ { "op": "detachSummonSelf" } ] }
+      ] },
+      { "keyword": "คำสั่งเสีย", "trigger": { "on": "destroyed" }, "actions": [ { "op": "draw", "count": 1 } ] }
+    ], "protectReplace": true, "protectReplaceIfHostNameIncludes": "ไอดอล", "parseStatus": "auto" },
+
+    { "code": "BT03-015", "name": "ตุ๊กตารัททาทุย", "abilities": [
+      { "trigger": { "on": "paidAsCost", "if": "summonSymbol:รัททาทุย" }, "actions": [
+        { "op": "deckPick", "filter": { "type": "Avatar", "symbol": "รัททาทุย", "cost": 1, "gem": 1, "power": 1 }, "dest": "avatar", "shuffleAfter": true }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-016", "name": "รัททาทุยแม่วัว", "abilities": [
+      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [
+        { "op": "modifyPower", "amount": 1, "layer": 3, "target": { "select": "all", "type": "Avatar", "side": "own", "symbol": "รัททาทุย", "excludeSelf": true, "zone": "avatarZone" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-017", "name": "มนุษย์รัททาทุย", "abilities": [
+      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [
+        { "op": "modifyPower", "amountPer": "ownAvatarSymbol", "symbol": "รัททาทุย", "per": 1, "includeSelf": true, "layer": 3, "target": { "select": "self" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-018", "name": "จ่างู อสรพิษพิฆาตจักรกล", "abilities": [
+      { "trigger": { "on": "declareAttack", "if": "targetSymbol:หุ่นยนต์" }, "actions": [ { "op": "destroyTarget" } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-019", "name": "ด็อคเตอร์แบงค์", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "sacrifice", "filter": { "nameIncludes": ["ศาลพระภูมิ"] }, "then": [
+          { "op": "hellPick", "filter": { "type": "Avatar", "symbol": "ผี" }, "dest": "avatar" }
+        ] }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-020", "name": "แดรกคูลา", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "grantDraculaRevive" } ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-021", "name": "อีแป๋ม ผีกระสือ RGB", "abilities": [
+      { "keyword": "คำสั่งเสีย", "trigger": { "on": "destroyed" }, "actions": [
+        { "op": "curseEnemy", "symbol": "ผี", "powerMod": -2 }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-022", "name": "แม่นาค พระประแดง", "abilities": [
+      { "trigger": { "on": "summoned" }, "actions": [
+        { "op": "oppHellToBottom", "then": [
+          { "op": "modifyPower", "amount": -2, "duration": "endOfTurn", "target": { "select": "choose", "type": "Avatar", "side": "enemy", "count": 1 } }
+        ] }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-023", "name": "โลกิ เทพแอสการ์ดแห่งการหลอกลวง", "abilities": [
+      { "trigger": { "on": "ownTurnEnd" }, "actions": [ { "op": "switchControl" } ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-024", "name": "บัลเดอร์ เทพแสง แห่งแอสการ์ด", "abilities": [], "millInsteadDestroy": 9, "parseStatus": "auto" },
+    { "code": "BT03-025", "name": "ฮามดัล เทพผู้รู้เห็น แห่งแอสการ์ด", "abilities": [], "revealDeckTops": true, "parseStatus": "auto" },
+    { "code": "BT03-026", "name": "แบมบูจัง ไอดอลสองขั้ว", "abilities": [
+      { "trigger": { "on": "chooseMode" }, "options": [
+        { "label": "ทำลายโอตะที่สวมไอดอล แล้วทำลายการ์ด 1", "actions": [ { "op": "destroyOtaOnIdol" } ] }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-027", "name": "แมลงปอมีพิษ", "abilities": [
+      { "keyword": "คำสั่งเสีย", "trigger": { "on": "destroyed" }, "actions": [
+        { "op": "chooseDestroy", "filter": { "type": "Avatar", "costMax": 4 }, "zones": ["avatar"] }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-028", "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล", "abilities": [], "combatImmuneVsLowerCost": true, "parseStatus": "auto" },
+    { "code": "BT03-029", "name": "ทหารอาณาจักรของแพง", "abilities": [], "enemyCostAura": -1, "setPowerIfAllyNameIncludes": "ราชาอาณาจักรของแพง", "setPowerTo": 2, "parseStatus": "auto" },
+    { "code": "BT03-030", "name": "ช่างตัดเสื้อ อาณาจักรของแพง", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "grantCostPower", "filter": { "nameIncludes": ["ราชาอาณาจักรของแพง"] }, "costDelta": 1, "powerDelta": 1 }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-031", "name": "จอมเวทย์ดอคู่", "abilities": [
+      { "trigger": { "on": "activated" }, "oncePerTurn": true, "actions": [
+        { "op": "chooseDestroy", "filter": { "subtype": "Modification" }, "zones": ["magic"] }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-032", "name": "ตั๊กแตนพันธ์ุ X", "abilities": [
+      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [
+        { "op": "modifyPower", "amountPer": "ownAvatarSymbol", "symbol": "แมลง", "per": 1, "includeSelf": true, "layer": 3, "target": { "select": "self" } }
+      ] }
+    ], "extraSymbols": ["แมลง"], "parseStatus": "auto" },
+
+    { "code": "BT03-033", "name": "แมลงปอ บรรพบุรุษ", "abilities": [
+      { "keyword": "คำสั่งเสีย", "trigger": { "on": "destroyed" }, "actions": [
+        { "op": "hellPick", "filter": { "type": "Avatar", "symbol": "แมลง", "costMax": 4, "nameNotEquals": "แมลงปอ บรรพบุรุษ" }, "dest": "avatar", "paidCost": true }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-034", "name": "พาลี", "abilities": [
+      { "trigger": { "on": "onFight" }, "actions": [
+        { "op": "modifyPower", "amount": 2, "target": { "select": "self" } },
+        { "op": "modifyPower", "amount": -2, "target": { "select": "foe" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-035", "name": "นางมณโฑ", "abilities": [
+      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
+        { "op": "hellPick", "filter": { "type": "Avatar", "symbol": "ยักษ์", "powerMax": 3 }, "dest": "avatar" }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-036", "name": "จอน ชาวดาวอังคาร", "abilities": [], "parseStatus": "verified" },
+    { "code": "BT03-037", "name": "แมลงปอนา", "abilities": [], "parseStatus": "verified" },
+    { "code": "BT03-038", "name": "ตัวอ่อนรัททาทุย", "abilities": [], "parseStatus": "verified" },
+    { "code": "BT03-039", "name": "จอมเวทย์ดำ", "abilities": [], "parseStatus": "verified" },
+    { "code": "BT03-040", "name": "มหิตัน", "abilities": [], "parseStatus": "verified" },
+
+    { "code": "BT03-041", "name": "เก็บค่าคุ้มครอง", "abilities": [
+      { "trigger": { "on": "activated" }, "requireLand": true, "cost": [ { "op": "discard", "from": "hand", "count": 1 } ], "actions": [ { "op": "draw", "count": 2 } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-042", "name": "ตู้โชว์ไอดอล", "abilities": [
+      { "trigger": { "on": "activated" }, "requireOwnNameIncludes": "ไอดอล", "actions": [
+        { "op": "deckPick", "filter": { "type": "Avatar", "nameIncludes": ["โอตะ"] }, "dest": "hand", "shuffleAfter": true }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-043", "name": "ผมขอค้าน !!", "abilities": [
+      { "trigger": { "on": "activated" }, "actions": [ { "op": "pickSymbolRandomHand" } ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-044", "name": "เยี่ยวรดศาล", "abilities": [
+      { "trigger": { "on": "activated" }, "requireOwn": { "symbol": "คน", "costMin": 3 }, "actions": [
+        { "op": "deckPick", "filter": { "type": "Avatar", "symbol": "ผี", "costMax": 4 }, "dest": "avatar", "shuffleAfter": true, "paidCost": true }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-045", "name": "ซุปเปอร์สแน็ค !!", "abilities": [
+      { "trigger": { "on": "activated" }, "actions": [
+        { "op": "modifyPower", "amount": 6, "duration": "endOfTurn", "target": { "select": "choose", "type": "Avatar", "symbol": "สัตว์", "side": "any", "count": 1 }, "destroyAtEnd": true }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-046", "name": "จมน้ำ", "abilities": [
+      { "trigger": { "on": "activated" }, "requireBothHaveAvatar": true, "actions": [ { "op": "bothReturnAvatar" } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-047", "name": "ไม่เจ้ายังไม่พร้อม", "abilities": [
+      { "keyword": "React", "trigger": { "on": "avatarSummoned" }, "actions": [ { "op": "tap", "target": "triggerSource" } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-048", "name": "เอาเสื้อมาหมุนๆแล้วตบ", "abilities": [
+      { "keyword": "React", "trigger": { "on": "activated" }, "cost": [ { "op": "returnHandToDeck", "count": 1 } ], "actions": [
+        { "op": "chooseDestroy", "filter": { "type": "Avatar", "symbol": "แมลง" }, "zones": ["avatar"] }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-049", "name": "คว้าปืนมายิงหมี", "abilities": [
+      { "keyword": "React", "trigger": { "on": "enemyDeclareAttack" }, "actions": [
+        { "op": "hellPick", "filter": { "subtype": "Modification" }, "dest": "hand" },
+        { "op": "modifyPower", "amount": -1, "duration": "combat", "target": { "select": "attacker" } }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-050", "name": "งับ", "abilities": [
+      { "keyword": "React", "trigger": { "on": "enemyDeclareAttack" }, "actions": [
+        { "op": "scout", "count": 2, "filter": { "symbol": "กะปอม" }, "dest": "hand", "restTo": "bottom", "shuffleAfter": true, "thenIfFound": [
+          { "op": "destroyAttacker" }
+        ] }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-051", "name": "อาวุธหุ่นนักรบผู้กล้า \"อีโบล่า ซอร์ด\"", "abilities": [
+      { "trigger": { "on": "static", "if": "self.attached" }, "actions": [
+        { "op": "modifyPower", "amount": 1, "amountIfHostNameIncludes": { "name": "หุ่นนักรบผู้กล้า", "amount": 3 }, "layer": 2, "target": { "select": "equippedAvatar" } }
+      ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-052", "name": "แผนการ : แกงส้มตะปูเสียบ", "abilities": [
+      { "trigger": { "on": "static", "if": "self.attached" }, "actions": [
+        { "op": "modifyPower", "amount": -2, "layer": 2, "target": { "select": "equippedAvatar" } }
+      ] }
+    ], "destroyHostIfPower0": true, "parseStatus": "auto" },
+
+    { "code": "BT03-053", "name": "ยาแก้ไอน้ำดำ", "abilities": [], "ignoreNegativePower": true, "parseStatus": "auto" },
+
+    { "code": "BT03-054", "name": "ขวานไม้เน่าๆเหม็นๆ", "abilities": [], "hostCostDelta": -1, "parseStatus": "auto" },
+
+    { "code": "BT03-055", "name": "ขวานทอง", "abilities": [
+      { "trigger": { "on": "declareAttack" }, "actions": [ { "op": "draw", "count": 1 } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "CC02-058", "name": "ขวานทอง", "abilities": [
+      { "trigger": { "on": "declareAttack" }, "actions": [ { "op": "draw", "count": 1 } ] }
+    ], "parseStatus": "auto", "note": "reprint ของ BT03-055" },
+
+    { "code": "BT03-056", "name": "สายฟ้า วัชระ", "abilities": [
+      { "trigger": { "on": "declareAttack" }, "actions": [ { "op": "destroyTarget" } ] }
+    ], "parseStatus": "auto" },
+
+    { "code": "BT03-057", "name": "อาณาจักรของแพง", "abilities": [
+      { "trigger": { "on": "activated" }, "requireEnemyCostSumMax": 4, "cost": [ { "op": "discard", "from": "hand", "count": 1 } ], "actions": [
+        { "op": "deckPick", "filter": { "type": "Avatar", "nameIncludes": ["ราชาอาณาจักรของแพง"] }, "dest": "hand", "shuffleAfter": true }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-058", "name": "ยุคกาฬสินธุ์โซอิค", "abilities": [
+      { "trigger": { "on": "activated" }, "oncePerTurn": true, "cost": [ { "op": "discardGemSum", "min": 3 } ], "actions": [
+        { "op": "scout", "count": 5, "filter": { "type": "Avatar", "symbol": "กะปอม" }, "dest": "handOrSummon", "summonCostMax": 3, "paidCost": false, "restTo": "bottom", "shuffleAfter": true }
+      ] }
+    ], "placeLandWhenScoutedByKapom": true, "parseStatus": "auto" },
+    { "code": "BT03-059", "name": "ราชธานีสามัคคี", "abilities": [
+      { "trigger": { "on": "activated" }, "actions": [
+        { "op": "grantKeyword", "keyword": "สามัคคี", "duration": "endOfTurn", "target": { "select": "choose", "type": "Avatar", "side": "own", "count": 1 } }
+      ] }
+    ], "parseStatus": "auto" },
+    { "code": "BT03-060", "name": "ปราสาทแดรก", "abilities": [
+      { "trigger": { "on": "static", "if": "self.zone==land" }, "actions": [
+        { "op": "modifyPower", "amount": 1, "layer": 3, "target": { "select": "all", "type": "Avatar", "nameIncludes": ["แดรกคูลา"], "side": "own" } }
+      ] },
+      { "trigger": { "on": "activated" }, "cost": [ { "op": "discard", "from": "hand", "count": 1 } ], "actions": [
+        { "op": "hellPick", "filter": { "nameIncludes": ["แดรกคูลา"] }, "dest": "avatar", "paidCost": false }
+      ] }
+    ], "parseStatus": "auto" }
+  ]
+}

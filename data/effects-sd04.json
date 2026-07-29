@@ -1,0 +1,302 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "SD04 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "SD04-001",
+      "name": "กัปตันแบงค์ Tank Ranger",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : สอดแนม (แสดงการ์ดใบบนสุดของ Deck) 5 ใบ นำ \"จ่ามะนาว\" ห"
+    },
+    {
+      "code": "SD04-002",
+      "name": "จ่ามะนาว Tank Ranger",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) ถ้ามี Avatar \"รถถัง\" บนสนามฝ่ายเรา สุ่มคว่ำ LIFE Card ฝ่"
+    },
+    {
+      "code": "SD04-003",
+      "name": "จ่าแดงเดือด Tank Ranger",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar ใบนี้บน Avatar Zone ไปสวมให้ Avatar \"รถถัง\" ที่อยู่บน Avatar Zone ฝ่ายเรา Avatar รถถัง"
+    },
+    {
+      "code": "SD04-004",
+      "name": "รถถัง \"Tank Ranger\"",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
+    },
+    {
+      "code": "SD04-005",
+      "name": "MEGA ROR.DOR",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให"
+    },
+    {
+      "code": "SD04-006",
+      "name": "พลเอกปุ้มปุ้ย",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-007",
+      "name": "สห ไล่จับเด็ก",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-008",
+      "name": "อรุณีย์ ข้าวมันไก่เมียจ่า",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-009",
+      "name": "พลทหาร",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-010",
+      "name": "ทหารฝูงบินต่ำ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-011",
+      "name": "คนจับใบดำ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-012",
+      "name": "คนจับใบแดง",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-013",
+      "name": "ไอ้หนุ่มรด.",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD04-014",
+      "name": "รถถังลงถนน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัญเชิญ Avatar \"รถถัง\" ที่มีค่า Cost ไม่เกิน 5 จาก Deck เราลงสนามฝั่งเรา 1 ตัว และ อีกฝ่ายอัญเชิญ Avatar ที่มีค่า Cost ไ"
+    },
+    {
+      "code": "SD04-015",
+      "name": "ไอ นีด เมดิก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สุ่มคว่ำ LIFE Card ของฝ่ายเราได้ 1 ใบ"
+    },
+    {
+      "code": "SD04-016",
+      "name": "ใบดำใบแดง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สอดแนม 1 ใบ : ถ้าเป็น Avatar {Symbol : คน} Cost ไม่เกิน 3 ให้นำลงบน Avatar Zone ฝ่ายเรา แต่ถ้าไม่ใช่ให้ใส่ไว้ใต้ Deck"
+    },
+    {
+      "code": "SD04-017",
+      "name": "เพื่อชาติ",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [],
+          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "เมื่ออีกฝ่ายประกาศโจมตี ทำลาย Avatar \"รถถัง\" บนสนามฝ่ายเรา 1 ใบ : ทำลาย Avatar ท"
+    },
+    {
+      "code": "SD04-018",
+      "name": "ขึ้นมาเร็ว ไอ้ลูกลิง !!",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar รถถังเป็นเป้าโจมตี : สอดแนม (ดูการ์ดใบบนสุดของเด็ค) 5 ใบ เลือก Avatar {symbol คน} ที่ติดชื่อ \"Tank Ranger\" "
+    },
+    {
+      "code": "SD04-019",
+      "name": "ถาดหลุม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD04-020",
+      "name": "เขาชนไก่",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ใน Main Phase สามารถเลือก Avatar {Symbol คน} บนสนามฝ่ายเรา 1 ใบ : เปลี่ยน Avatar ใบนั้นเป็นสภาพนอน"
+    },
+    {
+      "code": "SD04-021",
+      "name": "ไม่นะ มะนาว !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD04-022",
+      "name": "ไม่นะ แดงเดือด !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD04-023",
+      "name": "ไม่นะ เจี๊ยบ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD04-024",
+      "name": "อ๋อ...ปุ้มปุ้ยตาย !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD04-025",
+      "name": "ไม่นะ พระอินทร์ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

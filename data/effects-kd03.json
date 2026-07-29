@@ -1,0 +1,706 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "KD03 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "KD03-001",
+      "name": "มีมมิจัง ไอดอล No.1",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD03-002",
+      "name": "โอตะคูลา",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "options": [
+            {
+              "label": "สวมใส่ให้ไอดอล/บีมมิ",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludesAny": [
+                      "ไอดอล",
+                      "บีมมิ"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "equippedAvatar"
+              },
+              "ifHostNameIncludes": "ไอดอล"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "equippedAvatar"
+              },
+              "ifHostNameIncludes": "บีมมิ"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "exileSelf": true,
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "บีมมิ"
+                ],
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone",
+      "costOnlyForNameIncludes": "ไอดอล"
+    },
+    {
+      "code": "KD03-003",
+      "name": "มีมมิจัง ไอดอลหน้าใหม่",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "dest": "attachSelf",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT02-009"
+    },
+    {
+      "code": "KD03-004",
+      "name": "แบมบูจัง ไอดอลสองขั้ว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "ทำลายโอตะที่สวมไอดอล แล้วทำลายการ์ด 1",
+              "actions": [
+                {
+                  "op": "destroyOtaOnIdol"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-026"
+    },
+    {
+      "code": "KD03-005",
+      "name": "โทมาโทจัง ไอดอลเด็กน้อย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ไอดอล"
+                ],
+                "excludeSelf": true,
+                "requireAttachedNameIncludes": "โอตะ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT04-009"
+    },
+    {
+      "code": "KD03-006",
+      "name": "มยุราซัง  ไอดอลยุค 80",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachOtaToIdol",
+              "allowDeckIfNameIncludes": "ทัตดนัยซัง"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar \"โอตะ\" 1 ใบจากนรกเรามาสวมใส่ให้ Avatar \"ไอดอล\" ใบอื่น 1 ใบบน Avatar Zone ฝ่ายเรา ถ้าบน"
+    },
+    {
+      "code": "KD03-007",
+      "name": "โอตะ รุ่นก่อตั้ง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "สวมใส่ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT02-010"
+    },
+    {
+      "code": "KD03-008",
+      "name": "โอตะปุส",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "สวมใส่ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-014"
+    },
+    {
+      "code": "KD03-009",
+      "name": "โอตะตัวกะปอม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:ไอดอล"
+          },
+          "actions": [
+            {
+              "op": "attachPayCard",
+              "filter": {
+                "nameIncludes": [
+                  "ไอดอล"
+                ]
+              },
+              "optional": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT04-013",
+      "costOnlyForNameIncludes": "ไอดอล"
+    },
+    {
+      "code": "KD03-010",
+      "name": "วูตาตู",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD03-011",
+      "name": "แมลงปอแจ็ค",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "replaceLandFromDeck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
+    },
+    {
+      "code": "KD03-012",
+      "name": "ความเจริญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-038"
+    },
+    {
+      "code": "KD03-013",
+      "name": "เยี่ยวรดศาล",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwn": {
+            "symbol": "คน",
+            "costMin": 3
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ผี",
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-044"
+    },
+    {
+      "code": "KD03-014",
+      "name": "ตู้โชว์ไอดอล",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwnNameIncludes": "ไอดอล",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-042"
+    },
+    {
+      "code": "KD03-015",
+      "name": "งานจับมือ",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:ไอดอล"
+          },
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "attach",
+              "from": "hell",
+              "filter": {
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "targetFilter": {
+                "nameIncludes": [
+                  "ไอดอล"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT04-048"
+    },
+    {
+      "code": "KD03-016",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก KD03-016"
+    },
+    {
+      "code": "KD03-017",
+      "name": "เชาว์ปัญญาลิง - ชิงปัญญาเรา",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT04-050"
+    },
+    {
+      "code": "KD03-018",
+      "name": "น้ำซุปชาบู",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD03-019",
+      "name": "ของขวัญจากโอตะ",
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "ไอดอล"
+      },
+      "drawOnAttachIfHostNameIncludes": "ไอดอล",
+      "parseStatus": "auto",
+      "note": "แมปจาก BT04-054"
+    },
+    {
+      "code": "KD03-020",
+      "name": "เวทีแห่งความฝัน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "options": [
+            {
+              "label": "สอดแนม 5 — สวมโอตะสูงสุด 2 ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "scoutAttachOta",
+                  "scout": 5,
+                  "maxOta": 2
+                }
+              ]
+            },
+            {
+              "label": "สอดแนม 7 — ไอดอลขึ้นมือ",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 7,
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
+    },
+    {
+      "code": "KD03-021",
+      "name": "ไม่นะ มีมมิจัง !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-073"
+    },
+    {
+      "code": "KD03-022",
+      "name": "ไม่นะ อู๊ด !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-071"
+    },
+    {
+      "code": "KD03-023",
+      "name": "ไม่นะ ไอ้ดำ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD03-024",
+      "name": "ไม่นะ ซาร่า !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD01-024"
+    },
+    {
+      "code": "KD03-025",
+      "name": "ไม่นะ โดม !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-075"
+    }
+  ]
+}

@@ -1,0 +1,604 @@
+{
+  "$schema": "bot-effect-schema v0.2 (starter-gen)",
+  "note": "KD04 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
+  "cards": [
+    {
+      "code": "KD04-001",
+      "name": "ราชันย์หุ่นนักรบผู้กล้า : คริติคอล ไมเกรน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "exileHellDistinctNames": {
+              "nameIncludes": "ไมเกรน",
+              "count": 3
+            }
+          },
+          "options": [
+            {
+              "label": "สวมอาวุธจากนรกสูงสุด 2",
+              "actions": [
+                {
+                  "op": "hellAttachMods",
+                  "nameIncludes": "อาวุธหุ่นนักรบผู้กล้า",
+                  "max": 2,
+                  "toSelf": true
+                }
+              ]
+            },
+            {
+              "label": "ฆ่าแล้วโจมตี LIFE 1 ครั้ง จนจบเทิร์น",
+              "actions": [
+                {
+                  "op": "grantBattleDestroyLifeHit",
+                  "until": "endOfTurn"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 ",
+      "controlImmune": true
+    },
+    {
+      "code": "KD04-002",
+      "name": "ด็อกเตอร์ เพน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ],
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ],
+                "subtype": "Modification"
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ : สอดแนม 5 ใบ เลือก Avatar \"ไมเกรน\" 1 ใบจากที่ สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำกลับเข้า Deck"
+    },
+    {
+      "code": "KD04-003",
+      "name": "หุ่นนักรบผู้กล้า : ไมเกรน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "weaponModAttached"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-004"
+    },
+    {
+      "code": "KD04-004",
+      "name": "หุ่นนักรบผู้กล้า : โปรโตไมเกรน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "evolveToMigraineKeepAttach"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สั่งใช้ เมื่อ Avatar ใบนี้ ทำลาย Avatar ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ : ส่ง Avatar ใบนี้ลงนรก และ อั"
+    },
+    {
+      "code": "KD04-005",
+      "name": "ยานเกราะผู้กล้า : ไดบาเรีย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-006"
+    },
+    {
+      "code": "KD04-006",
+      "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์",
+      "abilities": [],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ เมื่อ \"หุ่นนักรบผู้กล้า : ไมเกรน\" ที่เราควบคุมอยู่บนสนามกำลังจะถูกทำลาย : ทำลายการ์ดใบนี้แทน",
+      "protectReplaceForNameIncludes": "หุ่นนักรบผู้กล้า : ไมเกรน"
+    },
+    {
+      "code": "KD04-007",
+      "name": "โดรนสอดแนมผู้กล้า : เก๊าท์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "requireOwnNameIncludes": "ผู้กล้า",
+          "requireOwnSymbol": "หุ่นยนต์",
+          "actions": [
+            {
+              "op": "scoutOppTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-005"
+    },
+    {
+      "code": "KD04-008",
+      "name": "สหายหุ่นผู้กล้า โฟเบีย",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "phobiaPackage",
+              "returnNames": [
+                "โดรนสอดแนมผู้กล้า : เก๊าท์",
+                "ยานเกราะผู้กล้า : ไดบาเรีย",
+                "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์"
+              ],
+              "summonNameIncludes": "ไมเกรน",
+              "summonCostMax": 5
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-007"
+    },
+    {
+      "code": "KD04-009",
+      "name": "คนรวย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "oncePerTurn": true,
+          "countsAsReact": true,
+          "actions": [
+            {
+              "op": "negateByGiveHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เทิร์นละครั้ง ในเทิร์นใครก็ได้ เมื่ออีกฝ่ายใช้ความสามารถการ์ด นำการ์ด 1 ใบ บนมือเราให้อีกฝ่าย : ยกเลิกความสามา"
+    },
+    {
+      "code": "KD04-010",
+      "name": "ลูกคนรวย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "oncePerTurn": true,
+          "countsAsReact": true,
+          "actions": [
+            {
+              "op": "negateByGiveHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เทิร์นละครั้ง ในเทิร์นใครก็ได้ เมื่ออีกฝ่ายใช้ความสามารถการ์ด นำการ์ด 1 ใบ บนมือเราให้อีกฝ่าย : ยกเลิกความสามา"
+    },
+    {
+      "code": "KD04-011",
+      "name": "พี่โด 2.0",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "KD04-012",
+      "name": "สุดยอดท่าไม้ตายผู้กล้า THE END",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "grantAttackAllEnemy",
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ]
+              },
+              "until": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cost": {
+            "exileSelf": true
+          },
+          "actions": [
+            {
+              "op": "hellAttachAllDistinctWeaponMods",
+              "toNameIncludes": "ไมเกรน"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar",
+      "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน"
+    },
+    {
+      "code": "KD04-013",
+      "name": "อาวุธหุ่นนักรบผู้กล้า \"อีโบล่า ซอร์ด\"",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "amountIfHostNameIncludes": {
+                "name": "หุ่นนักรบผู้กล้า",
+                "amount": 3
+              },
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-051"
+    },
+    {
+      "code": "KD04-014",
+      "name": "อาวุธนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
+      },
+      "parseStatus": "auto",
+      "protectLeaveDiceEven": true
+    },
+    {
+      "code": "KD04-015",
+      "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
+      "abilities": [],
+      "attachOnly": {
+        "symbol": "หุ่นยนต์"
+      },
+      "parseStatus": "auto",
+      "hostSymbolLock": true
+    },
+    {
+      "code": "KD04-016",
+      "name": "ฐานหุ่นนักรบผู้กล้า ซีทันยาน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireNoModUsed": true,
+          "actions": [
+            {
+              "op": "allowExtraWeaponMod",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในเทิร์นนี้ยังไม่ได้ใช้ Modification Magic : ในเทิร์นนี้สามารถใช้ Modification Magic \"อาวุธหุ่น"
+    },
+    {
+      "code": "KD04-017",
+      "name": "Micro Plaza สะพานพลาสติก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "phase": "Main",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้งใน Main Phase : สามารถ ทิ้งการ์ดจากบนมือ 1 ใบ นำ Modification Magic 1 ใบ จาก ใน Deck ฝ่ายเราขึ้นมือ จากนั้น"
+    },
+    {
+      "code": "KD04-018",
+      "name": "ความเจริญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-038"
+    },
+    {
+      "code": "KD04-019",
+      "name": "ชายจากอนาคต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
+    },
+    {
+      "code": "KD04-020",
+      "name": "คว้าปืนมายิงหมี",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand"
+            },
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "duration": "combat",
+              "target": {
+                "select": "attacker"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT03-049"
+    },
+    {
+      "code": "KD04-021",
+      "name": "ไม่นะ มีมมิจัง !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-073"
+    },
+    {
+      "code": "KD04-022",
+      "name": "ไม่นะ ไมเกรน !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT05-072"
+    },
+    {
+      "code": "KD04-023",
+      "name": "ไม่นะ มะนาว !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD04-024",
+      "name": "ไม่นะ แดงเดือด !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "KD04-025",
+      "name": "ไม่นะ เจี๊ยบ !",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

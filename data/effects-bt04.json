@@ -1,0 +1,1317 @@
+{
+  "$schema": "bot-effect-schema v0.2",
+  "note": "BT04 — auto ที่ชัดแล้ว · manual รอคำอธิบาย",
+  "cards": [
+    {
+      "code": "BT04-001",
+      "name": "จอมหักกระดูก",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "onFight"
+          },
+          "actions": [
+            {
+              "op": "lockPowerPrinted",
+              "target": {
+                "select": "foe"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-002",
+      "name": "ครูสงบ กล้ามโต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "zones": [
+                "magic"
+              ],
+              "side": "enemy",
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-003",
+      "name": "ไอ้นัท - คนใจเด็ด",
+      "abilities": [],
+      "controlImmuneExcept": "อีช่า",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-004",
+      "name": "อีช่า - สาวน้อยคนเก่ง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar"
+              },
+              "then": [
+                {
+                  "op": "takeControl",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbols": [
+                      "คน",
+                      "เทพ",
+                      "นรก"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-005",
+      "name": "ยายกบ 1954",
+      "abilities": [],
+      "noPaidSummon": true,
+      "sacrificeSummon": {
+        "filter": {
+          "type": "Avatar",
+          "nameIncludes": [
+            "กบ"
+          ],
+          "powerBuffCountMin": 3
+        }
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-006",
+      "name": "แบงค์ทีสต้า นักมวยปล้ำ",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-007",
+      "name": "ราม และ วิโรจน์",
+      "extraSymbols": [
+        "สัตว์"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "options": [
+            {
+              "label": "POWER +2 จน End Phase ถัดไปของฝ่ายตรงข้าม",
+              "actions": [
+                {
+                  "op": "modifyPower",
+                  "amount": 2,
+                  "duration": "oppNextEnd",
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            },
+            {
+              "label": "Mod จากนรกมาสวม (นับว่าใช้ Mod)",
+              "requireNoModUsed": true,
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "subtype": "Modification"
+                  },
+                  "dest": "attachSelf"
+                },
+                {
+                  "op": "markModUsed"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-008",
+      "name": "ลูกคนรวย",
+      "abilities": [],
+      "setPowerFrom": "oppHandCount",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-009",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ไอดอล"
+                ],
+                "excludeSelf": true,
+                "requireAttachedNameIncludes": "โอตะ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "โทมาโทจัง ไอดอลเด็กน้อย",
+      "cannotBeAttackTargetIf": {
+        "selfAttachedNameIncludes": "โอตะ",
+        "allyNameIncludes": "ไอดอล"
+      }
+    },
+    {
+      "code": "BT04-010",
+      "name": "ไดโนกาฬสินธุ์ - สยามโมไทรันนัส",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "กะปอม"
+              },
+              "dest": "multiAvatar",
+              "paidCost": true,
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-011",
+      "abilities": [],
+      "parseStatus": "auto",
+      "name": "เทอราโนดอน จากต่างแดน",
+      "scoutBonusOwnKapom": 1,
+      "note": "กะปอมฝ่ายเราสอดแนม +1 (เฉพาะสอดแนมจาก Avatar กะปอม)"
+    },
+    {
+      "code": "BT04-012",
+      "name": "เอเลี่ยนทูตดาวอังคาร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "alienEnvoy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดง Avatar ในมือ → ทำลายศัตรู P=ผลรวม Cost → ให้มือ 1 ใบ"
+    },
+    {
+      "code": "BT04-013",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:ไอดอล"
+          },
+          "actions": [
+            {
+              "op": "attachPayCard",
+              "filter": {
+                "nameIncludes": [
+                  "ไอดอล"
+                ]
+              },
+              "optional": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "โอตะตัวกะปอม",
+      "costOnlyForNameIncludes": "ไอดอล"
+    },
+    {
+      "code": "BT04-014",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "filter": {
+                "type": "Avatar",
+                "nameOrSymbol": [
+                  {
+                    "nameIncludes": [
+                      "เหยื่อ"
+                    ]
+                  },
+                  {
+                    "symbol": "แมลง"
+                  }
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "มาวิน เซียนเบ็ด"
+    },
+    {
+      "code": "BT04-015",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "requireLandNameIncludes": "บึงทมิฬ",
+          "actions": [
+            {
+              "op": "optionalDiscardUntapSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "บึงทมิฬ  People - คุณดีไมส์ (ปลาดาบ)",
+      "note": "ถามทันทีหลังฆ่า · ทิ้งมือเพื่อตื่น (ไม่บังคับ)"
+    },
+    {
+      "code": "BT04-016",
+      "abilities": [],
+      "parseStatus": "auto",
+      "name": "ริกกี้ คุณตา",
+      "immuneOppMagicTarget": true,
+      "note": "กัน Magic ที่เล็งตัวนี้ — เวทสั่งผู้เล่น (เช่น จมน้ำ) ยังได้"
+    },
+    {
+      "code": "BT04-017",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์",
+                "costMax": 2,
+                "nameIncludesAny": [
+                  "หมา",
+                  "แมว"
+                ]
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "หมานมเย็น"
+    },
+    {
+      "code": "BT04-018",
+      "name": "รัททาทุย 2 หัว",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "abilities": [],
+      "combatSurvivePowerMinus": -1,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-019",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "คนแก่สติเลอะเลือนผู้รู้ความจริง",
+      "summonWhenScoutedByNameIncludes": "ผู้รู้ความจริง",
+      "summonWhenScoutedPaidCost": false
+    },
+    {
+      "code": "BT04-020",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "dest": "reorder",
+              "restTo": "choose",
+              "thenDestroyEnemyCostSumLte": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "อู๊ด ประธานผู้รู้ความจริง",
+      "note": "นับ Cost สอดแนม 2 แล้วทำลายเลย"
+    },
+    {
+      "code": "BT04-021",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "dest": "nongSam",
+              "restTo": "choose",
+              "buffFromNameIncludes": "ผู้รู้ความจริง",
+              "buffDuration": "permanent"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "น้องสาม ผู้รู้ความจริง"
+    },
+    {
+      "code": "BT04-022",
+      "name": "รปภ ผู้รู้ความจริง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-023",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonColor:ม่วง"
+          },
+          "actions": [
+            {
+              "op": "scoutOneTopOrHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "วิไลวรรณ แม่แบงค์"
+    },
+    {
+      "code": "BT04-024",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "mill",
+              "who": "self",
+              "count": 3
+            },
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "นรก",
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "นายนิรยบาล หมอ"
+    },
+    {
+      "code": "BT04-025",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "destroySidesIfPrimePower"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ครูแกง สอนเลข"
+    },
+    {
+      "code": "BT04-026",
+      "name": "ลูกเขยบิ๊ก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "แผนการ"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-027",
+      "name": "ผู้งมงาย",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            },
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-028",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "power": 3,
+                "nameNotIncludes": "ทศกัณฑ์"
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "พญายักษ์ ทศกัณฑ์"
+    },
+    {
+      "code": "BT04-029",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ผู้เจริญ"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เสามงคล ทรงโรมัน",
+      "cannotAttack": true
+    },
+    {
+      "code": "BT04-030",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "มาติเนซ Tank Ranger",
+      "negateHostMagicByDestroySelf": true,
+      "note": "รถถังโดนเวทเล็ง → บังคับทำลายมาติเนซ negate"
+    },
+    {
+      "code": "BT04-031",
+      "name": "ทหารเวรคลังแสง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ปืนเล็กยาว"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-032",
+      "abilities": [],
+      "parseStatus": "auto",
+      "name": "พลปืนอาณาจักรของแพง",
+      "grantKeywordIfAllyNameIncludes": {
+        "nameIncludes": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "keyword": "เตะไข่"
+      }
+    },
+    {
+      "code": "BT04-033",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "filter": {
+                "nameOrSymbol": [
+                  {
+                    "nameIncludes": [
+                      "พนักงานอาบน้ำสัตว์"
+                    ]
+                  },
+                  {
+                    "symbol": "สัตว์"
+                  }
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "สัตว์",
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เจ้าของร้านอาบน้ำสัตว์",
+      "keywords": [
+        "โล่มนุษย์"
+      ]
+    },
+    {
+      "code": "BT04-034",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์",
+                "costMax": 3,
+                "nameIncludesAny": [
+                  "หมา",
+                  "แมว"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "อนงค์ พนักงานอาบน้ำสัตว์"
+    },
+    {
+      "code": "BT04-035",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonDogOrCatAnimal"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "สัตว์",
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "แฟรงกี้ พนักงานอาบน้ำสัตว์"
+    },
+    {
+      "code": "BT04-036",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "หนุ่มผมยาวนักวิ่ง"
+    },
+    {
+      "code": "BT04-037",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "ผู้เจริญระดับ 3"
+    },
+    {
+      "code": "BT04-038",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "นักดาบมือหนึ่ง"
+    },
+    {
+      "code": "BT04-039",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "แมวมัทฉะ"
+    },
+    {
+      "code": "BT04-040",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "พัทธกาล"
+    },
+    {
+      "code": "BT04-041",
+      "name": "ล้มโต๊ะ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothReshuffleHandDraw",
+              "count": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-042",
+      "name": "Grand Rumble !!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireAvatarCountExact": 6,
+          "actions": [
+            {
+              "op": "grandRumble"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-043",
+      "name": "แผนการ : ถอยรถชน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เครื่องจักร"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-044",
+      "name": "บีมมมมมมมมมม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-045",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "whoIsCooler"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ใครเจ๋งกว่า !",
+      "note": "แสดงพร้อมกัน · Cost รวม 0 · ไม่มี Cost = โชว์มือเฉยๆ"
+    },
+    {
+      "code": "BT04-046",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "จากนรก — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only)",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand"
+                }
+              ]
+            },
+            {
+              "label": "จากเด็ค — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only) แล้วสับ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เลือกมันสำหรับพวก จน !!!",
+      "note": "ไลฟ์หงาย≥4 และมากกว่าศัตรู → ทำทั้งสองข้อ (กดเลือกปฏิบัติ หรือเล่นเวทแล้วเลือก)",
+      "lifeBothModes": true
+    },
+    {
+      "code": "BT04-047",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwnNameIncludes": "ผู้รู้ความจริง",
+          "actions": [
+            {
+              "op": "revealDeckThenTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ความจริงงงงงงง"
+    },
+    {
+      "code": "BT04-048",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:ไอดอล"
+          },
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "attach",
+              "from": "hell",
+              "filter": {
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "targetFilter": {
+                "nameIncludes": [
+                  "ไอดอล"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "งานจับมือ",
+      "note": "ยกเลิกโจมตีใบนั้น · สวมโอตะให้ไอดอลที่เป็นเป้า"
+    },
+    {
+      "code": "BT04-049",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyedByOpp",
+            "if": "symbol:ผี"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เอาไปอยู่ด้วย",
+      "note": "React ถามใช้ไหม · นับตายต่อสู้ด้วย"
+    },
+    {
+      "code": "BT04-050",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เชาว์ปัญญาลิง - ชิงปัญญาเรา",
+      "note": "React ตอนสั่งใช้/จุติ/อัตโนมัติ → ยกเลิกความสามารถนั้น + nullify จนจบเทิร์น"
+    },
+    {
+      "code": "BT04-051",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireBothHaveMods": true,
+          "actions": [
+            {
+              "op": "bothDestroyOneMod"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ลดราคาล้นตลาด",
+      "note": "ใช้ได้ตลอดเมื่อทั้งสองฝ่ายมี Mod สวม · ผู้ใช้เลือกฝ่ายละ 1"
+    },
+    {
+      "code": "BT04-052",
+      "name": "กลับหลังหัน !!!",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "swapCostPowerCombat"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-053",
+      "abilities": [],
+      "parseStatus": "auto",
+      "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "เครื่องจักร"
+      },
+      "protectLeaveDiceEven": true,
+      "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
+    },
+    {
+      "code": "BT04-054",
+      "name": "ของขวัญจากโอตะ",
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "ไอดอล"
+      },
+      "drawOnAttachIfHostNameIncludes": "ไอดอล",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-055",
+      "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
+      "abilities": [],
+      "hostCostDelta": 2,
+      "hostPowerIfEffCostMin": {
+        "min": 6,
+        "amount": 1
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-056",
+      "name": "ปืนเล็กยาว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-057",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnNameIncludes": "ผู้รู้ความจริง",
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "dest": "reorder",
+              "restTo": "choose"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "สมาคมผู้รู้ความจริง"
+    },
+    {
+      "code": "BT04-058",
+      "name": "โรงบาลรัฐ",
+      "abilities": [],
+      "blockLifeUnreveal": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT04-059",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==land"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "combat",
+              "layer": 4,
+              "target": {
+                "select": "attacking",
+                "symbol": "รัททาทุย"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "พิภพรัททาทุย",
+      "pipopRatExpand": true,
+      "note": "คุมรัททาทุยได้ 6 ถ้าล้วน; เสีย Land ตอนมี 6 ต้องตัดเหลือ 4"
+    },
+    {
+      "code": "BT04-060",
+      "name": "Podcast Untitled Case",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==land"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbols": [
+                  "ผี",
+                  "เปรต",
+                  "เอเลี่ยน",
+                  "ไดโนเสาร์"
+                ],
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}
