@@ -2386,15 +2386,6 @@
     if (logo.complete && logo.naturalWidth === 0) logo.dispatchEvent(new Event('error'));
   })();
 
-  /* ── แจ้งบั๊ก / ความเห็น ── */
-  function openFeedback() { byId('fbMsg').textContent = ''; byId('fbText').value = ''; byId('fbModal').classList.remove('hidden'); setTimeout(() => byId('fbText').focus(), 60); }
-  function closeFeedback() { byId('fbModal').classList.add('hidden'); }
-  byId('btnFeedbackTop').onclick = openFeedback;
-  byId('btnFeedbackMenu').onclick = openFeedback;
-  byId('fbClose').onclick = closeFeedback;
-  byId('fbCancel').onclick = closeFeedback;
-  byId('fbModal').addEventListener('click', e => { if (e.target.id === 'fbModal') closeFeedback(); });
-
   /* ── ล็อกอิน / สมัครสมาชิก ── */
   let authMode = 'login';
   const authToken = () => { try { return localStorage.getItem('bot_auth_token') || ''; } catch (e) { return ''; } };
@@ -2454,24 +2445,6 @@
     const owner = BoTEngine.ownerOf(st, k);
     sendAction({ type: 'chooseMode', k, opt: sel, label: opts[sel], by: mode === 'solo' ? (owner === 'S' ? my : owner) : undefined });
     closeChoicePopup();
-  };
-  byId('fbSend').onclick = () => {
-    const text = byId('fbText').value.trim();
-    if (!text) { byId('fbMsg').textContent = '✗ พิมพ์รายละเอียดก่อนส่งนะครับ'; return; }
-    const screen = SCREENS.find(s => !byId(s).classList.contains('hidden')) || (!byId('table').classList.contains('hidden') ? 'table' : '?');
-    const payload = { text, screen, mode: mode || 'menu', room: room || '', ua: navigator.userAgent, url: location.href };
-    if (byId('fbIncludeLog').checked && st) {
-      payload.turn = st.turn; payload.phase = st.phase; payload.active = st.active;
-      payload.log = (st.log || []).slice(-15).map(l => `${l.p}: ${l.t}`);
-      payload.zones = {};
-      ['A.avatar', 'A.hand', 'B.avatar', 'land'].forEach(z => payload.zones[z] = (st.zones[z] || []).map(k => st.inst[k].name));
-    }
-    byId('fbSend').disabled = true; byId('fbMsg').textContent = 'กำลังส่ง…';
-    fetch('/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(() => { byId('fbMsg').textContent = '✓ ส่งแล้ว ขอบคุณมากครับ!'; byId('fbText').value = ''; setTimeout(closeFeedback, 1200); })
-      .catch(() => { byId('fbMsg').textContent = '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง'; })
-      .finally(() => { byId('fbSend').disabled = false; });
   };
 
   function showMenuHome() {

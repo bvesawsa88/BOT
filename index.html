@@ -60,7 +60,6 @@
     <button id="mnuPlayBack" class="link-btn menu-back">← กลับเมนูหลัก</button>
   </div>
 
-  <button id="btnFeedbackMenu" class="link-btn">🐞 แจ้งบั๊ก / เสนอความเห็น</button>
   <div class="menu-copy">© PASULOL Co.,Ltd / Lion House Co.,Ltd · Rule Book Ver. 3.2</div>
 </div>
 
@@ -456,9 +455,6 @@
         <p class="hw-dim">คีย์ลัดจะไม่ทำงานตอนกำลังพิมพ์ในช่องแชท</p>
       </section>
 
-      <div class="hw-foot">
-        เจอบั๊กหรืออยากเสนออะไร กดปุ่ม <b>🐞 แจ้งบั๊ก</b> ได้ทั้งในเมนูหลักและบนโต๊ะ
-      </div>
     </article>
   </div>
 </div>
@@ -471,7 +467,6 @@
     <button id="btnBot" class="btn-mini hidden"></button>
     <button id="btnRematchTop" class="btn-mini">รีแมตช์</button>
     <button id="btnHowToTop" class="btn-mini" title="เปิดคู่มือวิธีเล่น (แท็บใหม่)">📖 วิธีเล่น</button>
-    <button id="btnFeedbackTop" class="btn-mini">🐞 แจ้งบั๊ก</button>
     <button id="btnFull" class="btn-mini" title="สลับเต็มจอ (กด F)">⛶ เต็มจอ</button>
     <button id="btnClean" class="btn-mini" title="ซ่อน/แสดง UI สำหรับถ่ายรูป/สตรีม (กด H)">🖼 ซ่อน UI</button>
     <button id="btnOneSide" class="btn-mini" title="ซ่อนสนามฝั่งตรงข้าม เหลือสนามเราใบเดียวแบบใหญ่ — เหมาะตอนคู่ต่อสู้ใช้การ์ดจริง">⬍ สนามฝั่งเดียว</button>
@@ -671,26 +666,6 @@
     <div class="row-2">
       <button id="btnRematch" class="btn-primary big">รีแมตช์</button>
       <button id="btnEndMenu" class="btn-dark big">กลับเมนูหลัก</button>
-    </div>
-  </div>
-</div>
-
-<!-- modal แจ้งบั๊ก / ความเห็น -->
-<div id="fbModal" class="hidden">
-  <div class="dc-modal">
-    <div class="dc-head">
-      <div><div class="dc-title">🐞 แจ้งบั๊ก / ความเห็น</div><div class="dc-sub">เจออะไรผิด เล่นแล้วงงตรงไหน หรืออยากให้ปรับอะไร — พิมพ์บอกได้เลย</div></div>
-      <button id="fbClose" class="dc-x">✕</button>
-    </div>
-    <div class="dc-body">
-      <div class="dc-label">รายละเอียด (เจอที่การ์ด/จังหวะไหน จะช่วยให้แก้ตรงจุด)</div>
-      <textarea id="fbText" spellcheck="false" placeholder="เช่น: การ์ด X ตอนอัญเชิญแล้วเอฟเฟกต์ไม่ทำงาน / ปุ่ม Y กดแล้วไม่มีอะไรเกิด / อยากให้ตรงนี้เข้าใจง่ายกว่านี้…"></textarea>
-      <label class="fb-check"><input type="checkbox" id="fbIncludeLog" checked> แนบสถานะเกม + log ล่าสุด (ช่วยให้ผมหาบั๊กเจอเร็วขึ้น)</label>
-      <div id="fbMsg" class="dc-note"></div>
-    </div>
-    <div class="dc-foot">
-      <button id="fbCancel" class="btn-dark">ปิด</button>
-      <button id="fbSend" class="btn-primary">ส่ง</button>
     </div>
   </div>
 </div>
