@@ -89,11 +89,22 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "manual",
       "note": "จุติ : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญเชิญลง Avatar Zone ฝ่ายเรา"
     },
     {

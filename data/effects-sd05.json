@@ -5,14 +5,63 @@
     {
       "code": "SD05-001",
       "name": "บึงทมิฬ  People - CEO คุณจิระ",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allTappedAvatars",
+              "per": 1,
+              "target": {
+                "select": "self"
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allTappedAvatars",
+              "per": 1,
+              "target": {
+                "select": "self"
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "note": "อัติโนมัติ เมื่อการ์ดใบนี้สั่งโจมตีหรือตกเป็นเป้าหมายการโจมตี : POWER ของการ์ดใบนี้จะเพิ่มขึ้นตาม Avatar ที่อยู่ในสภาพนอ"
     },
     {
       "code": "SD05-002",
       "name": "บึงทมิฬ  People - คุณเค้นท์",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "whenAttacking": true,
+          "requireOwnNameIncludes": "บึงทมิฬ People",
+          "actions": [
+            {
+              "op": "optionalDiscardUntapSelf"
+            }
+          ],
+          "note": "ทอยคี่→ตื่น — ใช้ optionalDiscardUntapSelf เป็น proxy (ผู้เล่นกดสั่งใช้เมื่อรอดการต่อสู้)"
+        }
+      ],
       "parseStatus": "manual",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Avatar ใบนี้สั่งโจมตีและไม่ถูกทำลายจากการต่อสู้ ถ้าบน Avatar Zone ฝ่ายเรา มี Avatar \"บึงทมิฬ"
     },
@@ -26,24 +75,62 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "from": "bottom",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ : แสดงการ์ดจากล่างสุดของ Deck ตามจำนวน Avatar ที่อยู่ในสภาพนอนทั้งสนาม เลือก Avatar {symbol ปลา"
+      "parseStatus": "manual",
+      "note": "จำนวนสอดแนมตาม Avatar นอน — ใช้ 3 ใบเป็นค่ากลาง"
     },
     {
       "code": "SD05-004",
       "name": "บึงทมิฬ  People - คุณอังคณา",
       "abilities": [],
       "parseStatus": "manual",
-      "note": "\"โล่มนุษย์\" อัติโนมัติ เมื่อการ์ดใบนี้ใช้ความสามารถ \"โล่มนุษย์\" POWER+2 จนจบการต่อสู้นั้น"
+      "note": "\"โล่มนุษย์\" อัติโนมัติ เมื่อการ์ดใบนี้ใช้ความสามารถ \"โล่มนุษย์\" POWER+2 จนจบการต่อสู้นั้น",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "powerOnHumanShield": 2
     },
     {
       "code": "SD05-005",
       "name": "บึงทมิฬ  People - คุณพยาบาล",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "tap",
+              "target": "self"
+            },
+            {
+              "op": "grantCombatImmune",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "บึงทมิฬ People"
+                ]
+              },
+              "excludeSelf": true
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "note": "เทิร์นละครั้ง สั่งใช้ เปลี่ยนการ์ดใบนี้จากสภาพตื่นเป็นสภาพนอน เลือก Avatar \"บึงทมิฬ People\" ใบอื่นบนสนามฝ่ายเรา 1 ใบ : A"
     },
@@ -57,12 +144,32 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "บึงทมิฬ People"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true,
+              "multiMax": 2,
+              "summonUntappedIfLandNameIncludes": "บึงทมิฬ"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ : อัญเชิญ \"บึงทมิฬ People\" จากใน Deck เรา 2 ใบ ในสภาพนอน แต่ถ้า Land Magic Zone มี \"บึงทมิฬ\" ให"
+      "parseStatus": "manual",
+      "note": "จุติ : อัญเชิญ \"บึงทมิฬ People\" จากใน Deck เรา 2 ใบ ในสภาพนอน แต่ถ้า Land Magic Zone มี \"บึงทมิฬ\" ให",
+      "nameAliases": [
+        "บึงทมิฬ People"
+      ],
+      "extraSymbols": [
+        "ปลา"
+      ]
     },
     {
       "code": "SD05-007",
@@ -116,14 +223,53 @@
     {
       "code": "SD05-014",
       "name": "บึงทมิฬ",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar"
+              }
+            },
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "note": "เทิร์นละครั้ง สั่งใช้ เลือก Avatar 1 ใบ ใน Avatar Zone ฝ่ายเรา เปลี่ยนสภาพ Avatar ใบนั้นเป็นสภาพนอน : จั่วการ์ด 1 ใบ"
     },
     {
       "code": "SD05-015",
       "name": "กำเนิดจากน้ำ",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "summonUntappedIfLandNameIncludes": "บึงทมิฬ",
+              "summonTapped": true
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "note": "เลือก Avatar {symbol ปลา}ในนรกเรา 1 ใบ : อัญเชิญลงบน Avatar Zone ฝ่ายเราในสภาพนอน ถ้าบนสนามมี Land Magic \"บึงทมิฬ\" อัญเช"
     },
@@ -132,34 +278,86 @@
       "name": "น้ำวนชักโครก",
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "react": true,
+          "requireOwnNameIncludes": "บึงทมิฬ People",
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "flipTapsExceptAttacker"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "manual",
       "note": "เมื่อ Avatar \"บึงทมิฬ People\" เป็นเป้าหมายการโจมตี : ยกเลิกการโจมตีนั้น และเปลี่"
     },
     {
       "code": "SD05-017",
       "name": "ปืนฉมวก",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "partial"
+      "parseStatus": "manual",
+      "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
     },
     {
       "code": "SD05-018",
       "name": "ตรีศูล ไตรตัน",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireNoModUsed": true,
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "บึงทมิฬ"
+                ],
+                "subtype": "Land"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "partial"
+      "parseStatus": "manual"
     },
     {
       "code": "SD05-019",

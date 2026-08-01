@@ -162,6 +162,32 @@
     Battle: { en: 'BATTLE PHASE', short: 'BATTLE', th: 'เฟสสู้รบ' },
     End:    { en: 'END PHASE',    short: 'END',    th: 'จบเทิร์น' }
   };
+  /* เด็คกะพริบเขียว: เฟสจั่ว / มีเอฟเฟกต์นัดจั่วรอ / แฟลชตอนเพิ่งจั่ว */
+  function deckShouldDrawHint(side) {
+    if (!st || st.over || (side !== 'A' && side !== 'B')) return false;
+    if (deckFlashSide === side) return true;
+    // เฟสจั่วของฝ่ายที่ถือเทิร์น = แตะเด็คได้
+    if (st.phase === 'Draw' && st.active === side) return true;
+    // มีเอฟเฟกต์นัดจั่วค้าง (เช่น LIFE → จั่ว Main เทิร์นหน้า)
+    if ((st.scheduled || []).some(s => s.player === side && s.op === 'draw')) return true;
+    return false;
+  }
+  function syncDeckDrawHint() {
+    const md = byId('myDeck'), od = byId('oppDeck');
+    if (md) md.classList.toggle('deck-draw', deckShouldDrawHint(my));
+    if (od) od.classList.toggle('deck-draw', deckShouldDrawHint(opp));
+  }
+  function pulseDeckDraw(side) {
+    if (side !== 'A' && side !== 'B') return;
+    deckFlashSide = side;
+    clearTimeout(deckFlashT);
+    syncDeckDrawHint();
+    deckFlashT = setTimeout(() => {
+      deckFlashSide = null;
+      syncDeckDrawHint();
+    }, 1800);
+  }
+
   function syncPhaseSlot() {
     const ps = byId('phaseSlot'), lab = byId('phaseSlotLabel'), sub = byId('phaseSlotSub');
     if (!ps || !lab || !st) return;
@@ -325,6 +351,7 @@
   const costColorOf = c => c.color || '';        // สีคอส = สีที่ต้องจ่ายเพื่ออัญเชิญ ('' = ไร้สี จ่ายได้ทุกสี)
   let previewId = null, lastDrawn = null, lastFlip = null;
   let dealT = null, flipT = null, clashT = null, reconT = null;
+  let deckFlashSide = null, deckFlashT = null; // เด็คกะพริบเขียวตอนจั่ว/เริ่มเทิร์น
 
   /* ── สลับจอ ── */
   const SCREENS = ['menu', 'lobby', 'room', 'deckbuilder', 'gallery', 'howto'];
@@ -912,7 +939,16 @@
     if (fx.deny) { toast('🚫 ' + fx.deny, 3200); return fx; }
     if (a.type === 'summon') { (a.payIds || []).forEach(k => delete selMap[k]); delete selMap[a.k]; }
     if (fx.snd) snd(fx.snd);
-    if (fx.drawn) { lastDrawn = fx.drawn; clearTimeout(dealT); dealT = setTimeout(() => { lastDrawn = null; render(); }, 700); }
+    if (fx.drawn) {
+      lastDrawn = fx.drawn;
+      clearTimeout(dealT); dealT = setTimeout(() => { lastDrawn = null; render(); }, 700);
+      // เด็คฝั่งที่จั่ว — กะพริบเขียวสั้น ๆ (ต้นเทิร์น / เอฟเฟกต์ให้จั่ว)
+      const drawSide = BoTEngine.ownerOf(st, fx.drawn);
+      if (drawSide === 'A' || drawSide === 'B') pulseDeckDraw(drawSide);
+    } else if (fx.snd === 'draw') {
+      // จั่วแล้วแต่ไม่มี id ใบ (บาง path) — กระพริบเด็คฝั่ง active
+      pulseDeckDraw(st.active);
+    }
     if (fx.flip) { lastFlip = fx.flip; clearTimeout(flipT); flipT = setTimeout(() => { lastFlip = null; render(); }, 700); }
     if (fx.clash) {
       const c = byId('clash'); c.textContent = fx.clash; c.classList.remove('hidden');
@@ -1594,6 +1630,7 @@
     byId('myDeckCount').textContent = nMD;
     byId('oppDeck').classList.toggle('has', nOD > 0);
     byId('myDeck').classList.toggle('has', nMD > 0);
+    syncDeckDrawHint();
     byId('oppHellCount').textContent = (st.zones[opp + '.hell'] || []).length;
     byId('myHellCount').textContent = (st.zones[my + '.hell'] || []).length;
     byId('oppDarkCount').textContent = (st.zones[opp + '.dark'] || []).length;
@@ -1664,6 +1701,10 @@
             const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('atk-pick');
           }));
       } else if (announceKind === 'unity') { // เป้า = Avatar ฝั่งเรา (ใบอื่น)
+        (st.zones[mySide + '.avatar'] || []).filter(t => t !== announceSrc).forEach(t => {
+          const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('pick-ok');
+        });
+      } else if (announceKind === 'backstab') { // เป้า = Avatar ที่สั่งโจมตี (ฝั่งเราเป็นหลัก)
         (st.zones[mySide + '.avatar'] || []).filter(t => t !== announceSrc).forEach(t => {
           const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('pick-ok');
         });
@@ -1784,6 +1825,20 @@
     return false; // การ์ดคว่ำของอีกฝั่ง — ไม่โชว์
   }
   function setPreview(k) { if (k && canPeek(k)) { if (previewId !== k) { previewId = k; renderPreview(); } } }
+  function isTouchUI() {
+    return window.matchMedia('(hover:none), (max-width:920px)').matches;
+  }
+  /* มือถือ: เปิดแผ่นอ่านการ์ดเต็ม (ภาพ + ความสามารถ) */
+  function openCardFull(k) {
+    if (!k || !canPeek(k)) { toast('ดูการ์ดใบนี้ไม่ได้', 2000); return false; }
+    setPreview(k);
+    const lg = byId('logPane'), pv = byId('previewPane');
+    if (lg) lg.classList.add('hidden');
+    if (pv) pv.classList.add('open');
+    if (typeof mbSync === 'function') mbSync();
+    try { navigator.vibrate && navigator.vibrate(25); } catch (_) { }
+    return true;
+  }
   // การ์ดใบนี้เราสั่งได้ไหม (solo = คุมทั้งสองฝั่ง · ออนไลน์ = เฉพาะฝั่งตัวเอง + Land กลาง)
   function canControl(k) {
     if (!st || !st.inst[k]) return false;
@@ -1859,6 +1914,9 @@
       // 🤝 สามัคคี — เฉพาะการ์ดที่มี keyword
       ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && (BoTEngine.hasKw ? BoTEngine.hasKw(st, k, 'สามัคคี') : (BoTEngine.keywordsOf(c.code).includes('สามัคคี') || (c.grantedKeywords || []).some(g => g.kw === 'สามัคคี')))
         ? [{ label: '🤝 สามัคคี — นอนแล้วยก POWER ให้…', fn: () => startAnnounce(k, 'unity') }] : []),
+      // 🗡️ แทงหลัง — นอนแล้วยก POWER+1 ให้ผู้โจมตี
+      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')
+        ? [{ label: '🗡️ แทงหลัง — นอนแล้วเสริมผู้โจมตี…', fn: () => startAnnounce(k, 'backstab') }] : []),
       // 🛡️ โล่มนุษย์ — ตอนถูกประกาศโจมตี
       ...((() => {
         const pnd = st.pending;
@@ -1866,9 +1924,10 @@
         if (!pnd || !kz0.endsWith('.avatar') || c.tapped || !c.faceUp) return [];
         const side = BoTEngine.ownerOf(st, k);
         if (side !== pnd.target) return [];
-        if (!BoTEngine.keywordsOf) return [];
-        const hasShield = BoTEngine.keywordsOf(c.code).includes('โล่มนุษย์')
-          || Object.values(st.inst).some(x => x.attachedTo === k && BoTEngine.keywordsOf(x.code).includes('โล่มนุษย์'));
+        const hasShield = BoTEngine.hasKw
+          ? BoTEngine.hasKw(st, k, 'โล่มนุษย์')
+          : (BoTEngine.keywordsOf(c.code).includes('โล่มนุษย์')
+            || Object.values(st.inst).some(x => x.attachedTo === k && BoTEngine.keywordsOf(x.code).includes('โล่มนุษย์')));
         return hasShield ? [{ label: '🛡️ โล่มนุษย์ — รับการโจมตีแทน', act: { type: 'humanShield', k, by: side } }] : [];
       })()),
       // 🔗 สวมใส่ — เฉพาะ Magic ชนิด Modification ที่อยู่ใน Magic Zone → เลือก Avatar
@@ -1915,6 +1974,7 @@
   const PICK_HINT = {
     attack: '⚔️ แตะการ์ด "เป้าหมาย" ที่จะโจมตี · ตัวโจมตีจะนอนให้อัตโนมัติ · Esc = ยกเลิก',
     unity: '🤝 แตะ Avatar ฝั่งเรา "ตัวที่จะรับพลัง" · ตัวที่กดจะนอนแล้วยก POWER ไปให้ · Esc = ยกเลิก',
+    backstab: '🗡️ แตะ Avatar ที่สั่งโจมตี · ตัวที่กดจะนอนแล้วเสริม POWER(+1) จนจบการต่อสู้ · สีต่าง = ทำลายผู้โจมตี · Esc = ยกเลิก',
     pair: '🤝 แตะคู่หูที่ระบุบนการ์ด (เฉพาะใบที่มีความสามารถคู่หู/Link) · Esc = ยกเลิก',
     attach: '🔗 แตะ Avatar ที่จะสวมใส่ให้ (ได้ทั้งสองฝั่ง) · Esc = ยกเลิก',
     use: '⚡ แตะการ์ด "เป้าหมาย" ที่จะใช้ใส่ · แตะใบเดิมซ้ำ = ประกาศเฉยๆ · Esc = ยกเลิก',
@@ -1930,6 +1990,9 @@
     if (announceKind === 'unity') {
       if (!tgt) { toast('ต้องเลือกตัวที่จะรับพลัง'); return; }
       sendAction({ type: 'unity', k: announceSrc, to: tgt, by });
+    } else if (announceKind === 'backstab') {
+      if (!tgt) { toast('ต้องเลือก Avatar ที่สั่งโจมตี'); return; }
+      sendAction({ type: 'backstab', k: announceSrc, to: tgt, by });
     } else if (announceKind === 'pair') {
       if (!tgt) { toast('ต้องเลือกการ์ดใบที่สอง'); return; }
       sendAction({ type: 'pair', k: announceSrc, to: tgt, by });
@@ -2271,7 +2334,13 @@
       const k = cardEl.dataset.cid;
       setPreview(k);
       drag = { k, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, suppress: false, viewer: !!e.target.closest('#pileView') };
-      drag.longT = setTimeout(() => { if (drag && !drag.moved) { drag.suppress = true; openMenu(k, drag.x0, drag.y0); } }, 550);
+      // มือถือ: กดค้าง = เปิดหน้าเต็มอ่านการ์ด · เดสก์ท็อป: กดค้าง = เมนู (คลิกขวาก็ได้)
+      drag.longT = setTimeout(() => {
+        if (!drag || drag.moved) return;
+        drag.suppress = true;
+        if (isTouchUI()) openCardFull(k);
+        else openMenu(k, drag.x0, drag.y0);
+      }, 450);
     } else if (deckEl) {
       drag = { deck: deckEl.dataset.deck, x0: e.clientX, y0: e.clientY, moved: false, suppress: false };
       // กองเด็คไม่มีเมนูกดค้างแล้ว — แตะ = จั่ว · คำสั่งอื่นอยู่ที่แผง 🃏 เด็ค ในแถบขวา
@@ -2725,6 +2794,12 @@
 
   /* ── ออกจากโต๊ะ / กลับเมนู (solo = เคลียร์เกม · online = ออกจากห้อง) ── */
   function goHomeFromTable() {
+    if (st && !st.over) {
+      const msg = mode === 'online'
+        ? 'ออกจากห้องและกลับเมนูหลัก? (เกมของอีกฝั่งอาจหยุด)'
+        : 'กลับเมนูหลัก? กระดานปัจจุบันจะหาย';
+      if (!confirm(msg)) return;
+    }
     if (mode === 'online') leaveOnline();
     else { mode = null; st = null; realMode = false; clearPersistedTable(); showMenuHome(); showScreen('menu'); }
   }
@@ -2734,10 +2809,13 @@
     const navHome = byId('btnNavHome'), topHome = byId('btnHomeTop');
     if (navHome) { navHome.textContent = homeLbl; navHome.title = homeTitle; }
     if (topHome) topHome.title = homeTitle;
+    const spec = mode === 'online' && seat === 'S';
     const rem = byId('btnNavRematch');
-    if (rem) rem.classList.toggle('hidden', mode === 'online' && seat === 'S');
+    if (rem) rem.classList.toggle('hidden', spec);
     const end = byId('btnNavEnd');
-    if (end) end.classList.toggle('hidden', mode === 'online' && seat === 'S');
+    if (end) end.classList.toggle('hidden', spec);
+    const endTop = byId('btnEnd');
+    if (endTop) endTop.classList.toggle('hidden', spec);
   }
 
   /* ── จบเกม / รีแมตช์ ── */

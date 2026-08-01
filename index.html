@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260801i">
+<link rel="stylesheet" href="css/style.css?v=20260801m">
 </head>
 <body>
 
@@ -480,7 +480,6 @@
     <button id="btnStream" class="btn-mini" title="เปิดหน้าต่างสนามแยก (ไม่มีมือใคร) — เอาไปแชร์จอใน Discord ได้ปลอดภัย">📺 บานสนาม</button>
     <!-- 📺 ปุ่มนี้โผล่เฉพาะในบานสนาม: สลับโชว์บอร์ดเดียว (ฝั่งเรา ใหญ่เต็มจอ) ↔ สองบอร์ด -->
     <button id="btnStreamBoth" class="btn-mini stream-only" title="สลับระหว่างโชว์บอร์ดฝั่งเราใบเดียวแบบใหญ่ ↔ โชว์ทั้งสองบอร์ด">⬍ โชว์ 2 บอร์ด</button>
-    <button id="btnEnd" class="btn-mini">จบเกม</button>
     <div class="spacer"></div>
     <div id="chipOpp" class="chip"></div>
     <div id="turnText" class="turn-text"></div>
@@ -488,7 +487,9 @@
     <!-- solo: สลับมุมมองฝั่ง A↔B ให้มือฝั่งที่เล่นอยู่ด้านล่าง -->
     <button id="btnSwapSide" class="btn-mini hidden" title="สลับมุมมอง — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่ง</button>
     <button id="btnCardPeek" class="btn-mini only-mobile" title="ดูการ์ดที่แตะล่าสุด"><span class="ico-full">การ์ด</span><span class="ico-short" aria-hidden="true">🔍</span></button>
-    <button id="btnHomeTop" class="btn-mini only-mobile" title="กลับเมนูหลัก / ออกจากห้อง">🏠</button>
+    <!-- ปุ่มจำเป็น — อยู่ขวาสุดเสมอ ไม่ถูกซ่อนบนมือถือ -->
+    <button id="btnEnd" class="btn-mini btn-essential" title="ประกาศจบเกม">จบเกม</button>
+    <button id="btnHomeTop" class="btn-mini btn-essential" title="กลับเมนูหลัก / ออกจากห้อง"><span class="ico-full">เมนูหลัก</span><span class="ico-short" aria-hidden="true">🏠</span></button>
     <button id="btnLogToggle" class="btn-mini only-mobile" title="เมนู / บันทึกเกม"><span class="ico-full">เมนู</span><span class="ico-short" aria-hidden="true">☰</span></button>
   </header>
 
@@ -615,11 +616,15 @@
     <aside id="logPane">
       <div class="pane-head rp-head">ตัวควบคุม <button id="btnLogClose" class="btn-mini only-mobile">ปิด</button></div>
       <div id="pvControls">
-        <!-- นำทาง: จบเกม / ออกห้อง / กลับเมนู — สำคัญบนมือถือที่ซ่อนปุ่มบนแถบ -->
-        <div class="ctrl-row table-nav-row" id="tableNavRow">
-          <button id="btnNavEnd" class="btn-dark" title="ประกาศจบเกม">🏁 จบเกม</button>
-          <button id="btnNavRematch" class="btn-dark" title="เริ่มกระดานใหม่">รีแมตช์</button>
-          <button id="btnNavHome" class="btn-dark" title="ออกจากห้อง / กลับเมนูหลัก">🏠 เมนูหลัก</button>
+        <!-- ปุ่มจำเป็น: จบเกม / รีแมตช์ / ออกห้อง·เมนูหลัก -->
+        <div id="tableNavRow" class="table-nav-row">
+          <div class="ctrl-row">
+            <button id="btnNavEnd" class="btn-dark" title="ประกาศจบเกม">🏁 จบเกม</button>
+            <button id="btnNavRematch" class="btn-dark" title="เริ่มกระดานใหม่">🔄 รีแมตช์</button>
+          </div>
+          <div class="ctrl-row">
+            <button id="btnNavHome" class="btn-primary" style="width:100%" title="ออกจากห้อง / กลับเมนูหลัก">🏠 เมนูหลัก</button>
+          </div>
         </div>
         <div id="phaseBar" class="phase-bar"></div>
         <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
@@ -873,17 +878,17 @@
       <b>ลาก Avatar ทับตัวศัตรู</b> = ประกาศโจมตี (เฟส Battle) — เทียบ POWER แล้วส่งฝ่ายแพ้ลงนรกให้เลย<br>
       <b>ลาก Avatar ทับ LIFE</b> = โจมตี LIFE หงายให้เลย<br>
       <b>จบเทิร์น</b> = ตื่นทุกใบ + จั่ว 1 ใบให้อัตโนมัติ<br>
-      <b>ดับเบิลคลิก / แตะสองครั้ง</b> = นอน/ตื่น · <b>คลิกขวา / กดค้าง</b> = เมนูการ์ด · คลิกเด็ค = จั่ว<br>
+      <b>ดับเบิลคลิก / แตะสองครั้ง</b> = นอน/ตื่น · <b>มือถือกดค้าง</b> = อ่านการ์ดเต็ม · <b>คลิกขวา</b> = เมนู · คลิกเด็ค = จั่ว<br>
       ปุ่ม <b>"กติกา"</b> บนขวา สลับได้ระหว่างบังคับกฎ ↔ โต๊ะเสรี (ไว้ใช้ตอน effect การ์ดต้องทำนอกกฎ)
     </div>
     <button id="btnTutClose" class="btn-primary big">เข้าใจแล้ว เริ่มเลย</button>
   </div>
 </div>
 
-<script src="js/util.js?v=20260729x"></script>
-<script src="js/carddb.js?v=20260728v"></script>
+<script src="js/util.js?v=20260802b"></script>
+<script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260801e"></script>
-<script src="js/game.js?v=20260801i"></script>
+<script src="js/game.js?v=20260801n"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

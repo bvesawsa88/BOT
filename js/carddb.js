@@ -1,7 +1,7 @@
 /* BoT — ฐานข้อมูลการ์ดกลาง (data/cards.json + banlist) · แชร์ให้ game / deck builder / gallery */
 (function (root) {
   'use strict';
-  // ★ เปิดทุกชุดแล้ว (32 ซีรีส์ · 1,646 ใบ) — โหมดแมนนวล 100% ไม่ต้องรอแปลงเอฟเฟกต์
+  // ★ เปิดทุกชุดแล้ว (รวม BT11 · 1,721 ใบ) — โหมดแมนนวล 100% ไม่ต้องรอแปลงเอฟเฟกต์
   // ถ้าจะจำกัดชุดอีกครั้ง ใส่รายชื่อซีรีส์ลงใน Set นี้ (Set ว่าง = เปิดหมด)
   const ALLOWED_SERIES = new Set();
   root.ALLOWED_SERIES = ALLOWED_SERIES;
@@ -12,10 +12,11 @@
     function load() {
       if (cache) return Promise.resolve(cache);
       if (pending) return pending;
+      const asset = (root.BotUtil && root.BotUtil.asset) || (p => p);
       pending = Promise.all([
-        fetch('data/cards.json').then(r => { if (!r.ok) throw 0; return r.json(); })
-          .catch(() => fetch('data/sd01.json').then(r => r.json())),
-        fetch('data/banlist.json').then(r => r.json()).catch(() => ({})),
+        fetch(asset('data/cards.json')).then(r => { if (!r.ok) throw 0; return r.json(); })
+          .catch(() => fetch(asset('data/sd01.json')).then(r => r.json())),
+        fetch(asset('data/banlist.json')).then(r => r.json()).catch(() => ({})),
       ]).then(([all, ban]) => {
         const byCode = {};
         all.forEach(c => { if (!byCode[c.code] || c.image === c.code + '.png') byCode[c.code] = c; });
