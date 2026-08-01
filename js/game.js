@@ -1,7 +1,7 @@
 /* BoT Online — client (js/game.js)
    เมนูหลัก → ล็อบบี้ → ห้องรอ → โต๊ะเล่น → จบเกม/รีแมตช์
-   โหมด: online (2 คน + ผู้ชม) / solo (คุมทั้งสองฝั่งบนเครื่องเดียว)
-   พึ่งพา: BotUtil · CardDB · BoTEngine (โหลดตอนเล่น — ไม่ดึงตอนเปิดเมนู) */
+   โหมด: online (WS หรือ LAN/P2P) / solo (คุมทั้งสองฝั่งบนเครื่องเดียว)
+   พึ่งพา: BotUtil · CardDB · BoTEngine · BotLAN (โหลดตอนเล่น — ไม่ดึงตอนเปิดเมนู) */
 (function () {
   'use strict';
   const { $, byId, esc, loadScript, loadCss, asset } = BotUtil;
@@ -79,6 +79,11 @@
   idle(() => { ensurePlayReady().catch(() => { }); ensureTools().catch(() => { }); }, { timeout: 4000 });
 
   let mode = null;          // 'online' | 'solo'
+  let netKind = null;       // 'ws' | 'lan' | null — online แยกช่องทาง
+  let lanSession = null;    // { send, destroy, connected, code } จาก BotLAN
+  let lanIsHost = false;
+  let lanDecks = { A: null, B: null };
+  let lanDeckNames = { A: '', B: '' };
   // 📺 บานสนาม = หน้าต่างแสดงสนามอย่างเดียวสำหรับแชร์จอ (ดูบล็อกท้ายไฟล์)
   const STREAM = new URLSearchParams(location.search).get('stream') === '1';
   let streamSide = 'A';   // ฝั่งที่บานสนามถือว่าเป็น "ของเรา" (มาจากที่นั่งของหน้าต่างหลัก)
@@ -146,9 +151,35 @@
     void el.offsetWidth;
     el.classList.add('show');
     clearTimeout(phaseFlashT); phaseFlashT = setTimeout(() => el.classList.remove('show'), 1100);
+    // ช่องเฟสกลางสนาม — กระพริบสั้น ๆ ตอนเปลี่ยนเฟส
+    const ps = byId('phaseSlot');
+    if (ps) { ps.classList.remove('pulse'); void ps.offsetWidth; ps.classList.add('pulse'); }
   }
 
-  /* มุมสุดท้ายของลูกเต๋าให้หน้า v หันเข้ากล้อง (df1–df6) */
+  const PHASE_SLOT = {
+    Draw:   { en: 'DRAW PHASE',   short: 'DRAW',   th: 'เฟสจั่ว' },
+    Main:   { en: 'MAIN PHASE',   short: 'MAIN',   th: 'เฟสเมน' },
+    Battle: { en: 'BATTLE PHASE', short: 'BATTLE', th: 'เฟสสู้รบ' },
+    End:    { en: 'END PHASE',    short: 'END',    th: 'จบเทิร์น' }
+  };
+  function syncPhaseSlot() {
+    const ps = byId('phaseSlot'), lab = byId('phaseSlotLabel'), sub = byId('phaseSlotSub');
+    if (!ps || !lab || !st) return;
+    const meta = PHASE_SLOT[st.phase] || { en: st.phase, short: st.phase, th: st.phase };
+    const portrait = window.matchMedia('(max-width:920px) and (orientation:portrait)').matches;
+    lab.textContent = portrait ? meta.short : meta.en;
+    const mine = mode === 'solo' || seat === st.active || seat === 'S';
+    const i = ['Draw', 'Main', 'Battle', 'End'].indexOf(st.phase);
+    const nextHint = i < 0 || i === 3 ? 'แตะเพื่อจบเทิร์น' : 'แตะเพื่อไปเฟสถัดไป';
+    if (sub) sub.textContent = mine ? `${meta.th} · ${nextHint}` : `${meta.th} · ตาฝั่ง ${st.active}`;
+    ps.className = 'phase-slot ph-' + st.phase + (mine ? '' : ' wait');
+    ps.title = mine ? nextHint : `ตาฝั่ง ${st.active}`;
+  }
+
+  /* มุมสุดท้ายของลูกเต๋าให้หน้า v หันเข้ากล้อง (df1–df6)
+     ผังหน้า: 1 หน้า · 6 หลัง · 3 ขวา · 4 ซ้าย · 2 บน · 5 ล่าง
+     ค่าเริ่มต้นของลูกบาศก์ = เอียงโชว์หลายหน้า (−22, 32) จึงชดเชยตอนหยุด */
+  const DICE_IDLE = { x: -22, y: 32 };
   const DICE_FACE_ROT = {
     1: { x: 0, y: 0 },
     2: { x: -90, y: 0 },
@@ -157,7 +188,7 @@
     5: { x: 90, y: 0 },
     6: { x: 0, y: 180 }
   };
-  let coinAnim = null, diceAnim = null, coinShAnim = null, diceShAnim = null;
+  let coinAnim = null, coinShAnim = null, diceShAnim = null;
 
   function hideCoinOv(instant) {
     const ov = byId('coinOv'), disc = byId('coinDisc'), lab = byId('coinLabel');
@@ -176,13 +207,16 @@
   function hideDiceOv(instant) {
     const ov = byId('diceOv'), cube = byId('diceCube'), lab = byId('diceLabel');
     clearTimeout(diceOvT);
-    if (diceAnim) { try { diceAnim.cancel(); } catch (_) {} diceAnim = null; }
     if (diceShAnim) { try { diceShAnim.cancel(); } catch (_) {} diceShAnim = null; }
     if (!ov) return;
     ov.classList.remove('show');
     if (instant) {
       ov.classList.add('hidden');
-      if (cube) { cube.style.transform = ''; cube.className = 'dice-cube'; }
+      if (cube) {
+        cube.style.transition = 'none';
+        cube.style.transform = `rotateX(${DICE_IDLE.x}deg) rotateY(${DICE_IDLE.y}deg)`;
+        cube.className = 'dice-cube';
+      }
       if (lab) { lab.classList.remove('show'); lab.textContent = ''; }
     }
   }
@@ -233,7 +267,7 @@
     }, dur + 1100);
   }
 
-  /* 🎲 ทอยเต๋า — กลิ้ง 3 แกนแบบลูกบอล แล้วหยุดที่หน้าเลขจริง */
+  /* 🎲 ทอยเต๋า — CSS 3D หมุนหลายรอบแล้วหยุดที่หน้าผล */
   function showDiceRoll(n) {
     const ov = byId('diceOv'), cube = byId('diceCube'), lab = byId('diceLabel');
     const shadow = ov && ov.querySelector('.dice-shadow');
@@ -242,49 +276,45 @@
     hideCoinOv(true);
     hideDiceOv(true);
     const face = DICE_FACE_ROT[v];
-    const turns = (min, max) => (min + Math.floor(Math.random() * (max - min + 1))) * 360;
-    const endX = turns(2, 4) + face.x;
-    const endY = turns(2, 4) + face.y;
-    const endZ = turns(1, 3);
-    const dur = 2000;
+    // หมุน 3–5 รอบต่อแกน · สุ่มทิศ แล้วหยุดที่หน้าเลขหันกล้อง
+    const spin = () => (3 + Math.floor(Math.random() * 3)) * 360 * (Math.random() < .5 ? 1 : -1);
+    const endX = spin() + face.x;
+    const endY = spin() + face.y;
+    const dur = 1600;
     clearTimeout(diceOvT);
     lab.classList.remove('show');
     lab.textContent = '';
     cube.className = 'dice-cube';
-    cube.style.transform = '';
+    // เริ่มจากมุมเอียง (เห็นหลายหน้า) · ไม่มี transition ก่อน ไม่งั้นทอยซ้ำไม่เล่น
+    cube.style.transition = 'none';
+    cube.style.transform = `rotateX(${DICE_IDLE.x}deg) rotateY(${DICE_IDLE.y}deg)`;
     ov.classList.remove('hidden');
-    requestAnimationFrame(() => ov.classList.add('show'));
-
-    const ease = 'cubic-bezier(0.18, 0.65, 0.22, 1)';
-    const tf = (x, y, z, ty, sc) =>
-      `translateY(${ty}px) rotateX(${x}deg) rotateY(${y}deg) rotateZ(${z}deg) scale(${sc})`;
-
-    diceAnim = cube.animate([
-      { transform: tf(0, 0, 0, 55, .75) },
-      { transform: tf(endX * .22, endY * .18, endZ * .35, -140, 1.12), offset: .22 },
-      { transform: tf(endX * .48, endY * .42, endZ * .7, -90, 1.04), offset: .45 },
-      { transform: tf(endX * .72, endY * .7, endZ * .9, -25, 1), offset: .68 },
-      { transform: tf(endX * .9, endY * .9, endZ * .98, 8, 1), offset: .86 },
-      { transform: tf(endX, endY, endZ, -4, 1), offset: .94 },
-      { transform: tf(endX, endY, endZ, 0, 1) }
-    ], { duration: dur, easing: ease, fill: 'forwards' });
+    void cube.offsetWidth;
+    requestAnimationFrame(() => {
+      ov.classList.add('show');
+      requestAnimationFrame(() => {
+        cube.style.transition = `transform ${dur}ms cubic-bezier(0.18, 0.7, 0.22, 1)`;
+        cube.style.transform = `rotateX(${endX}deg) rotateY(${endY}deg)`;
+      });
+    });
 
     if (shadow) {
       diceShAnim = shadow.animate([
-        { transform: 'scaleX(.45)', opacity: .18, bottom: '34px' },
-        { transform: 'scaleX(.25)', opacity: .1, bottom: '8px', offset: .22 },
-        { transform: 'scaleX(1)', opacity: .55, bottom: '52px' }
-      ], { duration: dur, easing: ease, fill: 'forwards' });
+        { transform: 'scaleX(.55)', opacity: .22 },
+        { transform: 'scaleX(.35)', opacity: .14, offset: .35 },
+        { transform: 'scaleX(1)', opacity: .5 }
+      ], { duration: dur, easing: 'cubic-bezier(0.18, 0.7, 0.22, 1)', fill: 'forwards' });
     }
 
     setTimeout(() => {
+      cube.classList.add('landed');
       lab.innerHTML = `ออก <b>${v}</b>`;
       lab.classList.add('show');
-    }, dur - 100);
+    }, dur);
     diceOvT = setTimeout(() => {
       ov.classList.remove('show');
       setTimeout(() => hideDiceOv(true), 220);
-    }, dur + 1200);
+    }, dur + 1100);
   }
   let botT = null;
   let selMap = {};          // การ์ดในมือที่เลือกนับ GEM (ใช้ร่วมกับโหมดมัลลิแกน)
@@ -309,6 +339,7 @@
         const payload = {
           screen: curScreen,
           mode: mode || null,
+          netKind: netKind || null,
           seat, room: room || '',
           realMode: !!realMode,
           gameStart: gameStart || 0,
@@ -387,12 +418,33 @@
     const t = byId('toast'); t.textContent = msg; t.classList.remove('hidden');
     clearTimeout(t._t); t._t = setTimeout(() => t.classList.add('hidden'), ms || 2600);
   }
-  function inviteURL() { return location.origin + '/?room=' + room; }
+  function inviteURL() {
+    if (netKind === 'lan' && typeof BotLAN !== 'undefined') return BotLAN.inviteURL(room);
+    return location.origin + location.pathname.replace(/\/?$/, '/') + '?room=' + room;
+  }
   function copyInvite() {
     const url = inviteURL();
     (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
       () => toast('คัดลอกลิงก์แล้ว — ส่งให้เพื่อนเปิดได้เลย: ' + url, 4000),
       () => toast('ลิงก์เชิญ: ' + url, 6000));
+  }
+  function updateRoomShareUI() {
+    const hint = byId('roomShareHint');
+    const qr = byId('roomQr');
+    if (hint) {
+      hint.textContent = netKind === 'lan'
+        ? 'ห้อง LAN — ส่งรหัส/QR ให้เพื่อน · ใช้ Wi‑Fi หรือฮอตสปอตเดียวกัน (ตอนจับคู่ต้องมีเน็ต)'
+        : 'แชร์รหัสนี้ให้เพื่อน';
+    }
+    if (qr) {
+      if (netKind === 'lan' && room && typeof BotLAN !== 'undefined') {
+        qr.src = BotLAN.qrDataUrl(inviteURL(), 160);
+        qr.classList.remove('hidden');
+      } else {
+        qr.removeAttribute('src');
+        qr.classList.add('hidden');
+      }
+    }
   }
 
   /* ── WebSocket ── */
@@ -400,6 +452,8 @@
   function wsSend(msg) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg)); }
   function connect(onOpen) {
     wsWanted = true;
+    netKind = 'ws';
+    lanIsHost = false;
     ws = new WebSocket(wsURL());
     ws.onopen = () => { clearTimeout(reconT); if (onOpen) onOpen(); };
     ws.onmessage = ev => {
@@ -450,10 +504,264 @@
   function leaveOnline() {
     wsWanted = false; clearTimeout(reconT);
     if (ws) { try { wsSend({ t: 'leave' }); ws.close(); } catch (e) { } ws = null; }
-    mode = null; room = ''; st = null; roomSt = null; myReady = false;
-    history.replaceState(null, '', '/');
+    if (lanSession) {
+      try { lanSession.send({ t: 'leave' }); } catch (e) { }
+      try { lanSession.destroy(); } catch (e2) { }
+      lanSession = null;
+    }
+    mode = null; netKind = null; lanIsHost = false; room = ''; st = null; roomSt = null; myReady = false;
+    lanDecks = { A: null, B: null }; lanDeckNames = { A: '', B: '' };
+    history.replaceState(null, '', location.pathname || '/');
     clearPersistedTable();
+    updateRoomShareUI();
+    showMenuHome();
     showScreen('menu');
+  }
+
+  function lanSend(msg) {
+    return !!(lanSession && lanSession.send && lanSession.send(msg));
+  }
+  function lanBroadcastRoom() {
+    if (!lanIsHost || !roomSt) return;
+    lanSend({
+      t: 'room', phase: roomSt.phase,
+      A: roomSt.A, B: roomSt.B, specs: 0,
+    });
+  }
+  function lanEmptyRoom(hostNick) {
+    return {
+      phase: 'wait',
+      A: { nick: hostNick || 'โฮสต์', ready: false, online: true, deckName: '' },
+      B: { nick: '', ready: false, online: false, deckName: '' },
+      specs: 0,
+    };
+  }
+  function lanPrepareAction(a, fromSeat) {
+    const out = Object.assign({}, a);
+    if (!out.by) out.by = fromSeat === 'S' ? 'S' : fromSeat;
+    if (out.seed == null) out.seed = (Math.random() * 0xffffffff) >>> 0;
+    if (out.type === 'dice' && out.v == null) out.v = 1 + Math.floor(Math.random() * 6);
+    if (out.type === 'coin' && out.v == null) out.v = Math.random() < .5 ? 'หัว' : 'ก้อย';
+    if (out.type === 'shuffle' && !out.perm && st) {
+      const p = out.by === 'A' || out.by === 'B' ? out.by : (out.p === 'B' ? 'B' : 'A');
+      const len = (st.zones[p + '.deck'] || []).length;
+      out.perm = Array.from({ length: len }, (_, i) => i);
+      for (let i = len - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = out.perm[i]; out.perm[i] = out.perm[j]; out.perm[j] = tmp;
+      }
+    }
+    if (out.type === 'shuffleHand' && !out.perm && st) {
+      const p = out.by === 'A' || out.by === 'B' ? out.by : (out.p === 'B' ? 'B' : 'A');
+      const len = (st.zones[p + '.hand'] || []).length;
+      out.perm = Array.from({ length: len }, (_, i) => i);
+      for (let i = len - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = out.perm[i]; out.perm[i] = out.perm[j]; out.perm[j] = tmp;
+      }
+    }
+    return out;
+  }
+  function lanHostHandleAction(a, fromSeat) {
+    if (!st) return;
+    if (fromSeat === 'S' && a.type !== 'chat') {
+      lanSend({ t: 'deny', m: 'ผู้ชมดูได้อย่างเดียว' });
+      return;
+    }
+    const prepared = lanPrepareAction(a, fromSeat);
+    const fx = applyA(prepared);
+    if (fx && fx.deny) {
+      if (fromSeat !== seat) lanSend({ t: 'deny', m: fx.deny });
+      return;
+    }
+    seqNum += 1;
+    lanSend({ t: 'action', a: prepared, seq: seqNum });
+  }
+  function lanHostStartGame() {
+    if (!lanIsHost || !roomSt) return;
+    if (!(roomSt.A.online && roomSt.B.online && roomSt.A.ready && roomSt.B.ready)) {
+      toast('รอให้ครบ 2 คนและกดพร้อมทั้งคู่');
+      return;
+    }
+    Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
+      const dA = lanDecks.A || (starterDeck('SD01') || {}).spec;
+      const dB = lanDecks.B || (starterDeck('SD01') || {}).spec;
+      st = BoTEngine.buildInitialState(db.all, Math.random, { A: dA, B: dB });
+      seqNum = 0;
+      gameStart = Date.now();
+      selMap = {};
+      roomSt.phase = 'play';
+      lanSend({ t: 'start', state: st, seq: 0 });
+      reportTable('lan');
+      startTable();
+    }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
+  }
+  function lanHostRematch() {
+    if (!lanIsHost) return;
+    st = null; seqNum = 0; myReady = false; selMap = {};
+    lanDecks = { A: null, B: null };
+    if (roomSt) {
+      roomSt.phase = 'wait';
+      roomSt.A.ready = false; roomSt.B.ready = false;
+      roomSt.A.deckName = ''; roomSt.B.deckName = '';
+    }
+    lanBroadcastRoom();
+    fillDeckSelect();
+    showScreen('room');
+    renderRoom();
+    toast('รีแมตช์ — กดพร้อมใหม่ทั้งคู่');
+  }
+  function onLanMessage(m) {
+    if (!m || !m.t) return;
+    if (lanIsHost) {
+      if (m.t === 'hello') {
+        roomSt.B.online = true;
+        roomSt.B.nick = (m.nick || 'ผู้เล่น B').slice(0, 24);
+        roomSt.B.ready = false;
+        roomSt.B.deckName = '';
+        lanDecks.B = null;
+        lanBroadcastRoom();
+        renderRoom();
+        toast('คู่ต่อสู้เข้าห้องแล้ว');
+        return;
+      }
+      if (m.t === 'ready') {
+        roomSt.B.ready = !!m.ready;
+        roomSt.B.deckName = m.deckName || roomSt.B.deckName || '';
+        if (m.ready && m.deck) lanDecks.B = m.deck;
+        if (!m.ready) lanDecks.B = null;
+        lanBroadcastRoom();
+        renderRoom();
+        return;
+      }
+      if (m.t === 'start') { lanHostStartGame(); return; }
+      if (m.t === 'action') { lanHostHandleAction(m.a || {}, 'B'); return; }
+      if (m.t === 'rematch') { lanHostRematch(); return; }
+      if (m.t === 'end') {
+        const w = m.winner;
+        const nickW = (roomSt && roomSt[w] && roomSt[w].nick) || '';
+        lanSend({ t: 'end', winner: w, nick: nickW });
+        showEnd(w, nickW);
+        return;
+      }
+      if (m.t === 'leave') {
+        roomSt.B = { nick: '', ready: false, online: false, deckName: '' };
+        lanDecks.B = null;
+        if (st) { st = null; fillDeckSelect(); showScreen('room'); }
+        lanBroadcastRoom();
+        renderRoom();
+        toast('คู่ต่อสู้ออกจากห้อง');
+        return;
+      }
+      if (m.t === 'sync' && st) {
+        lanSend({ t: 'snapshot', state: st, seq: seqNum });
+        return;
+      }
+      return;
+    }
+    // แขก
+    if (m.t === 'room') {
+      roomSt = m;
+      if (seat !== 'S') myReady = !!m[seat].ready;
+      if (m.phase === 'wait' && !byId('table').classList.contains('hidden')) {
+        st = null; fillDeckSelect(); showScreen('room');
+      }
+      renderRoom();
+      if (st) render();
+      return;
+    }
+    if (m.t === 'start') {
+      ensurePlayReady().then(() => {
+        st = m.state; seqNum = m.seq || 0; gameStart = Date.now(); selMap = {};
+        startTable();
+      });
+      return;
+    }
+    if (m.t === 'action') {
+      if (!st) return;
+      if (m.seq !== seqNum + 1) { lanSend({ t: 'sync' }); return; }
+      seqNum = m.seq; applyA(m.a); return;
+    }
+    if (m.t === 'snapshot') { st = m.state; seqNum = m.seq; render(); return; }
+    if (m.t === 'end') { showEnd(m.winner, m.nick); return; }
+    if (m.t === 'deny') { toast('🚫 ' + m.m, 3200); return; }
+    if (m.t === 'error') { toast(m.m || 'ห้อง LAN ปฏิเสธการเข้า'); leaveOnline(); return; }
+  }
+  function startLanHost() {
+    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
+    byId('lobbyMsg').textContent = 'กำลังสร้างห้อง LAN…';
+    realMode = false;
+    BotLAN.host({
+      onMessage: onLanMessage,
+      onPeerConnect: () => { /* hello จากแขกจะอัปเดตห้อง */ },
+      onPeerClose: () => {
+        if (!roomSt) return;
+        roomSt.B = { nick: '', ready: false, online: false, deckName: '' };
+        lanDecks.B = null;
+        if (st) { st = null; fillDeckSelect(); showScreen('room'); }
+        renderRoom();
+        toast('การเชื่อมต่อคู่ต่อสู้หลุด');
+      },
+      onError: (err) => toast((err && err.message) || 'LAN error'),
+    }).then(api => {
+      lanSession = api;
+      lanIsHost = true;
+      netKind = 'lan';
+      mode = 'online';
+      room = api.code;
+      seat = 'A';
+      myReady = false;
+      lanDecks = { A: null, B: null };
+      lanDeckNames = { A: '', B: '' };
+      roomSt = lanEmptyRoom(myNick() || 'โฮสต์');
+      history.replaceState(null, '', '?lan=' + room);
+      fillDeckSelect();
+      showScreen('room');
+      renderRoom();
+      updateRoomShareUI();
+      byId('lobbyMsg').textContent = '';
+      toast('สร้างห้อง LAN ' + room + ' แล้ว — ส่งรหัสให้เพื่อน', 4000);
+    }).catch(err => {
+      byId('lobbyMsg').textContent = (err && err.message) || 'สร้างห้อง LAN ไม่สำเร็จ';
+      toast(byId('lobbyMsg').textContent);
+    });
+  }
+  function joinLanRoom(code) {
+    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
+    const clean = BotLAN.parseCode(code || byId('inpRoom').value);
+    if (clean.length !== 6) { byId('lobbyMsg').textContent = 'รหัสห้องต้องมี 6 ตัวอักษร'; return; }
+    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง LAN…';
+    realMode = false;
+    BotLAN.join(clean, {
+      onMessage: onLanMessage,
+      onClose: () => {
+        toast('หลุดจากโฮสต์ LAN');
+        if (mode === 'online' && netKind === 'lan') leaveOnline();
+      },
+      onError: (err) => toast((err && err.message) || 'LAN error'),
+    }).then(api => {
+      lanSession = api;
+      lanIsHost = false;
+      netKind = 'lan';
+      mode = 'online';
+      room = clean;
+      seat = 'B';
+      myReady = false;
+      history.replaceState(null, '', '?lan=' + room);
+      lanSend({ t: 'hello', nick: myNick() || 'ผู้เล่น B', uid: myUid() });
+      fillDeckSelect();
+      // รอ room จากโฮสต์ — โชว์ห้องไปก่อน
+      roomSt = lanEmptyRoom('โฮสต์');
+      roomSt.B = { nick: myNick() || 'ผู้เล่น B', ready: false, online: true, deckName: '' };
+      showScreen('room');
+      renderRoom();
+      updateRoomShareUI();
+      byId('lobbyMsg').textContent = '';
+      toast('เข้าห้อง LAN แล้ว', 2500);
+    }).catch(err => {
+      byId('lobbyMsg').textContent = (err && err.message) || 'เข้าห้อง LAN ไม่สำเร็จ';
+      toast(byId('lobbyMsg').textContent, 4500);
+    });
   }
 
   /* ── ห้องรอ ── */
@@ -587,6 +895,11 @@
       return;
     }
     if (seat === 'S' && a.type !== 'chat') { toast('ผู้ชมดูได้อย่างเดียว'); return; }
+    if (netKind === 'lan') {
+      if (lanIsHost) lanHostHandleAction(a, seat);
+      else if (!lanSend({ t: 'action', a })) toast('ยังไม่เชื่อมต่อโฮสต์ — รอสักครู่…');
+      return;
+    }
     // เต๋า/เหรียญ: สุ่มฝั่งผู้กด แล้วส่งค่าไปด้วย เพื่อให้ทุกจอเห็นผลเดียวกัน + แอนิเมชันตรงกัน
     if (a.type === 'dice' && a.v == null) a.v = 1 + Math.floor(Math.random() * 6);
     if (a.type === 'coin' && a.v == null) a.v = Math.random() < .5 ? 'หัว' : 'ก้อย';
@@ -596,7 +909,7 @@
 
   function applyA(a) {
     const fx = BoTEngine.applyAction(st, a);
-    if (fx.deny) { toast('🚫 ' + fx.deny, 3200); return; }
+    if (fx.deny) { toast('🚫 ' + fx.deny, 3200); return fx; }
     if (a.type === 'summon') { (a.payIds || []).forEach(k => delete selMap[k]); delete selMap[a.k]; }
     if (fx.snd) snd(fx.snd);
     if (fx.drawn) { lastDrawn = fx.drawn; clearTimeout(dealT); dealT = setTimeout(() => { lastDrawn = null; render(); }, 700); }
@@ -679,6 +992,7 @@
     }
     scheduleBot();
     if (mode === 'solo') persistUI();
+    return fx;
   }
 
   /* ── บอทฝั่ง B (โหมดซ้อมคนเดียว) — event-driven: ทำทีละ action หลังทุกการเปลี่ยนสถานะ ── */
@@ -762,6 +1076,56 @@
     sendAction({ type: st.phase === 'End' ? 'endTurn' : 'setPhase', phase: 'Main', by: 'B' });
   }
 
+  /* ── มุมมองฝั่งบนโต๊ะ (มือด้านล่าง = my) ── */
+  function applyPerspective() {
+    const dropMap = {
+      myAvatarZone: my + '.avatar', myMagicZone: my + '.magic', myConstructZone: my + '.construct',
+      myHell: my + '.hell', myDark: my + '.dark', myDeck: my + '.deck', myHandRow: my + '.hand',
+      oppAvatarZone: opp + '.avatar', oppMagicZone: opp + '.magic', oppConstructZone: opp + '.construct',
+      oppHell: opp + '.hell', oppDark: opp + '.dark', oppDeck: opp + '.deck',
+    };
+    for (const id in dropMap) { const el = byId(id); if (el) el.dataset.drop = dropMap[id]; }
+    byId('myDeck').dataset.deck = my; byId('oppDeck').dataset.deck = opp;
+    byId('myHell').dataset.pile = my + '.hell'; byId('oppHell').dataset.pile = opp + '.hell';
+    byId('myDark').dataset.pile = my + '.dark'; byId('oppDark').dataset.pile = opp + '.dark';
+    const lifeWho = byId('oppLifeWho'); if (lifeWho) lifeWho.textContent = opp;
+  }
+  function canSwapSoloSide() {
+    return mode === 'solo' && !realMode && !STREAM && !!st && !st.over;
+  }
+  function swapSoloSide() {
+    if (!canSwapSoloSide()) return;
+    const was = my;
+    my = opp; opp = was;
+    selMap = {};
+    closeMenu();
+    applyPerspective();
+    toast(`กำลังเล่นฝั่ง ${my} — มือด้านล่างคือฝั่ง ${my}`, 2500);
+    render();
+  }
+  function syncSwapSideBtns() {
+    const show = canSwapSoloSide();
+    const need = show && st && st.active !== my;
+    const target = need ? st.active : opp;
+    const title = need
+      ? `ตาฝั่ง ${st.active} แล้ว — กดเพื่อย้ายมือฝั่ง ${st.active} มาด้านล่าง`
+      : `สลับมุมมอง — มือฝั่ง ${opp} จะมาอยู่ด้านล่าง`;
+    const top = byId('btnSwapSide');
+    if (top) {
+      top.textContent = `⇄${target}`;
+      top.title = title;
+      top.classList.toggle('need', !!need);
+      top.classList.toggle('hidden', !show);
+    }
+    const ctrl = byId('btnSwapSideCtrl');
+    if (ctrl) {
+      ctrl.textContent = need ? `⇄ สลับมาเล่นฝั่ง ${st.active}` : `⇄ สลับฝั่งผู้เล่น (ตอนนี้ล่าง = ${my})`;
+      ctrl.title = title;
+      ctrl.classList.toggle('need', !!need);
+    }
+    const row = byId('swapSideRow'); if (row) row.classList.toggle('hidden', !show);
+  }
+
   /* ── เริ่มโต๊ะ ── */
   function startTable() {
     // 📺 บานสนาม: ฝั่ง "ของเรา" มาจากที่นั่งของหน้าต่างหลัก (ไม่ใช่ A ตายตัว) เพื่อโชว์บอร์ดฝั่งถูก
@@ -770,18 +1134,8 @@
     byId('table').classList.toggle('spectate', mode === 'online' && seat === 'S');
     showScreen('table');
     byId('endOv').classList.add('hidden');
-    const dropMap = {
-      myAvatarZone: my + '.avatar', myMagicZone: my + '.magic', myConstructZone: my + '.construct',
-      myHell: my + '.hell', myDark: my + '.dark', myDeck: my + '.deck', myHandRow: my + '.hand',
-      oppAvatarZone: opp + '.avatar', oppMagicZone: opp + '.magic', oppConstructZone: opp + '.construct',
-      oppHell: opp + '.hell', oppDark: opp + '.dark', oppDeck: opp + '.deck',
-    };
-    for (const id in dropMap) byId(id).dataset.drop = dropMap[id];
-    byId('myDeck').dataset.deck = my; byId('oppDeck').dataset.deck = opp;
-    byId('myHell').dataset.pile = my + '.hell'; byId('oppHell').dataset.pile = opp + '.hell';
-    byId('myDark').dataset.pile = my + '.dark'; byId('oppDark').dataset.pile = opp + '.dark';
+    applyPerspective();
     pileView = null; byId('pileView').classList.add('hidden');
-    byId('oppLifeWho').textContent = opp;
     byId('btnInvite').classList.toggle('hidden', mode !== 'online');
     if (!STREAM) applyOneSide();   // ⬍ ตั้งสนามฝั่งเดียว/สองฝั่งตามโหมด ก่อนวัดขนาดใน onResize
     if (!gameStart) gameStart = Date.now();
@@ -954,12 +1308,29 @@
     } else byId('roomInfo').textContent = 'โหมดเล่นคนเดียว (คุมทั้งสองฝั่ง)';
     const cm = byId('chipMe'), co = byId('chipOpp');
     const nn = p => (mode === 'online' && roomSt && roomSt[p].nick) ? roomSt[p].nick : 'ผู้เล่น ' + p;
-    cm.textContent = `${nn(my)}${seat === 'S' ? '' : ' (คุณ)'}`; co.textContent = nn(opp);
+    cm.textContent = mode === 'solo' && !realMode
+      ? `ฝั่ง ${my} (ล่าง)`
+      : `${nn(my)}${seat === 'S' ? '' : ' (คุณ)'}`;
+    co.textContent = mode === 'solo' && !realMode ? `ฝั่ง ${opp} (บน)` : nn(opp);
     cm.className = 'chip' + (my === 'B' ? ' blue' : '') + (st.active === my ? ' active' : '');
     co.className = 'chip' + (opp === 'B' ? ' blue' : '') + (st.active === opp ? ' active' : '');
     const PH_TH = { Draw: 'จั่ว', Main: 'เมน', Battle: 'สู้รบ', End: 'จบเทิร์น' };
-    byId('turnText').innerHTML = `เทิร์น ${st.turn} · <b class="ph-tag ph-${st.phase}">เฟส ${PH_TH[st.phase] || st.phase}</b>`;
-    if (lastPhaseShown !== st.phase + '|' + st.turn + '|' + st.active) { lastPhaseShown = st.phase + '|' + st.turn + '|' + st.active; flashPhase(st.phase, st.active); }
+    // มือถือแนวตั้ง: แถบบนเหลือแค่เทิร์น+เฟส · เดสก์ท็อปโชว์เต็ม
+    const portraitUI = window.matchMedia('(max-width:920px) and (orientation:portrait)').matches;
+    byId('turnText').innerHTML = portraitUI
+      ? `<span class="tt-turn">T${st.turn}</span> · <b class="ph-tag ph-${st.phase}">${PH_TH[st.phase] || st.phase}</b>${mode === 'solo' && !realMode ? ` · <span class="tt-side">${my}</span>` : ''}`
+      : `เทิร์น ${st.turn} · <b class="ph-tag ph-${st.phase}">เฟส ${PH_TH[st.phase] || st.phase}</b>`;
+    syncPhaseSlot();
+    syncSwapSideBtns();
+    syncTableNav();
+    if (lastPhaseShown !== st.phase + '|' + st.turn + '|' + st.active) {
+      const prevActive = (lastPhaseShown || '').split('|')[2];
+      lastPhaseShown = st.phase + '|' + st.turn + '|' + st.active;
+      flashPhase(st.phase, st.active);
+      // solo: เตือนเมื่อเทิร์น/ฝ่ายเปลี่ยนไปคนละฝั่งกับมุมมองปัจจุบัน
+      if (canSwapSoloSide() && prevActive && prevActive !== st.active && st.active !== my)
+        toast(`ตาฝั่ง ${st.active} — กด ⇄ สลับฝั่ง เพื่อย้ายมือมาด้านล่าง`, 4000);
+    }
     // ปุ่มกติกาถูกถอดออก — แมนนวล 100% ถาวร
     byId('btnRematchTop').classList.toggle('hidden', seat === 'S');
     byId('btnBot').classList.add('hidden'); // ถอดบอทออก — solo คุมสองฝั่งเอง
@@ -2220,6 +2591,9 @@
       st = BoTEngine.buildInitialState(soloCards, Math.random, { A: act.spec, B: opp.spec });
       selMap = {}; mullMode = false; gameStart = Date.now();
       render();
+    } else if (netKind === 'lan') {
+      if (lanIsHost) lanHostRematch();
+      else lanSend({ t: 'rematch' });
     } else wsSend({ t: 'rematch' });
   };
   byId('btnUntap').onclick = () => sendAction({ type: 'untapAll', p: seat === 'S' ? st.active : my });
@@ -2273,6 +2647,8 @@
   byId('btnTutClose').onclick = () => { try { localStorage.setItem('bot_tut_seen', '1'); } catch (e) { } byId('tut').classList.add('hidden'); };
   byId('btnLogToggle').onclick = () => byId('logPane').classList.toggle('hidden');
   byId('btnLogClose').onclick = () => byId('logPane').classList.add('hidden');
+  byId('btnSwapSide').onclick = swapSoloSide;
+  byId('btnSwapSideCtrl').onclick = swapSoloSide;
 
   /* ── 📱 แถบปุ่มล่างจอ (มือถือ) — เข้าถึงทุกอย่างได้โดยไม่ต้องเปิดลิ้นชักก่อน ── */
   const PH_ORDER = ['Draw', 'Main', 'Battle', 'End'];
@@ -2291,17 +2667,23 @@
     if (scrollToDeck) setTimeout(() => { const d = byId('deckOps'); if (d) d.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 30);
     mbSync();
   };
-  byId('mbCard').onclick = () => { // พรีวิวการ์ดที่แตะล่าสุด
+  function toggleCardPeek() { // พรีวิวการ์ดที่แตะล่าสุด
     const pv = byId('previewPane');
-    if (!pv.classList.contains('open') && !previewId) { toast('แตะการ์ดใบไหนก็ได้ก่อน แล้วกด 🔍 เพื่อดูภาพเต็ม + ความสามารถ', 3000); return; }
+    if (!pv.classList.contains('open') && !previewId) { toast('แตะการ์ดใบไหนก็ได้ก่อน แล้วกดปุ่มการ์ดเพื่อดูภาพเต็ม + ความสามารถ', 3000); return; }
     byId('logPane').classList.add('hidden');
     pv.classList.toggle('open'); mbSync();
-  };
-  byId('mbPhase').onclick = () => {
+  }
+  byId('mbCard').onclick = toggleCardPeek;
+  const btnCardPeek = byId('btnCardPeek');
+  if (btnCardPeek) btnCardPeek.onclick = toggleCardPeek;
+  function advancePhase() {
     if (!st) return;
     const i = PH_ORDER.indexOf(st.phase);
     if (i < 0 || i === 3) sendAction({ type: 'endTurn' }); else sendAction({ type: 'setPhase', phase: PH_ORDER[i + 1] });
-  };
+  }
+  byId('mbPhase').onclick = advancePhase;
+  const phaseSlotBtn = byId('phaseSlot');
+  if (phaseSlotBtn) phaseSlotBtn.onclick = advancePhase;
   byId('mbUntap').onclick = () => byId('btnUntap').click();
   byId('mbEnd').onclick = () => sendAction({ type: 'endTurn' });
   byId('mbDeck').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(true) : (lg.classList.add('hidden'), mbSync()); };
@@ -2341,17 +2723,44 @@
     if (fn) { e.preventDefault(); fn(); }
   });
 
+  /* ── ออกจากโต๊ะ / กลับเมนู (solo = เคลียร์เกม · online = ออกจากห้อง) ── */
+  function goHomeFromTable() {
+    if (mode === 'online') leaveOnline();
+    else { mode = null; st = null; realMode = false; clearPersistedTable(); showMenuHome(); showScreen('menu'); }
+  }
+  function syncTableNav() {
+    const homeLbl = mode === 'online' ? '🚪 ออกจากห้อง' : '🏠 เมนูหลัก';
+    const homeTitle = mode === 'online' ? 'ออกจากห้องกลับเมนูหลัก' : 'กลับเมนูหลัก';
+    const navHome = byId('btnNavHome'), topHome = byId('btnHomeTop');
+    if (navHome) { navHome.textContent = homeLbl; navHome.title = homeTitle; }
+    if (topHome) topHome.title = homeTitle;
+    const rem = byId('btnNavRematch');
+    if (rem) rem.classList.toggle('hidden', mode === 'online' && seat === 'S');
+    const end = byId('btnNavEnd');
+    if (end) end.classList.toggle('hidden', mode === 'online' && seat === 'S');
+  }
+
   /* ── จบเกม / รีแมตช์ ── */
   byId('btnEnd').onclick = () => {
     if (!st) return;
     if (seat === 'S') { toast('ผู้ชมประกาศจบเกมไม่ได้'); return; }
     byId('endAsk').classList.remove('hidden');
   };
+  byId('btnNavEnd').onclick = () => byId('btnEnd').click();
+  byId('btnNavRematch').onclick = () => byId('btnRematchTop').click();
+  byId('btnNavHome').onclick = goHomeFromTable;
+  byId('btnHomeTop').onclick = goHomeFromTable;
   byId('askCancel').onclick = () => byId('endAsk').classList.add('hidden');
   function declareEnd(winner) {
     byId('endAsk').classList.add('hidden');
     if (mode === 'solo') showEnd(winner, '');
-    else wsSend({ t: 'end', winner });
+    else if (netKind === 'lan') {
+      if (lanIsHost) {
+        const nickW = (roomSt && roomSt[winner] && roomSt[winner].nick) || '';
+        lanSend({ t: 'end', winner, nick: nickW });
+        showEnd(winner, nickW);
+      } else lanSend({ t: 'end', winner });
+    } else wsSend({ t: 'end', winner });
   }
   byId('askMeWin').onclick = () => declareEnd(mode === 'solo' ? 'A' : my);
   byId('askOppWin').onclick = () => declareEnd(mode === 'solo' ? 'B' : opp);
@@ -2365,12 +2774,13 @@
       byId('endOv').classList.add('hidden');
       render();
       persistUI(true);
+    } else if (netKind === 'lan') {
+      byId('endOv').classList.add('hidden');
+      if (lanIsHost) lanHostRematch();
+      else lanSend({ t: 'rematch' });
     } else wsSend({ t: 'rematch' });
   };
-  byId('btnEndMenu').onclick = () => {
-    if (mode === 'online') leaveOnline();
-    else { mode = null; st = null; realMode = false; clearPersistedTable(); showScreen('menu'); }
-  };
+  byId('btnEndMenu').onclick = goHomeFromTable;
 
   /* ── เมนูหลัก + ล็อบบี้ + ห้องรอ ── */
   try { byId('inpNick').value = localStorage.getItem('bot_nick') || ''; } catch (e) { }
@@ -2459,6 +2869,11 @@
   byId('mnuPlay').onclick = () => showMenuPlay();
   byId('mnuPlayBack').onclick = () => showMenuHome();
   byId('mnuOnline').onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
+  byId('mnuLan').onclick = () => {
+    ensurePlayReady().catch(() => { });
+    showScreen('lobby');
+    byId('lobbyMsg').textContent = 'โหมด LAN — กด "สร้างห้อง LAN" หรือใส่รหัสแล้วกด "เข้า LAN"';
+  };
   byId('mnuDeck').onclick = () => {
     ensureTools().then(() => { showScreen('deckbuilder'); window.openDeckBuilder(); });
   };
@@ -2521,6 +2936,7 @@
   };
   byId('btnLobbyBack').onclick = () => { showMenuHome(); showScreen('menu'); };
   byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; connect(() => wsSend({ t: 'create', nick: myNick(), uid: myUid() })); };
+  byId('btnCreateLan').onclick = () => startLanHost();
   function joinRoom(as) {
     const code = byId('inpRoom').value.trim().toUpperCase();
     if (code.length !== 6) { byId('lobbyMsg').textContent = 'รหัสห้องต้องมี 6 ตัวอักษร'; return; }
@@ -2528,11 +2944,20 @@
     connect(() => wsSend({ t: 'join', room: code, nick: myNick(), as, uid: myUid() }));
   }
   byId('btnJoin').onclick = () => joinRoom('player');
+  byId('btnJoinLan').onclick = () => joinLanRoom(byId('inpRoom').value);
   byId('btnSpec').onclick = () => joinRoom('spec');
   byId('btnInviteRoom').onclick = copyInvite;
   byId('selDeck').onchange = () => {
     try { localStorage.setItem('bot_active_deck', byId('selDeck').value); } catch (e) { }
-    if (myReady) { myReady = false; wsSend({ t: 'ready', ready: false }); renderRoom(); } // เปลี่ยนเด็คแล้วต้องกดพร้อมใหม่
+    if (myReady) {
+      myReady = false;
+      if (netKind === 'lan') {
+        if (lanIsHost) {
+          roomSt.A.ready = false; lanDecks.A = null; lanBroadcastRoom();
+        } else lanSend({ t: 'ready', ready: false });
+      } else wsSend({ t: 'ready', ready: false });
+      renderRoom();
+    }
   };
   const selMenuA = byId('selMenuDeck');
   const selMenuB = byId('selMenuDeckB');
@@ -2545,9 +2970,27 @@
   byId('btnReady').onclick = () => {
     myReady = !myReady; renderRoom();
     const d = selectedDeck();
-    wsSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+    if (netKind === 'lan') {
+      if (lanIsHost) {
+        roomSt.A.ready = myReady;
+        roomSt.A.deckName = d ? d.name : '';
+        roomSt.A.nick = myNick() || roomSt.A.nick;
+        lanDecks.A = myReady && d ? d.spec : null;
+        lanBroadcastRoom();
+        renderRoom();
+      } else {
+        lanSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+      }
+    } else {
+      wsSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+    }
   };
-  byId('btnStart').onclick = () => wsSend({ t: 'start' });
+  byId('btnStart').onclick = () => {
+    if (netKind === 'lan') {
+      if (lanIsHost) lanHostStartGame();
+      else lanSend({ t: 'start' });
+    } else wsSend({ t: 'start' });
+  };
   byId('btnLeaveRoom').onclick = leaveOnline;
 
   /* ── ⬍ สนามฝั่งเดียว: ซ่อนเสื่อฝั่งตรงข้าม เหลือสนามเราใบเดียว ──
@@ -2579,21 +3022,24 @@
   }
 
   /* ── ปรับสเกลตามจอ ── */
-  let rotateHinted = false;
   function onResize() {
     const table = byId('table');
     if (table.classList.contains('hidden')) return;
-    if (!rotateHinted && window.innerWidth < 700 && window.innerHeight > window.innerWidth) {
-      rotateHinted = true;
-      toast('📱 หมุนจอเป็นแนวนอน จะเห็นสนามเต็มตาเล่นสบายกว่ามาก', 5000);
-    }
     const narrow = window.innerWidth <= 920;
+    const portrait = narrow && window.innerHeight > window.innerWidth;
     if (narrow) byId('logPane').classList.add('hidden'); else byId('logPane').classList.remove('hidden');
-    const basis = narrow ? 700 : 1240;
-    const z = Math.min(1, Math.max(.45, window.innerWidth / basis));
-    table.style.zoom = z;
-    table.style.width = z < 1 ? (100 / z) + 'vw' : '';
-    table.style.height = z < 1 ? (100 / z) + 'vh' : '';
+    // แนวตั้ง = เลย์เอาต์ Duel Links เต็มจอ ไม่ซูมย่อ · แนวนอน/เดสก์ท็อปใช้สเกลเดิม
+    if (portrait) {
+      table.style.zoom = '';
+      table.style.width = '';
+      table.style.height = '';
+    } else {
+      const basis = narrow ? 700 : 1240;
+      const z = Math.min(1, Math.max(.45, window.innerWidth / basis));
+      table.style.zoom = z;
+      table.style.width = z < 1 ? (100 / z) + 'vw' : '';
+      table.style.height = z < 1 ? (100 / z) + 'vh' : '';
+    }
     syncOneSide();
   }
   window.addEventListener('resize', onResize);
@@ -2706,8 +3152,10 @@
   /* ── กู้หน้าจอ/โต๊ะหลังรีเฟรช (sessionStorage) ── */
   function restoreAfterReload() {
     if (STREAM) return false;
-    const qRoom0 = new URLSearchParams(location.search).get('room');
-    if (qRoom0 && qRoom0.length === 6) {
+    const q0 = new URLSearchParams(location.search);
+    const qRoom0 = q0.get('room');
+    const qLan0 = q0.get('lan');
+    if ((qRoom0 && qRoom0.length === 6) || (qLan0 && String(qLan0).length === 6)) {
       ensurePlayReady().catch(() => { });
       return false; // ให้ auto-join ทำงานเอง
     }
@@ -2731,11 +3179,16 @@
       restoreSoloTable(data);
       return true;
     }
-    // ห้องออนไลน์ — เข้าใหม่ด้วยรหัสเดิม (server ส่ง state ถ้าเกมกำลังเล่น)
+    // ห้องออนไลน์ / LAN — เข้าใหม่ด้วยรหัสเดิม
     if ((data.screen === 'room' || data.screen === 'table') && data.mode === 'online' && data.room && data.room.length === 6) {
       ensurePlayReady().catch(() => { });
       showScreen('lobby');
       byId('inpRoom').value = data.room.toUpperCase();
+      if (data.netKind === 'lan') {
+        // โฮสต์รีเฟรช = ต้องสร้างห้องใหม่ (Peer ID เดิมใช้ต่อไม่ได้ชัวร์)
+        byId('lobbyMsg').textContent = 'ห้อง LAN หลุดหลังรีเฟรช — สร้างห้องใหม่หรือเข้าด้วยรหัสโฮสต์';
+        return true;
+      }
       byId('lobbyMsg').textContent = 'กำลังกลับเข้าห้อง ' + data.room.toUpperCase() + '…';
       connect(() => wsSend({ t: 'join', room: data.room, nick: myNick(), as: 'player', uid: myUid() }));
       return true;
@@ -2762,8 +3215,15 @@
   const restored = restoreAfterReload();
 
   /* ── auto-join จากลิงก์เชิญ ── */
-  const qRoom = new URLSearchParams(location.search).get('room');
-  if (!restored && qRoom && qRoom.length === 6) {
+  const qParams = new URLSearchParams(location.search);
+  const qLan = qParams.get('lan');
+  const qRoom = qParams.get('room');
+  if (!restored && qLan && String(qLan).length === 6) {
+    showScreen('lobby');
+    byId('inpRoom').value = String(qLan).toUpperCase();
+    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง LAN ' + String(qLan).toUpperCase() + '…';
+    ensurePlayReady().then(() => joinLanRoom(qLan)).catch(() => joinLanRoom(qLan));
+  } else if (!restored && qRoom && qRoom.length === 6) {
     showScreen('lobby');
     byId('inpRoom').value = qRoom.toUpperCase();
     byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + qRoom.toUpperCase() + '…';

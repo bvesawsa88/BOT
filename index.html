@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260729u">
+<link rel="stylesheet" href="css/style.css?v=20260801i">
 </head>
 <body>
 
@@ -54,6 +54,7 @@
     </div>
     <div class="menu-group-label">เลือกโหมดเล่น</div>
     <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
+    <button id="mnuLan" class="btn-dark big">📱 ห้อง LAN / โฮสต์มือถือ</button>
     <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
     <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
     <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
@@ -69,17 +70,19 @@
     <div class="panel">
       <div class="panel-title">สร้างห้องใหม่</div>
       <input id="inpNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off">
-      <div class="panel-note">ระบบจะสร้างรหัสห้อง 6 ตัว — ส่งให้เพื่อนเพื่อเข้าห้องเดียวกัน ผู้ชมเข้าดูได้ไม่จำกัด</div>
-      <button id="btnCreate" class="btn-primary big">สร้างห้อง</button>
+      <div class="panel-note">ออนไลน์: ใช้เซิร์ฟเวอร์เกม · LAN: โฮสต์ในมือถือ/คอม (เกมวิ่งเครื่องต่อเครื่อง ใช้ Wi‑Fi หรือฮอตสปอตเดียวกัน)</div>
+      <button id="btnCreate" class="btn-primary big">สร้างห้องออนไลน์</button>
+      <button id="btnCreateLan" class="btn-dark big">📱 สร้างห้อง LAN (โฮสต์)</button>
     </div>
     <div class="lobby-or">หรือ</div>
     <div class="panel">
       <div class="panel-title">เข้าห้องเพื่อน</div>
       <input id="inpRoom" class="code-input" maxlength="6" placeholder="รหัสห้อง เช่น K7M2QF" autocomplete="off">
       <div class="row-2">
-        <button id="btnJoin" class="btn-dark">เข้าห้อง (ผู้เล่น)</button>
-        <button id="btnSpec" class="btn-ghost">เข้าดู (ผู้ชม)</button>
+        <button id="btnJoin" class="btn-dark">เข้าออนไลน์</button>
+        <button id="btnJoinLan" class="btn-primary">เข้า LAN</button>
       </div>
+      <button id="btnSpec" class="btn-ghost" style="width:100%">เข้าดูออนไลน์ (ผู้ชม)</button>
       <div id="lobbyMsg" class="lobby-msg"></div>
     </div>
   </div>
@@ -88,8 +91,9 @@
 
 <!-- ═══ ห้องรอ ═══ -->
 <div id="room" class="screen hidden">
-  <div class="room-share">แชร์รหัสนี้ให้เพื่อน</div>
+  <div class="room-share" id="roomShareHint">แชร์รหัสนี้ให้เพื่อน</div>
   <div id="roomCode" class="room-code">——————</div>
+  <img id="roomQr" class="room-qr hidden" alt="QR เข้าห้อง" width="160" height="160">
   <button id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
   <div class="room-cards">
     <div class="panel me-panel">
@@ -261,6 +265,9 @@
           <div class="hw-c"><b>เล่นออนไลน์</b>
             <p>เล่นกับเพื่อนคนละเครื่อง สร้างห้องได้รหัส 6 ตัว ส่งให้เพื่อนเข้า หรือกด "คัดลอกลิงก์เชิญ" แล้ววางในแชท</p>
             <p class="hw-dim">ผู้ชมเข้าดูได้ไม่จำกัด — กด "เข้าดู (ผู้ชม)" แล้วใส่รหัสห้อง ผู้ชมเห็นสนามแต่ไม่เห็นการ์ดในมือใคร</p></div>
+          <div class="hw-c"><b>📱 ห้อง LAN / โฮสต์มือถือ</b>
+            <p>เครื่องหนึ่งเป็นโฮสต์ อีกเครื่องเข้าด้วยรหัสเดียวกัน — เกมวิ่งตรงเครื่องต่อเครื่อง ไม่กินเซิร์ฟเวอร์เกม</p>
+            <p class="hw-dim">ใช้ Wi‑Fi บ้านเดียวกัน หรือเปิดฮอตสปอตจากมือถือโฮสต์ · ตอนจับคู่ครั้งแรกต้องมีเน็ต (signaling) หลังจากนั้นเล่นในวงเดียวกันได้</p></div>
           <div class="hw-c"><b>ซ้อมมือคนเดียว</b>
             <p>คุมทั้งสองฝั่งบนเครื่องเดียว เห็นมือทั้งคู่ เหมาะกับลองคอมโบหรือทดสอบเด็ค</p></div>
           <div class="hw-c"><b>🎴 เล่นกับคนที่ใช้การ์ดจริง</b>
@@ -478,7 +485,11 @@
     <div id="chipOpp" class="chip"></div>
     <div id="turnText" class="turn-text"></div>
     <div id="chipMe" class="chip"></div>
-    <button id="btnLogToggle" class="btn-mini only-mobile">LOG</button>
+    <!-- solo: สลับมุมมองฝั่ง A↔B ให้มือฝั่งที่เล่นอยู่ด้านล่าง -->
+    <button id="btnSwapSide" class="btn-mini hidden" title="สลับมุมมอง — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่ง</button>
+    <button id="btnCardPeek" class="btn-mini only-mobile" title="ดูการ์ดที่แตะล่าสุด"><span class="ico-full">การ์ด</span><span class="ico-short" aria-hidden="true">🔍</span></button>
+    <button id="btnHomeTop" class="btn-mini only-mobile" title="กลับเมนูหลัก / ออกจากห้อง">🏠</button>
+    <button id="btnLogToggle" class="btn-mini only-mobile" title="เมนู / บันทึกเกม"><span class="ico-full">เมนู</span><span class="ico-short" aria-hidden="true">☰</span></button>
   </header>
 
   <div id="phaseFlash" class="hidden"></div>
@@ -508,6 +519,12 @@
         <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="oppDeck" title="คลิก = จั่ว"><span class="pile-count" id="oppDeckCount">0</span></div>
         <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="oppDark"><span class="pile-count" id="oppDarkCount">0</span></div>
       </div></div>
+
+      <!-- ช่องเปลี่ยนเฟสกลางสนาม (สไตล์ Duel Links — เด่นบนมือถือแนวตั้ง) -->
+      <button id="phaseSlot" type="button" class="phase-slot" title="แตะเพื่อไปเฟสถัดไป / จบเทิร์น">
+        <span id="phaseSlotLabel" class="ps-label">MAIN PHASE</span>
+        <span id="phaseSlotSub" class="ps-sub">แตะเพื่อเปลี่ยนเฟส</span>
+      </button>
 
       <!-- ฝั่งเรา -->
       <div class="mat mat-my"><div class="mat-in">
@@ -598,9 +615,18 @@
     <aside id="logPane">
       <div class="pane-head rp-head">ตัวควบคุม <button id="btnLogClose" class="btn-mini only-mobile">ปิด</button></div>
       <div id="pvControls">
+        <!-- นำทาง: จบเกม / ออกห้อง / กลับเมนู — สำคัญบนมือถือที่ซ่อนปุ่มบนแถบ -->
+        <div class="ctrl-row table-nav-row" id="tableNavRow">
+          <button id="btnNavEnd" class="btn-dark" title="ประกาศจบเกม">🏁 จบเกม</button>
+          <button id="btnNavRematch" class="btn-dark" title="เริ่มกระดานใหม่">รีแมตช์</button>
+          <button id="btnNavHome" class="btn-dark" title="ออกจากห้อง / กลับเมนูหลัก">🏠 เมนูหลัก</button>
+        </div>
         <div id="phaseBar" class="phase-bar"></div>
         <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
         <div class="ctrl-row hidden" id="mullRow"><button id="btnMulligan" class="btn-gold" style="width:100%">🔄 มัลลิแกน (เปลี่ยนมือเปิด)</button></div>
+        <div class="ctrl-row hidden" id="swapSideRow">
+          <button id="btnSwapSideCtrl" class="btn-gold" style="width:100%" title="สลับมุมมองฝั่ง A↔B — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่งผู้เล่น</button>
+        </div>
         <div class="ctrl-row">
           <button id="btnEndTurn" class="btn-primary">จบเทิร์น ▸</button>
           <button id="btnUntap" class="btn-dark">ตื่นทุกใบ</button>
@@ -811,8 +837,8 @@
   <div class="coin-stage">
     <div class="coin-shadow"></div>
     <div id="coinDisc" class="coin-disc">
-      <div class="coin-face coin-heads"><span>หัว</span><small>HEADS</small></div>
-      <div class="coin-face coin-tails"><span>ก้อย</span><small>TAILS</small></div>
+      <div class="coin-face coin-heads"><span>หัว</span></div>
+      <div class="coin-face coin-tails"><span>ก้อย</span></div>
     </div>
     <div id="coinLabel" class="coin-label"></div>
   </div>
@@ -856,7 +882,8 @@
 
 <script src="js/util.js?v=20260729x"></script>
 <script src="js/carddb.js?v=20260728v"></script>
-<script src="js/game.js?v=20260729w"></script>
+<script src="js/lan.js?v=20260801e"></script>
+<script src="js/game.js?v=20260801i"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>
