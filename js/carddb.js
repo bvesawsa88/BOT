@@ -1,7 +1,7 @@
 /* BoT — ฐานข้อมูลการ์ดกลาง (data/cards.json + banlist) · แชร์ให้ game / deck builder / gallery */
 (function (root) {
   'use strict';
-  // ★ เปิดทุกชุดแล้ว (รวม BT11 · 1,721 ใบ) — โหมดแมนนวล 100% ไม่ต้องรอแปลงเอฟเฟกต์
+  // ★ เปิดทุกชุดแล้ว (รวม BT11 · 1,742 ใบ จาก bottcg.com) — โหมดแมนนวล 100% ไม่ต้องรอแปลงเอฟเฟกต์
   // ถ้าจะจำกัดชุดอีกครั้ง ใส่รายชื่อซีรีส์ลงใน Set นี้ (Set ว่าง = เปิดหมด)
   const ALLOWED_SERIES = new Set();
   root.ALLOWED_SERIES = ALLOWED_SERIES;
@@ -19,11 +19,18 @@
         fetch(asset('data/banlist.json')).then(r => r.json()).catch(() => ({})),
       ]).then(([all, ban]) => {
         const byCode = {};
-        all.forEach(c => { if (!byCode[c.code] || c.image === c.code + '.png') byCode[c.code] = c; });
-        // cards = พูลที่เลือกได้/แสดง (เฉพาะชุดที่เปิด) · byCode = ครบทุกใบ (ให้ engine หาโค้ดได้)
+        const byUid = {};
+        all.forEach(c => {
+          byUid[c.uid] = c;
+          // เกม/เด็คใช้รหัสเดียวต่อใบ — ยึดพิมพ์หลัก (ไม่ใช่ SCR/PR/CBR)
+          if (!byCode[c.code] || c.image === c.code + '.png') byCode[c.code] = c;
+        });
+        // cards = รหัสไม่ซ้ำ (จัดเด็ค/เกม) · prints = ทุกความหายากรวม SEC/PR/CBR (แกลเลอรี/เปิดซอง)
         const cards = Object.values(byCode).filter(seriesOK).sort((a, b) => a.code < b.code ? -1 : 1);
+        const prints = all.filter(seriesOK).sort((a, b) =>
+          a.code < b.code ? -1 : a.code > b.code ? 1 : (a.rarity || '').localeCompare(b.rarity || ''));
         cache = {
-          all, cards, byCode,
+          all, cards, prints, byCode, byUid,
           ban: {
             banned: ban.banned || [], limit1: ban.limit1 || [],
             limit2: ban.limit2 || [], chooseOne: ban.chooseOne || []

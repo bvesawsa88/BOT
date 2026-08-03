@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260803a">
+<link rel="stylesheet" href="css/style.css?v=20260803e">
 </head>
 <body>
 
@@ -54,7 +54,7 @@
     </div>
     <div class="menu-group-label">เลือกโหมดเล่น</div>
     <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
-    <button id="mnuLan" class="btn-dark big">📱 ห้อง LAN / โฮสต์มือถือ</button>
+    <button id="mnuLan" class="btn-dark big">📱 LAN — เห็นใครออน / ท้าสู้</button>
     <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
     <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
     <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
@@ -62,6 +62,33 @@
   </div>
 
   <div class="menu-copy">© PASULOL Co.,Ltd / Lion House Co.,Ltd · Rule Book Ver. 3.2</div>
+</div>
+
+<!-- ═══ ล็อบบี้ LAN: เห็นใครออน + ท้าสู้ ═══ -->
+<div id="lanHall" class="screen hidden">
+  <div class="lan-hall-wrap">
+    <div class="panel lan-hall-me">
+      <div class="panel-title">LAN — ท้าสู้ในวงเดียวกัน</div>
+      <div class="panel-note" id="lanHallHint">รัน <b>node server.js</b> แล้วให้เพื่อนเปิดผ่าน IP เครื่องโฮสต์ (Wi‑Fi / ฮอตสปอตเดียวกัน)</div>
+      <label class="menu-deck-lab" for="inpLanNick">ชื่อเล่น</label>
+      <input id="inpLanNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off" maxlength="24">
+      <label class="menu-deck-lab" for="selLanDeck">เด็คของคุณ (ต้องเลือกก่อนท้า / รับคำท้า)</label>
+      <select id="selLanDeck" class="menu-deck-select" title="เด็คสำหรับแมตช์ LAN">
+        <option value="starter:SD01">SD01 Starter (50+5)</option>
+      </select>
+      <div id="lanHallStatus" class="lan-hall-status">กำลังเชื่อมล็อบบี้…</div>
+    </div>
+    <div class="panel lan-hall-list-panel">
+      <div class="panel-title">ผู้เล่นออนไลน์</div>
+      <div id="lanPeerList" class="lan-peer-list">
+        <div class="lan-peer-empty">ยังไม่มีใครอื่นในวง — รอเพื่อนเปิดหน้านี้</div>
+      </div>
+    </div>
+  </div>
+  <div class="lan-hall-actions">
+    <button id="btnLanByCode" class="btn-ghost">เข้าด้วยรหัสห้อง (แบบเดิม)</button>
+    <button id="btnLanHallBack" class="link-btn">← กลับเมนูหลัก</button>
+  </div>
 </div>
 
 <!-- ═══ ล็อบบี้: สร้าง/เข้าห้อง ═══ -->
@@ -267,9 +294,9 @@
           <div class="hw-c"><b>เล่นออนไลน์</b>
             <p>เล่นกับเพื่อนคนละเครื่อง สร้างห้องได้รหัส 6 ตัว ส่งให้เพื่อนเข้า หรือกด "คัดลอกลิงก์เชิญ" แล้ววางในแชท</p>
             <p class="hw-dim">ผู้ชมเข้าดูได้ไม่จำกัด — กด "เข้าดู (ผู้ชม)" แล้วใส่รหัสห้อง ผู้ชมเห็นสนามแต่ไม่เห็นการ์ดในมือใคร</p></div>
-          <div class="hw-c"><b>📱 ห้อง LAN / โฮสต์มือถือ</b>
-            <p>เครื่องหนึ่งเป็นโฮสต์ อีกเครื่องเข้าด้วยรหัสเดียวกัน — เกมวิ่งตรงเครื่องต่อเครื่อง ไม่กินเซิร์ฟเวอร์เกม</p>
-            <p class="hw-dim">ใช้ Wi‑Fi บ้านเดียวกัน หรือเปิดฮอตสปอตจากมือถือโฮสต์ · ตอนจับคู่ครั้งแรกต้องมีเน็ต (signaling) หลังจากนั้นเล่นในวงเดียวกันได้</p></div>
+          <div class="hw-c"><b>📱 LAN — เห็นใครออน / ท้าสู้</b>
+            <p>รัน <b>node server.js</b> บนเครื่องโฮสต์ ให้เพื่อนเปิดผ่าน IP นั้น → เห็นรายชื่อคนออน เลือกเด็ค แล้วกดท้าสู้ได้เลย</p>
+            <p class="hw-dim">ต้องเลือกเด็คก่อนท้าหรือรับคำท้า · ยังเข้าด้วยรหัสห้องแบบเดิมได้จากปุ่มในหน้าล็อบบี้ LAN</p></div>
           <div class="hw-c"><b>ซ้อมมือคนเดียว</b>
             <p>คุมทั้งสองฝั่งบนเครื่องเดียว เห็นมือทั้งคู่ เหมาะกับลองคอมโบหรือทดสอบเด็ค</p></div>
           <div class="hw-c"><b>🎴 เล่นกับคนที่ใช้การ์ดจริง</b>
@@ -526,10 +553,10 @@
         <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="oppDark"><span class="pile-count" id="oppDarkCount">0</span></div>
       </div></div>
 
-      <!-- ช่องเปลี่ยนเฟสกลางสนาม (สไตล์ Duel Links — เด่นบนมือถือแนวตั้ง) -->
-      <div id="phaseSlot" class="phase-slot" title="เฟสเปลี่ยนอัตโนมัติตามการเล่น">
+      <!-- ช่องเฟสกลางสนาม — มือถือแตะเพื่อจบเทิร์นได้ -->
+      <div id="phaseSlot" class="phase-slot" role="button" tabindex="0" title="แตะเพื่อจบเทิร์น">
         <span id="phaseSlotLabel" class="ps-label">MAIN PHASE</span>
-        <span id="phaseSlotSub" class="ps-sub">อัตโนมัติตามการเล่น</span>
+        <span id="phaseSlotSub" class="ps-sub">แตะเพื่อจบเทิร์น</span>
       </div>
 
       <!-- ฝั่งเรา -->
@@ -604,6 +631,11 @@
 
       <div id="myHandRow" class="hand-row my-hand" data-drop=""></div>
     </section>
+
+    <!-- ปุ่มจบเทิร์นลอย — มือถือแนวตั้ง (แถบ mobileBar ถูกซ่อน) -->
+    <button type="button" id="btnEndTurnFab" class="end-turn-fab hidden" aria-label="จบเทิร์น">
+      <b>🏁</b><span>จบเทิร์น</span>
+    </button>
 
     <!-- ═══ แถบควบคุมล่างจอ — เฉพาะมือถือ (ปุ่มใหญ่ แตะง่าย) ═══ -->
     <nav id="mobileBar" class="only-mobile-flex">
@@ -862,6 +894,36 @@
   </div>
 </div>
 
+<!-- overlay หลุด LAN — รอเพื่อน / เชื่อมต่อใหม่ -->
+<div id="lanDropModal" class="hidden">
+  <div class="lan-drop-card">
+    <div class="lan-drop-title" id="lanDropTitle">การเชื่อมต่อหลุด</div>
+    <div class="lan-drop-sub" id="lanDropSub"></div>
+    <div class="lan-drop-timer" id="lanDropTimer"></div>
+    <div class="lan-drop-msg" id="lanDropMsg"></div>
+    <div class="lan-drop-actions">
+      <button type="button" id="lanDropLeave" class="btn-dark">ออกเลย</button>
+      <button type="button" id="lanDropAction" class="btn-primary">รอต่อ</button>
+    </div>
+  </div>
+</div>
+
+<!-- คำท้า LAN -->
+<div id="lanChallengeModal" class="hidden">
+  <div class="lan-challenge-card">
+    <div class="lan-challenge-title" id="lanChallengeTitle">มีคำท้า!</div>
+    <div class="lan-challenge-sub" id="lanChallengeSub"></div>
+    <label class="menu-deck-lab" for="selLanChallengeDeck">เลือกเด็คก่อนรับคำท้า</label>
+    <select id="selLanChallengeDeck" class="menu-deck-select">
+      <option value="starter:SD01">SD01 Starter (50+5)</option>
+    </select>
+    <div class="lan-challenge-actions">
+      <button type="button" id="lanChallengeDecline" class="btn-dark">ปฏิเสธ</button>
+      <button type="button" id="lanChallengeAccept" class="btn-primary">รับคำท้า</button>
+    </div>
+  </div>
+</div>
+
 <!-- overlay ต่างๆ -->
 <div id="ctxMenu" class="hidden"></div>
 <div id="clash" class="hidden"></div>
@@ -883,10 +945,10 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260802b"></script>
+<script src="js/util.js?v=20260803h"></script>
 <script src="js/carddb.js?v=20260802b"></script>
-<script src="js/lan.js?v=20260801e"></script>
-<script src="js/game.js?v=20260803a"></script>
+<script src="js/lan.js?v=20260803b"></script>
+<script src="js/game.js?v=20260803h"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

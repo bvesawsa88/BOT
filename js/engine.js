@@ -706,9 +706,15 @@
           const cond = (ab.trigger && ab.trigger.if) || '';
           const mSym = cond.match(/^symbol:(.+)$/);
           if (mSym && !destroyedSyms.includes(mSym[1]) && destroyedSymbol !== mSym[1]) return;
-          if (ab.oncePerTurn && !claimOncePerTurn(st, srcK, 'ownAvatarDestroyed')) {
-            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, srcK)}: ใช้ไปแล้วในเทิร์นนี้ (เมื่อ Avatar ถูกทำลาย)`);
-            return;
+          if (ab.oncePerTurn) {
+            // oncePerTurnByName = แชร์โควต้าระหว่างทุกใบชื่อเดียวกัน (บ่อหมัก ฯลฯ)
+            const onceKey = ab.oncePerTurnByName
+              ? ('name:' + ab.oncePerTurnByName)
+              : srcK;
+            if (!claimOncePerTurn(st, onceKey, 'ownAvatarDestroyed')) {
+              addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, srcK)}: ใช้ไปแล้วในเทิร์นนี้ (เมื่อ Avatar ถูกทำลาย)`);
+              return;
+            }
           }
           // React จากมือ หรือที่วาง Magic Zone — รวบรวมให้เลือกใบ
           const sc = st.inst[srcK];
@@ -726,8 +732,13 @@
       };
       (st.zones[side + '.construct'] || []).slice().forEach(fireOwnDestroyed);
       (st.zones[side + '.avatar'] || []).slice().forEach(fireOwnDestroyed);
-      (st.zones[side + '.hand'] || []).slice().forEach(fireOwnDestroyed);
       (st.zones[side + '.magic'] || []).slice().forEach(fireOwnDestroyed);
+      // มือ: เฉพาะ React (รัททาท่วม ฯลฯ) — ห้ามรัน Construct ในมือ (บ่อหมักต้องอยู่โซนก่อสร้าง)
+      (st.zones[side + '.hand'] || []).slice().forEach(srcK => {
+        const sc = st.inst[srcK];
+        if (!sc || sc.type !== 'Magic' || sc.subtype !== 'React') return;
+        fireOwnDestroyed(srcK);
+      });
       if (reactDestroyOpts.length) {
         const options = [];
         reactDestroyOpts.forEach(o => { if (!options.includes(o.k)) options.push(o.k); });
@@ -3555,7 +3566,7 @@
     applyFight(atkId, defId);
     applyFight(defId, atkId);
   }
-  /* ไพรมอล ฯลฯ: เสนอสั่งใช้ whenAttacking หลังประกาศโจมตี (เซ่นแล้วตื่น) */
+  /* ไพรมอล ฯลฯ: เสนอสั่งใช้ whenAttacking ตอนประกาศโจมตี (ก่อนปะทะ/ทำลาย) */
   function offerWhenAttacking(st, atkId) {
     const c = st.inst[atkId]; if (!c) return false;
     const ab = abilitiesOf(c.code, 'activated').find(x => x.whenAttacking);
@@ -3565,15 +3576,17 @@
     if (!ab.cost || !ab.cost.length) return false;
     const costOp = ab.cost[0];
     if (costOp.op === 'sacrifice') {
-      const filt = Object.assign({}, costOp.filter || {}, { _srcK: atkId });
+      const filt = Object.assign({}, costOp.filter || {}, { excludeSelf: true, _srcK: atkId });
       const p = {
         kind: 'pick', from: 'ownAvatars', src: atkId, chooser: owner, filter: filt,
-        dest: 'sacrifice', actions: ab.actions || [], optional: true, keepSrc: true
+        dest: 'sacrifice', actions: ab.actions || [], optional: true, keepSrc: true,
+        whenAttacking: true
       };
       if (!promptCandidates(st, p).length) return false;
-      st.prompts.push(p);
+      // ถามก่อนเอฟเฟกต์/React อื่นของจังหวะโจมตี — ต้องตอบก่อนกดปะทะ
+      st.prompts.unshift(p);
       const sym = (costOp.filter && costOp.filter.symbol) || 'Avatar';
-      addLog(st, owner, `⚡ ${c.name}: เลือกเซ่นไหว้ ${sym} เพื่อตื่น (หรือข้าม)`);
+      addLog(st, owner, `⚡ ${c.name}: เมื่อโจมตี — เซ่นไหว้ ${sym} เพื่อตื่น? (หรือข้าม)`);
       return true;
     }
     return false;
@@ -3658,7 +3671,23 @@
       return;
     }
     const D = st.inst[defId];
-    if (!D || !(zoneOf(st, defId) || '').endsWith('.avatar')) { addLog(st, 'S', 'การปะทะเป็นโมฆะ — เป้าหมายไม่อยู่บนสนามแล้ว'); return; }
+    const defZ = zoneOf(st, defId) || '';
+    // โจมตี Construct: P โจมตี > P Construct → ทำลาย Construct · เท่ากัน/น้อยกว่า → ไม่เกิดอะไร (ผู้โจมตีไม่ตาย)
+    if (D && defZ.endsWith('.construct')) {
+      const od = ownerOf(st, defId);
+      const pa = effPower(st, atkId), pd = effPower(st, defId);
+      if (pa > pd) {
+        const died = destroyCard(st, fx, defId, { fromCombat: true, byOpp: !!(oa && od && oa !== od) });
+        addLog(st, 'S', `⚔️ ${A.name} (P${pa}) โจมตี Construct ${D.name} (P${pd}) → ${died ? 'ทำลาย Construct ส่งนรก' : 'Construct รอด (กันทำลาย)'}`);
+        fx.snd = 'clash';
+      } else {
+        addLog(st, 'S', `⚔️ ${A.name} (P${pa}) โจมตี Construct ${D.name} (P${pd}) → ไม่เกิดอะไร (ต้อง POWER มากกว่า)`);
+        fx.snd = 'tap';
+      }
+      clearCombatBuffs(st);
+      return;
+    }
+    if (!D || !defZ.endsWith('.avatar')) { addLog(st, 'S', 'การปะทะเป็นโมฆะ — เป้าหมายไม่อยู่บนสนามแล้ว'); return; }
     const od = ownerOf(st, defId);
     // บัฟ onFight ใส่ตอนประกาศโจมตีแล้ว — resolve ใช้ค่าที่มีอยู่ (อย่าใส่ซ้ำ)
     const pa = effPower(st, atkId), pd = effPower(st, defId);
@@ -5846,6 +5875,9 @@
         }
         // โทมาโทจัง: ห้ามเลือกเป็นเป้าโจมตี
         if (!isLife && a.def) {
+          const defZ0 = zoneOf(st, a.def) || '';
+          if (!defZ0.endsWith('.avatar') && !defZ0.endsWith('.construct'))
+            return deny('เป้าหมายโจมตีต้องเป็น Avatar หรือ Construct ฝ่ายตรงข้าม');
           const eDef = fxCard(T);
           const cond = eDef && eDef.cannotBeAttackTargetIf;
           if (cond) {
@@ -5864,8 +5896,9 @@
         // พ่อจีจ้า ฯลฯ: ธรณีสูบ/+1 ตอนสั่งโจมตี (Avatar หรือ LIFE) · เทิร์นละครั้งรวมถูกโจมตี
         const declCtx = { _blockReact: runAttackerDeclareOncePerTurn(st, fx, a.atk, oa, rng, 'โจมตี') };
         declareBuffs(st, a.atk);
+        const isConstructAtk = !isLife && a.def && (zoneOf(st, a.def) || '').endsWith('.construct');
         // CEO คุณจิระ / พ่อจีจ้า ฯลฯ: ถูกเป็นเป้าโจมตี → ธรณีสูบ (ถ้ามี) แล้ว +POWER
-        if (!isLife && a.def) {
+        if (!isLife && a.def && !isConstructAtk) {
           abil(st, a.def, 'declaredAsAttackTarget').forEach(ab => {
             const heavy = (ab.actions || []).filter(ac => ac.op !== 'modifyPower');
             const hasSelfBuff = (ab.actions || []).some(ac => ac.op === 'modifyPower' && ac.target && ac.target.select === 'self');
@@ -5904,9 +5937,9 @@
             });
           });
         });
-        // พาหะ ฯลฯ: onFight ใส่ตอนประกาศ เพื่อให้ POWER บน UI ลดทันที
-        if (!isLife && a.def) applyOnFightBuffs(st, a.atk, a.def);
-        if (declareEffects(st, fx, a.atk, isLife ? null : a.def, rng)) {
+        // พาหะ ฯลฯ: onFight ใส่ตอนประกาศ เพื่อให้ POWER บน UI ลดทันที (Avatar ปะทะเท่านั้น)
+        if (!isLife && a.def && !isConstructAtk) applyOnFightBuffs(st, a.atk, a.def);
+        if (declareEffects(st, fx, a.atk, isLife || isConstructAtk ? null : a.def, rng)) {
           addLog(st, 'S', `⚔️ ${A.name} ประกาศโจมตี — เป้าถูกทำลายจากเอฟเฟกต์ (ไม่ต้องปะทะ)`);
           fx.snd = 'clash'; break;
         }
@@ -5917,10 +5950,13 @@
           const me = fxCard(m);
           if (me && me.hostBlockReactUntilCombatEnd) { declCtx._blockReact = true; break; }
         }
-        st.pending = { kind: isLife ? 'life' : 'battle', atk: a.atk, def: a.def || null, life: a.life || null, by: oa, target: ot, held: false, blockReact: !!declCtx._blockReact };
+        st.pending = {
+          kind: isLife ? 'life' : (isConstructAtk ? 'construct' : 'battle'),
+          atk: a.atk, def: a.def || null, life: a.life || null, by: oa, target: ot, held: false, blockReact: !!declCtx._blockReact
+        };
         if (declCtx._blockReact) addLog(st, 'S', `เอฟเฟกต์ ${A.name}: ฝ่ายรับใช้ React ไม่ได้จนกว่าจะจบการต่อสู้`);
-        // whenAttacked (เช่น อู๊ดลูกเสือ) — ให้ฝ่ายรับเลือกนอนใบอื่นยกเลิกโจมตีได้
-        if (!isLife && a.def) {
+        // whenAttacked (เช่น อู๊ดลูกเสือ) — Avatar เท่านั้น
+        if (!isLife && a.def && !isConstructAtk) {
           abil(st, a.def, 'whenAttacked').forEach(ab => runActions(st, fx, ab.actions, { src: a.def, owner: ot, rng: rng }));
         }
         // ไพรมอล: เสนอเซ่นแล้วตื่น หลังประกาศโจมตี (ก่อนปะทะ)
@@ -5941,14 +5977,14 @@
         const paNow = effPower(st, a.atk);
         const tgtText = isLife
           ? `LIFE ใบที่ ${(st.zones[ot + '.life'] || []).indexOf(tgtId) + 1}`
-          : `${T.name} (P${effPower(st, tgtId)})`;
+          : (isConstructAtk ? `Construct ${T.name} (P${effPower(st, tgtId)})` : `${T.name} (P${effPower(st, tgtId)})`);
         fx.announce = {
           src: a.atk, tgt: tgtId, srcName: A.name,
-          tgtName: isLife ? `LIFE ${ot}` : T.name,
+          tgtName: isLife ? `LIFE ${ot}` : (isConstructAtk ? `Construct ${T.name}` : T.name),
           by: oa, kind: 'attack', pa: paNow,
           pd: isLife ? null : effPower(st, tgtId)
         };
-        fx.atkLunge = { atk: a.atk, tgt: tgtId, life: !!isLife };
+        fx.atkLunge = { atk: a.atk, tgt: tgtId, life: !!isLife, construct: !!isConstructAtk };
         if (defCanRespond) {
           addLog(st, 'S', `⚔️ ${A.name} (P${paNow}) ประกาศโจมตี ${tgtText} — รอตอบสนอง`);
           fx.snd = 'tap';
@@ -5970,6 +6006,8 @@
       case 'resolveAttack': {
         if (!st.pending) break;
         if (isPlayer && by !== st.pending.target) return deny('ฝ่ายที่ถูกโจมตีเป็นคนกดปะทะ');
+        // ไพรมอล ฯลฯ: ต้องตอบเซ่นเมื่อโจมตีก่อนปะทะ — ห้ามกดปะทะแล้วค่อยถามหลังทำลาย
+        if ((st.prompts || []).length) return deny('ตอบเอฟเฟกต์ที่ค้างก่อนปะทะ (เช่น เซ่นไหว้เมื่อโจมตี)');
         const pnd = st.pending; st.pending = null;
         // THE END: โจมตี Avatar ศัตรูทุกใบพร้อมกัน
         if (st.inst[pnd.atk] && st.inst[pnd.atk].attackAllEnemyUntilEOT && !pnd.life) {
@@ -6072,8 +6110,8 @@
           if (abH.requirePendingLethal && !lethalOk)
             return deny(`ใช้ "${c.name}" ได้เมื่อถูกประกาศท่าปิดเกมขณะสาหัสเท่านั้น`);
           if (!lethalOk) {
-            if (strict && st.active !== by) return deny('สั่งใช้ได้ในเทิร์นของคุณ');
-            ensureMain();
+            if (st.active !== ownerH) return deny('สั่งใช้ได้ในเทิร์นของคุณเท่านั้น');
+            if (st.phase !== 'Main') return deny('สั่งใช้ได้เฉพาะ Main Phase');
           }
           if (abH.oncePerGame) {
             st.oncePerGame = st.oncePerGame || {};
@@ -6193,11 +6231,12 @@
         if (!owner || (owner !== 'A' && owner !== 'B')) return deny('ไม่ทราบเจ้าของ Land');
         if (strict && isPlayer && owner !== by) return deny('สั่งใช้ได้เฉพาะการ์ดฝั่งตัวเอง');
         // ไพรมอล: สั่งใช้ตอนโจมตี (เซ่นแล้วตื่น) — อนุญาตนอก Main ถ้า whenAttacking
+        // สั่งใช้ปกติ (เรียกหนู / ระเบิดบอร์ดเมฟิสโต้ ฯลฯ) — เฉพาะ Main Phase ของเจ้าของเท่านั้น (ห้ามกระโดดเฟส)
         if (ab.whenAttacking) {
           if (!st.pending || st.pending.atk !== a.k) return deny('ใช้ได้เมื่อ Avatar ใบนี้กำลังโจมตี');
         } else {
-          if (strict && st.active !== by) return deny('สั่งใช้ได้ในเทิร์นของคุณ');
-          ensureMain();
+          if (st.active !== owner) return deny('สั่งใช้ได้ในเทิร์นของคุณเท่านั้น');
+          if (st.phase !== 'Main') return deny('สั่งใช้ได้เฉพาะ Main Phase');
         }
         if (ab.requireUniqueHellSymbolNames) {
           const rq = ab.requireUniqueHellSymbolNames;
@@ -6481,10 +6520,15 @@
         if (oa === od || oa === 'S' || od === 'S') break;
         // ★ กฎเดียวที่ยังบังคับ: เทิร์นแรกของผู้เริ่มก่อน โจมตีไม่ได้
         if (st.turn === 1 && oa === (st.firstPlayer || 'A')) return deny('เทิร์นแรกของผู้เริ่มก่อน โจมตีไม่ได้');
+        const defZb = zoneOf(st, a.def) || '';
+        if (!defZb.endsWith('.avatar') && !defZb.endsWith('.construct'))
+          return deny('เป้าหมายโจมตีต้องเป็น Avatar หรือ Construct');
         A.tapped = true;
         declareBuffs(st, a.atk);
-        if (declareEffects(st, fx, a.atk, a.def, rng)) break;
-        applyOnFightBuffs(st, a.atk, a.def);
+        if (defZb.endsWith('.avatar')) {
+          if (declareEffects(st, fx, a.atk, a.def, rng)) break;
+          applyOnFightBuffs(st, a.atk, a.def);
+        } else if (declareEffects(st, fx, a.atk, null, rng)) break;
         resolveCombat(st, fx, a.atk, a.def, null);
         break;
       }

@@ -1,9 +1,12 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const os = require('os');
 
 const PORT = 3000;
 const ROOT = __dirname;
+const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -19,8 +22,19 @@ const MIME = {
   '.woff': 'font/woff',
 };
 
+function lanIPs() {
+  const out = [];
+  const ifs = os.networkInterfaces();
+  for (const name of Object.keys(ifs)) {
+    for (const i of ifs[name] || []) {
+      const fam = i.family;
+      if ((fam === 'IPv4' || fam === 4) && !i.internal) out.push(i.address);
+    }
+  }
+  return out;
+}
+
 const server = http.createServer((req, res) => {
-  // Basic CORS + no-cache headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
@@ -28,8 +42,6 @@ const server = http.createServer((req, res) => {
   if (urlPath === '/') urlPath = '/index.html';
 
   const filePath = path.join(ROOT, urlPath);
-
-  // Security: make sure file is within ROOT
   if (!filePath.startsWith(ROOT)) {
     res.writeHead(403); res.end('Forbidden'); return;
   }
@@ -40,7 +52,6 @@ const server = http.createServer((req, res) => {
   fs.readFile(filePath, (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') {
-        // Try serving index.html for SPA-style routes
         fs.readFile(path.join(ROOT, 'index.html'), (e2, d2) => {
           if (e2) { res.writeHead(404); res.end('404 Not Found'); return; }
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -56,8 +67,330 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+/* ── Minimal WebSocket (no npm deps) ── */
+function encodeFrame(payload) {
+  const data = Buffer.isBuffer(payload) ? payload : Buffer.from(payload);
+  const len = data.length;
+  let header;
+  if (len < 126) {
+    header = Buffer.alloc(2);
+    header[0] = 0x81;
+    header[1] = len;
+  } else if (len < 65536) {
+    header = Buffer.alloc(4);
+    header[0] = 0x81;
+    header[1] = 126;
+    header.writeUInt16BE(len, 2);
+  } else {
+    header = Buffer.alloc(10);
+    header[0] = 0x81;
+    header[1] = 127;
+    header.writeUInt32BE(0, 2);
+    header.writeUInt32BE(len, 6);
+  }
+  return Buffer.concat([header, data]);
+}
+
+function attachWs(socket) {
+  let buf = Buffer.alloc(0);
+  let closed = false;
+  const api = {
+    send(obj) {
+      if (closed || socket.destroyed) return false;
+      try {
+        const raw = typeof obj === 'string' ? obj : JSON.stringify(obj);
+        socket.write(encodeFrame(raw));
+        return true;
+      } catch (e) { return false; }
+    },
+    close() {
+      if (closed) return;
+      closed = true;
+      try { socket.end(); } catch (e) { }
+    },
+    onMessage: null,
+    onClose: null,
+  };
+
+  function emitClose() {
+    if (closed) return;
+    closed = true;
+    if (api.onClose) api.onClose();
+  }
+
+  socket.on('data', (chunk) => {
+    buf = Buffer.concat([buf, chunk]);
+    while (buf.length >= 2) {
+      const b0 = buf[0];
+      const b1 = buf[1];
+      const opcode = b0 & 0x0f;
+      const masked = (b1 & 0x80) !== 0;
+      let len = b1 & 0x7f;
+      let off = 2;
+      if (len === 126) {
+        if (buf.length < 4) return;
+        len = buf.readUInt16BE(2);
+        off = 4;
+      } else if (len === 127) {
+        if (buf.length < 10) return;
+        len = Number(buf.readUInt32BE(6));
+        off = 10;
+      }
+      const maskLen = masked ? 4 : 0;
+      if (buf.length < off + maskLen + len) return;
+      let payload = buf.slice(off + maskLen, off + maskLen + len);
+      if (masked) {
+        const mask = buf.slice(off, off + 4);
+        const out = Buffer.alloc(len);
+        for (let i = 0; i < len; i++) out[i] = payload[i] ^ mask[i % 4];
+        payload = out;
+      }
+      buf = buf.slice(off + maskLen + len);
+
+      if (opcode === 0x8) { emitClose(); try { socket.end(); } catch (e) { } return; }
+      if (opcode === 0x9) { // ping → pong
+        try {
+          const pong = Buffer.alloc(2 + payload.length);
+          pong[0] = 0x8a;
+          pong[1] = payload.length;
+          payload.copy(pong, 2);
+          socket.write(pong);
+        } catch (e) { }
+        continue;
+      }
+      if (opcode === 0x1 || opcode === 0x2) {
+        if (!api.onMessage) continue;
+        try {
+          const text = payload.toString('utf8');
+          let msg;
+          try { msg = JSON.parse(text); } catch (e) { msg = text; }
+          api.onMessage(msg);
+        } catch (e) { }
+      }
+    }
+  });
+  socket.on('close', emitClose);
+  socket.on('error', emitClose);
+  return api;
+}
+
+/* ── LAN presence lobby ── */
+let nextPeerId = 1;
+const lanPeers = new Map(); // id -> { id, nick, uid, status, ws, challengeTo, challengedBy }
+
+function peerPublic(p) {
+  return { id: p.id, nick: p.nick, status: p.status, uid: p.uid || '' };
+}
+
+function broadcastPeers() {
+  const list = [...lanPeers.values()].map(peerPublic);
+  for (const p of lanPeers.values()) {
+    p.ws.send({ t: 'peers', you: p.id, list });
+  }
+}
+
+function findPeer(id) {
+  return lanPeers.get(id) || null;
+}
+
+function clearChallenge(p) {
+  if (!p) return;
+  if (p.challengeTo) {
+    const t = findPeer(p.challengeTo);
+    if (t && t.challengedBy === p.id) t.challengedBy = null;
+    p.challengeTo = null;
+  }
+  if (p.challengedBy) {
+    const f = findPeer(p.challengedBy);
+    if (f && f.challengeTo === p.id) f.challengeTo = null;
+    p.challengedBy = null;
+  }
+}
+
+function removePeer(p) {
+  if (!p || !lanPeers.has(p.id)) return;
+  clearChallenge(p);
+  if (p.challengeTo) {
+    const t = findPeer(p.challengeTo);
+    if (t) t.ws.send({ t: 'challengeGone', from: p.id });
+  }
+  if (p.challengedBy) {
+    const f = findPeer(p.challengedBy);
+    if (f) f.ws.send({ t: 'challengeResult', accept: false, id: p.id, nick: p.nick, reason: 'offline' });
+  }
+  lanPeers.delete(p.id);
+  broadcastPeers();
+}
+
+function handleLanMessage(p, m) {
+  if (!m || !m.t) return;
+
+  if (m.t === 'hello') {
+    p.nick = String(m.nick || 'ผู้เล่น').slice(0, 24) || 'ผู้เล่น';
+    p.uid = String(m.uid || '').slice(0, 40);
+    p.status = 'idle';
+    p.ws.send({ t: 'welcome', you: p.id, nick: p.nick });
+    broadcastPeers();
+    return;
+  }
+
+  if (m.t === 'nick') {
+    p.nick = String(m.nick || p.nick || 'ผู้เล่น').slice(0, 24) || 'ผู้เล่น';
+    broadcastPeers();
+    return;
+  }
+
+  if (m.t === 'status') {
+    const s = m.status === 'busy' ? 'busy' : 'idle';
+    if (p.status === s) return;
+    p.status = s;
+    if (s === 'busy') clearChallenge(p);
+    broadcastPeers();
+    return;
+  }
+
+  if (m.t === 'challenge') {
+    const toId = +m.to;
+    const target = findPeer(toId);
+    if (!target || target.id === p.id) {
+      p.ws.send({ t: 'error', m: 'ไม่พบผู้เล่น' });
+      return;
+    }
+    if (p.status !== 'idle' || target.status !== 'idle') {
+      p.ws.send({ t: 'error', m: 'ผู้เล่นไม่ว่าง' });
+      return;
+    }
+    if (p.challengeTo || p.challengedBy || target.challengeTo || target.challengedBy) {
+      p.ws.send({ t: 'error', m: 'มีคำท้าค้างอยู่ — รอหรือยกเลิกก่อน' });
+      return;
+    }
+    p.challengeTo = target.id;
+    target.challengedBy = p.id;
+    target.ws.send({ t: 'challenged', from: p.id, nick: p.nick });
+    p.ws.send({ t: 'challengeSent', to: target.id, nick: target.nick });
+    return;
+  }
+
+  if (m.t === 'challengeCancel') {
+    const toId = p.challengeTo;
+    if (!toId) return;
+    const target = findPeer(toId);
+    p.challengeTo = null;
+    if (target && target.challengedBy === p.id) {
+      target.challengedBy = null;
+      target.ws.send({ t: 'challengeGone', from: p.id });
+    }
+    return;
+  }
+
+  if (m.t === 'challengeResp') {
+    const fromId = p.challengedBy;
+    if (!fromId) {
+      p.ws.send({ t: 'error', m: 'ไม่มีคำท้า' });
+      return;
+    }
+    const challenger = findPeer(fromId);
+    const accept = !!m.accept;
+    p.challengedBy = null;
+    if (challenger && challenger.challengeTo === p.id) challenger.challengeTo = null;
+
+    if (!challenger) {
+      p.ws.send({ t: 'error', m: 'คู่ท้าออฟไลน์แล้ว' });
+      return;
+    }
+
+    if (!accept) {
+      challenger.ws.send({ t: 'challengeResult', accept: false, id: p.id, nick: p.nick });
+      return;
+    }
+
+    if (challenger.status !== 'idle' || p.status !== 'idle') {
+      challenger.ws.send({ t: 'challengeResult', accept: false, id: p.id, nick: p.nick, reason: 'busy' });
+      p.ws.send({ t: 'error', m: 'เริ่มแมตช์ไม่ได้ — มีคนไม่ว่าง' });
+      return;
+    }
+
+    challenger.status = 'busy';
+    p.status = 'busy';
+    broadcastPeers();
+    // challenger = host (A), acceptor = guest (B)
+    challenger.ws.send({
+      t: 'challengeResult', accept: true, id: p.id, nick: p.nick,
+      role: 'host', oppId: p.id, oppNick: p.nick,
+    });
+    p.ws.send({
+      t: 'matchReady', role: 'guest', oppId: challenger.id, oppNick: challenger.nick,
+    });
+    return;
+  }
+
+  if (m.t === 'matchCode') {
+    const toId = +m.to;
+    const target = findPeer(toId);
+    const code = String(m.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    if (!target || !code) {
+      p.ws.send({ t: 'error', m: 'ส่งรหัสห้องไม่สำเร็จ' });
+      return;
+    }
+    target.ws.send({ t: 'matchCode', from: p.id, nick: p.nick, code });
+    return;
+  }
+
+  if (m.t === 'leave') {
+    removePeer(p);
+    p.ws.close();
+  }
+}
+
+function onLanUpgrade(req, socket, head) {
+  const key = req.headers['sec-websocket-key'];
+  if (!key) { socket.destroy(); return; }
+  const accept = crypto.createHash('sha1').update(key + WS_GUID).digest('base64');
+  socket.write(
+    'HTTP/1.1 101 Switching Protocols\r\n' +
+    'Upgrade: websocket\r\n' +
+    'Connection: Upgrade\r\n' +
+    'Sec-WebSocket-Accept: ' + accept + '\r\n\r\n'
+  );
+  if (head && head.length) socket.unshift(head);
+
+  const ws = attachWs(socket);
+  const peer = {
+    id: nextPeerId++,
+    nick: 'ผู้เล่น',
+    uid: '',
+    status: 'idle',
+    ws,
+    challengeTo: null,
+    challengedBy: null,
+  };
+  lanPeers.set(peer.id, peer);
+  ws.onMessage = (m) => handleLanMessage(peer, m);
+  ws.onClose = () => removePeer(peer);
+  ws.send({ t: 'welcome', you: peer.id, nick: peer.nick });
+  broadcastPeers();
+}
+
+server.on('upgrade', (req, socket, head) => {
+  const urlPath = (req.url || '').split('?')[0];
+  if (urlPath === '/lan' || urlPath === '/lan/') {
+    onLanUpgrade(req, socket, head);
+    return;
+  }
+  socket.write('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
+  socket.destroy();
+});
+
+server.listen(PORT, '0.0.0.0', () => {
+  const ips = lanIPs();
   console.log(`\n✅  Battle of Talingchan — Local Server`);
-  console.log(`   Open in browser: http://localhost:${PORT}/`);
+  console.log(`   เครื่องนี้:     http://localhost:${PORT}/`);
+  if (ips.length) {
+    console.log(`   เพื่อนในวง LAN เปิด:`);
+    ips.forEach((ip) => console.log(`     http://${ip}:${PORT}/`));
+  } else {
+    console.log(`   (ไม่พบ IP วง LAN — ตรวจ Wi‑Fi)`);
+  }
+  console.log(`   ล็อบบี้ท้าสู้: WebSocket /lan`);
   console.log(`   Press Ctrl+C to stop.\n`);
 });

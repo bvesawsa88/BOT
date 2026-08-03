@@ -554,19 +554,20 @@
             }
           ]
         },
+    {
+      "trigger": {
+        "on": "ownAvatarDestroyed",
+        "if": "symbol:รัททาทุย"
+      },
+      "oncePerTurn": true,
+      "oncePerTurnByName": "บ่อหมัก รัททาทุย",
+      "actions": [
         {
-          "trigger": {
-            "on": "ownAvatarDestroyed",
-            "if": "symbol:รัททาทุย"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "draw",
-              "count": 1
-            }
-          ]
+          "op": "draw",
+          "count": 1
         }
+      ]
+    }
       ],
       "parseStatus": "auto",
       "note": "ทิ้งเป็น Cost เพื่ออัญเชิญ Avatar Symbol รัททาทุยเท่านั้น → ก่อสร้างตัวเอง · จั่วเมื่อรัททาทุยถูกทำลาย"

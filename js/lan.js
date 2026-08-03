@@ -100,16 +100,17 @@
             return;
           }
           conn = c;
-          wireConn(conn, {
+          wireConn(c, {
             onMessage: handlers.onMessage,
             onClose: () => {
+              if (conn !== c) return; // connection เก่าปิดหลังมีของใหม่แล้ว
               conn = null;
               if (handlers.onPeerClose) handlers.onPeerClose();
             },
             onError: handlers.onError,
           });
-          conn.on('open', () => {
-            if (handlers.onPeerConnect) handlers.onPeerConnect();
+          c.on('open', () => {
+            if (conn === c && handlers.onPeerConnect) handlers.onPeerConnect();
           });
         });
         peer.on('disconnected', () => {
@@ -169,6 +170,9 @@
             try { peer.destroy(); } catch (e2) { }
           },
         };
+        peer.on('disconnected', () => {
+          try { peer.reconnect(); } catch (e) { }
+        });
         if (handlers.onOpen) handlers.onOpen();
         resolve(api);
       });

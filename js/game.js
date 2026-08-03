@@ -93,6 +93,25 @@
   let lanIsHost = false;
   let lanDecks = { A: null, B: null };
   let lanDeckNames = { A: '', B: '' };
+  let lanExpectClose = false;   // true = ปิดเอง (leave/reconnect) ไม่โชว์ dialog
+  let lanPeerLeftOk = false;    // แขกส่ง leave มาแล้ว — อย่ารอ reconnect
+  let lanDropMode = null;       // 'wait' | 'reconnect' | null
+  let lanDropWaiting = false;   // ยืนยันรอแล้ว (นับถอยหลัง)
+  let lanDropDeadline = 0;
+  let lanDropTick = null;
+  let lanReconnecting = false;
+  const LAN_WAIT_MS = 3 * 60 * 1000;
+  /* LAN presence (เห็นใครออน → ท้าสู้) */
+  let presenceWs = null;
+  let presenceWanted = false;
+  let presenceId = null;
+  let presencePeers = [];
+  let presenceReconT = null;
+  let outgoingChallenge = null;   // { id, nick }
+  let incomingChallenge = null;   // { id, nick }
+  let lanMatchDeckKey = null;     // ค่า select เด็คตอนท้า/รับ
+  let lanAutoMatch = false;       // แมตช์จากคำท้า — พร้อมอัตโนมัติแล้วเริ่ม
+  let lanReturnToHall = false;    // ออกจากแมตช์แล้วกลับล็อบบี้ LAN
   // 📺 บานสนาม = หน้าต่างแสดงสนามอย่างเดียวสำหรับแชร์จอ (ดูบล็อกท้ายไฟล์)
   const STREAM = new URLSearchParams(location.search).get('stream') === '1';
   let streamSide = 'A';   // ฝั่งที่บานสนามถือว่าเป็น "ของเรา" (มาจากที่นั่งของหน้าต่างหลัก)
@@ -283,12 +302,67 @@
     const ps = byId('phaseSlot'), lab = byId('phaseSlotLabel'), sub = byId('phaseSlotSub');
     if (!ps || !lab || !st) return;
     const meta = PHASE_SLOT[st.phase] || { en: st.phase, short: st.phase, th: st.phase };
+    const mobile = window.matchMedia('(max-width:920px)').matches;
     const portrait = window.matchMedia('(max-width:920px) and (orientation:portrait)').matches;
     lab.textContent = portrait ? meta.short : meta.en;
-    const mine = mode === 'solo' || seat === st.active || seat === 'S';
-    if (sub) sub.textContent = mine ? `${meta.th} · อัตโนมัติ` : `${meta.th} · ตาฝั่ง ${st.active}`;
+    const mine = canEndTurnNow();
+    if (sub) {
+      if (!mine) sub.textContent = `${meta.th} · ตาฝั่ง ${st.active}`;
+      else if (mobile) sub.textContent = 'แตะ = จบเทิร์น';
+      else sub.textContent = `${meta.th} · Enter จบเทิร์น`;
+    }
     ps.className = 'phase-slot ph-' + st.phase + (mine ? '' : ' wait');
-    ps.title = 'เฟสเปลี่ยนอัตโนมัติตามการเล่น';
+    ps.title = mine ? 'แตะเพื่อจบเทิร์น' : ('รอตาฝั่ง ' + st.active);
+    ps.setAttribute('aria-disabled', mine ? 'false' : 'true');
+    syncEndTurnUi();
+  }
+  function canEndTurnNow() {
+    if (!st || st.over) return false;
+    if (st.awaitBattleStart) return false;
+    if (mullP) return false;
+    if (STREAM) return false;
+    if (mode === 'online' && seat === 'S') return false;
+    if (mode === 'online' && seat !== st.active) return false;
+    // มัลลิแกนยังไม่จบ
+    if (st.turn === 1 && !st.fpDrawn) {
+      const done = st.mulliganDone || {};
+      if (!done.A || !done.B) return false;
+    }
+    return true;
+  }
+  function syncEndTurnUi() {
+    const ok = canEndTurnNow();
+    const fab = byId('btnEndTurnFab');
+    const mb = byId('mbEnd');
+    const desk = byId('btnEndTurn');
+    const onTable = !byId('table').classList.contains('hidden');
+    const portrait = window.matchMedia('(max-width:920px) and (orientation:portrait)').matches;
+    const drawerOpen = !byId('logPane').classList.contains('hidden');
+    const pvOpen = byId('previewPane').classList.contains('open');
+    if (fab) {
+      const show = onTable && portrait && st && !st.over && !drawerOpen && !pvOpen;
+      fab.classList.toggle('hidden', !show);
+      fab.classList.toggle('wait', !ok);
+      fab.disabled = !ok;
+    }
+    if (mb) mb.classList.toggle('wait', !ok);
+    if (desk) {
+      desk.disabled = !ok;
+      desk.style.opacity = ok ? '' : '.45';
+    }
+  }
+  function doEndTurn() {
+    if (!st) return;
+    if (!canEndTurnNow()) {
+      if (mode === 'online' && seat !== st.active) toast('ยังไม่ใช่ตาคุณ');
+      else toast('ตอนนี้จบเทิร์นยังไม่ได้');
+      return;
+    }
+    const fab = byId('btnEndTurnFab');
+    if (fab && !fab.classList.contains('hidden')) {
+      fab.classList.remove('flash'); void fab.offsetWidth; fab.classList.add('flash');
+    }
+    sendAction({ type: 'endTurn' });
   }
 
   /* มุมสุดท้ายของลูกเต๋าให้หน้า v หันเข้ากล้อง (df1–df6)
@@ -445,7 +519,7 @@
   let vfxBusy = Promise.resolve(); // คิวแอนิเมชันไม่ให้ทับกัน
 
   /* ── สลับจอ ── */
-  const SCREENS = ['menu', 'lobby', 'room', 'deckbuilder', 'gallery', 'howto'];
+  const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'deckbuilder', 'gallery', 'howto'];
   const SS_UI = 'bot_ui_v1';
   let curScreen = 'menu';
   let persistT = null;
@@ -494,7 +568,7 @@
       if (name === 'menu') history.replaceState(null, '', location.pathname);
       else if (name === 'table' && mode === 'solo') history.replaceState(null, '', location.pathname + '#table');
       else if (name === 'room' && room) history.replaceState(null, '', '/?room=' + room);
-      else if (['lobby', 'deckbuilder', 'gallery', 'howto'].includes(name))
+      else if (['lobby', 'lanHall', 'deckbuilder', 'gallery', 'howto'].includes(name))
         history.replaceState(null, '', location.pathname + '#' + name);
     } catch (e) { }
   }
@@ -879,6 +953,9 @@
     };
   }
   function leaveOnline() {
+    clearLanDropUi();
+    hideLanChallengeModal();
+    lanExpectClose = true;
     wsWanted = false; clearTimeout(reconT);
     if (ws) { try { wsSend({ t: 'leave' }); ws.close(); } catch (e) { } ws = null; }
     if (lanSession) {
@@ -888,11 +965,179 @@
     }
     mode = null; netKind = null; lanIsHost = false; room = ''; st = null; roomSt = null; myReady = false;
     lanDecks = { A: null, B: null }; lanDeckNames = { A: '', B: '' };
+    lanPeerLeftOk = false; lanReconnecting = false;
+    lanAutoMatch = false; lanMatchDeckKey = null;
     history.replaceState(null, '', location.pathname || '/');
     clearPersistedTable();
     updateRoomShareUI();
-    showMenuHome();
-    showScreen('menu');
+    const backHall = lanReturnToHall;
+    lanReturnToHall = false;
+    if (backHall) {
+      presenceSetStatus('idle');
+      openLanHall();
+    } else {
+      stopPresence();
+      showMenuHome();
+      showScreen('menu');
+    }
+  }
+
+  /* ── LAN หลุด: รอเพื่อน / เชื่อมต่อใหม่ ── */
+  function clearLanDropUi() {
+    if (lanDropTick) { clearInterval(lanDropTick); lanDropTick = null; }
+    lanDropMode = null; lanDropWaiting = false; lanDropDeadline = 0;
+    const modal = byId('lanDropModal');
+    if (modal) modal.classList.add('hidden');
+  }
+  function fmtLanWait(ms) {
+    const s = Math.max(0, Math.ceil(ms / 1000));
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return m + ':' + String(r).padStart(2, '0');
+  }
+  function refreshLanDropTimer() {
+    const timerEl = byId('lanDropTimer');
+    const msgEl = byId('lanDropMsg');
+    if (!lanDropDeadline) {
+      if (timerEl) timerEl.textContent = '';
+      return;
+    }
+    const left = lanDropDeadline - Date.now();
+    if (timerEl) timerEl.textContent = fmtLanWait(left);
+    if (msgEl && lanDropMode === 'wait' && lanDropWaiting) {
+      msgEl.textContent = left > 0 ? 'รอคู่ต่อสู้เชื่อมต่อกลับ…' : 'หมดเวลารอ';
+    }
+    if (msgEl && lanDropMode === 'reconnect' && lanDropWaiting) {
+      msgEl.textContent = left > 0 ? 'กด「เชื่อมต่อใหม่」ได้ตลอดจนกว่าจะหมดเวลา' : 'หมดเวลาเชื่อมต่อ';
+    }
+    if (left <= 0) onLanDropTimeout();
+  }
+  function startLanDropCountdown() {
+    lanDropWaiting = true;
+    lanDropDeadline = Date.now() + LAN_WAIT_MS;
+    if (lanDropTick) clearInterval(lanDropTick);
+    refreshLanDropTimer();
+    lanDropTick = setInterval(refreshLanDropTimer, 250);
+    const act = byId('lanDropAction');
+    if (lanDropMode === 'wait' && act) {
+      act.textContent = 'รออยู่…';
+      act.disabled = true;
+    }
+  }
+  function showLanDropModal(mode) {
+    lanDropMode = mode;
+    lanDropWaiting = false;
+    lanDropDeadline = 0;
+    if (lanDropTick) { clearInterval(lanDropTick); lanDropTick = null; }
+    const modal = byId('lanDropModal');
+    const title = byId('lanDropTitle');
+    const sub = byId('lanDropSub');
+    const timer = byId('lanDropTimer');
+    const msg = byId('lanDropMsg');
+    const act = byId('lanDropAction');
+    const leave = byId('lanDropLeave');
+    if (!modal) return;
+    if (timer) timer.textContent = '';
+    if (act) { act.disabled = false; act.classList.remove('hidden'); }
+    if (mode === 'wait') {
+      if (title) title.textContent = 'คู่ต่อสู้หลุดการเชื่อมต่อ';
+      if (sub) sub.textContent = 'รอให้เขากลับมาไหม? สูงสุด 3 นาที — เกมยังไม่จบจนกว่าจะเลิกรอหรือหมดเวลา';
+      if (msg) msg.textContent = 'มือถือมักหลุดตอนสลับแอปหรือ Wi‑Fi อ่อน';
+      if (act) act.textContent = 'รอ 3 นาที';
+      if (leave) leave.textContent = 'ออกเลย';
+    } else {
+      if (title) title.textContent = 'หลุดจากห้อง LAN';
+      if (sub) sub.textContent = 'ต้องการเชื่อมต่อใหม่ไหม? มีเวลาประมาณ 3 นาทีก่อนออกจากห้อง';
+      if (msg) msg.textContent = 'โฮสต์ต้องเปิดห้องค้างไว้ และอยู่ Wi‑Fi / ฮอตสปอตเดียวกัน';
+      if (act) act.textContent = 'เชื่อมต่อใหม่';
+      if (leave) leave.textContent = 'ออกเมนู';
+    }
+    modal.classList.remove('hidden');
+  }
+  function beginLanDropWait() {
+    if (lanDropMode === 'wait' && byId('lanDropModal') && !byId('lanDropModal').classList.contains('hidden')) return;
+    showLanDropModal('wait');
+  }
+  function beginLanDropReconnect() {
+    if (lanReconnecting) return;
+    showLanDropModal('reconnect');
+    startLanDropCountdown(); // ฝั่งที่หลุดเริ่มนับเลย แล้วกดเชื่อมต่อเมื่อพร้อม
+  }
+  function onLanDropTimeout() {
+    if (lanDropTick) { clearInterval(lanDropTick); lanDropTick = null; }
+    if (lanDropMode === 'wait') {
+      toast('หมดเวลารอ — คู่ต่อสู้ไม่กลับมา');
+      finishLanPeerGone();
+    } else if (lanDropMode === 'reconnect') {
+      toast('หมดเวลาเชื่อมต่อ — กลับเมนู');
+      clearLanDropUi();
+      leaveOnline();
+    }
+  }
+  function finishLanPeerGone() {
+    clearLanDropUi();
+    if (!roomSt) return;
+    const oppSeat = lanIsHost ? 'B' : 'A';
+    roomSt[oppSeat] = { nick: '', ready: false, online: false, deckName: '' };
+    if (oppSeat === 'B') lanDecks.B = null;
+    else lanDecks.A = null;
+    if (st) {
+      st = null;
+      fillDeckSelect();
+      showScreen('room');
+    }
+    if (lanIsHost) lanBroadcastRoom();
+    renderRoom();
+  }
+  function onLanPeerRestored() {
+    if (lanDropMode === 'wait' || lanDropMode === 'reconnect') {
+      clearLanDropUi();
+      toast('เชื่อมต่อกลับแล้ว', 2500);
+    }
+  }
+  function tryLanReconnect() {
+    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
+    if (!room || lanIsHost) return;
+    if (lanReconnecting) return;
+    lanReconnecting = true;
+    const act = byId('lanDropAction');
+    const msg = byId('lanDropMsg');
+    if (act) { act.disabled = true; act.textContent = 'กำลังเชื่อม…'; }
+    if (msg) msg.textContent = 'กำลังเชื่อมต่อโฮสต์ใหม่…';
+    const code = room;
+    lanExpectClose = true;
+    const old = lanSession;
+    lanSession = null;
+    try { if (old) old.destroy(); } catch (e) { }
+    BotLAN.join(code, {
+      onMessage: onLanMessage,
+      onClose: () => {
+        if (lanExpectClose || lanReconnecting) return;
+        beginLanDropReconnect();
+      },
+      onError: (err) => toast((err && err.message) || 'LAN error'),
+    }).then(api => {
+      lanExpectClose = false;
+      lanReconnecting = false;
+      lanSession = api;
+      lanIsHost = false;
+      netKind = 'lan';
+      mode = 'online';
+      lanSend({ t: 'hello', nick: myNick() || 'ผู้เล่น B', uid: myUid() });
+      if (st) lanSend({ t: 'sync' });
+      onLanPeerRestored();
+      if (myReady) {
+        const d = selectedDeck();
+        lanSend({ t: 'ready', ready: true, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+      }
+    }).catch(err => {
+      lanReconnecting = false;
+      lanExpectClose = false;
+      if (act) { act.disabled = false; act.textContent = 'เชื่อมต่อใหม่'; }
+      if (msg) msg.textContent = (err && err.message) || 'เชื่อมไม่สำเร็จ — ลองอีกครั้ง';
+      toast(msg ? msg.textContent : 'เชื่อมต่อไม่สำเร็จ', 4000);
+      if (!lanDropMode) beginLanDropReconnect();
+    });
   }
 
   function lanSend(msg) {
@@ -992,14 +1237,22 @@
     if (!m || !m.t) return;
     if (lanIsHost) {
       if (m.t === 'hello') {
+        const wasOffline = !(roomSt && roomSt.B && roomSt.B.online);
+        const keepNick = (roomSt && roomSt.B && roomSt.B.nick) || '';
         roomSt.B.online = true;
-        roomSt.B.nick = (m.nick || 'ผู้เล่น B').slice(0, 24);
-        roomSt.B.ready = false;
-        roomSt.B.deckName = '';
-        lanDecks.B = null;
+        roomSt.B.nick = (m.nick || keepNick || 'ผู้เล่น B').slice(0, 24);
+        if (!st) {
+          roomSt.B.ready = false;
+          roomSt.B.deckName = '';
+          lanDecks.B = null;
+        }
+        lanPeerLeftOk = false;
         lanBroadcastRoom();
         renderRoom();
-        toast('คู่ต่อสู้เข้าห้องแล้ว');
+        if (st) lanSend({ t: 'snapshot', state: st, seq: seqNum });
+        onLanPeerRestored();
+        if (!lanAutoMatch) toast(wasOffline && st ? 'คู่ต่อสู้กลับมาแล้ว — ซิงก์กระดาน' : 'คู่ต่อสู้เข้าห้องแล้ว');
+        maybeLanAutoReady();
         return;
       }
       if (m.t === 'ready') {
@@ -1009,6 +1262,7 @@
         if (!m.ready) lanDecks.B = null;
         lanBroadcastRoom();
         renderRoom();
+        maybeLanAutoStart();
         return;
       }
       if (m.t === 'start') { lanHostStartGame(); return; }
@@ -1022,6 +1276,8 @@
         return;
       }
       if (m.t === 'leave') {
+        lanPeerLeftOk = true;
+        clearLanDropUi();
         roomSt.B = { nick: '', ready: false, online: false, deckName: '' };
         lanDecks.B = null;
         if (st) { st = null; fillDeckSelect(); showScreen('room'); }
@@ -1045,11 +1301,15 @@
       }
       renderRoom();
       if (st) render();
+      if (m.A && m.A.online) onLanPeerRestored();
+      maybeLanAutoReady();
       return;
     }
     if (m.t === 'start') {
       ensurePlayReady().then(() => {
         st = m.state; seqNum = m.seq || 0; gameStart = Date.now(); selMap = {};
+        lanAutoMatch = false;
+        presenceSetStatus('busy');
         startTable();
       });
       return;
@@ -1059,24 +1319,344 @@
       if (m.seq !== seqNum + 1) { lanSend({ t: 'sync' }); return; }
       seqNum = m.seq; applyA(m.a); return;
     }
-    if (m.t === 'snapshot') { st = m.state; seqNum = m.seq; render(); return; }
+    if (m.t === 'snapshot') {
+      st = m.state; seqNum = m.seq;
+      onLanPeerRestored();
+      if (st && byId('table').classList.contains('hidden')) startTable();
+      else render();
+      return;
+    }
     if (m.t === 'end') { showEnd(m.winner, m.nick); return; }
     if (m.t === 'deny') { toast('🚫 ' + m.m, 3200); return; }
     if (m.t === 'error') { toast(m.m || 'ห้อง LAN ปฏิเสธการเข้า'); leaveOnline(); return; }
   }
+
+  /* ── LAN presence: เห็นใครออน → ท้าสู้ ── */
+  function presenceUrl() {
+    return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/lan';
+  }
+  function presenceSend(msg) {
+    if (!presenceWs || presenceWs.readyState !== 1) return false;
+    try { presenceWs.send(JSON.stringify(msg)); return true; } catch (e) { return false; }
+  }
+  function presenceSetStatus(status) {
+    presenceSend({ t: 'status', status: status === 'busy' ? 'busy' : 'idle' });
+  }
+  function lanHallNick() {
+    const el = byId('inpLanNick');
+    let n = el ? el.value.trim() : '';
+    if (!n) n = myNick() || '';
+    if (!n) n = 'ผู้เล่น';
+    try {
+      localStorage.setItem('bot_nick', n);
+      if (byId('inpNick') && !byId('inpNick').value.trim()) byId('inpNick').value = n;
+    } catch (e) { }
+    if (el) el.value = n;
+    return n.slice(0, 24);
+  }
+  function fillLanDeckSelects() {
+    const keys = ['selLanDeck', 'selLanChallengeDeck'];
+    let saved = {};
+    try { saved = CardDB.savedDecks(); } catch (e) { }
+    const names = Object.keys(saved);
+    const savedOpts = (names.length ? `<option disabled>── เด็คที่บันทึก ──</option>` : '') +
+      names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    const opts = starterOptionHtml('') + savedOpts;
+    let act = 'starter:SD01';
+    try { act = localStorage.getItem('bot_active_deck') || 'starter:SD01'; } catch (e) { }
+    const ok = v => v && (v.indexOf('starter:') === 0 || saved[v]);
+    keys.forEach(id => {
+      const el = byId(id);
+      if (!el) return;
+      const prev = el.value;
+      el.innerHTML = opts;
+      el.value = ok(prev) ? prev : (ok(act) ? act : 'starter:SD01');
+    });
+  }
+  function selectedLanDeckKey() {
+    const el = byId('selLanDeck');
+    return el && el.value ? el.value : 'starter:SD01';
+  }
+  function setLanHallStatus(text, kind) {
+    const el = byId('lanHallStatus');
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.toggle('ok', kind === 'ok');
+    el.classList.toggle('err', kind === 'err');
+  }
+  function renderLanPeerList() {
+    const box = byId('lanPeerList');
+    if (!box) return;
+    const others = presencePeers.filter(p => p.id !== presenceId);
+    if (!others.length) {
+      box.innerHTML = '<div class="lan-peer-empty">ยังไม่มีใครอื่นในวง — รอเพื่อนเปิดหน้านี้<br><span style="font-size:11px">ให้เพื่อนเปิด URL เดียวกับที่คุณใช้อยู่</span></div>';
+      return;
+    }
+    const challenging = outgoingChallenge && outgoingChallenge.id;
+    box.innerHTML = others.map(p => {
+      const busy = p.status === 'busy';
+      const meta = busy
+        ? '<span class="busy">● กำลังเล่น</span>'
+        : '<span class="on">● พร้อมท้า</span>';
+      let btn;
+      if (challenging === p.id) {
+        btn = `<button type="button" class="btn-dark" data-cancel-challenge="${p.id}">ยกเลิกคำท้า</button>`;
+      } else if (busy || challenging) {
+        btn = `<button type="button" class="btn-primary" disabled>ท้าสู้</button>`;
+      } else {
+        btn = `<button type="button" class="btn-primary" data-challenge="${p.id}" data-nick="${esc(p.nick || 'ผู้เล่น')}">ท้าสู้</button>`;
+      }
+      return `<div class="lan-peer">
+        <div class="lan-peer-info">
+          <div class="lan-peer-name">${esc(p.nick || 'ผู้เล่น')}</div>
+          <div class="lan-peer-meta">${meta}</div>
+        </div>${btn}</div>`;
+    }).join('');
+  }
+  function hideLanChallengeModal() {
+    incomingChallenge = null;
+    const modal = byId('lanChallengeModal');
+    if (modal) modal.classList.add('hidden');
+  }
+  function showLanChallengeModal(fromId, nick) {
+    incomingChallenge = { id: fromId, nick: nick || 'ผู้เล่น' };
+    fillLanDeckSelects();
+    const title = byId('lanChallengeTitle');
+    const sub = byId('lanChallengeSub');
+    if (title) title.textContent = 'มีคำท้า!';
+    if (sub) sub.textContent = (nick || 'ผู้เล่น') + ' ท้าคุณแข่ง — เลือกเด็คแล้วกดรับคำท้า';
+    const modal = byId('lanChallengeModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+  function onPresenceMessage(m) {
+    if (!m || !m.t) return;
+    if (m.t === 'welcome') {
+      presenceId = m.you;
+      return;
+    }
+    if (m.t === 'peers') {
+      if (m.you != null) presenceId = m.you;
+      presencePeers = Array.isArray(m.list) ? m.list : [];
+      setLanHallStatus('ออนไลน์ในล็อบบี้ · ' + Math.max(0, presencePeers.length) + ' คน', 'ok');
+      renderLanPeerList();
+      return;
+    }
+    if (m.t === 'challenged') {
+      showLanChallengeModal(m.from, m.nick);
+      toast((m.nick || 'ผู้เล่น') + ' ท้าคุณ!', 3500);
+      return;
+    }
+    if (m.t === 'challengeSent') {
+      outgoingChallenge = { id: m.to, nick: m.nick || 'ผู้เล่น' };
+      setLanHallStatus('รอ ' + (m.nick || 'ผู้เล่น') + ' ตอบคำท้า…');
+      renderLanPeerList();
+      return;
+    }
+    if (m.t === 'challengeGone') {
+      if (incomingChallenge && incomingChallenge.id === m.from) {
+        hideLanChallengeModal();
+        toast('คู่ท้ายกเลิกคำท้า');
+      }
+      return;
+    }
+    if (m.t === 'challengeResult') {
+      outgoingChallenge = null;
+      renderLanPeerList();
+      if (!m.accept) {
+        setLanHallStatus(m.reason === 'offline' ? 'คู่ท้าออฟไลน์แล้ว' : 'คำท้าถูกปฏิเสธ', 'err');
+        toast(m.reason === 'offline' ? 'คู่ท้าออฟไลน์แล้ว' : (m.nick || 'คู่ท้า') + ' ปฏิเสธคำท้า');
+        return;
+      }
+      // เราเป็นโฮสต์ (คนท้า)
+      lanMatchDeckKey = selectedLanDeckKey();
+      lanAutoMatch = true;
+      lanReturnToHall = true;
+      setLanHallStatus('รับคำท้าแล้ว — กำลังเปิดห้อง…', 'ok');
+      toast('เริ่มแมตช์กับ ' + (m.oppNick || m.nick || 'คู่ท้า'));
+      startLanHost().then(() => {
+        if (lanSession && m.oppId) presenceSend({ t: 'matchCode', to: m.oppId, code: room });
+      });
+      return;
+    }
+    if (m.t === 'matchReady') {
+      // เรารับคำท้า — รอรหัสห้องจากโฮสต์
+      lanAutoMatch = true;
+      lanReturnToHall = true;
+      setLanHallStatus('กำลังรอรหัสห้องจาก ' + (m.oppNick || 'โฮสต์') + '…', 'ok');
+      return;
+    }
+    if (m.t === 'matchCode') {
+      hideLanChallengeModal();
+      setLanHallStatus('กำลังเข้าห้อง…', 'ok');
+      joinLanRoom(m.code);
+      return;
+    }
+    if (m.t === 'error') {
+      toast(m.m || 'ล็อบบี้ LAN ผิดพลาด');
+      setLanHallStatus(m.m || 'ผิดพลาด', 'err');
+      outgoingChallenge = null;
+      renderLanPeerList();
+    }
+  }
+  function stopPresence() {
+    presenceWanted = false;
+    clearTimeout(presenceReconT);
+    outgoingChallenge = null;
+    hideLanChallengeModal();
+    if (presenceWs) {
+      try { presenceSend({ t: 'leave' }); } catch (e) { }
+      try { presenceWs.close(); } catch (e2) { }
+      presenceWs = null;
+    }
+    presenceId = null;
+    presencePeers = [];
+  }
+  function connectPresence() {
+    presenceWanted = true;
+    clearTimeout(presenceReconT);
+    if (presenceWs && (presenceWs.readyState === 0 || presenceWs.readyState === 1)) return;
+    setLanHallStatus('กำลังเชื่อมล็อบบี้…');
+    let sock;
+    try { sock = new WebSocket(presenceUrl()); }
+    catch (e) {
+      setLanHallStatus('เชื่อมล็อบบี้ไม่ได้ — รัน node server.js แล้วเปิดผ่าน IP โฮสต์', 'err');
+      return;
+    }
+    presenceWs = sock;
+    sock.onopen = () => {
+      presenceSend({ t: 'hello', nick: lanHallNick(), uid: myUid() });
+      setLanHallStatus('เชื่อมล็อบบี้แล้ว', 'ok');
+    };
+    sock.onmessage = (ev) => {
+      let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      onPresenceMessage(m);
+    };
+    sock.onclose = () => {
+      if (presenceWs === sock) presenceWs = null;
+      presenceId = null;
+      presencePeers = [];
+      renderLanPeerList();
+      if (!presenceWanted) return;
+      setLanHallStatus('หลุดจากล็อบบี้ — กำลังต่อใหม่…', 'err');
+      presenceReconT = setTimeout(connectPresence, 2000);
+    };
+    sock.onerror = () => {
+      setLanHallStatus('เชื่อมล็อบบี้ไม่ได้ — ต้องรัน node server.js (ไม่ใช่แค่ Apache/XAMPP)', 'err');
+    };
+  }
+  function openLanHall() {
+    presenceWanted = true;
+    try {
+      const nickEl = byId('inpLanNick');
+      if (nickEl && !nickEl.value) nickEl.value = localStorage.getItem('bot_nick') || '';
+    } catch (e) { }
+    ensurePlayReady().then(() => fillLanDeckSelects()).catch(() => fillLanDeckSelects());
+    showScreen('lanHall');
+    connectPresence();
+    renderLanPeerList();
+  }
+  function tryChallengePeer(id, nick) {
+    if (!presenceWs || presenceWs.readyState !== 1) {
+      toast('ยังไม่เชื่อมล็อบบี้');
+      return;
+    }
+    const deckKey = selectedLanDeckKey();
+    const deck = resolveDeckChoice(deckKey);
+    if (!deck || !deck.spec) { toast('เลือกเด็คก่อนท้าสู้'); return; }
+    const name = lanHallNick();
+    if (!name) { toast('ใส่ชื่อเล่นก่อน'); return; }
+    try { localStorage.setItem('bot_active_deck', deckKey); } catch (e) { }
+    lanMatchDeckKey = deckKey;
+    presenceSend({ t: 'nick', nick: name });
+    presenceSend({ t: 'challenge', to: id });
+    setLanHallStatus('กำลังท้า ' + (nick || 'ผู้เล่น') + '…');
+  }
+  function acceptLanChallenge() {
+    if (!incomingChallenge) return;
+    const deckEl = byId('selLanChallengeDeck');
+    const deckKey = deckEl && deckEl.value ? deckEl.value : selectedLanDeckKey();
+    const deck = resolveDeckChoice(deckKey);
+    if (!deck || !deck.spec) { toast('เลือกเด็คก่อนรับคำท้า'); return; }
+    try { localStorage.setItem('bot_active_deck', deckKey); } catch (e) { }
+    lanMatchDeckKey = deckKey;
+    const hallDeck = byId('selLanDeck');
+    if (hallDeck) hallDeck.value = deckKey;
+    presenceSend({ t: 'nick', nick: lanHallNick() });
+    presenceSend({ t: 'challengeResp', accept: true });
+    hideLanChallengeModal();
+    setLanHallStatus('รับคำท้าแล้ว — รอโฮสต์เปิดห้อง…', 'ok');
+  }
+  function declineLanChallenge() {
+    if (!incomingChallenge) { hideLanChallengeModal(); return; }
+    presenceSend({ t: 'challengeResp', accept: false });
+    hideLanChallengeModal();
+    toast('ปฏิเสธคำท้าแล้ว');
+  }
+  function maybeLanAutoReady() {
+    if (!lanAutoMatch || netKind !== 'lan' || !roomSt) return;
+    const deck = resolveDeckChoice(lanMatchDeckKey || selectedLanDeckKey());
+    if (!deck) return;
+    try {
+      const key = lanMatchDeckKey || selectedLanDeckKey();
+      localStorage.setItem('bot_active_deck', key);
+      const sel = byId('selDeck');
+      if (sel) {
+        fillDeckSelect();
+        if ([...sel.options].some(o => o.value === key)) sel.value = key;
+      }
+    } catch (e) { }
+    if (myReady) {
+      maybeLanAutoStart();
+      return;
+    }
+    myReady = true;
+    if (lanIsHost) {
+      roomSt.A.ready = true;
+      roomSt.A.deckName = deck.name || '';
+      roomSt.A.nick = myNick() || lanHallNick() || roomSt.A.nick;
+      lanDecks.A = deck.spec;
+      lanBroadcastRoom();
+      renderRoom();
+      maybeLanAutoStart();
+    } else {
+      lanSend({ t: 'ready', ready: true, deck: deck.spec, deckName: deck.name || '' });
+      renderRoom();
+    }
+  }
+  function maybeLanAutoStart() {
+    if (!lanAutoMatch || !lanIsHost || !roomSt) return;
+    if (roomSt.A.online && roomSt.B.online && roomSt.A.ready && roomSt.B.ready) {
+      lanAutoMatch = false;
+      presenceSetStatus('busy');
+      lanHostStartGame();
+    }
+  }
+
   function startLanHost() {
-    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
-    byId('lobbyMsg').textContent = 'กำลังสร้างห้อง LAN…';
+    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return Promise.reject(new Error('no BotLAN')); }
+    const lobbyMsg = byId('lobbyMsg');
+    if (lobbyMsg) lobbyMsg.textContent = 'กำลังสร้างห้อง LAN…';
     realMode = false;
-    BotLAN.host({
+    lanExpectClose = false;
+    lanPeerLeftOk = false;
+    return BotLAN.host({
       onMessage: onLanMessage,
-      onPeerConnect: () => { /* hello จากแขกจะอัปเดตห้อง */ },
+      onPeerConnect: () => {
+        if (lanDropMode === 'wait') {
+          const msg = byId('lanDropMsg');
+          if (msg) msg.textContent = 'พบการเชื่อมต่อใหม่ — กำลังซิงก์…';
+        }
+      },
       onPeerClose: () => {
+        if (lanExpectClose) { lanExpectClose = false; return; }
+        if (lanPeerLeftOk) { lanPeerLeftOk = false; return; }
         if (!roomSt) return;
-        roomSt.B = { nick: '', ready: false, online: false, deckName: '' };
-        lanDecks.B = null;
-        if (st) { st = null; fillDeckSelect(); showScreen('room'); }
+        if (roomSt.B) {
+          roomSt.B.online = false;
+          roomSt.B.ready = false;
+        }
         renderRoom();
+        beginLanDropWait();
         toast('การเชื่อมต่อคู่ต่อสู้หลุด');
       },
       onError: (err) => toast((err && err.message) || 'LAN error'),
@@ -1090,30 +1670,49 @@
       myReady = false;
       lanDecks = { A: null, B: null };
       lanDeckNames = { A: '', B: '' };
-      roomSt = lanEmptyRoom(myNick() || 'โฮสต์');
+      const hostNick = (lanAutoMatch ? lanHallNick() : myNick()) || 'โฮสต์';
+      roomSt = lanEmptyRoom(hostNick);
       history.replaceState(null, '', '?lan=' + room);
       fillDeckSelect();
+      if (lanMatchDeckKey) {
+        try {
+          const sel = byId('selDeck');
+          if (sel && [...sel.options].some(o => o.value === lanMatchDeckKey)) sel.value = lanMatchDeckKey;
+        } catch (e) { }
+      }
       showScreen('room');
       renderRoom();
       updateRoomShareUI();
-      byId('lobbyMsg').textContent = '';
-      toast('สร้างห้อง LAN ' + room + ' แล้ว — ส่งรหัสให้เพื่อน', 4000);
+      if (lobbyMsg) lobbyMsg.textContent = '';
+      if (lanAutoMatch) toast('รอคู่ท้าเข้าห้อง…', 2500);
+      else toast('สร้างห้อง LAN ' + room + ' แล้ว — ส่งรหัสให้เพื่อน', 4000);
+      return api;
     }).catch(err => {
-      byId('lobbyMsg').textContent = (err && err.message) || 'สร้างห้อง LAN ไม่สำเร็จ';
-      toast(byId('lobbyMsg').textContent);
+      if (lobbyMsg) lobbyMsg.textContent = (err && err.message) || 'สร้างห้อง LAN ไม่สำเร็จ';
+      toast((err && err.message) || 'สร้างห้อง LAN ไม่สำเร็จ');
+      lanAutoMatch = false;
+      throw err;
     });
   }
   function joinLanRoom(code) {
     if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
-    const clean = BotLAN.parseCode(code || byId('inpRoom').value);
-    if (clean.length !== 6) { byId('lobbyMsg').textContent = 'รหัสห้องต้องมี 6 ตัวอักษร'; return; }
-    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง LAN…';
+    const clean = BotLAN.parseCode(code || (byId('inpRoom') && byId('inpRoom').value));
+    const lobbyMsg = byId('lobbyMsg');
+    if (clean.length !== 6) {
+      if (lobbyMsg) lobbyMsg.textContent = 'รหัสห้องต้องมี 6 ตัวอักษร';
+      toast('รหัสห้องต้องมี 6 ตัวอักษร');
+      return;
+    }
+    if (lobbyMsg) lobbyMsg.textContent = 'กำลังเข้าห้อง LAN…';
     realMode = false;
+    lanExpectClose = false;
     BotLAN.join(clean, {
       onMessage: onLanMessage,
       onClose: () => {
+        if (lanExpectClose || lanReconnecting) return;
+        if (!(mode === 'online' && netKind === 'lan')) return;
+        beginLanDropReconnect();
         toast('หลุดจากโฮสต์ LAN');
-        if (mode === 'online' && netKind === 'lan') leaveOnline();
       },
       onError: (err) => toast((err && err.message) || 'LAN error'),
     }).then(api => {
@@ -1125,19 +1724,27 @@
       seat = 'B';
       myReady = false;
       history.replaceState(null, '', '?lan=' + room);
-      lanSend({ t: 'hello', nick: myNick() || 'ผู้เล่น B', uid: myUid() });
+      const guestNick = (lanAutoMatch ? lanHallNick() : myNick()) || 'ผู้เล่น B';
+      lanSend({ t: 'hello', nick: guestNick, uid: myUid() });
       fillDeckSelect();
-      // รอ room จากโฮสต์ — โชว์ห้องไปก่อน
+      if (lanMatchDeckKey) {
+        try {
+          const sel = byId('selDeck');
+          if (sel && [...sel.options].some(o => o.value === lanMatchDeckKey)) sel.value = lanMatchDeckKey;
+        } catch (e) { }
+      }
       roomSt = lanEmptyRoom('โฮสต์');
-      roomSt.B = { nick: myNick() || 'ผู้เล่น B', ready: false, online: true, deckName: '' };
+      roomSt.B = { nick: guestNick, ready: false, online: true, deckName: '' };
       showScreen('room');
       renderRoom();
       updateRoomShareUI();
-      byId('lobbyMsg').textContent = '';
-      toast('เข้าห้อง LAN แล้ว', 2500);
+      if (lobbyMsg) lobbyMsg.textContent = '';
+      toast(lanAutoMatch ? 'เข้าแมตช์แล้ว — กำลังเตรียมเด็ค…' : 'เข้าห้อง LAN แล้ว', 2500);
+      maybeLanAutoReady();
     }).catch(err => {
-      byId('lobbyMsg').textContent = (err && err.message) || 'เข้าห้อง LAN ไม่สำเร็จ';
-      toast(byId('lobbyMsg').textContent, 4500);
+      if (lobbyMsg) lobbyMsg.textContent = (err && err.message) || 'เข้าห้อง LAN ไม่สำเร็จ';
+      toast((err && err.message) || 'เข้าห้อง LAN ไม่สำเร็จ', 4500);
+      lanAutoMatch = false;
     });
   }
 
@@ -1219,6 +1826,11 @@
         `<div class="player-name">${esc(o.nick || 'ผู้เล่น ' + oppSeat)} <span class="on">● ออนไลน์ · ${oppSeat}</span></div>
          <div class="opp-deck-line">เด็ค: ${esc(o.ready ? (o.deckName || 'Starter') : 'กำลังเลือก…')}</div>
          <div class="${o.ready ? 'ready-yes' : 'ready-no'}">${o.ready ? 'พร้อมแล้ว ✓' : 'ยังไม่พร้อม…'}</div>`;
+    } else if (o.nick && (lanDropMode === 'wait' || lanDropWaiting)) {
+      byId('rmOppBody').className = 'opp-waiting';
+      byId('rmOppBody').innerHTML =
+        `<div class="player-name">${esc(o.nick)} <span class="ready-no">● หลุดชั่วคราว</span></div>
+         <div style="font-size:11px;margin-top:4px">รอเชื่อมต่อกลับ…</div>`;
     } else {
       byId('rmOppBody').className = 'opp-waiting';
       byId('rmOppBody').innerHTML = 'รอผู้เล่นอีกคน…<br><span style="font-size:11px">กด "คัดลอกลิงก์เชิญ" แล้วส่งให้เพื่อนได้เลย</span>';
@@ -1445,10 +2057,14 @@
   function botTryAttack() {
     const mine = (st.zones['B.avatar'] || []).filter(k => !st.inst[k].tapped && st.inst[k].type === 'Avatar');
     const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k].type === 'Avatar');
+    const enemyCons = (st.zones['A.construct'] || []).slice();
     for (const atk of mine) {
       const ap = eff(atk);
       const target = enemies.filter(e => eff(e) < ap).sort((a, b) => eff(b) - eff(a))[0]; // ฆ่าตัวใหญ่สุดที่ฆ่าได้
       if (target) { sendAction({ type: 'declareAttack', atk, def: target, by: 'B' }); return true; }
+      // ทำลาย Construct ที่ POWER น้อยกว่า
+      const con = enemyCons.filter(e => eff(e) < ap).sort((a, b) => eff(b) - eff(a))[0];
+      if (con) { sendAction({ type: 'declareAttack', atk, def: con, by: 'B' }); return true; }
       // ตี LIFE ได้เฉพาะเมื่อฝ่ายตรงข้ามไม่มี Avatar (Avatar ปกป้อง LIFE)
       if (enemies.length === 0) {
         const life = (st.zones['A.life'] || []).find(k => !st.inst[k].faceUp);
@@ -1854,7 +2470,7 @@
           else if (pr.dest === 'attachSelf') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คมาสวมใส่ตัวเอง`;
           else if (pr.dest === 'attachTo') txt = `🔗 ${srcN}: แตะ Avatar ที่จะสวมใส่ให้${pr.optional ? ' (หรือข้าม)' : ''}`;
           else if (pr.dest === 'sacrifice' && pr.keepSrc)
-            txt = `☀️ ${srcN}: เซ่นไหว้รัททาทุย 1 ใบเพื่อตื่นหลังโจมตี — แตะเป้า${pr.optional ? ' (หรือข้าม)' : ''}`;
+            txt = `☀️ ${srcN}: เมื่อโจมตี — เซ่นไหว้รัททาทุย 1 ใบเพื่อตื่น แล้วค่อยปะทะ — แตะเป้า${pr.optional ? ' (หรือข้าม)' : ''}`;
           else if (pr.dest === 'sacrifice' || (pr.from === 'ownAvatars' && pr.dest === 'sacrifice'))
             txt = `🔥 ${srcN}: เซ่นไหว้ — แตะ Avatar บนสนามที่จะสังเวย`;
           else if (pr.from === 'ownAvatars' && pr.dest === 'attachTo')
@@ -2017,14 +2633,17 @@
       };
       const tgt = pnd.kind === 'life'
         ? `LIFE ใบที่ ${((st.zones[pnd.target + '.life'] || []).indexOf(pnd.life) + 1) || '?'}`
-        : (st.inst[pnd.def] ? `${st.inst[pnd.def].name} (P${BoTEngine.effPower(st, pnd.def)}${powNote(pnd.def)})` : '?');
+        : (st.inst[pnd.def]
+          ? `${pnd.kind === 'construct' ? 'Construct ' : ''}${st.inst[pnd.def].name} (P${BoTEngine.effPower(st, pnd.def)}${powNote(pnd.def)})`
+          : '?');
       byId('attackText').textContent = `⚔️ ${A.name} (P${BoTEngine.effPower(st, pnd.atk)}${powNote(pnd.atk)}) → ${tgt}${pnd.held ? ' · ฝ่ายรับกำลังตอบโต้…' : ''}`;
       const iAmDef = mode === 'solo' ? (soloBot ? pnd.target === my : true) : seat === pnd.target;
       const iAmAtk = mode === 'solo' ? (soloBot ? pnd.by === my : true) : seat === pnd.by;
       // กล่องสวนกลับ — โชว์การ์ด React ที่ดักโจมตีได้ในมือของฝ่ายรับ ให้กดใช้ได้ทันที
       const cr = byId('counterRow');
       const myDefSeat = iAmDef ? pnd.target : null;
-      const opts = (iAmDef && BoTEngine.counterOptions) ? BoTEngine.counterOptions(st, pnd.target) : [];
+      const atkPromptPending = (st.prompts || []).some(p => p.chooser === pnd.by || p.whenAttacking || (p.keepSrc && p.dest === 'sacrifice' && p.src === pnd.atk));
+      const opts = (iAmDef && !atkPromptPending && BoTEngine.counterOptions) ? BoTEngine.counterOptions(st, pnd.target) : [];
       if (opts.length) {
         cr.classList.remove('hidden');
         cr.innerHTML = `<b class="counter-lead">💚 สวนกลับได้ — แตะใบที่กะพริบเขียว:</b>` + opts.map(k => {
@@ -2032,10 +2651,14 @@
           return `<button class="btn-counter small" data-counter="${k}" title="${esc(cc.effect || '')}">🌀 ${esc(cc.name)}</button>`;
         }).join('');
       } else { cr.classList.add('hidden'); cr.innerHTML = ''; }
-      byId('btnHoldAtk').classList.toggle('hidden', !(iAmDef && !pnd.held));
-      byId('btnResolveAtk').classList.toggle('hidden', !iAmDef);
+      // รอผู้โจมตีตอบ whenAttacking (เซ่นไหว้ไพรมอล ฯลฯ) ก่อนโชว์ปุ่มปะทะ
+      byId('btnHoldAtk').classList.toggle('hidden', !(iAmDef && !pnd.held && !atkPromptPending));
+      byId('btnResolveAtk').classList.toggle('hidden', !(iAmDef && !atkPromptPending));
       byId('btnResolveAtk').textContent = pnd.held ? 'ปะทะต่อ ▸' : (opts.length ? 'ไม่สวน ปะทะเลย ▸' : 'ปะทะเลย ▸');
       byId('btnCancelAtk').classList.toggle('hidden', !iAmAtk);
+      if (atkPromptPending) {
+        byId('attackText').textContent = `⚔️ ${A.name} ประกาศโจมตี — ตอบเซ่นไหว้/เอฟเฟกต์เมื่อโจมตีก่อน แล้วค่อยปะทะ`;
+      }
     } else { ab.classList.add('hidden'); byId('counterRow').classList.add('hidden'); }
 
     renderPileView();
@@ -2165,11 +2788,15 @@
       const sEl0 = document.querySelector(`[data-cid="${announceSrc}"]`);
       if (sEl0) sEl0.classList.add('ann-src');
       const mySide = BoTEngine.ownerOf(st, announceSrc);
-      if (announceKind === 'attack') { // เป้า = Avatar ฝั่งตรงข้าม
-        ['A', 'B'].filter(p => p !== mySide).forEach(p =>
+      if (announceKind === 'attack') { // เป้า = Avatar / Construct ฝั่งตรงข้าม (LIFE ลากแยก / กติกาเตะไข่)
+        ['A', 'B'].filter(p => p !== mySide).forEach(p => {
           (st.zones[p + '.avatar'] || []).forEach(t => {
             const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('atk-pick');
-          }));
+          });
+          (st.zones[p + '.construct'] || []).forEach(t => {
+            const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('atk-pick');
+          });
+        });
       } else if (announceKind === 'unity') { // เป้า = Avatar ฝั่งเรา (ใบอื่น)
         (st.zones[mySide + '.avatar'] || []).filter(t => t !== announceSrc).forEach(t => {
           const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('pick-ok');
@@ -2205,8 +2832,7 @@
     streamPush();   // 📺 ส่งสนามให้บานสนาม (ถ้าเปิดอยู่)
   }
 
-  /* มือถือ: กระจายการ์ดในมือเต็มความกว้างจอ · ใบน้อยขยาย · ใบเยอะเหลื่อมให้เห็นทุกใบ
-     (แก้เคสบีบกลางจอแล้วเหลือข้างโล่ง / เลือกแล้วแค่ขยับขึ้นมองไม่เห็น) */
+  /* มือถือ: ใช้เต็มความกว้างแถวมือ · ใบน้อยจัดกลุ่มตรงกลาง · ใบเยอะเหลื่อมเต็มแถว */
   function layoutMyHand() {
     const row = byId('myHandRow');
     if (!row) return;
@@ -2234,24 +2860,39 @@
     const n = cards.length;
     const portrait = window.matchMedia('(orientation:portrait)').matches;
     let cw = portrait ? 86 : (window.innerHeight <= 520 ? 60 : 64);
+    // ขยายตามความสูงแถวได้เต็มที่ — ไม่ตัดด้วยเพดานแคบ ๆ
+    const maxByRow = Math.max(cw, Math.floor((Math.max(row.clientHeight, 96) - 14) * 512 / 716));
+    if (n === 1) cw = Math.min(W, Math.max(cw, maxByRow));
+    else {
+      const gapTry = 8;
+      const fit = Math.floor((W - gapTry * (n - 1)) / n);
+      if (fit > cw) cw = Math.min(maxByRow, fit);
+    }
     let ch = Math.round(cw * (716 / 512));
-    // ใบน้อย → ขยายการ์ดให้กินพื้นที่ (ไม่เหลือข้างโล่ง)
-    if (n >= 1) {
-      const gapMin = n === 1 ? 0 : 6;
-      const fit = n === 1 ? Math.min(124, W) : Math.floor((W - gapMin * (n - 1)) / n);
-      if (fit > cw) {
-        cw = Math.min(portrait ? 118 : 96, fit);
-        ch = Math.round(cw * (716 / 512));
+    const gapIdeal = n <= 1 ? 0 : 8;
+    let start = pad;
+    let step = 0;
+    if (n === 1) {
+      start = pad + (W - cw) / 2;
+    } else {
+      const natural = n * cw + (n - 1) * gapIdeal;
+      if (natural <= W) {
+        // ใบน้อย: กองตรงกลาง ไม่ดึงไปชิดขอบ
+        start = pad + (W - natural) / 2;
+        step = cw + gapIdeal;
+      } else {
+        // ใบเยอะ: ใช้เต็มความกว้างแถว (ไม่จำกัดพื้นที่)
+        step = (W - cw) / (n - 1);
+        const minPeek = Math.max(30, Math.round(cw * 0.36));
+        if (step < minPeek) {
+          step = minPeek;
+          row.style.overflowX = (cw + (n - 1) * step > W + 2) ? 'auto' : 'hidden';
+        } else {
+          row.style.overflowX = 'hidden';
+        }
       }
     }
-    let step;
-    if (n === 1) step = 0;
-    else step = (W - cw) / (n - 1);
-    const minPeek = Math.max(30, Math.round(cw * 0.36));
-    if (n > 1 && step < minPeek) {
-      step = minPeek;
-      row.style.overflowX = (cw + (n - 1) * step > W + 2) ? 'auto' : 'hidden';
-    } else {
+    if (n <= 1 || (n > 1 && n * cw + (n - 1) * gapIdeal <= W)) {
       row.style.overflowX = 'hidden';
     }
     cards.forEach((el, i) => {
@@ -2259,7 +2900,7 @@
       el.style.position = 'absolute';
       el.style.width = cw + 'px';
       el.style.height = ch + 'px';
-      el.style.left = (pad + i * step) + 'px';
+      el.style.left = (start + i * step) + 'px';
       el.style.bottom = '6px';
       el.style.margin = '0';
       el.style.zIndex = sel ? String(200 + i) : String(i + 1);
@@ -2509,7 +3150,7 @@
   }
   // ⚡/⚔️ โหมดชี้เป้า: เลือกการ์ดต้นทางแล้ว → แตะเป้าหมาย (Esc/แตะพื้นว่าง = ยกเลิก · แตะซ้ำใบเดิม = ไม่ชี้เป้า)
   const PICK_HINT = {
-    attack: '⚔️ แตะการ์ด "เป้าหมาย" ที่จะโจมตี · ตัวโจมตีจะนอนให้อัตโนมัติ · Esc = ยกเลิก',
+    attack: '⚔️ แตะเป้าหมายโจมตี (Avatar หรือ Construct) · ตัวโจมตีจะนอนให้อัตโนมัติ · Esc = ยกเลิก',
     unity: '🤝 แตะ Avatar ฝั่งเรา "ตัวที่จะรับพลัง" · ตัวที่กดจะนอนแล้วยก POWER ไปให้ · Esc = ยกเลิก',
     backstab: '🗡️ แตะ Avatar ที่สั่งโจมตี · ตัวที่กดจะนอนแล้วเสริม POWER(+1) จนจบการต่อสู้ · สีต่าง = ทำลายผู้โจมตี · Esc = ยกเลิก',
     pair: '🤝 แตะคู่หูที่ระบุบนการ์ด (เฉพาะใบที่มีความสามารถคู่หู/Link) · Esc = ยกเลิก',
@@ -3088,8 +3729,8 @@
           // ลากตี LIFE — หงายทีละใบ; ถ้าฝ่ายนั้นสาหัสแล้ว = ท่าปิดเกม
           return sendAction({ type: 'lifeHit', atk: d.k, life: tk });
         }
-        if (tz && tz.endsWith('.avatar') && BoTEngine.ownerOf(st, tk) !== BoTEngine.ownerOf(st, d.k)) {
-          // ประกาศโจมตี → ฝ่ายรับตอบสนอง/สวน React ได้ แล้วกดปะทะ
+        if (tz && (tz.endsWith('.avatar') || tz.endsWith('.construct')) && BoTEngine.ownerOf(st, tk) !== BoTEngine.ownerOf(st, d.k)) {
+          // ประกาศโจมตี Avatar หรือ Construct → ฝ่ายรับตอบสนอง/สวน React ได้ แล้วกดปะทะ
           return sendAction({ type: 'declareAttack', atk: d.k, def: tk });
         }
       }
@@ -3240,7 +3881,21 @@
   });
 
   /* ── ปุ่มบนโต๊ะ ── */
-  byId('btnEndTurn').onclick = () => sendAction({ type: 'endTurn' });
+  byId('btnEndTurn').onclick = () => doEndTurn();
+  const btnEndFab = byId('btnEndTurnFab');
+  if (btnEndFab) btnEndFab.onclick = () => doEndTurn();
+  const phaseSlotEl = byId('phaseSlot');
+  if (phaseSlotEl) {
+    phaseSlotEl.addEventListener('click', () => {
+      if (!window.matchMedia('(max-width:920px)').matches) return; // เดสก์ท็อปใช้ Enter / ปุ่มขวา
+      doEndTurn();
+    });
+    phaseSlotEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doEndTurn(); }
+    });
+  }
+  window.addEventListener('resize', () => { if (st) syncEndTurnUi(); });
+  window.addEventListener('orientationchange', () => { setTimeout(() => { if (st) { syncPhaseSlot(); syncEndTurnUi(); } }, 200); });
   // btnStrict ถูกถอดออกจากหน้า (แมนนวล 100%)
   byId('btnBot').onclick = () => { soloBot = !soloBot; toast(soloBot ? '🤖 เปิดบอท — B เล่นเอง' : 'ปิดบอท — คุณคุมทั้งสองฝั่ง'); render(); scheduleBot(); };
   byId('btnHoldAtk').onclick = () => { if (st && st.pending) sendAction({ type: 'holdAttack', by: mode === 'solo' ? st.pending.target : undefined }); };
@@ -3407,6 +4062,7 @@
     const drawerOpen = !lg.classList.contains('hidden');
     if (bL) bL.classList.toggle('on', drawerOpen);
     if (bD) bD.classList.toggle('on', drawerOpen);
+    syncEndTurnUi();
   }
   const openDrawer = (scrollToDeck) => {
     byId('previewPane').classList.remove('open');
@@ -3423,7 +4079,7 @@
   byId('mbCard').onclick = toggleCardPeek;
   const btnCardPeek = byId('btnCardPeek');
   if (btnCardPeek) btnCardPeek.onclick = toggleCardPeek;
-  byId('mbEnd').onclick = () => sendAction({ type: 'endTurn' });
+  byId('mbEnd').onclick = () => doEndTurn();
   byId('mbDeck').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(true) : (lg.classList.add('hidden'), mbSync()); };
   byId('mbLog').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(false) : (lg.classList.add('hidden'), mbSync()); };
   // แนะนำหมุนจอ (มือถือแนวตั้ง) — กดข้ามแล้วจำไว้
@@ -3444,7 +4100,7 @@
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (!st) return;
     const map = {
-      'enter': () => sendAction({ type: 'endTurn' }),
+      'enter': () => doEndTurn(),
       'd': () => byId('btnDice').click(),
       'c': () => byId('btnCoin').click(),
       'l': () => byId('logPane').classList.toggle('hidden'),
@@ -3611,9 +4267,60 @@
   byId('mnuOnline').onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
   byId('mnuLan').onclick = () => {
     ensurePlayReady().catch(() => { });
-    showScreen('lobby');
-    byId('lobbyMsg').textContent = 'โหมด LAN — กด "สร้างห้อง LAN" หรือใส่รหัสแล้วกด "เข้า LAN"';
+    openLanHall();
   };
+  byId('btnLanHallBack').onclick = () => {
+    stopPresence();
+    showMenuHome();
+    showScreen('menu');
+  };
+  byId('btnLanByCode').onclick = () => {
+    // คง presence ไว้ได้ แต่ไปหน้าสร้าง/เข้าด้วยรหัส
+    ensurePlayReady().catch(() => { });
+    showScreen('lobby');
+    const msg = byId('lobbyMsg');
+    if (msg) msg.textContent = 'โหมด LAN ด้วยรหัส — กด "สร้างห้อง LAN" หรือใส่รหัสแล้วกด "เข้า LAN"';
+  };
+  const lanPeerList = byId('lanPeerList');
+  if (lanPeerList) lanPeerList.addEventListener('click', (e) => {
+    const challenge = e.target.closest('[data-challenge]');
+    if (challenge) {
+      tryChallengePeer(+challenge.getAttribute('data-challenge'), challenge.getAttribute('data-nick') || '');
+      return;
+    }
+    const cancel = e.target.closest('[data-cancel-challenge]');
+    if (cancel) {
+      presenceSend({ t: 'challengeCancel' });
+      outgoingChallenge = null;
+      setLanHallStatus('ยกเลิกคำท้าแล้ว');
+      renderLanPeerList();
+    }
+  });
+  const selLanDeck = byId('selLanDeck');
+  if (selLanDeck) selLanDeck.onchange = () => {
+    try { localStorage.setItem('bot_active_deck', selLanDeck.value); } catch (e) { }
+  };
+  const inpLanNick = byId('inpLanNick');
+  if (inpLanNick) {
+    inpLanNick.addEventListener('change', () => {
+      const n = lanHallNick();
+      presenceSend({ t: 'nick', nick: n });
+    });
+    inpLanNick.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const n = lanHallNick();
+        presenceSend({ t: 'nick', nick: n });
+      }
+    });
+  }
+  const lanChallengeAccept = byId('lanChallengeAccept');
+  const lanChallengeDecline = byId('lanChallengeDecline');
+  if (lanChallengeAccept) lanChallengeAccept.onclick = acceptLanChallenge;
+  if (lanChallengeDecline) lanChallengeDecline.onclick = declineLanChallenge;
+  const lanChallengeModal = byId('lanChallengeModal');
+  if (lanChallengeModal) lanChallengeModal.addEventListener('click', (e) => {
+    if (e.target.id === 'lanChallengeModal') declineLanChallenge();
+  });
   byId('mnuDeck').onclick = () => {
     ensureTools().then(() => { showScreen('deckbuilder'); window.openDeckBuilder(); });
   };
@@ -3674,7 +4381,11 @@
       toast(`🎴 โหมดการ์ดจริง · ใช้เด็ค "${act.name}" — กด 📺 บานสนาม แล้วแชร์เฉพาะหน้าต่างนั้นใน Discord`, 11000);
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   };
-  byId('btnLobbyBack').onclick = () => { showMenuHome(); showScreen('menu'); };
+  byId('btnLobbyBack').onclick = () => {
+    stopPresence();
+    showMenuHome();
+    showScreen('menu');
+  };
   byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; connect(() => wsSend({ t: 'create', nick: myNick(), uid: myUid() })); };
   byId('btnCreateLan').onclick = () => startLanHost();
   function joinRoom(as) {
@@ -3732,6 +4443,21 @@
     } else wsSend({ t: 'start' });
   };
   byId('btnLeaveRoom').onclick = leaveOnline;
+
+  const lanDropLeaveBtn = byId('lanDropLeave');
+  const lanDropActionBtn = byId('lanDropAction');
+  if (lanDropLeaveBtn) lanDropLeaveBtn.onclick = () => {
+    if (lanDropMode === 'reconnect') leaveOnline();
+    else finishLanPeerGone();
+  };
+  if (lanDropActionBtn) lanDropActionBtn.onclick = () => {
+    if (lanDropMode === 'reconnect') tryLanReconnect();
+    else if (lanDropMode === 'wait' && !lanDropWaiting) startLanDropCountdown();
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (lanDropMode === 'reconnect' && !lanReconnecting && room && !lanIsHost) tryLanReconnect();
+  });
 
   /* ── ⬍ สนามฝั่งเดียว: ซ่อนเสื่อฝั่งตรงข้าม เหลือสนามเราใบเดียว ──
      หน้านี้ต่างจากบานสนาม: มันถูกจำกัดด้วย "ความสูง" (มีแผงพรีวิว+log ขนาบข้าง)
@@ -3902,8 +4628,9 @@
       return false; // ให้ auto-join ทำงานเอง
     }
     const hash = (location.hash || '').replace(/^#/, '');
-    if (['deckbuilder', 'gallery', 'howto', 'lobby'].includes(hash)) {
+    if (['deckbuilder', 'gallery', 'howto', 'lobby', 'lanHall'].includes(hash)) {
       if (hash === 'howto') ensureHowto().then(() => showScreen('howto'));
+      else if (hash === 'lanHall') openLanHall();
       else if (hash === 'deckbuilder' || hash === 'gallery') {
         ensureTools().then(() => {
           showScreen(hash);

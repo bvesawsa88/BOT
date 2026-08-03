@@ -20,9 +20,19 @@
     return arr;
   }
 
+  function galleryPool() {
+    return GL.db.prints || GL.db.cards;
+  }
+
   function packPool() {
     const series = GL.packSeries || byId('glPackSeries').value;
-    return GL.db.cards.filter(c => c.series === series && /^BT/.test(c.series || ''));
+    return galleryPool().filter(c => c.series === series && /^BT/.test(c.series || ''));
+  }
+
+  function lookupPrint(el) {
+    if (!el || !GL.db) return null;
+    if (el.dataset.uid && GL.db.byUid) return GL.db.byUid[el.dataset.uid];
+    return GL.db.byCode[el.dataset.code];
   }
 
   function pickRarity(pool, rarity) {
@@ -43,7 +53,7 @@
   function cardHtml(c, i, delayScale) {
     const hot = HOT.includes(c.rarity);
     const d = (delayScale == null ? i : delayScale) * 0.08;
-    return `<div class="gl-pack-card" data-code="${esc(c.code)}" style="animation:packPop .45s ease-out ${d}s both${hot ? `, shine 1.2s ease-in-out ${d + .4}s 2` : ''}">
+    return `<div class="gl-pack-card" data-uid="${esc(c.uid || '')}" data-code="${esc(c.code)}" style="animation:packPop .45s ease-out ${d}s both${hot ? `, shine 1.2s ease-in-out ${d + .4}s 2` : ''}">
       <div class="gl-img big" style="background-image:url('${esc(c.imageUrl)}')"></div>
       <div class="gl-pack-name">${esc(c.name)}</div>
       <div class="gl-pack-rar${hot ? ' hot' : ''}">${esc(c.rarity)}</div>
@@ -64,11 +74,18 @@
   window.openGallery = function () {
     CardDB.load().then(db => {
       GL.db = db;
-      fillSelect('glSeries', 'ทุกซีรีส์', [...new Set(db.cards.map(c => c.series).filter(Boolean))].sort());
-      fillSelect('glRarity', 'ทุกความหายาก', [...new Set(db.cards.map(c => c.rarity).filter(Boolean))].sort());
-      // เปิดซอง/กล่องเฉพาะชุด BT
+      const pool = db.prints || db.cards;
+      const rarOrder = ['C', 'R', 'SR', 'UR', 'SEC', 'USEC', 'PR', 'CBR'];
+      const rarities = [...new Set(pool.map(c => c.rarity).filter(Boolean))]
+        .sort((a, b) => {
+          const ia = rarOrder.indexOf(a), ib = rarOrder.indexOf(b);
+          return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+        });
+      fillSelect('glSeries', 'ทุกซีรีส์', [...new Set(pool.map(c => c.series).filter(Boolean))].sort());
+      fillSelect('glRarity', 'ทุกความหายาก', rarities);
+      // เปิดซอง/กล่องเฉพาะชุด BT (นับทุกพิมพ์รวม SEC)
       const cnt = {};
-      db.cards.forEach(c => { if (c.series && /^BT/.test(c.series)) cnt[c.series] = (cnt[c.series] || 0) + 1; });
+      pool.forEach(c => { if (c.series && /^BT/.test(c.series)) cnt[c.series] = (cnt[c.series] || 0) + 1; });
       const boosters = Object.keys(cnt).sort();
       byId('glPackSeries').innerHTML = boosters.map(v => `<option value="${esc(v)}">${esc(v)} (${cnt[v]} ใบ)</option>`).join('');
       if (!GL.packSeries || !cnt[GL.packSeries]) GL.packSeries = boosters[0] || '';
@@ -87,12 +104,12 @@
     if (!GL.db) return;
     setGLMode(GL.mode);
     const q = GL.q.trim().toLowerCase();
-    const filtered = GL.db.cards.filter(c =>
+    const filtered = galleryPool().filter(c =>
       (!q || (c.name + ' ' + (c.effect || '') + ' ' + c.code).toLowerCase().includes(q)) &&
       (!GL.series || c.series === GL.series) && (!GL.rarity || c.rarity === GL.rarity));
     byId('glResult').textContent = `${filtered.length} ใบ · แสดง ${Math.min(GL.shown, filtered.length)} · คลิกการ์ดเพื่อดูเต็มจอ`;
     byId('glGrid').innerHTML = filtered.slice(0, GL.shown).map(c =>
-      `<div class="gl-card" data-code="${esc(c.code)}">
+      `<div class="gl-card" data-uid="${esc(c.uid || '')}" data-code="${esc(c.code)}">
         <div class="gl-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
         <div class="gl-rar">${esc(c.rarity)}</div>
       </div>`).join('');
@@ -116,8 +133,8 @@
   byId('glRarity').onchange = e => { GL.rarity = e.target.value; GL.shown = 72; renderGL(); };
   byId('glMore').onclick = () => { GL.shown += 72; renderGL(); };
   byId('glGrid').addEventListener('click', e => {
-    const el = e.target.closest('[data-code]');
-    if (el) zoomCard(GL.db.byCode[el.dataset.code]);
+    const c = lookupPrint(e.target.closest('[data-code], [data-uid]'));
+    if (c) zoomCard(c);
   });
   byId('glZoom').onclick = () => byId('glZoom').classList.add('hidden');
   byId('glPackSeries').onchange = e => { GL.packSeries = e.target.value; };
@@ -167,8 +184,8 @@
   };
 
   byId('glPackCards').addEventListener('click', e => {
-    const el = e.target.closest('[data-code]');
-    if (el) zoomCard(GL.db.byCode[el.dataset.code]);
+    const c = lookupPrint(e.target.closest('[data-code], [data-uid]'));
+    if (c) zoomCard(c);
   });
 
 })();

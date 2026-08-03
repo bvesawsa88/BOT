@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const BASE_URL = 'https://bot.premiumhubth.com';
 
+// cards.json / sd01.json ดึงจาก https://bottcg.com/cards (ดู tools/sync-cards-from-bottcg.js)
 const filesToDownload = [
   'index.html',
   'css/style.css',
@@ -16,9 +18,7 @@ const filesToDownload = [
   'js/gallery.js',
   'manifest.json',
   'sw.js',
-  'data/cards.json',
   'data/banlist.json',
-  'data/sd01.json',
   'data/effects-all.json',
   'data/starters.json',
   'data/effects-sd01.json',
@@ -77,6 +77,16 @@ async function downloadFile(relPath) {
 }
 
 async function main() {
+  console.log('Syncing cards from https://bottcg.com/cards ...');
+  const sync = spawnSync(process.execPath, [path.join(__dirname, 'tools', 'sync-cards-from-bottcg.js')], {
+    cwd: __dirname,
+    stdio: 'inherit',
+  });
+  if (sync.status !== 0) {
+    console.error('Card sync failed');
+    process.exit(sync.status || 1);
+  }
+
   for (const file of filesToDownload) {
     await downloadFile(file);
   }
