@@ -41,7 +41,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "สั่งใช้ จากมือ ถ้าในนรกฝ่ายเรา มี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 7 ชื่อขึ้นไป ทั้งการ์ดจากบนมือ 2 ใบ : อัญเ",
       "noPaidSummon": true,
       "addToHandWhenScoutedByNameIncludes": "สุวรรณ"
@@ -73,7 +73,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในนรกฝ่ายเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 4 ใบขึ้นไป เนรเทศ การ์ดในนรกฝ่ายเรา ",
       "nameAliases": [
         "นายนิรยบาล"
@@ -104,7 +104,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "จุติ : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญเชิญลง Avatar Zone ฝ่ายเรา"
     },
     {
@@ -187,6 +187,11 @@
           },
           "actions": [
             {
+              "op": "mill",
+              "count": 1,
+              "who": "self"
+            },
+            {
               "op": "modifyPower",
               "amount": 1,
               "duration": "endOfTurn",
@@ -195,10 +200,37 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "oncePerTurn": true,
+          "oncePerTurnTag": "fightMill"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 1,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "oncePerTurn": true,
+          "oncePerTurnTag": "fightMill"
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "อัตโนมัติเมื่อโจมตี (Avatar/LIFE) หรือเป็นเป้า: ธรณีสูบ 1 + POWER +1 จนจบเทิร์น (รวมกันเทิร์นละครั้ง)"
     },
     {
       "code": "KD02-007",
@@ -216,7 +248,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "อัตโนมัติ ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรกได้ #การ์ดใบนี้ไม่สามา",
       "noHandSummon": true
     },
@@ -224,7 +256,7 @@
       "code": "KD02-008",
       "name": "นายนิรยบาล อ้วน",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง เมื่อมีการ ธรณีสูบ จากความสามารถของการ์ดฝ่ายเรา ยกเว้น \"นายนิรยบาล อ้วน\" ธรณีสูบ เพิ่ม 2 ใบ",
       "millBonusExtra": 2,
       "millBonusExceptSelf": true
@@ -283,7 +315,7 @@
       "abilities": [
         {
           "trigger": {
-            "on": "playMagic"
+            "on": "activated"
           },
           "actions": [
             {
@@ -301,7 +333,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์",
       "milledOptional": {
         "actions": [
@@ -384,8 +416,9 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD08-013"
+      "parseStatus": "verified",
+      "note": "แมปจาก SD08-013 · lifeBothModes · ใช้แล้วลงนรก",
+      "lifeBothModes": true
     },
     {
       "code": "KD02-017",
@@ -404,7 +437,9 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT05-058"
+      "note": "แมปจาก BT05-058",
+      "ignoreReactOncePerTurnLimit": true,
+      "oncePerTurnCard": true
     },
     {
       "code": "KD02-018",
@@ -445,9 +480,37 @@
               }
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "requireMilledThisTurn": true,
+          "requireNoModUsed": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self"
+            }
+          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)",
+      "attachOnly": {
+        "symbol": "นรก"
+      },
+      "milledOptional": {
+        "requireNoModUsed": true,
+        "countsAsModification": true,
+        "actions": [
+          {
+            "op": "attach",
+            "from": "self"
+          }
+        ]
+      }
     },
     {
       "code": "KD02-020",
@@ -479,7 +542,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "verified",
       "note": "เทิร์นละครั้ง สั่งใช้ ทิ้ง Avatar {Symbol นรก} 1 ใบจากบนมือ : อัญเชิญ Avatar \"นายนิรยบาล\" ค่า Cost ไม่เกิน 4 จาก นรกฝ่าย"
     },
     {
@@ -512,16 +575,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "gemMin": 3
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-075"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Avatar GEM≥3 ขึ้นมือ"
     },
     {
       "code": "KD02-023",
@@ -533,16 +605,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Avatar"
+                  },
+                  "dest": "hand",
+                  "restTo": "bottom"
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-073"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: สอดแนม 5 เลือก Avatar 1 ขึ้นมือ ที่เหลือใต้เด็ค"
     },
     {
       "code": "KD02-024",
@@ -554,16 +635,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Magic",
+                    "subtype": "Normal"
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-071"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Normal Magic ขึ้นมือ"
     },
     {
       "code": "KD02-025",

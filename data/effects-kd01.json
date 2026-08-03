@@ -53,14 +53,16 @@
                     "costMax": 4,
                     "count": 1
                   },
-                  "optional": true
-                },
-                {
-                  "op": "schedule",
-                  "when": "ownEndPhase",
-                  "actions": [
+                  "optional": true,
+                  "then": [
                     {
-                      "op": "replaceSelfWithHellNarai"
+                      "op": "schedule",
+                      "when": "ownEndPhase",
+                      "actions": [
+                        {
+                          "op": "replaceSelfWithHellNarai"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -251,8 +253,11 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT03-002"
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อโจมตี: ฝ่ายตรงข้ามใช้ React ไม่ได้จนจบการต่อสู้ · #นับเป็นชื่อ พระนารายณ์",
+      "nameAliases": [
+        "พระนารายณ์"
+      ]
     },
     {
       "code": "KD01-010",
@@ -603,16 +608,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "gemMin": 3
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-075"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Avatar GEM≥3 ขึ้นมือ"
     }
   ]
 }

@@ -608,16 +608,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Avatar"
+                  },
+                  "dest": "hand",
+                  "restTo": "bottom"
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-073"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: สอดแนม 5 เลือก Avatar 1 ขึ้นมือ ที่เหลือใต้เด็ค"
     },
     {
       "code": "KD03-022",
@@ -629,16 +638,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Magic",
+                    "subtype": "Normal"
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-071"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Normal Magic ขึ้นมือ"
     },
     {
       "code": "KD03-023",
@@ -691,16 +709,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "gemMin": 3
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT05-075"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Avatar GEM≥3 ขึ้นมือ"
     }
   ]
 }

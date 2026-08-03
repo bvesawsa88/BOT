@@ -36,10 +36,9 @@ const KD01 = {
       oncePerTurnByName: 'ร่างอวตารพระนารายณ์ - นรสิง',
       actions: [
         { op: 'naraiFormSummon', sacrificeNameIncludes: 'พระนารายณ์', then: [
-          { op: 'destroy', target: { select: 'choose', type: 'Avatar', side: 'enemy', costMax: 4, count: 1 }, optional: true },
-          { op: 'schedule', when: 'ownEndPhase', actions: [
-            { op: 'replaceSelfWithHellNarai' }
-          ]}
+          // ทำลายศัตรู Cost≤4 สำเร็จเท่านั้น → นัดเปลี่ยนร่างตอนจบเทิร์น (ข้าม/ไม่มีเป้า = ไม่เปลี่ยนร่าง)
+          { op: 'destroy', target: { select: 'choose', type: 'Avatar', side: 'enemy', costMax: 4, count: 1 }, optional: true,
+            then: [{ op: 'schedule', when: 'ownEndPhase', actions: [{ op: 'replaceSelfWithHellNarai' }] }] }
         ]}
       ]
     }],
@@ -67,6 +66,16 @@ const KD01 = {
     abilities: [],
     halvePrintedInsteadDestroy: true,
     parseStatus: 'manual'
+  },
+  'KD01-009': {
+    code: 'KD01-009', name: 'นางอัปสร',
+    abilities: [{
+      trigger: { on: 'declareAttack' },
+      actions: [{ op: 'blockReactUntilCombatEnd' }]
+    }],
+    nameAliases: ['พระนารายณ์'],
+    parseStatus: 'manual',
+    note: 'อัตโนมัติ เมื่อโจมตี: บล็อก React · #นับเป็นชื่อ พระนารายณ์'
   },
   'KD01-007': {
     code: 'KD01-007', name: 'พระอินทร์ เทพขยัน',
@@ -152,7 +161,7 @@ const KD02 = {
   'KD02-014': {
     code: 'KD02-014', name: 'สัญญาเลือด',
     abilities: [{
-      trigger: { on: 'playMagic' },
+      trigger: { on: 'activated' },
       actions: [
         { op: 'mill', count: 3, who: 'self' },
         { op: 'drawHellUnique', symbol: 'นรก', threshold: 5, countBelow: 1, countAtLeast: 2 }

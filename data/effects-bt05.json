@@ -1554,15 +1554,26 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Magic",
+                    "subtype": "Normal"
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "name": "ไม่นะ อู๊ด !",
+      "note": "Main ถัดไป: เปิดนรก เลือก Normal Magic ขึ้นมือ"
     },
     {
       "code": "BT05-072",
@@ -1592,15 +1603,26 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Avatar"
+                  },
+                  "dest": "hand",
+                  "restTo": "bottom"
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "name": "ไม่นะ มีมมิจัง !",
+      "note": "Main ถัดไป: สอดแนม 5 เลือก Avatar 1 ขึ้นมือ ที่เหลือใต้เด็ค"
     },
     {
       "code": "BT05-074",
@@ -1630,15 +1652,26 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "gemMin": 3
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "name": "ไม่นะ โดม !",
+      "note": "Main ถัดไป: เปิดนรก เลือก Avatar GEM≥3 ขึ้นมือ"
     }
   ]
 }

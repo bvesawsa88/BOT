@@ -363,7 +363,7 @@ function countOf(c, ser) {
   const m = String(c.dropRate || '').match(/(\d+)\s*\//);
   if (m) return +m[1];
   if (c.type === 'Life') return 1;
-  if (c.rarity === 'UR' || c.rarity === 'SEC' || c.rarity === 'SCR') return 1;
+  if (c.rarity === 'UR' || c.rarity === 'SEC') return 1;
   if (c.rarity === 'SR') return 2;
   return 2;
 }

@@ -10,21 +10,69 @@
 
 /* ═══════════════ CARD GALLERY + เปิดซอง ═══════════════ */
   const GL = { db: null, mode: 'gallery', q: '', series: '', rarity: '', shown: 72, packSeries: '' };
+  const HOT = ['UR', 'SEC', 'USEC', 'PR', 'CBR'];
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function packPool() {
+    const series = GL.packSeries || byId('glPackSeries').value;
+    return GL.db.cards.filter(c => c.series === series && /^BT/.test(c.series || ''));
+  }
+
+  function pickRarity(pool, rarity) {
+    const p = pool.filter(c => c.rarity === rarity);
+    return p.length ? p[Math.floor(Math.random() * p.length)] : null;
+  }
+
+  function pickC(pool) {
+    return pickRarity(pool, 'C') || pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function makePack(pool, hitRarity) {
+    let hit = pickRarity(pool, hitRarity);
+    if (!hit) hit = pickRarity(pool, 'R') || pickC(pool);
+    return [pickC(pool), pickC(pool), pickC(pool), pickC(pool), hit];
+  }
+
+  function cardHtml(c, i, delayScale) {
+    const hot = HOT.includes(c.rarity);
+    const d = (delayScale == null ? i : delayScale) * 0.08;
+    return `<div class="gl-pack-card" data-code="${esc(c.code)}" style="animation:packPop .45s ease-out ${d}s both${hot ? `, shine 1.2s ease-in-out ${d + .4}s 2` : ''}">
+      <div class="gl-img big" style="background-image:url('${esc(c.imageUrl)}')"></div>
+      <div class="gl-pack-name">${esc(c.name)}</div>
+      <div class="gl-pack-rar${hot ? ' hot' : ''}">${esc(c.rarity)}</div>
+    </div>`;
+  }
+
+  function showSummary(hits) {
+    const order = ['SEC', 'UR', 'SR', 'R', 'C'];
+    const cnt = {};
+    hits.forEach(c => { cnt[c.rarity] = (cnt[c.rarity] || 0) + 1; });
+    const keys = [...order.filter(k => cnt[k]), ...Object.keys(cnt).filter(k => !order.includes(k))];
+    byId('glPackSummary').innerHTML = keys.map(k =>
+      `<span class="gl-box-chip${HOT.includes(k) ? ' hot' : ''}">${esc(k)} ×${cnt[k]}</span>`
+    ).join('') + `<span class="gl-box-chip">ท้ายซอง ${hits.length} ใบ</span>`;
+    byId('glPackSummary').classList.remove('hidden');
+  }
 
   window.openGallery = function () {
     CardDB.load().then(db => {
       GL.db = db;
       fillSelect('glSeries', 'ทุกซีรีส์', [...new Set(db.cards.map(c => c.series).filter(Boolean))].sort());
       fillSelect('glRarity', 'ทุกความหายาก', [...new Set(db.cards.map(c => c.rarity).filter(Boolean))].sort());
-      // ★ เปิดซองได้ทุกชุด (ไม่จำกัดแค่ BT) — เรียง BT ก่อน แล้วชุดอื่นตามหลัง
+      // เปิดซอง/กล่องเฉพาะชุด BT
       const cnt = {};
-      db.cards.forEach(c => { if (c.series) cnt[c.series] = (cnt[c.series] || 0) + 1; });
-      const boosters = Object.keys(cnt).sort((a, b) => {
-        const ba = /^BT/.test(a) ? 0 : 1, bb = /^BT/.test(b) ? 0 : 1;
-        return ba !== bb ? ba - bb : (a < b ? -1 : 1);
-      });
+      db.cards.forEach(c => { if (c.series && /^BT/.test(c.series)) cnt[c.series] = (cnt[c.series] || 0) + 1; });
+      const boosters = Object.keys(cnt).sort();
       byId('glPackSeries').innerHTML = boosters.map(v => `<option value="${esc(v)}">${esc(v)} (${cnt[v]} ใบ)</option>`).join('');
-      if (!GL.packSeries && boosters.length) GL.packSeries = boosters[0];
+      if (!GL.packSeries || !cnt[GL.packSeries]) GL.packSeries = boosters[0] || '';
+      if (GL.packSeries) byId('glPackSeries').value = GL.packSeries;
       renderGL();
     });
   };
@@ -73,34 +121,51 @@
   });
   byId('glZoom').onclick = () => byId('glZoom').classList.add('hidden');
   byId('glPackSeries').onchange = e => { GL.packSeries = e.target.value; };
+
+  // 1 ซอง: Common ×4 + ท้ายซองตามน้ำหนัก (ไม่การันตี)
   byId('glOpenPack').onclick = () => {
-    const pool = GL.db.cards.filter(c => c.series === (GL.packSeries || byId('glPackSeries').value));
+    const pool = packPool();
     if (!pool.length) return;
-    const pick = rs => { const p = pool.filter(c => rs.includes(c.rarity)); return p.length ? p[Math.floor(Math.random() * p.length)] : null; };
-    const pickC = () => pick(['C']) || pool[Math.floor(Math.random() * pool.length)];
-    // ซอง = 5 ใบ: Common 4 + การ์ดหายาก (Rare ขึ้นไป) 1 ใบ อยู่ "ท้ายซอง" เสมอ
-    // สุ่มระดับความหายากตามน้ำหนัก (Rare พบบ่อย, ยิ่งสูงยิ่งหายาก)
-    const WEIGHTS = [['R', 55], ['SR', 28], ['UR', 11], ['SCR', 4.5], ['USEC', 1], ['PR', 0.3], ['CBR', 0.2]];
+    const WEIGHTS = [['R', 55], ['SR', 28], ['UR', 11], ['SEC', 4.5], ['USEC', 1], ['PR', 0.3], ['CBR', 0.2]];
     const avail = WEIGHTS.filter(([r]) => pool.some(c => c.rarity === r));
-    let hit = null;
+    let hitR = 'R';
     if (avail.length) {
       const total = avail.reduce((s, [, w]) => s + w, 0);
-      let roll = Math.random() * total, hitR = avail[0][0];
+      let roll = Math.random() * total;
       for (const [r, w] of avail) { roll -= w; if (roll <= 0) { hitR = r; break; } }
-      hit = pick([hitR]);
     }
-    hit = hit || pick(['R', 'SR', 'UR', 'SCR']) || pickC();
-    // Common 4 ใบ ตามด้วยการ์ดหายาก 1 ใบท้ายสุด (เปิดท้ายซอง)
-    const out = [pickC(), pickC(), pickC(), pickC(), hit];
-    byId('glPackCards').innerHTML = out.map((c, i) => {
-      const hot = ['UR', 'SCR', 'USEC', 'PR', 'CBR'].includes(c.rarity);
-      return `<div class="gl-pack-card" data-code="${esc(c.code)}" style="animation:packPop .5s ease-out ${i * .12}s both${hot ? `, shine 1.2s ease-in-out ${i * .12 + .5}s 2` : ''}">
-        <div class="gl-img big" style="background-image:url('${esc(c.imageUrl)}')"></div>
-        <div class="gl-pack-name">${esc(c.name)}</div>
-        <div class="gl-pack-rar${hot ? ' hot' : ''}">${esc(c.rarity)}</div>
+    const out = makePack(pool, hitR);
+    byId('glPackSummary').classList.add('hidden');
+    byId('glPackCards').className = 'gl-pack-cards';
+    byId('glPackCards').innerHTML = out.map((c, i) => cardHtml(c, i)).join('');
+  };
+
+  // 1 กล่อง = 20 ซอง การันตี: 1 SEC + 2 UR + 3 SR + 14 R
+  byId('glOpenBox').onclick = () => {
+    const pool = packPool();
+    if (!pool.length) return;
+    const hitsPlan = shuffle([
+      'SEC',
+      'UR', 'UR',
+      'SR', 'SR', 'SR',
+      ...Array(14).fill('R')
+    ]);
+    const packs = hitsPlan.map(r => makePack(pool, r));
+    const hits = packs.map(p => p[4]);
+    showSummary(hits);
+    byId('glPackCards').className = 'gl-box-packs';
+    byId('glPackCards').innerHTML = packs.map((cards, pi) => {
+      const hit = cards[4];
+      return `<div class="gl-box-pack">
+        <div class="gl-box-pack-head">
+          <span>ซอง ${pi + 1}/20</span>
+          <span class="hit">ท้ายซอง · ${esc(hit.rarity)}</span>
+        </div>
+        <div class="gl-pack-cards">${cards.map((c, i) => cardHtml(c, i, pi * 0.35 + i * 0.05)).join('')}</div>
       </div>`;
     }).join('');
   };
+
   byId('glPackCards').addEventListener('click', e => {
     const el = e.target.closest('[data-code]');
     if (el) zoomCard(GL.db.byCode[el.dataset.code]);

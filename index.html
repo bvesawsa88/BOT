@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260801m">
+<link rel="stylesheet" href="css/style.css?v=20260803a">
 </head>
 <body>
 
@@ -219,12 +219,14 @@
   </div>
   <div id="glPackView" class="gl-view hidden">
     <div class="gl-pack-inner">
-      <div class="gl-pack-title">จำลองเปิดซอง Booster</div>
+      <div class="gl-pack-title">จำลองเปิดซอง Booster (BT)</div>
       <div class="gl-pack-controls">
         <select id="glPackSeries"></select>
-        <button id="glOpenPack" class="btn-primary">ฉีกซอง! (5 ใบ)</button>
+        <button id="glOpenPack" class="btn-dark">ฉีกซอง! (1 ซอง)</button>
+        <button id="glOpenBox" class="btn-primary">เปิดกล่อง! (20 ซอง · การันตี)</button>
       </div>
-      <div class="gl-pack-note">ซองละ 5 ใบ: Common ×4 + การ์ดหายาก (Rare ขึ้นไป) ×1 อยู่ท้ายซองเสมอ · ลุ้น UR/SCR/USEC/PR/CBR — เพื่อความสนุก ไม่ใช่อัตราจริงของสินค้า</div>
+      <div class="gl-pack-note">เฉพาะชุด BT · ซองละ 5 ใบ = Common ×4 + หายาก ×1 ท้ายซอง · กล่อง 20 ซองการันตี: 1 SEC + 2 UR + 3 SR + 14 R — เพื่อความสนุก ไม่ใช่อัตราจริงของสินค้า</div>
+      <div id="glPackSummary" class="gl-box-summary hidden"></div>
       <div id="glPackCards" class="gl-pack-cards"></div>
     </div>
   </div>
@@ -307,7 +309,7 @@
           <tr><td><b>LIFE</b></td><td>แถบการ์ดคว่ำด้านข้าง 5 ใบ — โดนตีทีหงายทีละใบ</td></tr>
           <tr><td><b>นรก (HELL)</b></td><td>กองทิ้ง</td></tr>
           <tr><td><b>มิติมืด</b></td><td>โซนนำการ์ดออกจากเกม</td></tr>
-          <tr><td><b>กองเด็ค</b></td><td>แตะ = จั่ว 1 ใบ · คลิกขวา/กดค้าง = เมนูคำสั่งเด็ค</td></tr>
+          <tr><td><b>กองเด็ค</b></td><td>แตะ = จั่ว 1 ใบ · คำสั่งอื่นอยู่ที่แผงขวา 🃏 เด็ค</td></tr>
         </table>
         <p class="hw-dim">ลากการ์ดไปวางโซนไหนก็ได้ ไม่มีข้อจำกัด — รวมถึงลากไปฝั่งตรงข้ามด้วย</p>
       </section>
@@ -354,7 +356,7 @@
 
       <section id="hw-deckops">
         <h2>5 · คำสั่งกองเด็ค</h2>
-        <p>อยู่ที่ <b>แผงขวา</b> และกดค้าง/คลิกขวาที่กองเด็คก็ได้ — ตั้งจำนวนใบด้วยช่อง <b>−  N  +</b> ก่อนกด</p>
+        <p>อยู่ที่ <b>แผงขวา</b> — ตั้งจำนวนใบด้วยช่อง <b>−  N  +</b> ก่อนกด</p>
         <table class="hw-tbl">
           <tr><td>🃏 จั่ว</td><td>จั่วขึ้นมือ (แตะกองเด็คบนเสื่อก็ได้)</td></tr>
           <tr><td>🔀 สับเด็ค</td><td>สับกองเด็ค</td></tr>
@@ -377,8 +379,10 @@
         <ol class="hw-ol">
           <li>โจมตีหงาย LIFE ทีละใบ จนหงายครบทั้ง 5 ใบ → ฝ่ายนั้นเข้า <b>สถานะสาหัส</b> (ยังไม่แพ้)</li>
           <li>ต้องโจมตีเข้า LIFE Zone ของฝ่ายสาหัสอีก <b>1 ครั้ง</b> จึงจะชนะ</li>
-          <li>ตอนประกาศท่าปิดเกม (โจมตีฝ่ายสาหัส) จะขึ้นแถบแดงถามฝั่งที่โดนว่าจะใช้การ์ดสวนไหม</li>
-          <li>กด <b>🛡️ ขอใช้การ์ดสวน</b> → ท่าปิดเกมเป็นโมฆะ เกมไปต่อ · กด <b>ไม่สวน — จบเกม</b> → ชนะทันที</li>
+          <li>ตอนประกาศท่าปิดเกม จะถามฝั่งสาหัส: <b>จะอ้อนวอนขออีกเทิร์นนึงไหม?</b></li>
+          <li>กด <b>ใช่</b> → บังคับให้ฝ่ายโจมตีตอบว่ายอมไหม · ถ้ายอม = ยกเลิกโจมตีแล้วจบเทิร์นฝ่ายโจมตี · ไม่ยอม = จบเกม</li>
+          <li>กด <b>ไม่</b> → จบเกมทันที</li>
+          <li><b>เพนกวิ้น ฮัท</b> (สั่งใช้จากมือ + เนรเทศ): ยกเลิกท่าปิดเกมแล้วจบเทิร์นฝ่ายโจมตีทันที — <b>ไม่ต้องรออีกฝ่ายยอม</b> (เกมละ 1 ครั้ง)</li>
         </ol>
         <p class="hw-dim">อยากจบเกมด้วยวิธีอื่น (ยอมแพ้ / ตกลงเสมอ) กดปุ่ม <b>จบเกม</b> บนแถบบนได้เลย</p>
       </section>
@@ -448,10 +452,7 @@
       <section id="hw-keys">
         <h2>9 · คีย์ลัด (เฉพาะตอนอยู่หน้าโต๊ะ)</h2>
         <table class="hw-tbl hw-keys">
-          <tr><td><kbd>Space</kbd></td><td>ไปเฟสถัดไป (อยู่เฟสสุดท้าย = จบเทิร์น)</td></tr>
-          <tr><td><kbd>Enter</kbd></td><td>จบเทิร์น</td></tr>
-          <tr><td><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd></td><td>ไปเฟส Draw / Main / Battle / End</td></tr>
-          <tr><td><kbd>U</kbd></td><td>ตื่นทุกใบ</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>จบเทิร์น (เฟสเปลี่ยนอัตโนมัติตามการเล่น)</td></tr>
           <tr><td><kbd>D</kbd></td><td>ทอยเต๋า d6</td></tr>
           <tr><td><kbd>C</kbd></td><td>โยนเหรียญ</td></tr>
           <tr><td><kbd>L</kbd></td><td>ซ่อน/แสดงแผงบันทึกเกม</td></tr>
@@ -497,12 +498,16 @@
   <div id="annFlash" class="ann-flash"></div>
   <div id="main">
     <aside id="previewPane">
-      <div class="pane-head only-desk">ตัวอย่างการ์ด (ชี้/แตะการ์ด)</div>
+      <div class="pane-head pv-head">
+        <span class="only-desk">ตัวอย่างการ์ด (ชี้/แตะการ์ด)</span>
+        <span class="only-mobile">รายละเอียดการ์ด</span>
+        <button type="button" id="btnPvClose" class="btn-mini only-mobile" title="ปิด" aria-label="ปิด">✕</button>
+      </div>
       <div id="pvBody">
         <div class="pv-empty">ชี้เมาส์หรือแตะการ์ดใบไหนก็ได้<br>เพื่อดูภาพเต็ม + ความสามารถ</div>
       </div>
-      <div class="pane-hint only-desk">ดับเบิลคลิก/แตะสองครั้ง = นอน-ตื่น · คลิกขวา/กดค้าง = เมนู · ลากการ์ดไปโซนใดก็ได้ · คลิกเด็ค = จั่ว</div>
-      <div class="pane-hint only-desk kbd-hint">⌨ คีย์ลัด: <b>Space</b> เฟสถัดไป · <b>Enter</b> จบเทิร์น · <b>1-4</b> เลือกเฟส · <b>U</b> ตื่น · <b>D</b> เต๋า · <b>L</b> Log · <b>F</b> เต็มจอ · <b>Esc</b> ยกเลิก</div>
+      <div class="pane-hint only-desk">ดับเบิลคลิก/แตะสองครั้ง = นอน-ตื่น · คลิกเดี่ยว = เมนู · ลากการ์ดไปโซนใดก็ได้ · คลิกเด็ค = จั่ว</div>
+      <div class="pane-hint only-desk kbd-hint">⌨ คีย์ลัด: <b>Enter</b> จบเทิร์น · <b>D</b> เต๋า · <b>C</b> เหรียญ · <b>L</b> Log · <b>F</b> เต็มจอ · <b>Esc</b> ยกเลิก</div>
     </aside>
 
     <section id="board">
@@ -522,10 +527,10 @@
       </div></div>
 
       <!-- ช่องเปลี่ยนเฟสกลางสนาม (สไตล์ Duel Links — เด่นบนมือถือแนวตั้ง) -->
-      <button id="phaseSlot" type="button" class="phase-slot" title="แตะเพื่อไปเฟสถัดไป / จบเทิร์น">
+      <div id="phaseSlot" class="phase-slot" title="เฟสเปลี่ยนอัตโนมัติตามการเล่น">
         <span id="phaseSlotLabel" class="ps-label">MAIN PHASE</span>
-        <span id="phaseSlotSub" class="ps-sub">แตะเพื่อเปลี่ยนเฟส</span>
-      </button>
+        <span id="phaseSlotSub" class="ps-sub">อัตโนมัติตามการเล่น</span>
+      </div>
 
       <!-- ฝั่งเรา -->
       <div class="mat mat-my"><div class="mat-in">
@@ -535,7 +540,7 @@
         <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="myMagicZone"><div id="myMagic" class="zone-cards"></div></div>
         <div class="mz mz-life" data-lb="LIFE" id="myLifeZone"><em id="myCrit" class="crit"></em><div id="myLife" class="zone-cards"></div></div>
         <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="myHell"><span class="pile-count" id="myHellCount">0</span></div>
-        <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="myDeck" title="คลิก = จั่ว · คลิกขวา/กดค้าง = สับ"><span class="pile-count" id="myDeckCount">0</span></div>
+        <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="myDeck" title="คลิก = จั่ว"><span class="pile-count" id="myDeckCount">0</span></div>
         <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="myDark"><span class="pile-count" id="myDarkCount">0</span></div>
       </div></div>
 
@@ -546,6 +551,7 @@
       </div>
       <div id="promptBar" class="attack-bar prompt-bar hidden">
         <span id="promptText"></span>
+        <span id="promptTimer" class="prompt-timer hidden"></span>
         <span id="peekTopRow" class="hidden">
           <button id="btnPeekTop" class="btn-primary small">ไว้บนเด็ค</button>
           <button id="btnPeekBottom" class="btn-dark small">ไว้ใต้เด็ค</button>
@@ -559,6 +565,9 @@
           <button id="btnSurviveYes" class="btn-primary small">ใช้! POWER−1 รอด</button>
           <button id="btnSurviveNo" class="btn-dark small">ไม่ใช้ — ตาย</button>
         </span>
+        <span id="milledOptionalRow" class="hidden">
+          <button id="btnMillOptYes" class="btn-primary small">ใช้ผลพิเศษ</button>
+        </span>
         <span id="pickSymbolRow" class="hidden">
           <select id="pickSymbolSelect" class="small"></select>
           <button id="btnPickSymbol" class="btn-primary small">ประกาศ Symbol</button>
@@ -567,11 +576,12 @@
         <button id="btnReactNo" class="btn-dark small hidden">ไม่ใช้</button>
         <button id="btnPromptSkip" class="btn-dark small hidden">ข้าม/ยกเลิก</button>
       </div>
-      <!-- ⚠️ ท่าปิดเกม: ถามฝั่งที่โดนตีก่อนว่าจะใช้การ์ดสวนไหม (state.pendingLethal) -->
+      <!-- ⚠️ ท่าปิดเกม: อ้อนวอนขอเทิร์น / อีกฝ่ายยอมไหม (state.pendingLethal) -->
       <div id="lethalBar" class="attack-bar lethal-bar hidden">
         <span id="lethalText"></span>
-        <button id="btnLethalCounter" class="btn-gold small hidden">🛡️ ขอใช้การ์ดสวน</button>
-        <button id="btnLethalAccept" class="btn-primary small hidden">ไม่สวน — จบเกม</button>
+        <button id="btnLethalPenguin" class="btn-gold small hidden">🐧 เพนกวิ้น ฮัท</button>
+        <button id="btnLethalCounter" class="btn-gold small hidden">ใช่ — ขอเทิร์นนึง</button>
+        <button id="btnLethalAccept" class="btn-primary small hidden">ไม่ — จบเกม</button>
       </div>
       <div id="attackBar" class="attack-bar hidden">
         <span id="attackText"></span>
@@ -598,9 +608,7 @@
     <!-- ═══ แถบควบคุมล่างจอ — เฉพาะมือถือ (ปุ่มใหญ่ แตะง่าย) ═══ -->
     <nav id="mobileBar" class="only-mobile-flex">
       <button id="mbCard" title="ดูการ์ดที่แตะล่าสุด (ภาพเต็ม + ความสามารถ)"><b>🔍</b><span>การ์ด</span></button>
-      <button id="mbPhase" title="ไปเฟสถัดไป"><b>⏭</b><span id="mbPhaseTxt">เฟส</span></button>
-      <button id="mbUntap" title="ตื่นทุกใบ"><b>☀</b><span>ตื่น</span></button>
-      <button id="mbDeck" title="คำสั่งเด็ค: จั่ว/สับเด็ค/ค้นหาจากเด็ค/สอดแนม/กฏร้าน/ธรณีสูบ"><b>🃏</b><span>เด็ค</span></button>
+      <button id="mbDeck" title="คำสั่งเด็ค: ค้นหา / เปิดบนกอง / ธรณีสูบ (จำนวนติดลบ)"><b>🃏</b><span>เด็ค</span></button>
       <button id="mbEnd" class="mb-end" title="จบเทิร์น"><b>🏁</b><span>จบเทิร์น</span></button>
       <button id="mbLog" title="บันทึกเกม + แชท"><b>📜</b><span>Log</span></button>
     </nav>
@@ -616,25 +624,14 @@
     <aside id="logPane">
       <div class="pane-head rp-head">ตัวควบคุม <button id="btnLogClose" class="btn-mini only-mobile">ปิด</button></div>
       <div id="pvControls">
-        <!-- ปุ่มจำเป็น: จบเกม / รีแมตช์ / ออกห้อง·เมนูหลัก -->
-        <div id="tableNavRow" class="table-nav-row">
-          <div class="ctrl-row">
-            <button id="btnNavEnd" class="btn-dark" title="ประกาศจบเกม">🏁 จบเกม</button>
-            <button id="btnNavRematch" class="btn-dark" title="เริ่มกระดานใหม่">🔄 รีแมตช์</button>
-          </div>
-          <div class="ctrl-row">
-            <button id="btnNavHome" class="btn-primary" style="width:100%" title="ออกจากห้อง / กลับเมนูหลัก">🏠 เมนูหลัก</button>
-          </div>
-        </div>
-        <div id="phaseBar" class="phase-bar"></div>
+        <div id="phaseBar" class="phase-bar phase-bar-ro" title="เฟสเปลี่ยนอัตโนมัติตามการเล่น (จั่ว→เมน→แบทเทิล→จบ)"></div>
         <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
         <div class="ctrl-row hidden" id="mullRow"><button id="btnMulligan" class="btn-gold" style="width:100%">🔄 มัลลิแกน (เปลี่ยนมือเปิด)</button></div>
         <div class="ctrl-row hidden" id="swapSideRow">
           <button id="btnSwapSideCtrl" class="btn-gold" style="width:100%" title="สลับมุมมองฝั่ง A↔B — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่งผู้เล่น</button>
         </div>
         <div class="ctrl-row">
-          <button id="btnEndTurn" class="btn-primary">จบเทิร์น ▸</button>
-          <button id="btnUntap" class="btn-dark">ตื่นทุกใบ</button>
+          <button id="btnEndTurn" class="btn-primary" style="width:100%">จบเทิร์น ▸</button>
         </div>
         <div class="ctrl-row">
           <button id="btnDice" class="btn-gold">🎲 ทอยเต๋า d6</button>
@@ -642,31 +639,18 @@
         </div>
         <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
       </div>
-      <!-- 🃏 ปุ่มคำสั่งเด็ค — ใต้ตัวควบคุมเทิร์น เหนือบันทึกเกม · มีที่กองเด็ค (กดค้าง) ด้วย -->
-      <div id="deckOps" title="สอดแนม/เปิดท็อป = เปิดให้ทั้งสองฝั่งเห็น เลือกขึ้นมือได้ แล้วเลือกว่าใบที่เหลือไว้บนกองหรือใต้กอง · ธรณีสูบ = ทิ้งการ์ดบนสุดลงนรกทันที">
+      <!-- 🃏 คำสั่งเด็ค — จำนวนบวก+บนกอง=เปิดบนกอง · จำนวนติดลบ(−5)+บนกอง=ธรณีสูบ -->
+      <div id="deckOps" title="จำนวนบวก + บนกอง = เปิดดู N ใบบนสุด · จำนวนติดลบ (−5) + บนกอง = ธรณีสูบ · ค้นหาจากเด็คสับให้อัตโนมัติตอนปิด">
         <div class="dop-row">
           <span class="dop-lbl">🃏 เด็ค</span>
           <button class="dop-step" data-dop-adj="-1">−</button>
-          <input id="dopN" type="number" min="1" max="30" value="5" inputmode="numeric">
+          <input id="dopN" type="number" min="-30" max="30" value="5" inputmode="numeric" title="บวก = เปิดบนกอง · ติดลบ = ธรณีสูบ">
           <button class="dop-step" data-dop-adj="1">+</button>
           <span class="dop-unit">ใบ</span>
         </div>
         <div class="dop-btns">
-          <button id="btnDeckDraw" class="btn-dark" title="จั่ว 1 ใบ (แตะกองเด็คบนเสื่อก็ได้)">🃏 จั่ว</button>
-          <button id="btnDeckShuffle" class="btn-dark" title="สับเด็ค">🔀 สับเด็ค</button>
           <button id="btnDeckSearch" class="btn-dark" title="ค้นหาจากเด็ค — 🔒 อีกฝั่งไม่เห็นเนื้อหาเด็ค แต่จะเห็นชื่อใบที่เราหยิบขึ้นมือ · ปิดแล้วสับให้อัตโนมัติ">🔍 ค้นหาจากเด็ค</button>
-        </div>
-        <div class="dop-btns">
-          <button id="btnScout" class="btn-gold" title="สอดแนม — เปิดดู N ใบบนสุด เลือกขึ้นมือ แล้วจัดที่เหลือบน/ใต้กอง">🔍 สอดแนม</button>
-          <button id="btnPeekTop" class="btn-dark" title="เปิดจากบนกอง — เหมือนสอดแนม">👁 บนกอง</button>
-        </div>
-        <div class="dop-btns">
-          <button id="btnPeekBottom" class="btn-dark" title="กฏร้าน — เปิดการ์ดจากล่างกอง (ก้นเด็ค) เลือกขึ้นมือได้ แล้วจัดที่เหลือบน/ใต้กอง">🔽 กฏร้าน</button>
-          <button id="btnMill" class="btn-dark dop-mill" title="ธรณีสูบ — ทิ้งการ์ดบนสุด N ใบลงนรกทันที">🌊 ธรณีสูบ</button>
-        </div>
-        <div class="dop-btns">
-          <button id="btnShuffleHand" class="btn-dark" title="สับการ์ดบนมือ (สลับลำดับในมือ)">🔀 สับมือ</button>
-          <button id="btnHideHand" class="btn-dark" title="ปิดการ์ดในมือที่เปิดให้อีกฝั่งดูไว้ทั้งหมด">🙈 ปิดที่เปิดไว้</button>
+          <button id="btnDeckPeekTop" class="btn-dark" title="จำนวนบวก = เปิดบนกอง · จำนวนติดลบ = ธรณีสูบ">👁 บนกอง</button>
         </div>
       </div>
       <div class="pane-head rp-head">📜 บันทึกเกม</div>
@@ -780,7 +764,7 @@
     </div>
     <div class="dc-body">
       <div class="dc-label" id="dcLabel">รหัสเด็ค</div>
-      <textarea id="dcText" spellcheck="false" placeholder="วางรหัสเด็คจาก bottcg.com เช่น&#10;# Main Deck&#10;2x BT02-045-C&#10;4x BT09-002-SCR&#10;..."></textarea>
+      <textarea id="dcText" spellcheck="false" placeholder="วางรหัสเด็คจาก bottcg.com เช่น&#10;# Main Deck&#10;2x BT02-045-C&#10;4x BT09-002-SEC&#10;..."></textarea>
       <div id="dcMsg" class="dc-note"></div>
     </div>
     <div class="dc-foot">
@@ -837,6 +821,19 @@
   </div>
 </div>
 
+<!-- overlay เปิดศึกหลังมัลลิแกนครบ -->
+<div id="battleOv" class="hidden" aria-hidden="true">
+  <div class="battle-bg"></div>
+  <div class="battle-slash battle-slash-a"></div>
+  <div class="battle-slash battle-slash-b"></div>
+  <div class="battle-stage">
+    <div class="battle-ready">READY</div>
+    <div class="battle-title">BATTLE</div>
+    <div class="battle-vs">VS</div>
+    <div class="battle-sub" id="battleSub"></div>
+  </div>
+</div>
+
 <!-- overlay โยนเหรียญ (หมุนกลางจอ) -->
 <div id="coinOv" class="hidden" aria-hidden="true">
   <div class="coin-stage">
@@ -868,6 +865,7 @@
 <!-- overlay ต่างๆ -->
 <div id="ctxMenu" class="hidden"></div>
 <div id="clash" class="hidden"></div>
+<div id="vfxLayer" aria-hidden="true"></div>
 <div id="toast" class="hidden"></div>
 <div id="tut" class="hidden">
   <div class="tut-card">
@@ -878,7 +876,7 @@
       <b>ลาก Avatar ทับตัวศัตรู</b> = ประกาศโจมตี (เฟส Battle) — เทียบ POWER แล้วส่งฝ่ายแพ้ลงนรกให้เลย<br>
       <b>ลาก Avatar ทับ LIFE</b> = โจมตี LIFE หงายให้เลย<br>
       <b>จบเทิร์น</b> = ตื่นทุกใบ + จั่ว 1 ใบให้อัตโนมัติ<br>
-      <b>ดับเบิลคลิก / แตะสองครั้ง</b> = นอน/ตื่น · <b>มือถือกดค้าง</b> = อ่านการ์ดเต็ม · <b>คลิกขวา</b> = เมนู · คลิกเด็ค = จั่ว<br>
+      <b>ดับเบิลคลิก / แตะสองครั้ง</b> = นอน/ตื่น · <b>คลิกเดี่ยว</b> = เมนู · <b>มือถือกดค้าง</b> = อ่านการ์ดเต็ม · คลิกเด็ค = จั่ว<br>
       ปุ่ม <b>"กติกา"</b> บนขวา สลับได้ระหว่างบังคับกฎ ↔ โต๊ะเสรี (ไว้ใช้ตอน effect การ์ดต้องทำนอกกฎ)
     </div>
     <button id="btnTutClose" class="btn-primary big">เข้าใจแล้ว เริ่มเลย</button>
@@ -888,7 +886,7 @@
 <script src="js/util.js?v=20260802b"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260801e"></script>
-<script src="js/game.js?v=20260801n"></script>
+<script src="js/game.js?v=20260803a"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

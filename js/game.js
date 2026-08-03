@@ -16,8 +16,11 @@
         fetch(asset('data/effects-all.json')).then(r => r.json()).catch(() => null),
         fetch(asset('data/starters.json')).then(r => r.json()).catch(() => null),
         fetch('/api/effects-db').then(r => r.json()).catch(() => ({ cards: [] })),
-      ]).then(([base, starters, dbData]) => {
+        fetch(asset('data/cards.json')).then(r => r.json()).catch(() => null),
+        fetch(asset('data/set-releases.json')).then(r => r.json()).catch(() => null),
+      ]).then(([base, starters, dbData, cardsData, setRel]) => {
         STARTERS = starters || {};
+        if (setRel) BoTEngine.loadSetReleases(setRel);
         if (base) BoTEngine.loadEffects([base]);
         else {
           // fallback: ไฟล์แยกรายชุด (กรณียังไม่ build effects-all)
@@ -29,9 +32,15 @@
             .then(list => {
               BoTEngine.loadEffects(list.filter(Boolean));
               if (dbData && dbData.cards) BoTEngine.mergeEffects(dbData.cards);
+              // stub ชื่อจาก cards.json — reprint ใช้เอฟเฟกต์ชุดที่จำหน่ายทีหลังสุด
+              const cl = Array.isArray(cardsData) ? cardsData : (cardsData && cardsData.cards) || [];
+              if (cl.length) BoTEngine.mergeEffects(cl.map(c => ({ code: c.code, name: c.name })));
             });
         }
         if (dbData && dbData.cards) BoTEngine.mergeEffects(dbData.cards);
+        // stub ชื่อจาก cards.json — reprint ใช้เอฟเฟกต์ชุดที่จำหน่ายทีหลังสุด
+        const cardList = Array.isArray(cardsData) ? cardsData : (cardsData && cardsData.cards) || [];
+        if (cardList.length) BoTEngine.mergeEffects(cardList.map(c => ({ code: c.code, name: c.name })));
       })
     ).catch(err => {
       playReady = null;
@@ -102,6 +111,43 @@
   let announceSrc = null, annGlow = null, annT = null; // ประกาศใช้การ์ด (ชี้เป้า) + ไฮไลต์เป้า
   let announceKind = 'use'; // 'use' = ⚡ ประกาศใช้ · 'attack' = ⚔️ โจมตี (นอนตัวโจมตีให้อัตโนมัติ)
   let rpsTimerId = null, rpsDeadline = 0;
+  let reactTimerId = null, reactDeadline = 0, reactTimerKey = '';
+
+  /* นาฬิกาหน้าต่างขัดเวท / React ที่มี seconds — หมดเวลา = ส่ง reactTimeout → ไม่ใช้ */
+  function syncReactTimer(pr) {
+    const timerEl = byId('promptTimer');
+    const key = pr && pr.kind === 'react' && pr.seconds
+      ? `${pr.mode || ''}|${pr.target || ''}|${pr.chooser || ''}|${(pr.options || []).join(',')}`
+      : '';
+    if (!key) {
+      if (reactTimerId) { clearInterval(reactTimerId); reactTimerId = null; }
+      reactDeadline = 0; reactTimerKey = '';
+      if (timerEl) { timerEl.classList.add('hidden'); timerEl.textContent = ''; }
+      return;
+    }
+    if (reactTimerKey !== key) {
+      if (reactTimerId) { clearInterval(reactTimerId); reactTimerId = null; }
+      reactDeadline = Date.now() + (pr.seconds || 10) * 1000;
+      reactTimerKey = key;
+    }
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((reactDeadline - Date.now()) / 1000));
+      if (timerEl) {
+        timerEl.classList.remove('hidden');
+        timerEl.textContent = left + ' วิ';
+        timerEl.classList.toggle('urgent', left <= 3);
+      }
+      if (left <= 0) {
+        clearInterval(reactTimerId); reactTimerId = null;
+        const cur = st && (st.prompts || [])[0];
+        if (cur && cur.kind === 'react' && cur.seconds) {
+          sendAction({ type: 'reactTimeout', by: mode === 'solo' ? (cur.chooser || 'A') : (seat === 'S' ? 'A' : my) });
+        }
+      }
+    };
+    if (!reactTimerId) { tick(); reactTimerId = setInterval(tick, 250); }
+    else tick();
+  }
 
   function syncRpsModal(pr) {
     const modal = byId('rpsModal');
@@ -156,6 +202,51 @@
     if (ps) { ps.classList.remove('pulse'); void ps.offsetWidth; ps.classList.add('pulse'); }
   }
 
+  /* แอนิเมชันเปิดศึกหลังมัลลิแกนครบ → ค่อย beginDuel (จั่วเพิ่มผู้เริ่ม) */
+  let battleIntroPlaying = false;
+  let battleIntroKey = '';
+  function nickOf(p) {
+    if (mode === 'online' && roomSt && roomSt[p] && roomSt[p].nick) return roomSt[p].nick;
+    return 'ผู้เล่น ' + p;
+  }
+  function playBattleIntroThenStart(fp) {
+    if (!st || !st.awaitBattleStart) return;
+    const key = (st.turnSeq || st.turn) + ':' + (st.firstPlayer || 'A');
+    if (battleIntroPlaying || battleIntroKey === key) return;
+    battleIntroPlaying = true;
+    battleIntroKey = key;
+    const ov = byId('battleOv');
+    const sub = byId('battleSub');
+    if (sub) {
+      const a = nickOf('A'), b = nickOf('B');
+      const first = nickOf(fp || st.firstPlayer || 'A');
+      sub.textContent = `${a}  VS  ${b}  ·  ${first} เริ่มก่อน`;
+    }
+    if (ov) {
+      ov.classList.remove('hidden', 'out', 'play', 'show');
+      void ov.offsetWidth;
+      ov.classList.add('show', 'play');
+      ov.setAttribute('aria-hidden', 'false');
+    }
+    try { snd('clash'); } catch (e) { }
+    setTimeout(() => { try { snd('flip'); } catch (e) { } }, 500);
+    setTimeout(() => {
+      if (ov) { ov.classList.add('out'); }
+      setTimeout(() => {
+        if (ov) {
+          ov.classList.add('hidden');
+          ov.classList.remove('show', 'play', 'out');
+          ov.setAttribute('aria-hidden', 'true');
+        }
+        battleIntroPlaying = false;
+        if (st && st.awaitBattleStart) {
+          const who = mode === 'solo' ? (st.firstPlayer || 'A') : (seat === 'A' || seat === 'B' ? seat : undefined);
+          sendAction({ type: 'beginDuel', by: who });
+        }
+      }, 380);
+    }, 2200);
+  }
+
   const PHASE_SLOT = {
     Draw:   { en: 'DRAW PHASE',   short: 'DRAW',   th: 'เฟสจั่ว' },
     Main:   { en: 'MAIN PHASE',   short: 'MAIN',   th: 'เฟสเมน' },
@@ -195,11 +286,9 @@
     const portrait = window.matchMedia('(max-width:920px) and (orientation:portrait)').matches;
     lab.textContent = portrait ? meta.short : meta.en;
     const mine = mode === 'solo' || seat === st.active || seat === 'S';
-    const i = ['Draw', 'Main', 'Battle', 'End'].indexOf(st.phase);
-    const nextHint = i < 0 || i === 3 ? 'แตะเพื่อจบเทิร์น' : 'แตะเพื่อไปเฟสถัดไป';
-    if (sub) sub.textContent = mine ? `${meta.th} · ${nextHint}` : `${meta.th} · ตาฝั่ง ${st.active}`;
+    if (sub) sub.textContent = mine ? `${meta.th} · อัตโนมัติ` : `${meta.th} · ตาฝั่ง ${st.active}`;
     ps.className = 'phase-slot ph-' + st.phase + (mine ? '' : ' wait');
-    ps.title = mine ? nextHint : `ตาฝั่ง ${st.active}`;
+    ps.title = 'เฟสเปลี่ยนอัตโนมัติตามการเล่น';
   }
 
   /* มุมสุดท้ายของลูกเต๋าให้หน้า v หันเข้ากล้อง (df1–df6)
@@ -352,6 +441,8 @@
   let previewId = null, lastDrawn = null, lastFlip = null;
   let dealT = null, flipT = null, clashT = null, reconT = null;
   let deckFlashSide = null, deckFlashT = null; // เด็คกะพริบเขียวตอนจั่ว/เริ่มเทิร์น
+  const pendingReveal = new Set(); // การ์ดขึ้นมือที่ยังซ่อนรอแอนิเมชันลากเปิด
+  let vfxBusy = Promise.resolve(); // คิวแอนิเมชันไม่ให้ทับกัน
 
   /* ── สลับจอ ── */
   const SCREENS = ['menu', 'lobby', 'room', 'deckbuilder', 'gallery', 'howto'];
@@ -439,6 +530,265 @@
       g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + (kind === 'clash' ? .35 : .15));
       o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + .4);
     } catch (e) { }
+  }
+
+  /* ── VFX: ลากเปิดทีละใบ / ธรณีสูบ / สอดแนมหน้าต่าง / โจมตีวิ่งชน ── */
+  function vfxLayer() { return byId('vfxLayer'); }
+  function vfxSleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  function vfxReduced() {
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  function vfxRect(el) {
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 && r.height < 2) return null;
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
+  }
+  function vfxZone(side, kind) {
+    const mine = side === my;
+    if (kind === 'deck') return byId(mine ? 'myDeck' : 'oppDeck');
+    if (kind === 'hell') return byId(mine ? 'myHell' : 'oppHell');
+    if (kind === 'hand') return byId(mine ? 'myHandRow' : 'oppHandRow');
+    return null;
+  }
+  function vfxCardEl(k) {
+    return k ? document.querySelector(`#board [data-cid="${k}"]`) : null;
+  }
+  function vfxHandTarget(side, cardId) {
+    return vfxCardEl(cardId) || vfxZone(side, 'hand');
+  }
+  function vfxFlash(text, cls, ms) {
+    const layer = vfxLayer(); if (!layer || !text) return;
+    const el = document.createElement('div');
+    el.className = 'vfx-flash' + (cls ? ' ' + cls : '');
+    el.textContent = text;
+    layer.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 280); }, ms || 1100);
+  }
+  function vfxSpawnSlash(atEl) {
+    const layer = vfxLayer(); const r = vfxRect(atEl); if (!layer || !r) return;
+    const el = document.createElement('div');
+    el.className = 'vfx-slash';
+    el.style.left = r.x + 'px'; el.style.top = r.y + 'px';
+    layer.appendChild(el);
+    setTimeout(() => el.remove(), 620);
+  }
+  function vfxShake(el, ms) {
+    if (!el) return;
+    el.classList.remove('vfx-shake');
+    void el.offsetWidth;
+    el.classList.add('vfx-shake');
+    setTimeout(() => el.classList.remove('vfx-shake'), ms || 480);
+  }
+  /**
+   * ลากการ์ดจาก from → to
+   * flip: เริ่มหลังการ์ด แล้วพลิกหงายกลางทาง (จั่ว/ธรณีสูบ)
+   */
+  function vfxFlyReveal(opts) {
+    return new Promise(resolve => {
+      const layer = vfxLayer();
+      const fr = vfxRect(opts.from), tr = vfxRect(opts.to);
+      if (!layer || !fr || !tr) { resolve(); return; }
+      const dur = opts.dur || 720;
+      const w = opts.w || Math.max(44, Math.min(fr.w || 58, 88));
+      const h = w * (716 / 512);
+      const g = document.createElement('div');
+      g.className = 'vfx-card' + (opts.cls ? ' ' + opts.cls : '');
+      g.style.width = w + 'px';
+      g.style.height = h + 'px';
+      g.style.left = (fr.x - w / 2) + 'px';
+      g.style.top = (fr.y - h / 2) + 'px';
+      const faceStyle = opts.img ? `background-image:url('${esc(opts.img)}')` : '';
+      g.innerHTML = `<div class="vfx-flip${opts.startFaceUp ? ' is-up' : ''}">`
+        + `<div class="vfx-back"></div>`
+        + `<div class="vfx-face" style="${faceStyle}"></div>`
+        + `</div>`;
+      layer.appendChild(g);
+      const dx = tr.x - fr.x, dy = tr.y - fr.y;
+      const endScale = opts.endScale != null ? opts.endScale : 1;
+      const endOp = opts.endOpacity != null ? opts.endOpacity : 1;
+      const spin = opts.spin != null ? opts.spin : 0;
+      void g.offsetWidth;
+      const flipEl = g.querySelector('.vfx-flip');
+      if (opts.flip && flipEl && !opts.startFaceUp) {
+        setTimeout(() => flipEl.classList.add('is-up'), Math.floor(dur * (opts.flipAt != null ? opts.flipAt : 0.38)));
+      }
+      const anim = g.animate([
+        { transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1, offset: 0 },
+        { transform: `translate(${dx * 0.45}px,${dy * 0.4 - 18}px) rotate(${spin * 0.5}deg) scale(1.04)`, opacity: 1, offset: 0.45 },
+        { transform: `translate(${dx}px,${dy}px) rotate(${spin}deg) scale(${endScale})`, opacity: endOp, offset: 1 }
+      ], { duration: dur, easing: 'cubic-bezier(.22,.72,.18,1)', fill: 'forwards' });
+      const finish = () => { try { g.remove(); } catch (e) { } resolve(); };
+      anim.onfinish = finish;
+      setTimeout(finish, dur + 80);
+    });
+  }
+  function vfxHidePending(ids) {
+    ids.forEach(k => {
+      pendingReveal.add(k);
+      const el = document.querySelector(`[data-cid="${k}"]`);
+      if (el) el.classList.add('vfx-hide');
+    });
+  }
+  function vfxShowLanded(k) {
+    pendingReveal.delete(k);
+    const el = document.querySelector(`[data-cid="${k}"]`);
+    if (!el) return;
+    el.classList.remove('vfx-hide');
+    el.classList.remove('deal-land');
+    void el.offsetWidth;
+    el.classList.add('deal-land');
+    setTimeout(() => el.classList.remove('deal-land'), 500);
+  }
+  /** จั่ว / ขึ้นมือ: ลากเปิดจากเด็คทีละใบ */
+  async function vfxPlayDrawSeq(items) {
+    if (!items || !items.length) return;
+    const ids = items.map(it => it.k);
+    vfxHidePending(ids);
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const side = it.p || (st && BoTEngine.ownerOf(st, it.k));
+      const from = vfxZone(side, 'deck');
+      const to = vfxHandTarget(side, it.k);
+      const c = st && st.inst[it.k];
+      const showFace = !!(c && (side === my || mode === 'solo' || c.faceUp || c.revealed));
+      await vfxFlyReveal({
+        from, to, img: c ? c.img : '', flip: showFace, startFaceUp: false,
+        cls: 'vfx-draw', dur: 780, spin: side === my ? -6 : 6,
+        endScale: 1, endOpacity: 0.05, flipAt: 0.42
+      });
+      vfxShowLanded(it.k);
+      if (from) {
+        from.classList.remove('vfx-deck-nudge');
+        void from.offsetWidth;
+        from.classList.add('vfx-deck-nudge');
+        setTimeout(() => from.classList.remove('vfx-deck-nudge'), 280);
+      }
+      if (i < items.length - 1) await vfxSleep(160);
+    }
+    ids.forEach(k => pendingReveal.delete(k));
+  }
+  /** ธรณีสูบ: ค่อยๆ พลิกเปิดแล้วเลื่อนลงนรกทีละใบ */
+  async function vfxPlayMillSeq(items) {
+    if (!items || !items.length) return;
+    vfxFlash('🌊 ธรณีสูบ', 'vfx-mill-flash', 1000);
+    await vfxSleep(220);
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const from = vfxZone(it.p, 'deck');
+      const to = vfxZone(it.p, 'hell');
+      const c = st && st.inst[it.k];
+      await vfxFlyReveal({
+        from, to, img: c ? c.img : '', flip: true, startFaceUp: false,
+        cls: 'vfx-mill', dur: 860, spin: 10, endScale: 0.62, endOpacity: 0.2, flipAt: 0.35
+      });
+      if (to) {
+        to.classList.remove('vfx-hell-pulse');
+        void to.offsetWidth;
+        to.classList.add('vfx-hell-pulse');
+        setTimeout(() => to.classList.remove('vfx-hell-pulse'), 650);
+      }
+      if (it.name) {
+        const tip = document.createElement('div');
+        tip.className = 'vfx-mill-name';
+        tip.textContent = it.name;
+        const layer = vfxLayer();
+        const hr = vfxRect(to);
+        if (layer && hr) {
+          tip.style.left = hr.x + 'px';
+          tip.style.top = (hr.y - 36) + 'px';
+          layer.appendChild(tip);
+          requestAnimationFrame(() => tip.classList.add('show'));
+          setTimeout(() => { tip.classList.remove('show'); setTimeout(() => tip.remove(), 250); }, 700);
+        }
+      }
+      if (i < items.length - 1) await vfxSleep(220);
+    }
+  }
+  /** สอดแนม: เปิดหน้าต่างให้ทั้งสองฝั่งเห็น + การ์ดโผล่ทีละใบในหน้าต่าง */
+  async function vfxPlayScoutWindow(side, ids) {
+    vfxFlash('👁 สอดแนม — ทั้งสองฝั่งเห็น', 'vfx-scout-flash', 1300);
+    const ov = byId('pileView');
+    if (ov) {
+      ov.classList.add('scout-reveal');
+      setTimeout(() => ov.classList.remove('scout-reveal'), 900);
+    }
+    const deck = vfxZone(side, 'deck');
+    if (deck) {
+      deck.classList.remove('vfx-scout-deck');
+      void deck.offsetWidth;
+      deck.classList.add('vfx-scout-deck');
+      setTimeout(() => deck.classList.remove('vfx-scout-deck'), 1000);
+    }
+    // การ์ดในหน้าต่างโผล่ทีละใบ
+    const slots = ov ? ov.querySelectorAll('#pileGrid .sc-slot, #pileGrid .card') : [];
+    slots.forEach((el, i) => {
+      el.classList.add('scout-deal');
+      el.style.animationDelay = (80 + i * 140) + 'ms';
+    });
+    await vfxSleep(180 + Math.min(slots.length, 6) * 140);
+  }
+  /** โจมตี: การ์ดวิ่งไปชนเป้า */
+  async function vfxPlayAttackCollide(atk, tgt) {
+    const aEl = vfxCardEl(atk);
+    let tEl = vfxCardEl(tgt);
+    if (!tEl && st) {
+      const z = BoTEngine.zoneOf(st, tgt);
+      if (z && z.endsWith('.life')) tEl = byId(z[0] === my ? 'myLifeZone' : 'oppLifeZone');
+    }
+    if (!aEl || !tEl) return;
+    const layer = vfxLayer();
+    const fr = vfxRect(aEl), tr = vfxRect(tEl);
+    if (!layer || !fr || !tr) return;
+    const img = st.inst[atk] ? st.inst[atk].img : '';
+    aEl.classList.add('atk-strike');
+    setTimeout(() => aEl.classList.remove('atk-strike'), 800);
+    const w = 78, h = w * (716 / 512);
+    const g = document.createElement('div');
+    g.className = 'vfx-card vfx-lunge';
+    g.style.width = w + 'px'; g.style.height = h + 'px';
+    g.style.left = (fr.x - w / 2) + 'px'; g.style.top = (fr.y - h / 2) + 'px';
+    g.innerHTML = `<div class="vfx-flip is-up"><div class="vfx-back"></div><div class="vfx-face" style="background-image:url('${esc(img)}')"></div></div>`;
+    layer.appendChild(g);
+    const dx = tr.x - fr.x, dy = tr.y - fr.y;
+    void g.offsetWidth;
+    const anim = g.animate([
+      { transform: 'translate(0,0) scale(1) rotate(0deg)', opacity: 1, offset: 0 },
+      { transform: `translate(${dx * 0.55}px,${dy * 0.5 - 24}px) scale(1.08) rotate(-4deg)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${dx}px,${dy}px) scale(1.18) rotate(2deg)`, opacity: 1, offset: 0.82 },
+      { transform: `translate(${dx}px,${dy}px) scale(1.05) rotate(0deg)`, opacity: 0, offset: 1 }
+    ], { duration: 780, easing: 'cubic-bezier(.18,.7,.2,1)', fill: 'forwards' });
+    await vfxSleep(620);
+    vfxSpawnSlash(tEl);
+    vfxShake(byId('board'), 480);
+    tEl.classList.remove('atk-hit');
+    void tEl.offsetWidth;
+    tEl.classList.add('atk-hit');
+    setTimeout(() => tEl.classList.remove('atk-hit'), 750);
+    await new Promise(r => { anim.onfinish = r; setTimeout(r, 820); });
+    try { g.remove(); } catch (e) { }
+  }
+  function playFxAnims(fx) {
+    if (!fx || vfxReduced()) return;
+    const job = async () => {
+      try {
+        const draws = (fx.drawnList && fx.drawnList.length)
+          ? fx.drawnList.slice()
+          : (fx.drawn ? [{ p: BoTEngine.ownerOf(st, fx.drawn), k: fx.drawn }] : []);
+        if (draws.length) await vfxPlayDrawSeq(draws);
+        if (fx.milled && fx.milled.length) await vfxPlayMillSeq(fx.milled);
+        if (fx.scoutView) {
+          const side = (st && st.scout && st.scout.p) || fx.scoutView.p;
+          const ids = (st && st.scout && st.scout.ids)
+            || ((st.prompts || [])[0] && (st.prompts[0].ids || []))
+            || [];
+          await vfxPlayScoutWindow(side, ids);
+        }
+        if (fx.atkLunge && fx.atkLunge.atk) await vfxPlayAttackCollide(fx.atkLunge.atk, fx.atkLunge.tgt);
+      } catch (e) { /* ignore VFX errors */ }
+    };
+    vfxBusy = vfxBusy.then(job, job);
   }
 
   function toast(msg, ms) {
@@ -939,14 +1289,20 @@
     if (fx.deny) { toast('🚫 ' + fx.deny, 3200); return fx; }
     if (a.type === 'summon') { (a.payIds || []).forEach(k => delete selMap[k]); delete selMap[a.k]; }
     if (fx.snd) snd(fx.snd);
-    if (fx.drawn) {
-      lastDrawn = fx.drawn;
-      clearTimeout(dealT); dealT = setTimeout(() => { lastDrawn = null; render(); }, 700);
-      // เด็คฝั่งที่จั่ว — กะพริบเขียวสั้น ๆ (ต้นเทิร์น / เอฟเฟกต์ให้จั่ว)
-      const drawSide = BoTEngine.ownerOf(st, fx.drawn);
+    if (fx.drawn || (fx.drawnList && fx.drawnList.length)) {
+      const list = (fx.drawnList && fx.drawnList.length) ? fx.drawnList : [{ k: fx.drawn }];
+      lastDrawn = list[list.length - 1].k;
+      // ซ่อนใบที่เพิ่งขึ้นมือไว้ก่อน — รอแอนิเมชันลากเปิดทีละใบ
+      list.forEach(it => { if (it.k) pendingReveal.add(it.k); });
+      const hold = 900 + list.length * 900;
+      clearTimeout(dealT); dealT = setTimeout(() => {
+        lastDrawn = null;
+        list.forEach(it => pendingReveal.delete(it.k));
+        render();
+      }, hold);
+      const drawSide = BoTEngine.ownerOf(st, lastDrawn);
       if (drawSide === 'A' || drawSide === 'B') pulseDeckDraw(drawSide);
     } else if (fx.snd === 'draw') {
-      // จั่วแล้วแต่ไม่มี id ใบ (บาง path) — กระพริบเด็คฝั่ง active
       pulseDeckDraw(st.active);
     }
     if (fx.flip) { lastFlip = fx.flip; clearTimeout(flipT); flipT = setTimeout(() => { lastFlip = null; render(); }, 700); }
@@ -979,7 +1335,7 @@
       const el = byId('annFlash');
       if (el) {
         if (an.kind === 'attack')
-          el.innerHTML = `⚔️ ${esc(who)} โจมตี<br><b>「${esc(an.srcName)}」P${an.pa}</b>${an.tgtName ? ` ➜ <b>「${esc(an.tgtName)}」P${an.pd}</b>` : ''}`;
+          el.innerHTML = `⚔️ ${esc(who)} โจมตี<br><b>「${esc(an.srcName)}」P${an.pa}</b>${an.tgtName ? ` ➜ <b>「${esc(an.tgtName)}」${an.pd != null ? 'P' + an.pd : ''}</b>` : ''}`;
         else if (an.kind === 'attach')
           el.innerHTML = `🔗 ${esc(who)} สวมใส่<br><b>「${esc(an.srcName)}」</b> ➜ <b>「${esc(an.tgtName)}」</b>${an.pa != null && an.pd != null && an.pa !== an.pd ? `<br>POWER ${an.pa} → <b>${an.pd}</b>` : ''}`;
         else
@@ -995,7 +1351,33 @@
     if (fx.attach && fx.attach.pBefore != null && fx.attach.pAfter != null && fx.attach.pBefore !== fx.attach.pAfter) {
       toast(`🔗 สวมแล้ว — POWER ${fx.attach.pBefore} → ${fx.attach.pAfter}`, 2500);
     }
+    if (fx.battleIntro) playBattleIntroThenStart(fx.battleIntro.firstPlayer || (st && st.firstPlayer) || 'A');
+    if (fx.battleStarted) {
+      flashPhase('Main', st.active);
+      toast(`⚔️ เปิดศึก — ผู้เริ่ม ${st.firstPlayer || 'A'} จั่วเพิ่มแล้ว`, 2800);
+    }
+    if (fx.toast) toast(fx.toast, 2800);
+    // ธรณีสูบ: สรุปชื่อหลังแอนิเมชันทีละใบจบ (ไม่แย่งสายตากลางทาง)
+    if (fx.milled && fx.milled.length) {
+      const milledCopy = fx.milled.slice();
+      const wait = 400 + milledCopy.length * 1100;
+      setTimeout(() => {
+        const bySide = {};
+        milledCopy.forEach(m => { (bySide[m.p] = bySide[m.p] || []).push(m.name); });
+        const bits = Object.keys(bySide).map(p => {
+          const nick = (mode === 'online' && roomSt && roomSt[p] && roomSt[p].nick) ? roomSt[p].nick : 'ผู้เล่น ' + p;
+          return `${esc(nick)} ${bySide[p].map(n => `<b>「${esc(n)}」</b>`).join(' ')}`;
+        });
+        const el2 = byId('annFlash');
+        if (el2) {
+          el2.innerHTML = `🌊 ธรณีสูบ<br>${bits.join('<br>')}`;
+          el2.classList.remove('atk', 'show'); void el2.offsetWidth; el2.classList.add('show');
+          clearTimeout(annT); annT = setTimeout(() => el2.classList.remove('show'), 2800);
+        }
+      }, wait);
+    }
     render();
+    playFxAnims(fx);
     if (fx.critical) {
       toast(`🩸 ฝ่าย ${fx.critical} เข้าสู่สถานะสาหัส! ต้องโดนโจมตี LIFE อีก 1 ครั้งจึงจะแพ้`, 4500);
     }
@@ -1003,15 +1385,24 @@
       const nick = (mode === 'online' && roomSt && roomSt[fx.over]) ? roomSt[fx.over].nick : '';
       showEnd(fx.over, nick);
     }
-    // แจ้งเมื่อมี React (อุบัติเหตุ / ชายจากอนาคต ฯลฯ) — กันพลาดแถบ prompt
+    // แจ้งเมื่อมี React / หน้าต่างขัดเวท — กันพลาดแถบ prompt
     {
       const pr0 = (st.prompts || [])[0];
       if (pr0 && pr0.kind === 'react') {
         const mineR = mode === 'solo' ? (soloBot ? pr0.chooser === my : true) : seat === pr0.chooser;
         if (mineR) {
-          const n = (pr0.options && pr0.options.length) || 1;
+          const n = (pr0.options && pr0.options.length) || 0;
           const why = pr0.label || (pr0.mode === 'negateMagic' ? 'ขัด Magic' : 'ตอบโต้');
-          toast(`💚 React ${n} ใบพร้อมใช้ (${why}) — แตะใบที่กะพริบเขียว หรือกดไม่ใช้`, 4500);
+          if (pr0.magicNegate || pr0.mode === 'negateMagic') {
+            toast(n
+              ? `💚 จะขัดไหม? (${why}) — มี React ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`
+              : `⏳ จะขัดไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
+          } else {
+            toast(`💚 React ${n || 1} ใบพร้อมใช้ (${why}) — แตะใบที่กะพริบเขียว หรือกดไม่ใช้`, 4500);
+          }
+        } else if (pr0.magicNegate || pr0.mode === 'negateMagic') {
+          const tgtN = pr0.target && st.inst[pr0.target] ? st.inst[pr0.target].name : 'เวท';
+          toast(`⏳ รอฝ่าย ${pr0.chooser} ตอบว่าจะขัด "${tgtN}" ไหม (${pr0.seconds || 10} วิ)`, 3500);
         }
       }
       if (pr0 && (pr0.dest === 'preventLeavePick' || pr0.kind === 'preventLeaveExile')) {
@@ -1041,6 +1432,8 @@
     if (zone.length >= 6 || avCount >= 3) return false; // สร้างถึง 3 ตัวพอ
     const avatars = hand.filter(k => st.inst[k].type === 'Avatar').sort((a, b) => (+st.inst[b].power || 0) - (+st.inst[a].power || 0));
     for (const k of avatars) {
+      const eBot = BoTEngine.effectOf && BoTEngine.effectOf(st.inst[k].code, st.inst[k].name);
+      if (eBot && (eBot.noPaidSummon || eBot.noHandSummon)) continue;
       const cost = +st.inst[k].cost || 0;
       const byGemDesc = hand.filter(x => x !== k).sort((a, b) => (+st.inst[b].gem || 0) - (+st.inst[a].gem || 0));
       let gem = 0; const pay = [];
@@ -1170,6 +1563,10 @@
     byId('table').classList.toggle('spectate', mode === 'online' && seat === 'S');
     showScreen('table');
     byId('endOv').classList.add('hidden');
+    battleIntroPlaying = false;
+    battleIntroKey = '';
+    const bov = byId('battleOv');
+    if (bov) { bov.classList.add('hidden'); bov.classList.remove('show', 'play', 'out'); }
     applyPerspective();
     pileView = null; byId('pileView').classList.add('hidden');
     byId('btnInvite').classList.toggle('hidden', mode !== 'online');
@@ -1249,6 +1646,7 @@
     const classes = ['card', cls];
     if (c.tapped && !opts.noTap) classes.push('tapped');
     if (k === lastDrawn) classes.push('deal');
+    if (pendingReveal.has(k)) classes.push('vfx-hide');
     if (k === lastFlip) classes.push('flipping');
     if (selMap[k]) classes.push('sel');
     let inner;
@@ -1270,6 +1668,8 @@
       pw = `<div class="pw${clsPw}" title="${esc(tip)}">P${eff}</div>`;
     }
     const order = opts.order ? `<div class="pile-order">${opts.order}</div>` : '';
+    const scoutBadge = opts.badge ? `<div class="scout-badge">${opts.badge}</div>` : '';
+    if (opts.extraClass) String(opts.extraClass).split(/\s+/).filter(Boolean).forEach(c => classes.push(c));
     // ไฮไลต์เป้าที่เลือกได้ของ prompt + React ที่เปิดใช้ได้ (เขียว)
     const pr0 = (st.prompts || [])[0];
     if (pr0 && (mode === 'solo' || seat === pr0.chooser) && BoTEngine.promptTargetOk(st, k)) {
@@ -1306,20 +1706,25 @@
     let tok = '';
     if (c.isToken) { classes.push('token'); tok = `<div class="token-badge" title="Token — ตัวแทน Avatar (ออกจากโซนแล้วนำออกจากเกม ไม่ลงนรก)">⧉ Token</div>`; }
     if (c.revealed) { classes.push('revealed'); tok += `<div class="rev-badge" title="เปิดให้อีกฝั่งดูอยู่">👁</div>`; }
-    // ⚡➕➖ ปุ่มลัดลอยบนการ์ด (โผล่ตอนชี้เมาส์) — ใช้ได้กับการ์ดบนสนามฝั่งเรา ไม่ต้องเปิดเมนู
+    // ⚡➕➖ ปุ่มลัดลอยบนการ์ด — สนาม: โผล่ตอนชี้เมาส์ · มือที่มีสั่งใช้จากมือ: โชว์ ⚡ ตลอด (ไม่มีคลิกขวาแล้ว)
     let qa = '';
     const qz = ['avatar', 'magic', 'construct', 'land'].includes(cls);
-    if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
+    const kz0 = BoTEngine.zoneOf(st, k) || '';
+    const abs0 = (BoTEngine.effectOf && ((BoTEngine.effectOf(c.code, c.name) || {}).abilities || [])) || [];
+    const hasHandAct = cls === 'hand' && kz0.endsWith('.hand') && abs0.some(ab => ab.trigger && ab.trigger.on === 'activatedFromHand');
+    const handActOk = hasHandAct && canControl(k) && !mullP && !st.awaitBattleStart;
+    if (handActOk) {
+      classes.push('hand-act');
+      qa = `<div class="qa qa-hand"><button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้จากมือ">⚡</button></div>`;
+    } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
       const canAtk = cls === 'avatar' && !c.tapped && c.faceUp;
       // มีความสามารถสั่งใช้ (activated) → ⚡ = สั่งใช้ · ไม่มี → ⚡ = ประกาศใช้ชี้เป้า
-      const hasAct = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code) || {}).abilities || [])
-        .some(ab => {
-          const on = ab.trigger && ab.trigger.on;
-          if (on === 'activated') return true;
-          if (on === 'activatedFromHand' && (BoTEngine.zoneOf(st, k) || '').endsWith('.hand')) return true;
-          if ((on === 'activatedFromHell' || ab.fromHell) && (BoTEngine.zoneOf(st, k) || '').endsWith('.hell')) return true;
-          return false;
-        }));
+      const hasAct = abs0.some(ab => {
+        const on = ab.trigger && ab.trigger.on;
+        if (on === 'activated') return true;
+        if ((on === 'activatedFromHell' || ab.fromHell) && kz0.endsWith('.hell')) return true;
+        return false;
+      });
       qa = `<div class="qa">`
         + (canAtk ? `<button class="qa-b qa-atk" data-qa="atk" data-k="${k}" title="โจมตี → ชี้เป้า (นอนให้อัตโนมัติ)">⚔</button>` : '')
         + (hasAct
@@ -1329,7 +1734,7 @@
         + `<button class="qa-b" data-qa="dec" data-k="${k}" title="POWER −1">－</button>`
         + `</div>`;
     }
-    return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${inh}${tok}${order}${qa}</div>`;
+    return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${inh}${tok}${order}${scoutBadge}${qa}</div>`;
   }
   const zoneHTML = (z, cls) => (st.zones[z] || []).map(k => cardHTML(k, cls)).join('');
   const topHTML = id => { const a = st.zones[id] || []; return a.length ? `<div class="pile-top" data-cid="${a[a.length - 1]}" style="background-image:url('${esc(st.inst[a[a.length - 1]].img)}')"></div>` : ''; };
@@ -1382,18 +1787,46 @@
       byId('btnChainPass').classList.toggle('hidden', !mineChain);
     } else cb.classList.add('hidden');
 
-    // ⚠️ แถบท่าปิดเกม — ฝั่งที่โดนตีตอบก่อนว่าจะใช้การ์ดสวนไหม ถ้าไม่สวนจึงจบเกม
+    // ⚠️ แถบท่าปิดเกม — อ้อนวอนขอเทิร์น / รอฝ่ายโจมตียอม
     const lb = byId('lethalBar'), pl = st.pendingLethal;
     if (pl) {
       lb.classList.remove('hidden');
-      // solo คุมสองฝั่ง = ตอบได้เลย · ออนไลน์ = เฉพาะฝั่งที่ถูกประกาศ (ผู้ชมดูอย่างเดียว)
-      const mineLethal = mode === 'solo' ? true : seat === pl.target;
+      const phase = pl.phase || 'plead';
       const atkN = st.inst[pl.atk] ? st.inst[pl.atk].name : '?';
-      byId('lethalText').textContent = mineLethal
-        ? `⚠️ ท่าปิดเกม! "${atkN}" ของฝั่ง ${pl.by} จ่อฝั่ง ${pl.target} ที่อยู่ในสถานะสาหัส — จะใช้การ์ดสวนไหม?`
-        : `⚠️ ประกาศท่าปิดเกมใส่ฝั่ง ${pl.target} (สาหัส) แล้ว — รอฝั่ง ${pl.target} ตอบว่าจะสวนไหม…`;
-      byId('btnLethalCounter').classList.toggle('hidden', !mineLethal);
-      byId('btnLethalAccept').classList.toggle('hidden', !mineLethal);
+      const answerSeat = phase === 'grant' ? pl.by : pl.target;
+      const mineLethal = mode === 'solo' ? true : seat === answerSeat;
+      const btnYes = byId('btnLethalCounter'), btnNo = byId('btnLethalAccept'), btnPen = byId('btnLethalPenguin');
+      if (phase === 'grant') {
+        byId('lethalText').textContent = mineLethal
+          ? `🙏 ฝ่าย ${pl.target} อ้อนวอนขออีกเทิร์น (โดน "${atkN}") — จะยอมไหม?`
+          : `🙏 ฝ่าย ${pl.target} อ้อนวอนแล้ว — รอฝ่าย ${pl.by} ตอบว่าจะยอมไหม…`;
+        if (btnYes) btnYes.textContent = 'ยอม — ให้เทิร์น';
+        if (btnNo) btnNo.textContent = 'ไม่ยอม — จบเกม';
+      } else {
+        byId('lethalText').textContent = mineLethal
+          ? `⚠️ ท่าปิดเกม! "${atkN}" จ่อฝั่งคุณ (สาหัส) — จะอ้อนวอนขออีกเทิร์นนึงไหม?`
+          : `⚠️ ท่าปิดเกมใส่ฝั่ง ${pl.target} — รอตอบว่าจะอ้อนวอนขออีกเทิร์นไหม…`;
+        if (btnYes) btnYes.textContent = 'ใช่ — ขอเทิร์นนึง';
+        if (btnNo) btnNo.textContent = 'ไม่ — จบเกม';
+      }
+      if (btnYes) btnYes.classList.toggle('hidden', !mineLethal);
+      if (btnNo) btnNo.classList.toggle('hidden', !mineLethal);
+      // เพนกวิ้น ฮัท: ตอน plead ของฝ่ายสาหัส — ไม่ต้องรออีกฝ่ายยอม
+      let hatK = null;
+      if (phase === 'plead' && mineLethal) {
+        const side = pl.target;
+        const used = st.oncePerGame && st.oncePerGame[side + ':BT11-024'];
+        if (!used) {
+          hatK = (st.zones[side + '.hand'] || []).find(id => {
+            const c = st.inst[id];
+            return c && (c.code === 'BT11-024' || (c.name || '').includes('เพนกวิ้น ฮัท'));
+          }) || null;
+        }
+      }
+      if (btnPen) {
+        btnPen.classList.toggle('hidden', !hatK);
+        btnPen.dataset.k = hatK || '';
+      }
     } else lb.classList.add('hidden');
 
     // แถบ prompt เอฟเฟกต์ (เลือกเป้า / ทิ้งจ่ายค่า / React)
@@ -1403,6 +1836,10 @@
       pb.classList.remove('hidden');
       const mine = mode === 'solo' ? (soloBot ? pr.chooser === my : true) : seat === pr.chooser;
       let txt = '⏳ รออีกฝ่ายตัดสินใจเอฟเฟกต์…';
+      if (!mine && pr.kind === 'react' && (pr.magicNegate || pr.mode === 'negateMagic')) {
+        const tgtN = pr.target && st.inst[pr.target] ? st.inst[pr.target].name : 'เวท';
+        txt = `⏳ รอฝ่าย ${pr.chooser} ตอบว่าจะขัด "${tgtN}" ไหม…`;
+      }
       if (mine) {
         const srcN = st.inst[pr.src] ? st.inst[pr.src].name : '';
         if (pr.kind === 'chooseBuff') txt = `✨ ${srcN}: เลือก Avatar เป้าหมาย (POWER ${pr.amt > 0 ? '+' : ''}${pr.amt}) — แตะการ์ดที่กะพริบ`;
@@ -1411,6 +1848,9 @@
           : `💥 ${srcN}: แตะการ์ดบนสนามที่จะทำลาย`;
         if (pr.kind === 'pick') {
           if (pr.dest === 'coinDestroy') txt = `🪙 ${srcN}: เลือก Avatar ฝ่ายตรงข้าม แล้วทอยเหรียญ`;
+          else if (pr.dest === 'naraiSacSummon') txt = `🕉️ ${srcN}: เลือกพระนารายณ์บนสนามส่งนรก เพื่ออัญเชิญอวตาร`;
+          else if (pr.dest === 'avatar' && pr.naraiReturn) txt = `🕉️ จบเทิร์น: เลือกพระนารายณ์จากนรกอัญเชิญกลับขึ้นสนาม`;
+          else if (pr.dest === 'destroy') txt = `💥 ${srcN}: เลือก Avatar ศัตรูที่จะทำลาย${pr.optional ? ' (หรือข้าม — จะไม่เปลี่ยนร่างตอนจบเทิร์น)' : ''}`;
           else if (pr.dest === 'attachSelf') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คมาสวมใส่ตัวเอง`;
           else if (pr.dest === 'attachTo') txt = `🔗 ${srcN}: แตะ Avatar ที่จะสวมใส่ให้${pr.optional ? ' (หรือข้าม)' : ''}`;
           else if (pr.dest === 'sacrifice' && pr.keepSrc)
@@ -1444,14 +1884,25 @@
         }
         else if (pr.kind === 'chooseDiscard') txt = `🔥 ${srcN}: แตะการ์ดในมือที่จะทิ้ง`;
         if (pr.kind === 'react') {
-          const nOpt = (pr.options && pr.options.length) || (pr.src ? 1 : 0);
+          const nOpt = (pr.options && pr.options.length) || 0;
           const tgtN = pr.target && st.inst[pr.target] ? st.inst[pr.target].name : '';
-          const why = pr.label || (pr.mode === 'negateMagic' ? `ยกเลิก Magic "${tgtN}"` : tgtN ? `ตอบโต้ "${tgtN}"` : 'ตอบโต้');
-          txt = `💚 React พร้อมใช้ ${nOpt} ใบ (${why}) — แตะใบที่กะพริบเขียวเพื่อใช้ หรือกด「ไม่ใช้」`;
+          const why = pr.label || (pr.mode === 'negateMagic' ? `ขัด Magic "${tgtN}"` : tgtN ? `ตอบโต้ "${tgtN}"` : 'ตอบโต้');
+          if (pr.magicNegate || pr.mode === 'negateMagic') {
+            txt = nOpt
+              ? `💚 จะขัดไหม? ${why} — มี React ${nOpt} ใบ · แตะใบเขียว / กด「ไม่ใช้」 / รอ ${pr.seconds || 10} วิ`
+              : `⏳ จะขัดไหม? ${why} — กด「ไม่ใช้」หรือรอ ${pr.seconds || 10} วิ`;
+          } else {
+            txt = `💚 React พร้อมใช้ ${nOpt || (pr.src ? 1 : 0)} ใบ (${why}) — แตะใบที่กะพริบเขียวเพื่อใช้ หรือกด「ไม่ใช้」`;
+          }
         }
         if (pr.kind === 'chooseMode') txt = `🎯 ${srcN}: เลือกปฏิบัติ — จากนรก หรือจากเด็ค`;
         if (pr.kind === 'naraiHandForm') txt = `🕉️ อวตารนารายณ์: เลือกใบจากมือที่กะพริบเพื่อสั่งใช้ (หรือข้าม)`;
-        if (pr.kind === 'milledOptional') txt = `💀 ${st.inst[pr.src] ? st.inst[pr.src].name : '?'}: โดนธรณีสูบ — แตะใบนี้เพื่อใช้ผลพิเศษ หรือกดข้าม`;
+        if (pr.kind === 'milledOptional') {
+          const millNm = st.inst[pr.src] ? st.inst[pr.src].name : '?';
+          txt = pr.countsAsModification
+            ? `💀 ${millNm}: โดนธรณีสูบ — กด「ใช้ผลพิเศษ」แล้วแตะ Avatar {symbol นรก} เพื่อสวม · ข้ามได้`
+            : `💀 ${millNm}: โดนธรณีสูบ — กด「ใช้ผลพิเศษ」หรือแตะใบในหน้าต่าง · ข้ามได้`;
+        }
       }
       byId('promptText').textContent = txt;
       byId('btnReactYes').classList.add('hidden'); // เลิกถามใช่/ไม่ — แตะใบที่กะพริบแทน
@@ -1459,6 +1910,9 @@
       if (mine && pr.kind === 'react') {
         byId('btnReactNo').textContent = 'ไม่ใช้';
       }
+      syncReactTimer(pr);
+      const millRow = byId('milledOptionalRow');
+      if (millRow) millRow.classList.toggle('hidden', !(mine && pr.kind === 'milledOptional'));
       // เลือกมันสำหรับพวกจน ฯลฯ — เปิด modal เลือก นรก/เด็ค อัตโนมัติ
       if (mine && pr.kind === 'chooseMode' && pr.options && pr.options.length) {
         const modal = byId('choiceModal');
@@ -1506,7 +1960,7 @@
           }
         }
       }
-      byId('btnPromptSkip').classList.toggle('hidden', !(mine && pr.kind !== 'react' && pr.kind !== 'rps' && pr.kind !== 'peekTop' && pr.kind !== 'pickSymbol' && pr.kind !== 'handOrSummon' && pr.kind !== 'combatSurvive' && pr.kind !== 'passengerReplace' && pr.kind !== 'preventLeaveExile' && (pr.optional !== false || pr.dest === 'hellMultiDeck' || pr.dest === 'multiAvatar' || pr.dest === 'alienReveal' || pr.dest === 'discardSumCostSummon' || pr.dest === 'exileDistinctHell' || pr.dest === 'hellBuildConstruct' || pr.afterAlienGive)));
+      byId('btnPromptSkip').classList.toggle('hidden', !(mine && pr.kind !== 'react' && pr.kind !== 'rps' && pr.kind !== 'peekTop' && pr.kind !== 'pickSymbol' && pr.kind !== 'handOrSummon' && pr.kind !== 'combatSurvive' && pr.kind !== 'passengerReplace' && pr.kind !== 'preventLeaveExile' && (pr.optional !== false || pr.kind === 'milledOptional' || pr.dest === 'hellMultiDeck' || pr.dest === 'multiAvatar' || pr.dest === 'alienReveal' || pr.dest === 'discardSumCostSummon' || pr.dest === 'exileDistinctHell' || pr.dest === 'hellBuildConstruct' || pr.afterAlienGive)));
       if (mine && pr.dest === 'hellMultiDeck') {
         byId('promptText').textContent = `✨ ${st.inst[pr.src] ? st.inst[pr.src].name : ''}: เลือกจากนรกกลับเด็ค (${pr.multiGot || 0}/${pr.multiMax || 4}) — กดข้ามเมื่อพอใจ`;
       }
@@ -1540,7 +1994,12 @@
         const peq = pr.filter && pr.filter.powerEquals;
         byId('promptText').textContent = `💥 ${st.inst[pr.src] ? st.inst[pr.src].name : ''}: ทำลาย Avatar ศัตรูที่ POWER = ${peq} (หรือข้าม)`;
       }
-    } else pb.classList.add('hidden');
+    } else {
+      pb.classList.add('hidden');
+      syncReactTimer(null);
+      const millRow = byId('milledOptionalRow');
+      if (millRow) millRow.classList.add('hidden');
+    }
 
     syncRpsModal(pr);
 
@@ -1581,7 +2040,8 @@
 
     renderPileView();
     byId('phaseBar').innerHTML = ['Draw', 'Main', 'Battle', 'End'].map(p =>
-      `<button class="phase-pip${st.phase === p ? ' on' : ''}" data-phase="${p}">${p}</button>`).join('');
+      `<span class="phase-pip${st.phase === p ? ' on' : ''}" data-phase="${p}">${p}</span>`).join('');
+    syncDopPeekBtn();
 
     // โหมดกติกา — โชว์โควตาเวทประเภทละ 1 ครั้ง/เทิร์น
     const mu = (st.magicUsed && st.magicUsed[my]) || {};
@@ -1643,32 +2103,42 @@
     // ★ ผู้ชม = ไม่มีฝั่ง "ของเรา" → แสดงมือทั้งสองฝั่งขนาดเท่ากัน (เล็กเท่ากัน) ให้ดูเป็นกลาง
     if (seat === 'S') byId('myHandRow').innerHTML = `<span class="tool-result" style="margin-right:8px">มือ ${esc(nn(my))} · ${mh.length} ใบ</span>`
       + mh.map(k => st.inst[k].revealed ? cardHTML(k, 'magic', { forceUp: true, noTap: true }) : `<div class="card oppback"></div>`).join('');
-    else byId('myHandRow').innerHTML = mh.map(k => cardHTML(k, 'hand', { noTap: true })).join('');
+    // forceUp: มือตัวเองต้องเห็นหน้าเสมอ (กันใบที่เคยคว่ำในเด็คหลังมัลลิแกน/ฮามดัล)
+    else byId('myHandRow').innerHTML = mh.map(k => cardHTML(k, 'hand', { noTap: true, forceUp: true })).join('');
 
     // เลือกผู้เริ่มก่อน (solo · ก่อนเริ่มเล่นจริง)
     const played = ['A.avatar', 'B.avatar', 'A.construct', 'B.construct', 'A.magic', 'B.magic'].some(z => (st.zones[z] || []).length);
     const firstpAvail = mode === 'solo' && st.turn === 1 && !played;
     byId('firstpRow').classList.toggle('hidden', !firstpAvail);
     if (firstpAvail) byId('btnFirstP').textContent = `🎲 สลับผู้เริ่มก่อน (ตอนนี้: ${st.firstPlayer || 'A'})`;
-    // มัลลิแกน — แถบถามอัตโนมัติตอนเริ่มเกม (เทิร์น 1): "เปลี่ยนมือไหม?" ทีละคน
-    // ผู้เริ่มก่อนตัดสินใจเสร็จ engine ถึงจะจั่วเพิ่ม 2 ใบให้ (st.fpDrawn)
+    // มัลลิแกน — ถามทีละคนให้ครบก่อน · จั่วเพิ่มผู้เริ่มทำหลังแอนิเมชันเปิดศึก (beginDuel)
     const amSpec = mode === 'online' && seat === 'S';
     const done = st.mulliganDone || {};
     const fp0 = st.firstPlayer || 'A', op0 = fp0 === 'A' ? 'B' : 'A';
     mullP = null;
-    if (st.turn === 1 && !st.over) {
+    const waitMullOpp = !!(mode === 'online' && !amSpec && st.turn === 1 && !st.over
+      && !st.awaitBattleStart && !st.fpDrawn && done[my] && !done[opp]);
+    if (st.turn === 1 && !st.over && !st.awaitBattleStart && !st.fpDrawn) {
       if (mode === 'solo') mullP = !done[fp0] ? fp0 : (!done[op0] ? op0 : null);
       else if (!amSpec && !done[my]) mullP = my;
     }
     byId('mullRow').classList.add('hidden'); // ปุ่มมัลลิแกนแยกไม่ใช้แล้ว — แถบถามอัตโนมัติแทน
     const mullHand = mullP ? (st.zones[mullP + '.hand'] || []) : mh;
     const selIds = Object.keys(selMap).filter(k => mullHand.includes(k));
-    byId('mullBar').classList.toggle('hidden', !mullP);
-    if (mullP) {
-      byId('mullText').textContent = `🔄 ผู้เล่น ${mullP}${mullP === fp0 ? ' (ผู้เริ่ม — ตอบแล้วได้จั่วเพิ่ม 2 ใบ)' : ''}: เปลี่ยนมือเปิดไหม? แตะการ์ดในมือที่จะเปลี่ยน (เลือกแล้ว ${selIds.length} ใบ)`;
+    byId('mullBar').classList.toggle('hidden', !(mullP || waitMullOpp));
+    if (waitMullOpp) {
+      byId('mullText').textContent = '⏳ รออีกฝ่ายตอบเรื่องมือเปิด… แล้วจะเปิดศึก';
+      byId('btnMullGo').classList.add('hidden');
+      byId('btnMullKeep').classList.add('hidden');
+    } else if (mullP) {
+      byId('btnMullKeep').classList.remove('hidden');
+      byId('mullText').textContent =
+        `🔄 ผู้เล่น ${mullP}${mullP === fp0 ? ' (ผู้เริ่ม)' : ''}: เปลี่ยนมือเปิดไหม? แตะการ์ดที่จะเปลี่ยน (เลือกแล้ว ${selIds.length} ใบ) · จั่วเพิ่มหลังเปิดศึก`;
       byId('btnMullGo').textContent = `เปลี่ยน ${selIds.length} ใบ ▸`;
       byId('btnMullGo').classList.toggle('hidden', !selIds.length);
     }
+    // ถ้า state ค้างรอเปิดศึก (รีเฟรช/พลาด fx) — เล่นแอนิเมชันแล้ว beginDuel
+    if (st.awaitBattleStart && !battleIntroPlaying) playBattleIntroThenStart(st.firstPlayer || 'A');
     // แถบ GEM (ซ่อนตอนกำลังถามมัลลิแกน)
     const gemSum = selIds.reduce((a, k) => a + (+st.inst[k].gem || 0), 0);
     byId('selBar').classList.toggle('hidden', !!mullP || !selIds.length);
@@ -1727,11 +2197,73 @@
       if (annGlow.tgt) { const tEl = document.querySelector(`[data-cid="${annGlow.tgt}"]`); if (tEl) tEl.classList.add('ann-tgt'); }
     }
 
+    layoutMyHand();
     drawLinks();
     renderPreview();
     if (typeof mbSync === 'function') mbSync();
     syncOneSide();  // ⬍ ความสูงเสื่ออาจเปลี่ยนถ้าแถวมือสูงขึ้น/ลง
     streamPush();   // 📺 ส่งสนามให้บานสนาม (ถ้าเปิดอยู่)
+  }
+
+  /* มือถือ: กระจายการ์ดในมือเต็มความกว้างจอ · ใบน้อยขยาย · ใบเยอะเหลื่อมให้เห็นทุกใบ
+     (แก้เคสบีบกลางจอแล้วเหลือข้างโล่ง / เลือกแล้วแค่ขยับขึ้นมองไม่เห็น) */
+  function layoutMyHand() {
+    const row = byId('myHandRow');
+    if (!row) return;
+    const cards = [...row.querySelectorAll(':scope > .card.hand')];
+    const clearInline = () => {
+      cards.forEach(el => {
+        el.style.position = el.style.left = el.style.bottom = el.style.zIndex = '';
+        el.style.width = el.style.height = el.style.margin = el.style.marginLeft = el.style.marginRight = '';
+      });
+      row.classList.remove('hand-spread');
+      row.style.overflowX = '';
+    };
+    if (seat === 'S' || !cards.length) { clearInline(); return; }
+    const narrow = window.matchMedia('(max-width:1100px), (max-width:920px)').matches
+      || window.matchMedia('(hover:none) and (max-width:1200px)').matches;
+    if (!narrow) { clearInline(); return; }
+
+    row.classList.add('hand-spread');
+    const pad = 2;
+    const W = Math.max(0, row.clientWidth - pad * 2);
+    if (W < 48) {
+      requestAnimationFrame(() => { if (st) layoutMyHand(); });
+      return;
+    }
+    const n = cards.length;
+    const portrait = window.matchMedia('(orientation:portrait)').matches;
+    let cw = portrait ? 86 : (window.innerHeight <= 520 ? 60 : 64);
+    let ch = Math.round(cw * (716 / 512));
+    // ใบน้อย → ขยายการ์ดให้กินพื้นที่ (ไม่เหลือข้างโล่ง)
+    if (n >= 1) {
+      const gapMin = n === 1 ? 0 : 6;
+      const fit = n === 1 ? Math.min(124, W) : Math.floor((W - gapMin * (n - 1)) / n);
+      if (fit > cw) {
+        cw = Math.min(portrait ? 118 : 96, fit);
+        ch = Math.round(cw * (716 / 512));
+      }
+    }
+    let step;
+    if (n === 1) step = 0;
+    else step = (W - cw) / (n - 1);
+    const minPeek = Math.max(30, Math.round(cw * 0.36));
+    if (n > 1 && step < minPeek) {
+      step = minPeek;
+      row.style.overflowX = (cw + (n - 1) * step > W + 2) ? 'auto' : 'hidden';
+    } else {
+      row.style.overflowX = 'hidden';
+    }
+    cards.forEach((el, i) => {
+      const sel = el.classList.contains('sel');
+      el.style.position = 'absolute';
+      el.style.width = cw + 'px';
+      el.style.height = ch + 'px';
+      el.style.left = (pad + i * step) + 'px';
+      el.style.bottom = '6px';
+      el.style.margin = '0';
+      el.style.zIndex = sel ? String(200 + i) : String(i + 1);
+    });
   }
 
   /* 🔗 ลากเส้นเชื่อม "การ์ดที่สวมใส่ (Magic Zone) → Avatar ที่สวมให้" ทับบนกระดาน
@@ -1848,7 +2380,7 @@
     return z === 'land' || z[0] === seat;
   }
 
-  /* ── เมนูคลิกขวา / กดค้าง (ใช้ได้ทั้งเมนูการ์ดและเมนูเด็ค) ── */
+  /* ── เมนูคำสั่งการ์ด (คลิกเดี่ยวบนสนาม / ใน pile view) ── */
   function showMenu(title, entries, x, y) {
     const menu = byId('ctxMenu');
     // entry ที่มี .row = แถวปุ่มไอคอน (ยุบหลายคำสั่งให้เหลือแถวเดียว)
@@ -1885,7 +2417,7 @@
     const onField = ['.avatar', '.magic', '.construct'].some(z => (BoTEngine.zoneOf(st, k) || '').endsWith(z));
     // มีความสามารถสั่งใช้ → แถวไอคอน ⚡ = สั่งใช้ (ไม่ใช่แค่ประกาศชี้เป้า)
     const kzMenu = BoTEngine.zoneOf(st, k) || '';
-    const hasActivated = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code) || {}).abilities || [])
+    const hasActivated = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code, c.name) || {}).abilities || [])
       .some(ab => {
         const on = ab.trigger && ab.trigger.on;
         if (on === 'activated' && (onField || kzMenu === 'land')) return true;
@@ -1941,7 +2473,7 @@
         : []),
       // 🎯 เลือกปฏิบัติ / ⚡ สั่งใช้ (จาก effects JSON) — ถ้ายังไม่มีในแถวบน
       ...((() => {
-        const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code);
+        const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
         const abs = (e && e.abilities) || [];
         const out = [];
         const modes = abs.filter(ab => ab.trigger && ab.trigger.on === 'chooseMode' && ab.options && ab.options.length);
@@ -1962,11 +2494,16 @@
     if (kz.endsWith('.avatar') && kOwner !== 'S' && (mode === 'solo' ? kOwner !== my : (seat !== 'S' && kOwner !== seat)))
       entries.push({ label: '⛓️ ยึดการควบคุม → ฝั่งเรา', act: { type: 'takeControl', k, by: oth(kOwner) } });
     // อัญเชิญพิเศษ (ไม่จ่าย Cost) — Avatar/Construct จากมือ/นรก/มิติมืดฝั่งเรา
-    if ((c.type === 'Avatar' || c.type === 'Construct') &&
-      (kz.endsWith('.hand') || kz.endsWith('.hell') || kz.endsWith('.dark')) &&
-      (mode === 'solo' || (seat !== 'S' && kz[0] === seat))) {
-      const destZone = kz[0] + (c.type === 'Construct' ? '.construct' : '.avatar');
-      entries.unshift({ label: '✨ อัญเชิญพิเศษ (ไม่จ่าย Cost) → สนาม', act: { type: 'summon', k, to: destZone, free: true, by: kz[0] } });
+    // เมฟิสโต้ (noPaidSummon) / แว่น (noHandSummon) ห้ามใช้ทางนี้จากมือ
+    {
+      const eMenu = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
+      const blockHandSpecial = kz.endsWith('.hand') && eMenu && (eMenu.noPaidSummon || eMenu.noHandSummon);
+      if (!blockHandSpecial && (c.type === 'Avatar' || c.type === 'Construct') &&
+        (kz.endsWith('.hand') || kz.endsWith('.hell') || kz.endsWith('.dark')) &&
+        (mode === 'solo' || (seat !== 'S' && kz[0] === seat))) {
+        const destZone = kz[0] + (c.type === 'Construct' ? '.construct' : '.avatar');
+        entries.unshift({ label: '✨ อัญเชิญพิเศษ (ไม่จ่าย Cost) → สนาม', act: { type: 'summon', k, to: destZone, free: true, by: kz[0] } });
+      }
     }
     showMenu(canPeek(k) ? c.name : 'การ์ดคว่ำ', entries, x, y);
   }
@@ -2103,28 +2640,136 @@
     const ov = byId('pileView');
     // โหมดเลือกจากเอฟเฟกต์ (สอดแนม/ค้นเด็ค/เลือกจากนรก) — เปิดค้างจนกว่าจะเลือกหรือข้าม
     const pp = st && (st.prompts || [])[0];
-    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell'].includes(pp.from) && (mode === 'solo' || seat === pp.chooser)) {
-      const disp = pp.from === 'ids'
-        ? (pp.ids || []).filter(x => (st.zones[pp.chooser + '.deck'] || []).includes(x))
-        : BoTEngine.promptCandidates(st, pp);
-      const titles = { ids: 'สอดแนม', deckAll: 'ค้นเด็คด้วยเอฟเฟกต์', hell: 'เลือกจากนรก' };
-      let pileHint = pp.dest === 'avatar' ? ' (ลงสนาม)' : ' (ขึ้นมือ)';
-      if (pp.dest === 'preventLeavePick') {
-        byId('pileTitle').textContent = `🛡️ เนรเทศรัททาทุยจากนรก (${pp.got || 0}/${pp.need || 5}) — แตะการ์ดเพื่อเนรเทศ`;
-        pileHint = '';
-      } else {
-        byId('pileTitle').textContent = `✨ ${titles[pp.from]} — แตะการ์ดที่กะพริบเพื่อเลือก${pileHint}`;
-      }
-      byId('pileGrid').innerHTML = disp.length
-        ? disp.map((k, i) => cardHTML(k, 'magic', { forceUp: true, noTap: true, order: pp.from === 'ids' ? i + 1 : 0 })).join('')
-        : '<div class="pile-empty">ไม่มีการ์ดให้เลือก</div>';
+    // ธรณีสูบแล้วมีผลพิเศษ (แว่น ฯลฯ) — การ์ดอยู่ในนรก มองไม่เห็นบนสนาม → เปิดหน้าต่างโชว์ใบนั้น
+    if (pp && pp.kind === 'milledOptional' && (mode === 'solo' || seat === pp.chooser)) {
+      const k = pp.src;
+      const nm = st.inst[k] ? st.inst[k].name : '?';
+      byId('pileTitle').textContent = `💀 ${nm} โดนธรณีสูบ — แตะการ์ดนี้เพื่อใช้ผลพิเศษ (หรือกดปุ่มด้านบน)`;
+      byId('pileGrid').innerHTML = k && st.inst[k]
+        ? cardHTML(k, 'magic', { forceUp: true, noTap: true })
+        : '<div class="pile-empty">ไม่พบการ์ด</div>';
       ov.dataset.prompt = '1';
       const skipBtn = byId('btnPileClose');
-      skipBtn.classList.toggle('hidden', pp.optional === false && pp.dest !== 'preventLeavePick');
-      skipBtn.textContent = pp.dest === 'preventLeavePick'
-        ? 'ไม่ใช้ — ออกสนาม'
-        : 'ข้าม (ไม่หยิบ → ใต้เด็ค)';
-      byId('btnPileShuffle').classList.toggle('hidden', pp.from !== 'ids'); // สอดแนม: ไม่หยิบ + สับเด็ค
+      skipBtn.classList.remove('hidden');
+      skipBtn.textContent = 'ข้าม — ไม่ใช้ผลพิเศษ';
+      byId('btnPileShuffle').classList.add('hidden');
+      ov.classList.remove('hidden');
+      return;
+    }
+    // สอดแนมเปิด (revealAllScout) = ข้อมูลเปิด → ทั้งสองฝั่งเห็นหน้าต่าง / อื่นๆ เฉพาะคนเลือก
+    const iAmChooser = !!(pp && (mode === 'solo' || seat === pp.chooser));
+    const openScoutBoth = !!(pp && pp.kind === 'pick' && pp.from === 'ids' && !pp.allowAnyZone && pp.revealAllScout);
+    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
+      // สอดแนม (ids จากเด็ค): โชว์ทุกใบที่เปิดเจอ · ใบที่เลือกได้กะพริบ · เมฟิสโต้ฯ ติดป้ายขึ้นมืออัตโนมัติ
+      // นรก showAllHell: โชว์ทั้งกอง · ใบตรงเงื่อนไขกะพริบ (ไม่นะโดม / อู๊ด / มณโท)
+      const showAllScout = pp.from === 'ids' && !pp.allowAnyZone && (pp.revealAllScout || (pp.ids && pp.ids.length));
+      const showAllHell = pp.from === 'hell' && !!pp.showAllHell;
+      const selectable = iAmChooser ? BoTEngine.promptCandidates(st, pp) : [];
+      const autoHand = new Set((pp.autoHandIds || []).filter(k => (st.zones[pp.chooser + '.deck'] || []).includes(k)));
+      const disp = showAllScout
+        ? (pp.ids || []).filter(k => (st.zones[pp.chooser + '.deck'] || []).includes(k))
+        : showAllHell
+          ? (st.zones[pp.chooser + '.hell'] || []).filter(k => k !== pp.src)
+          : selectable;
+      const canPick = new Set(selectable);
+      const showAllPick = showAllScout || showAllHell;
+      let title;
+      if (pp.dest === 'preventLeavePick')
+        title = `🛡️ เนรเทศรัททาทุยจากนรก (${pp.got || 0}/${pp.need || 5}) — แตะการ์ดเพื่อเนรเทศ`;
+      else if (pp.dest === 'naraiSacSummon')
+        title = `🕉️ เลือกพระนารายณ์บนสนามส่งนรก — เพื่ออัญเชิญอวตาร`;
+      else if (pp.dest === 'destroy')
+        title = `💥 เลือก Avatar ที่จะทำลาย`;
+      else if (pp.dest === 'avatar' && pp.naraiReturn)
+        title = `🕉️ จบเทิร์น — เลือกพระนารายณ์จากนรกอัญเชิญกลับขึ้นสนาม`;
+      else if (pp.dest === 'avatar' && showAllHell)
+        title = iAmChooser
+          ? `✨ เปิดนรก ${disp.length} ใบ — อัญเชิญใบที่กะพริบ (${selectable.length})`
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (pp.dest === 'avatar')
+        title = `✨ เลือกการ์ดอัญเชิญลงสนาม`;
+      else if (pp.dest === 'dark')
+        title = `🌀 เลือกเป้าเนรเทศมิติมืด`;
+      else if (pp.dest === 'scoutAllHandThenExile')
+        title = iAmChooser
+          ? `✨ สอดแนมเจอ ${disp.length} ใบ (รวม Cost ${pp.scoutCostSum != null ? pp.scoutCostSum : '?'}) — กดรับขึ้นมือ แล้วเลือกเนรเทศศัตรู`
+          : `👁 สอดแนมของผู้เล่น ${pp.chooser} — เจอ ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (showAllHell)
+        title = iAmChooser
+          ? `✨ เปิดนรก ${disp.length} ใบ — แตะใบที่กะพริบเพื่อเลือก (${selectable.length})`
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (pp.from === 'hell')
+        title = `✨ เลือกการ์ดจากนรก`;
+      else if (pp.from === 'deckAll')
+        title = `✨ ค้นเด็คด้วยเอฟเฟกต์ — แตะการ์ดที่กะพริบเพื่อเลือก`;
+      else if (pp.from === 'ids' && pp.allowAnyZone)
+        title = `✨ เลือกการ์ดที่กะพริบ`;
+      else if (showAllScout) {
+        const nAuto = autoHand.size;
+        const nPick = selectable.length;
+        if (!iAmChooser)
+          title = `👁 สอดแนมของผู้เล่น ${pp.chooser} — เจอ ${disp.length} ใบ (ดูอย่างเดียว)`;
+        else {
+          title = `✨ สอดแนมเจอ ${disp.length} ใบ`
+            + (nPick ? ` — แตะใบที่กะพริบเพื่อเลือกขึ้นมือ (${nPick})` : '')
+            + (nAuto ? ` · ${nAuto} ใบจะขึ้นมืออัตโนมัติหลังจบ` : (!nPick ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : ''));
+        }
+      } else
+        title = `✨ สอดแนม — แตะการ์ดที่กะพริบเพื่อเลือก (ขึ้นมือ)`;
+      byId('pileTitle').textContent = title;
+      byId('pileHint').textContent = iAmChooser
+        ? (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก')
+        : 'อีกฝั่งกำลังเลือก — ดูได้อย่างเดียว';
+      byId('pileGrid').innerHTML = disp.length
+        ? disp.map((k, i) => {
+          const isAuto = autoHand.has(k);
+          const isPick = canPick.has(k);
+          const opts = {
+            forceUp: true, noTap: true,
+            order: (pp.from === 'ids' && !pp.allowAnyZone) ? i + 1 : 0
+          };
+          if (showAllScout && isAuto) {
+            opts.extraClass = 'scout-auto-hand';
+            opts.badge = 'ขึ้นมืออัตโนมัติ';
+          } else if (showAllPick && !isPick) {
+            opts.extraClass = 'scout-reveal-dim';
+          }
+          return cardHTML(k, 'magic', opts);
+        }).join('')
+        : '<div class="pile-empty">ไม่มีการ์ดในนรก / ให้เลือก</div>';
+      ov.dataset.prompt = iAmChooser ? '1' : 'view';
+      const skipBtn = byId('btnPileClose');
+      if (!iAmChooser) {
+        // ฝั่งดู: ปิดปุ่มเลือก/ข้าม — หน้าต่างปิดเองเมื่อเจ้าของจบ
+        skipBtn.classList.add('hidden');
+        byId('btnPileShuffle').classList.add('hidden');
+        ov.classList.remove('hidden');
+        return;
+      }
+      const mustPick = pp.optional === false && pp.dest !== 'preventLeavePick';
+      skipBtn.classList.toggle('hidden', mustPick && pp.dest !== 'naraiSacSummon');
+      // naraiSacSummon บังคับเลือก — ซ่อนข้าม / อื่นๆ ตาม optional
+      if (pp.dest === 'naraiSacSummon' || (pp.dest === 'avatar' && pp.naraiReturn)) {
+        skipBtn.classList.add('hidden'); // บังคับเลือกพระนารายณ์
+      } else if (pp.dest === 'preventLeavePick') {
+        skipBtn.classList.remove('hidden');
+        skipBtn.textContent = 'ไม่ใช้ — ออกสนาม';
+      } else if (pp.dest === 'scoutAllHandThenExile') {
+        skipBtn.classList.remove('hidden');
+        skipBtn.textContent = 'รับขึ้นมือทั้งหมด → เลือกเนรเทศ';
+      } else if (pp.from === 'ids' && !pp.allowAnyZone) {
+        skipBtn.classList.remove('hidden');
+        skipBtn.textContent = autoHand.size && !selectable.length
+          ? 'รับขึ้นมืออัตโนมัติ / ปิด'
+          : 'ข้าม (ไม่หยิบ → ใต้เด็ค)';
+      } else {
+        skipBtn.classList.toggle('hidden', pp.optional === false);
+        skipBtn.textContent = 'ข้าม';
+      }
+      // ปุ่มสับ = เฉพาะสอดแนมจากเด็คจริงๆ
+      byId('btnPileShuffle').classList.toggle('hidden', !(pp.from === 'ids' && !pp.allowAnyZone));
       ov.classList.remove('hidden');
       return;
     }
@@ -2206,38 +2851,47 @@
     }
     closePileView();
   };
-  /* ── 🃏 แผงคำสั่งเด็ค (แถบขวา) — รวมคำสั่งเด็คทั้งหมดไว้ที่นี่ที่เดียว ── */
-  const dopN = () => Math.max(1, Math.min(30, +byId('dopN').value || 1));
-  // เด็คที่คำสั่งจะไปทำงานด้วย = "ของคนที่กด" เสมอ (ออนไลน์ = ที่นั่งเรา · solo คุมสองฝั่ง = ฝั่งที่ถือเทิร์น)
-  // engine บังคับซ้ำอีกชั้น (deckSide) กันฝั่งตรงข้ามมาสอดแนม/สูบเด็คเราตอนเทิร์นเรา
-  /* คำสั่งเด็คทำกับฝั่งไหน
-     · ซ้อมมือ = คุมสองฝั่ง → ตามฝั่งที่ถือเทิร์น
-     · 🎴 โหมดการ์ดจริง = เราคุมฝั่งเดียว (อีกฝั่งเป็นการ์ดจริงบนโต๊ะ + เสื่อถูกซ่อน)
-       ถ้าตาม st.active พอถึงเทิร์นคู่ต่อสู้จะไปโดนเด็คหุ่น SD01 ของฝั่ง B แทน
-     · ออนไลน์ = ฝั่งเราเสมอ */
+  /* ── 🃏 แผงคำสั่งเด็ค (แถบขวา) — ค้นหา / บนกอง · จำนวนติดลบ = ธรณีสูบ ── */
+  const dopNRaw = () => {
+    const v = +byId('dopN').value;
+    return Number.isFinite(v) ? v : 5;
+  };
+  const clampDopN = (v) => {
+    let n = Math.max(-30, Math.min(30, v | 0));
+    if (n === 0) n = v < 0 ? -1 : 1; // ข้าม 0
+    return n;
+  };
+  const dopN = () => clampDopN(dopNRaw());
   const dopWho = () => (mode === 'solo' && !realMode ? (st ? st.active : my) : my);
+  function syncDopPeekBtn() {
+    const btn = byId('btnDeckPeekTop'), inp = byId('dopN');
+    if (!btn || !inp) return;
+    const n = dopN();
+    inp.value = String(n);
+    const mill = n < 0;
+    btn.classList.toggle('dop-mill', mill);
+    btn.textContent = mill ? `🌊 ธรณีสูบ ${Math.abs(n)}` : '👁 บนกอง';
+    btn.title = mill
+      ? `ธรณีสูบ ${Math.abs(n)} ใบบนสุดลงนรก (จำนวนติดลบในช่องเด็ค)`
+      : `เปิดจากบนกอง ${n} ใบ — ทั้งสองฝั่งเห็น เลือกขึ้นมือได้ แล้วจัดที่เหลือบน/ใต้กอง`;
+  }
   byId('deckOps').addEventListener('click', e => {
     const adj = e.target.closest('[data-dop-adj]'); if (!adj) return;
-    byId('dopN').value = Math.max(1, Math.min(30, dopN() + (+adj.dataset.dopAdj)));
+    byId('dopN').value = String(clampDopN(dopN() + (+adj.dataset.dopAdj)));
+    syncDopPeekBtn();
   });
-  byId('btnDeckDraw').onclick = () => { if (st) sendAction({ type: 'draw', p: dopWho() }); };
-  byId('btnDeckShuffle').onclick = () => { if (st) sendAction({ type: 'shuffle', p: dopWho() }); };
+  byId('dopN').addEventListener('input', syncDopPeekBtn);
+  byId('dopN').addEventListener('change', syncDopPeekBtn);
   byId('btnDeckSearch').onclick = () => { if (st) openPileView(dopWho() + '.deck', 'search'); };
-  byId('btnShuffleHand').onclick = () => { if (st) sendAction({ type: 'shuffleHand', p: dopWho(), by: mode === 'solo' ? dopWho() : undefined }); };
-  // 🙈 ปิดการ์ดที่เปิดไว้ — หา "ฝั่งที่มีการ์ดเปิดอยู่จริง" (ไม่ใช่ฝ่ายที่ถือเทิร์น) · solo ปิดให้ทั้งสองฝั่ง
-  byId('btnHideHand').onclick = () => {
+  byId('btnDeckPeekTop').onclick = () => {
     if (!st) return;
-    const sides = (mode === 'solo' ? ['A', 'B'] : [my])
-      .filter(p => (st.zones[p + '.hand'] || []).some(k => st.inst[k].revealed));
-    if (!sides.length) { toast('ยังไม่ได้เปิดการ์ดใบไหนไว้'); return; }
-    sides.forEach(p => sendAction({ type: 'revealHand', p, ids: [], by: mode === 'solo' ? p : undefined }));
+    const n = dopN();
+    if (n < 0) sendAction({ type: 'millDeck', p: dopWho(), n: Math.abs(n) });
+    else sendAction({ type: 'scout', p: dopWho(), n, label: 'เปิดบนกอง' });
   };
-  byId('btnScout').onclick = () => { if (st) sendAction({ type: 'scout', p: dopWho(), n: dopN(), label: 'สอดแนม' }); };
-  byId('btnPeekTop').onclick = () => { if (st) sendAction({ type: 'scout', p: dopWho(), n: dopN(), label: 'เปิดบนกอง' }); };
-  byId('btnPeekBottom').onclick = () => { if (st) sendAction({ type: 'scout', p: dopWho(), n: dopN(), from: 'bottom', label: 'กฏร้าน' }); };
-  byId('btnMill').onclick = () => { if (st) sendAction({ type: 'millDeck', p: dopWho(), n: dopN() }); };
   byId('btnScoutTop').onclick = () => { const sc = st && st.scout; if (sc) sendAction({ type: 'scoutEnd', where: 'top', by: mode === 'solo' ? sc.p : undefined }); };
   byId('btnScoutBottom').onclick = () => { const sc = st && st.scout; if (sc) sendAction({ type: 'scoutEnd', where: 'bottom', by: mode === 'solo' ? sc.p : undefined }); };
+  syncDopPeekBtn();
 
   // สอดแนม: ไม่หยิบการ์ด + สับเด็คทันที (ตามคำขอผู้เล่น)
   byId('btnPileShuffle').onclick = () => {
@@ -2323,7 +2977,7 @@
     const menu = byId('ctxMenu');
     if (!menu.classList.contains('hidden') && !menu.contains(e.target)) closeMenu();
     if (!st || byId('table').classList.contains('hidden')) return;
-    if (e.button != null && e.button !== 0) return; // คลิกขวา/กลาง ไม่ใช่การลาก-คลิก (เมนูจัดการใน contextmenu)
+    if (e.button != null && e.button !== 0) return; // คลิกขวา/กลาง ไม่ใช้ — เมนูเปิดจากคลิกเดี่ยวเท่านั้น
     // ⚡➕➖ ปุ่มลัดบนการ์ด — จัดการที่ click แยก ไม่ให้ไปเริ่มลากการ์ด
     if (e.target.closest('[data-qa],[data-sc-move],[data-peek-adj]')) { drag = null; return; }
     if (inheritSrc && !e.target.closest('[data-cid]')) { clearInheritPick(); toast('ยกเลิกการสืบทอด'); return; }
@@ -2334,16 +2988,17 @@
       const k = cardEl.dataset.cid;
       setPreview(k);
       drag = { k, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, suppress: false, viewer: !!e.target.closest('#pileView') };
-      // มือถือ: กดค้าง = เปิดหน้าเต็มอ่านการ์ด · เดสก์ท็อป: กดค้าง = เมนู (คลิกขวาก็ได้)
-      drag.longT = setTimeout(() => {
-        if (!drag || drag.moved) return;
-        drag.suppress = true;
-        if (isTouchUI()) openCardFull(k);
-        else openMenu(k, drag.x0, drag.y0);
-      }, 450);
+      // มือถือ: กดค้าง = เปิดหน้าเต็มอ่านการ์ด (เดสก์ท็อปใช้คลิกเดี่ยวเปิดเมนู)
+      if (isTouchUI()) {
+        drag.longT = setTimeout(() => {
+          if (!drag || drag.moved) return;
+          drag.suppress = true;
+          openCardFull(k);
+        }, 450);
+      }
     } else if (deckEl) {
       drag = { deck: deckEl.dataset.deck, x0: e.clientX, y0: e.clientY, moved: false, suppress: false };
-      // กองเด็คไม่มีเมนูกดค้างแล้ว — แตะ = จั่ว · คำสั่งอื่นอยู่ที่แผง 🃏 เด็ค ในแถบขวา
+      // กองเด็ค: แตะ = จั่ว · คำสั่งอื่นอยู่ที่แผง 🃏 เด็ค ในแถบขวา
     } else {
       const pileEl = e.target.closest('[data-pile]');
       if (pileEl) drag = { pile: pileEl.dataset.pile, x0: e.clientX, y0: e.clientY, moved: false, suppress: false };
@@ -2384,7 +3039,7 @@
     if (d.suppress) return;
 
     if (d.deck) {
-      if (!d.moved) sendAction({ type: 'draw', p: d.deck }); // แตะกองเด็ค = จั่ว 1 (คำสั่งอื่นดูที่แผงขวา/กดค้าง)
+      if (!d.moved) sendAction({ type: 'draw', p: d.deck }); // แตะกองเด็ค = จั่ว 1 (คำสั่งอื่นดูที่แผงขวา)
       return;
     }
     if (d.pile) { // แตะกองนรก/มิติมืด = เปิดดูทั้งกอง
@@ -2396,9 +3051,9 @@
     if (d.viewer) { // คลิกการ์ดใน overlay
       if (!d.moved) {
         const ppv = (st.prompts || [])[0];
-        if (ppv && ppv.kind === 'pick' && (mode === 'solo' || seat === ppv.chooser)) {
+        if (ppv && (ppv.kind === 'pick' || ppv.kind === 'milledOptional') && (mode === 'solo' || seat === ppv.chooser)) {
           if (BoTEngine.promptTargetOk(st, d.k)) sendAction({ type: 'chooseTarget', k: d.k, by: mode === 'solo' ? ppv.chooser : undefined });
-          else toast('ใบนี้ไม่ตรงเงื่อนไขเอฟเฟกต์ — เลือกใบที่กะพริบ');
+          else toast(ppv.kind === 'milledOptional' ? 'แตะการ์ดที่โดนธรณีสูบ หรือกดใช้ผลพิเศษ' : 'ใบนี้ไม่ตรงเงื่อนไขเอฟเฟกต์ — เลือกใบที่กะพริบ');
           return;
         }
         // 🔍 โหมดสอดแนม — แตะการ์ด = เอาขึ้นมือ (เฉพาะเจ้าของ)
@@ -2457,6 +3112,11 @@
         }
         // ลากจากมือลง Avatar/Construct = อัญเชิญ (จ่าย GEM จากใบที่แตะเลือกในมือ) — ไม่ใช่ Magic
         if (from.endsWith('.hand') && (to.endsWith('.avatar') || to.endsWith('.construct'))) {
+          const eDrag = BoTEngine.effectOf && BoTEngine.effectOf(c0.code, c0.name);
+          if (eDrag && (eDrag.noPaidSummon || eDrag.noHandSummon)) {
+            toast(`🚫 "${c0.name}" ลงแบบจ่าย GEM ไม่ได้ — ใช้สั่งใช้จากมือตามเงื่อนไขบนการ์ด`, 4200);
+            return;
+          }
           const cost = +c0.cost || 0;
           const owner = from[0];
           const hand = st.zones[owner + '.hand'] || [];
@@ -2531,10 +3191,22 @@
     if (z.endsWith('.life')) { sendAction({ type: 'toggleFace', k: d.k }); return; }
     if (z.endsWith('.hand')) {
       const canSel = mode === 'solo' ? true : (z === my + '.hand' && seat !== 'S');
+      // ดับเบิลคลิกใบที่มีสั่งใช้จากมือ = สั่งใช้ (คลิกเดี่ยวยังเลือกนับ GEM / มัลลิแกน)
+      if (dbl && canSel && !mullP && !st.awaitBattleStart) {
+        const hc = st.inst[d.k];
+        const hasHandAct = !!(hc && BoTEngine.effectOf && ((BoTEngine.effectOf(hc.code, hc.name) || {}).abilities || [])
+          .some(ab => ab.trigger && ab.trigger.on === 'activatedFromHand'));
+        if (hasHandAct) {
+          lastClick = { k: null, t: 0 };
+          const own = BoTEngine.ownerOf(st, d.k);
+          sendAction({ type: 'activateAbility', k: d.k, by: mode === 'solo' ? (own === 'S' ? my : own) : undefined });
+          return;
+        }
+      }
       if (canSel) { if (selMap[d.k]) delete selMap[d.k]; else selMap[d.k] = true; render(); }
       return;
     }
-    // การ์ดบนสนามฝั่งเรา (หรือ Land ร่วม) — คลิกเดี่ยว = เปิดเมนูปุ่มลัด (ค้นเจอง่ายกว่าคลิกขวา) · ดับเบิลคลิก = นอน/ตื่น
+    // การ์ดบนสนามฝั่งเรา (หรือ Land ร่วม) — คลิกเดี่ยว = เปิดเมนูปุ่มลัด · ดับเบิลคลิก = นอน/ตื่น
     const fSide = BoTEngine.ownerOf(st, d.k);
     const isField = z.endsWith('.avatar') || z.endsWith('.magic') || z.endsWith('.construct') || z === 'land';
     if (isField && (mode === 'solo' || fSide === my || fSide === 'S')) {
@@ -2544,14 +3216,6 @@
       return;
     }
     if (dbl) { lastClick = { k: null, t: 0 }; sendAction({ type: 'toggleTap', k: d.k }); }
-  });
-
-  document.addEventListener('contextmenu', e => {
-    if (!st || byId('table').classList.contains('hidden')) return;
-    const cardEl = e.target.closest('[data-cid]');
-    const deckEl = e.target.closest('[data-deck]');
-    if (cardEl) { e.preventDefault(); clearTimeout(drag && drag.longT); drag = null; openMenu(cardEl.dataset.cid, e.clientX, e.clientY); }
-    else if (deckEl) { e.preventDefault(); drag = null; } // กองเด็ค: ไม่มีเมนู — แตะ = จั่ว · คำสั่งอื่นที่แผงขวา
   });
 
   byId('ctxMenu').addEventListener('click', e => {
@@ -2576,10 +3240,6 @@
   });
 
   /* ── ปุ่มบนโต๊ะ ── */
-  byId('phaseBar').addEventListener('click', e => {
-    const b = e.target.closest('[data-phase]'); if (!b) return;
-    sendAction({ type: 'setPhase', phase: b.dataset.phase });
-  });
   byId('btnEndTurn').onclick = () => sendAction({ type: 'endTurn' });
   // btnStrict ถูกถอดออกจากหน้า (แมนนวล 100%)
   byId('btnBot').onclick = () => { soloBot = !soloBot; toast(soloBot ? '🤖 เปิดบอท — B เล่นเอง' : 'ปิดบอท — คุณคุมทั้งสองฝั่ง'); render(); scheduleBot(); };
@@ -2593,16 +3253,29 @@
   byId('btnChainPass').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainPass', by: mode === 'solo' ? st.chainPri : undefined }); };
   byId('btnChainNegate').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainNegate', by: mode === 'solo' ? st.chainPri : undefined }); };
   const promptBy = () => { const p = st && (st.prompts || [])[0]; return (p && mode === 'solo') ? p.chooser : undefined; };
-  /* ⚠️ ท่าปิดเกม — by/p = ฝั่งที่โดนตี (ไม่ใช่ st.active) ไม่งั้นเอนจินจะปฏิเสธว่า "ผู้โจมตีตอบเองไม่ได้" */
+  /* ⚠️ ท่าปิดเกม — plead = ฝ่ายสาหัส · grant = ฝ่ายโจมตี */
   const lethalAnswer = ok => {
     const pl = st && st.pendingLethal; if (!pl) return;
-    sendAction({ type: 'lethalAnswer', ok, p: pl.target, by: pl.target });
+    const who = (pl.phase === 'grant') ? pl.by : pl.target;
+    sendAction({ type: 'lethalAnswer', ok, p: who, by: who });
   };
   byId('btnLethalCounter').onclick = () => lethalAnswer(true);
   byId('btnLethalAccept').onclick = () => lethalAnswer(false);
+  if (byId('btnLethalPenguin')) byId('btnLethalPenguin').onclick = () => {
+    const b = byId('btnLethalPenguin');
+    const k = b && b.dataset.k;
+    const pl = st && st.pendingLethal;
+    if (!k || !pl) return;
+    sendAction({ type: 'activateAbility', k, by: pl.target });
+  };
   byId('btnReactYes').onclick = () => { if (st && (st.prompts || [])[0]) sendAction({ type: 'reactYes', by: promptBy() }); };
   byId('btnReactNo').onclick = () => { if (st && (st.prompts || [])[0]) sendAction({ type: 'reactNo', by: promptBy() }); };
   byId('btnPromptSkip').onclick = () => { if (st && (st.prompts || [])[0]) sendAction({ type: 'skipPrompt', by: promptBy() }); };
+  if (byId('btnMillOptYes')) byId('btnMillOptYes').onclick = () => {
+    const pr = st && (st.prompts || [])[0];
+    if (!pr || pr.kind !== 'milledOptional' || !pr.src) return;
+    sendAction({ type: 'chooseTarget', k: pr.src, by: promptBy() });
+  };
   const peekPlace = where => {
     const pr = st && (st.prompts || [])[0];
     if (!pr || pr.kind !== 'peekTop') return;
@@ -2651,6 +3324,7 @@
     sendAction({ type: 'rpsPick', v, by: pl, p: pl });
   });
   byId('btnRematchTop').onclick = () => { if (st) byId('rematchAsk').classList.remove('hidden'); };
+  // btnUntap ถูกถอดออก — engine ตื่นทุกใบตอนเริ่มเทิร์นให้อยู่แล้ว
   byId('rmNo').onclick = () => byId('rematchAsk').classList.add('hidden');
   byId('rmYes').onclick = () => {
     byId('rematchAsk').classList.add('hidden');
@@ -2665,7 +3339,6 @@
       else lanSend({ t: 'rematch' });
     } else wsSend({ t: 'rematch' });
   };
-  byId('btnUntap').onclick = () => sendAction({ type: 'untapAll', p: seat === 'S' ? st.active : my });
   byId('btnDice').onclick = () => sendAction({ type: 'dice' });
   byId('btnCoin').onclick = () => sendAction({ type: 'coin' });
   byId('btnPay').onclick = () => {
@@ -2716,19 +3389,24 @@
   byId('btnTutClose').onclick = () => { try { localStorage.setItem('bot_tut_seen', '1'); } catch (e) { } byId('tut').classList.add('hidden'); };
   byId('btnLogToggle').onclick = () => byId('logPane').classList.toggle('hidden');
   byId('btnLogClose').onclick = () => byId('logPane').classList.add('hidden');
+  function closeCardPeek() {
+    const pv = byId('previewPane');
+    if (pv) pv.classList.remove('open');
+    if (typeof mbSync === 'function') mbSync();
+  }
+  const btnPvClose = byId('btnPvClose');
+  if (btnPvClose) btnPvClose.onclick = closeCardPeek;
   byId('btnSwapSide').onclick = swapSoloSide;
   byId('btnSwapSideCtrl').onclick = swapSoloSide;
 
   /* ── 📱 แถบปุ่มล่างจอ (มือถือ) — เข้าถึงทุกอย่างได้โดยไม่ต้องเปิดลิ้นชักก่อน ── */
-  const PH_ORDER = ['Draw', 'Main', 'Battle', 'End'];
-  function mbSync() { // อัปเดตสถานะปุ่ม + ชื่อเฟสถัดไป
+  function mbSync() {
     const pv = byId('previewPane'), lg = byId('logPane');
-    const bC = byId('mbCard'), bL = byId('mbLog'), bD = byId('mbDeck'), t = byId('mbPhaseTxt');
+    const bC = byId('mbCard'), bL = byId('mbLog'), bD = byId('mbDeck');
     if (bC) bC.classList.toggle('on', pv.classList.contains('open'));
     const drawerOpen = !lg.classList.contains('hidden');
     if (bL) bL.classList.toggle('on', drawerOpen);
     if (bD) bD.classList.toggle('on', drawerOpen);
-    if (t && st) { const i = PH_ORDER.indexOf(st.phase); t.textContent = i < 0 || i === 3 ? 'จบเฟส' : PH_ORDER[i + 1]; }
   }
   const openDrawer = (scrollToDeck) => {
     byId('previewPane').classList.remove('open');
@@ -2745,15 +3423,6 @@
   byId('mbCard').onclick = toggleCardPeek;
   const btnCardPeek = byId('btnCardPeek');
   if (btnCardPeek) btnCardPeek.onclick = toggleCardPeek;
-  function advancePhase() {
-    if (!st) return;
-    const i = PH_ORDER.indexOf(st.phase);
-    if (i < 0 || i === 3) sendAction({ type: 'endTurn' }); else sendAction({ type: 'setPhase', phase: PH_ORDER[i + 1] });
-  }
-  byId('mbPhase').onclick = advancePhase;
-  const phaseSlotBtn = byId('phaseSlot');
-  if (phaseSlotBtn) phaseSlotBtn.onclick = advancePhase;
-  byId('mbUntap').onclick = () => byId('btnUntap').click();
   byId('mbEnd').onclick = () => sendAction({ type: 'endTurn' });
   byId('mbDeck').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(true) : (lg.classList.add('hidden'), mbSync()); };
   byId('mbLog').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(false) : (lg.classList.add('hidden'), mbSync()); };
@@ -2774,19 +3443,21 @@
     const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return; // ไม่ชนช่องพิมพ์แชท
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (!st) return;
-    const phase = p => sendAction({ type: 'setPhase', phase: p });
-    const order = ['Draw', 'Main', 'Battle', 'End'];
     const map = {
       'enter': () => sendAction({ type: 'endTurn' }),
-      ' ': () => { const i = order.indexOf(st.phase); (i < 0 || i === 3) ? sendAction({ type: 'endTurn' }) : phase(order[i + 1]); }, // Space = เฟสถัดไป / จบเทิร์น
-      '1': () => phase('Draw'), '2': () => phase('Main'), '3': () => phase('Battle'), '4': () => phase('End'),
-      'u': () => byId('btnUntap').click(),
       'd': () => byId('btnDice').click(),
       'c': () => byId('btnCoin').click(),
       'l': () => byId('logPane').classList.toggle('hidden'),
       'f': toggleFull,
       'h': toggleClean,
-      'escape': () => { if (announceSrc) { announceSrc = null; announceKind = 'use'; render(); toast('ยกเลิกการชี้เป้า'); return; } const sk = byId('btnPromptSkip'); if (!sk.classList.contains('hidden')) sk.click(); else if (Object.keys(selMap).length) { selMap = {}; render(); } },
+      'escape': () => {
+        const pv = byId('previewPane');
+        if (pv && pv.classList.contains('open')) { closeCardPeek(); return; }
+        if (announceSrc) { announceSrc = null; announceKind = 'use'; render(); toast('ยกเลิกการชี้เป้า'); return; }
+        const sk = byId('btnPromptSkip');
+        if (!sk.classList.contains('hidden')) sk.click();
+        else if (Object.keys(selMap).length) { selMap = {}; render(); }
+      },
     };
     const fn = map[e.key.toLowerCase()];
     if (fn) { e.preventDefault(); fn(); }
@@ -2804,16 +3475,10 @@
     else { mode = null; st = null; realMode = false; clearPersistedTable(); showMenuHome(); showScreen('menu'); }
   }
   function syncTableNav() {
-    const homeLbl = mode === 'online' ? '🚪 ออกจากห้อง' : '🏠 เมนูหลัก';
     const homeTitle = mode === 'online' ? 'ออกจากห้องกลับเมนูหลัก' : 'กลับเมนูหลัก';
-    const navHome = byId('btnNavHome'), topHome = byId('btnHomeTop');
-    if (navHome) { navHome.textContent = homeLbl; navHome.title = homeTitle; }
+    const topHome = byId('btnHomeTop');
     if (topHome) topHome.title = homeTitle;
     const spec = mode === 'online' && seat === 'S';
-    const rem = byId('btnNavRematch');
-    if (rem) rem.classList.toggle('hidden', spec);
-    const end = byId('btnNavEnd');
-    if (end) end.classList.toggle('hidden', spec);
     const endTop = byId('btnEnd');
     if (endTop) endTop.classList.toggle('hidden', spec);
   }
@@ -2824,9 +3489,6 @@
     if (seat === 'S') { toast('ผู้ชมประกาศจบเกมไม่ได้'); return; }
     byId('endAsk').classList.remove('hidden');
   };
-  byId('btnNavEnd').onclick = () => byId('btnEnd').click();
-  byId('btnNavRematch').onclick = () => byId('btnRematchTop').click();
-  byId('btnNavHome').onclick = goHomeFromTable;
   byId('btnHomeTop').onclick = goHomeFromTable;
   byId('askCancel').onclick = () => byId('endAsk').classList.add('hidden');
   function declareEnd(winner) {
@@ -3119,8 +3781,10 @@
       table.style.height = z < 1 ? (100 / z) + 'vh' : '';
     }
     syncOneSide();
+    layoutMyHand();
   }
   window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', () => setTimeout(() => { onResize(); if (st) layoutMyHand(); }, 120));
 
   /* ── 📺 บานสนาม (หน้าต่างแยกสำหรับแชร์จอใน Discord — ไม่มีมือใครโผล่) ──
      หน้าต่างหลัก = เราเล่น เห็นมือตัวเอง (ห้ามแชร์)

@@ -480,9 +480,17 @@
     {
       "code": "BT11-024",
       "name": "เพนกวิ้น ฮัท",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากบนมือ เมื่อเราถูกโจมตี LIFE Card Zone ขณะที่เราอยู่ในสถานะสาหัสโดยการพูดว่า \"ขอเทิร์นนึง\" และ เนรเทศ การ์ดใบน"
+      "abilities": [
+        {
+          "trigger": { "on": "activatedFromHand" },
+          "oncePerGame": true,
+          "requirePendingLethal": true,
+          "cost": [{ "op": "exileSelf" }],
+          "actions": [{ "op": "cancelLethalEndOppTurn" }]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สาหัส+ท่าปิดเกม: เนรเทศตัวเอง ยกเลิกโจมตี จบเทิร์นฝ่ายโจมตีทันที (ไม่ถามอีกฝ่าย) · เกมละ 1 ครั้ง"
     },
     {
       "code": "BT11-025",

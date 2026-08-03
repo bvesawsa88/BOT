@@ -42,6 +42,33 @@
           },
           "actions": [
             {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
               "op": "modifyPower",
               "amount": 1,
               "duration": "endOfTurn",
@@ -53,7 +80,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
     },
     {
       "code": "SD03-003",
@@ -262,9 +290,37 @@
               }
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "requireMilledThisTurn": true,
+          "requireNoModUsed": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self"
+            }
+          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "attachOnly": {
+        "symbol": "นรก"
+      },
+      "milledOptional": {
+        "requireNoModUsed": true,
+        "countsAsModification": true,
+        "actions": [
+          {
+            "op": "attach",
+            "from": "self"
+          }
+        ]
+      },
+      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ + ยังไม่ใช้ Mod → ใช้จากนรกได้"
     },
     {
       "code": "SD03-019",

@@ -6,7 +6,7 @@
 
 /* ═══════════════ DECK BUILDER ═══════════════ */
   const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: '', subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} }, name: '', preview: null };
-  const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 5, USEC: 6, PR: 7, CBR: 8 };
+  const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 4, USEC: 5, PR: 6, CBR: 7 };
 
   window.openDeckBuilder = function () {
     CardDB.load().then(db => {

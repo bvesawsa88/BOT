@@ -144,7 +144,8 @@
         "สามัคคี"
       ],
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "keyword สามัคคี (เอนจินรองรับ)"
     },
     {
       "code": "SD08-005",
@@ -229,13 +230,14 @@
         "โล่มนุษย์"
       ],
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "keyword โล่มนุษย์ (เอนจินรองรับ)"
     },
     {
       "code": "SD08-009",
       "name": "รัททาทุย แบงค์",
       "abilities": [],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ไม่มีเอฟเฟกต์"
     },
     {
@@ -272,7 +274,7 @@
       "code": "SD08-011",
       "name": "รัททาทุย เฝ้าทวาร",
       "abilities": [],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ไม่มีเอฟเฟกต์"
     },
     {
@@ -339,8 +341,9 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "lifeBothModes": true
+      "parseStatus": "verified",
+      "lifeBothModes": true,
+      "note": " · ใช้แล้วลงนรก"
     },
     {
       "code": "SD08-014",
@@ -617,14 +620,16 @@
                     "costMax": 2
                   },
                   "dest": "avatar",
-                  "paidCost": false
+                  "paidCost": false,
+                  "showAll": true
                 }
               ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก อัญเชิญ Avatar Cost≤2"
     },
     {
       "code": "SD08-023",
