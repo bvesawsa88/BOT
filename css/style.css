@@ -49,6 +49,8 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .menu-group-label{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:var(--dim);letter-spacing:1px;text-align:center;margin-bottom:2px}
 .menu-play .menu-back{margin-top:6px;align-self:center}
 .menu-matchup{display:flex;flex-direction:column;gap:6px;width:100%;margin-bottom:4px}
+#menuSoloSetup,#menuRealSetup,#menuPlayModes{display:flex;flex-direction:column;gap:10px;width:100%;align-items:stretch}
+#menuSoloSetup.hidden,#menuRealSetup.hidden,#menuPlayModes.hidden{display:none}
 .menu-deck-lab{font-size:12px;font-weight:700;color:var(--accent,#7dd3fc);letter-spacing:.5px}
 .menu-vs{text-align:center;font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;color:var(--dim);letter-spacing:2px;opacity:.8}
 .menu-deck-select{width:100%;padding:10px 12px;border-radius:10px;border:2px solid var(--panel);background:#1a1a1e;color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600}

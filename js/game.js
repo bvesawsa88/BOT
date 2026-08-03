@@ -1774,24 +1774,28 @@
   function fillMenuDeckSelects() {
     const a = byId('selMenuDeck');
     const b = byId('selMenuDeckB');
-    if (!a || !b) return;
+    const real = byId('selRealDeck');
     let saved = {};
     try { saved = CardDB.savedDecks(); } catch (e) { }
     const names = Object.keys(saved);
     const savedOpts = (names.length ? `<option disabled>── เด็คที่บันทึก ──</option>` : '') +
       names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
     const opts = starterOptionHtml('') + savedOpts;
-    a.innerHTML = opts;
-    b.innerHTML = opts;
+    const ok = v => v && (v.indexOf('starter:') === 0 || saved[v]);
+    let act = 'starter:SD01', opp = 'starter:SD01';
     try {
-      const act = localStorage.getItem('bot_active_deck') || 'starter:SD01';
-      const opp = localStorage.getItem('bot_opp_deck') || 'starter:SD01';
-      const ok = v => v && (v.indexOf('starter:') === 0 || saved[v]);
+      act = localStorage.getItem('bot_active_deck') || 'starter:SD01';
+      opp = localStorage.getItem('bot_opp_deck') || 'starter:SD01';
+    } catch (e) { }
+    if (a && b) {
+      a.innerHTML = opts;
+      b.innerHTML = opts;
       a.value = ok(act) ? act : 'starter:SD01';
       b.value = ok(opp) ? opp : 'starter:SD01';
-    } catch (e) {
-      a.value = 'starter:SD01';
-      b.value = 'starter:SD01';
+    }
+    if (real) {
+      real.innerHTML = opts;
+      real.value = ok(act) ? act : 'starter:SD01';
     }
   }
   function selectedDeck() {
@@ -1803,6 +1807,10 @@
   }
   function menuDeckB() {
     const el = byId('selMenuDeckB');
+    return resolveDeckChoice(el ? el.value : null) || starterDeck('SD01');
+  }
+  function menuRealDeck() {
+    const el = byId('selRealDeck');
     return resolveDeckChoice(el ? el.value : null) || starterDeck('SD01');
   }
   function renderRoom() {
@@ -4257,15 +4265,27 @@
     byId('menuHome').classList.remove('hidden');
     byId('menuPlay').classList.add('hidden');
   }
+  function showMenuPlayModes() {
+    const modes = byId('menuPlayModes');
+    const solo = byId('menuSoloSetup');
+    const real = byId('menuRealSetup');
+    if (modes) modes.classList.remove('hidden');
+    if (solo) solo.classList.add('hidden');
+    if (real) real.classList.add('hidden');
+  }
   function showMenuPlay() {
     byId('menuHome').classList.add('hidden');
     byId('menuPlay').classList.remove('hidden');
+    showMenuPlayModes();
     ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
   }
   byId('mnuPlay').onclick = () => showMenuPlay();
   byId('mnuPlayBack').onclick = () => showMenuHome();
-  byId('mnuOnline').onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
+  // โหมดออนไลน์ — ปุ่มถูกคอมเมนต์ใน HTML ไว้ก่อน (อย่าลบ handler)
+  const mnuOnline = byId('mnuOnline');
+  if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
   byId('mnuLan').onclick = () => {
+    // เข้าโหมด LAN → เลือกเด็คในล็อบบี้ แล้วค่อยท้า/จับคู่
     ensurePlayReady().catch(() => { });
     openLanHall();
   };
@@ -4347,7 +4367,7 @@
     } catch (e) { }
     return starterDeck('SD01');
   }
-  byId('mnuSolo').onclick = () => {
+  function startSoloMatch() {
     Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
       soloCards = db.all;
       const act = menuDeckA();
@@ -4365,14 +4385,23 @@
       gameStart = Date.now(); selMap = {};
       startTable();
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
+  }
+  byId('mnuSolo').onclick = () => {
+    // ซ้อมคนเดียว → ค่อยโชว์เลือกเด็ค A vs B
+    byId('menuPlayModes').classList.add('hidden');
+    byId('menuSoloSetup').classList.remove('hidden');
+    byId('menuRealSetup').classList.add('hidden');
+    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
   };
+  byId('mnuSoloBack').onclick = () => showMenuPlayModes();
+  byId('btnSoloStart').onclick = () => startSoloMatch();
   /* 🎴 เล่นกับคนที่ใช้การ์ดจริง — ใช้เอนจินเดียวกับซ้อมมือ (ไม่มีกติกาใหม่)
      ต่างกันแค่ preset: สนามฝั่งเดียวเปิดให้เลย + บอกวิธีแชร์จอ เพื่อไม่ต้องมานั่งกดปุ่มเอง */
-  byId('mnuReal').onclick = () => {
+  function startRealMatch() {
     Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
       soloCards = db.all;
-      const act = menuDeckA();
-      try { localStorage.setItem('bot_active_deck', byId('selMenuDeck').value); } catch (e) { }
+      const act = menuRealDeck();
+      try { localStorage.setItem('bot_active_deck', byId('selRealDeck').value); } catch (e) { }
       mode = 'solo'; seat = 'A';
       st = BoTEngine.buildInitialState(db.all, Math.random, { A: act.spec, B: starterDeck('SD01').spec });
       gameStart = Date.now(); selMap = {};
@@ -4380,7 +4409,15 @@
       startTable();
       toast(`🎴 โหมดการ์ดจริง · ใช้เด็ค "${act.name}" — กด 📺 บานสนาม แล้วแชร์เฉพาะหน้าต่างนั้นใน Discord`, 11000);
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
+  }
+  byId('mnuReal').onclick = () => {
+    byId('menuPlayModes').classList.add('hidden');
+    byId('menuSoloSetup').classList.add('hidden');
+    byId('menuRealSetup').classList.remove('hidden');
+    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
   };
+  byId('mnuRealBack').onclick = () => showMenuPlayModes();
+  byId('btnRealStart').onclick = () => startRealMatch();
   byId('btnLobbyBack').onclick = () => {
     stopPresence();
     showMenuHome();
@@ -4412,11 +4449,15 @@
   };
   const selMenuA = byId('selMenuDeck');
   const selMenuB = byId('selMenuDeckB');
+  const selRealDeck = byId('selRealDeck');
   if (selMenuA) selMenuA.onchange = () => {
     try { localStorage.setItem('bot_active_deck', selMenuA.value); } catch (e) { }
   };
   if (selMenuB) selMenuB.onchange = () => {
     try { localStorage.setItem('bot_opp_deck', selMenuB.value); } catch (e) { }
+  };
+  if (selRealDeck) selRealDeck.onchange = () => {
+    try { localStorage.setItem('bot_active_deck', selRealDeck.value); } catch (e) { }
   };
   byId('btnReady').onclick = () => {
     myReady = !myReady; renderRoom();

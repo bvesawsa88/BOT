@@ -46,7 +46,7 @@
     return _once[href];
   }
 
-  const V = '20260803h';
+  const V = '20260803i';
   function asset(path) {
     return path + (path.includes('?') ? '&' : '?') + 'v=' + V;
   }

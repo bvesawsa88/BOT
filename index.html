@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260803e">
+<link rel="stylesheet" href="css/style.css?v=20260803i">
 </head>
 <body>
 
@@ -38,27 +38,48 @@
     <button id="mnuHowTo" class="btn-dark big">📖 วิธีเล่น / วิธีจัดเด็ค</button>
   </div>
 
-  <!-- เมนูย่อย: เลือกโหมดเล่นเท่านั้น -->
+  <!-- เมนูย่อย: เลือกโหมดก่อน → แล้วค่อยเลือกเด็คตามโหมด -->
   <div id="menuPlay" class="menu-btns menu-play hidden">
-    <div class="menu-group-label">เด็คที่ชนกัน (ซ้อมมือ)</div>
-    <div class="menu-matchup">
-      <label class="menu-deck-lab" for="selMenuDeck">ฝั่ง A</label>
-      <select id="selMenuDeck" class="menu-deck-select" title="เด็คฝั่ง A">
-        <option value="starter:SD01">SD01 Starter (50+5)</option>
-      </select>
-      <div class="menu-vs" aria-hidden="true">VS</div>
-      <label class="menu-deck-lab" for="selMenuDeckB">ฝั่ง B</label>
-      <select id="selMenuDeckB" class="menu-deck-select" title="เด็คฝั่ง B">
-        <option value="starter:SD01">SD01 Starter (50+5)</option>
-      </select>
+    <div id="menuPlayModes">
+      <div class="menu-group-label">เลือกโหมดเล่น</div>
+      <!-- โหมดออนไลน์ — ซ่อนไว้ก่อน (อย่าลบ)
+      <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
+      -->
+      <button id="mnuLan" class="btn-dark big">📱 LAN — เห็นใครออน / ท้าสู้</button>
+      <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
+      <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
+      <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
+      <button id="mnuPlayBack" class="link-btn menu-back">← กลับเมนูหลัก</button>
     </div>
-    <div class="menu-group-label">เลือกโหมดเล่น</div>
-    <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
-    <button id="mnuLan" class="btn-dark big">📱 LAN — เห็นใครออน / ท้าสู้</button>
-    <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
-    <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
-    <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
-    <button id="mnuPlayBack" class="link-btn menu-back">← กลับเมนูหลัก</button>
+
+    <!-- ซ้อมคนเดียว: เลือกเด็ค A vs B แล้วเริ่ม -->
+    <div id="menuSoloSetup" class="hidden">
+      <div class="menu-group-label">เด็คที่ชนกัน (ซ้อมมือ)</div>
+      <div class="menu-matchup">
+        <label class="menu-deck-lab" for="selMenuDeck">ฝั่ง A</label>
+        <select id="selMenuDeck" class="menu-deck-select" title="เด็คฝั่ง A">
+          <option value="starter:SD01">SD01 Starter (50+5)</option>
+        </select>
+        <div class="menu-vs" aria-hidden="true">VS</div>
+        <label class="menu-deck-lab" for="selMenuDeckB">ฝั่ง B</label>
+        <select id="selMenuDeckB" class="menu-deck-select" title="เด็คฝั่ง B">
+          <option value="starter:SD01">SD01 Starter (50+5)</option>
+        </select>
+      </div>
+      <button id="btnSoloStart" class="btn-primary big">เริ่มซ้อม</button>
+      <button id="mnuSoloBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
+    </div>
+
+    <!-- การ์ดจริง: เลือกเด็คตัวเองแล้วเริ่ม -->
+    <div id="menuRealSetup" class="hidden">
+      <div class="menu-group-label">เลือกเด็คของคุณ</div>
+      <label class="menu-deck-lab" for="selRealDeck">เด็ค</label>
+      <select id="selRealDeck" class="menu-deck-select" title="เด็คสำหรับโหมดการ์ดจริง">
+        <option value="starter:SD01">SD01 Starter (50+5)</option>
+      </select>
+      <button id="btnRealStart" class="btn-primary big">เริ่มโหมดการ์ดจริง</button>
+      <button id="mnuRealBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
+    </div>
   </div>
 
   <div class="menu-copy">© PASULOL Co.,Ltd / Lion House Co.,Ltd · Rule Book Ver. 3.2</div>
@@ -945,10 +966,10 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260803h"></script>
+<script src="js/util.js?v=20260803i"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260803h"></script>
+<script src="js/game.js?v=20260803i"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>
