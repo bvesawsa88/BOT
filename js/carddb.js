@@ -40,14 +40,24 @@
       });
       return pending;
     }
+    /* Only #1 — ใส่ได้ใบเดียวต่อชื่อ · เด็คมีได้แค่ 1 ชื่อ Only
+       ยกเว้น customLimit (เช่น พระไตรปิฎก = 3) ซึ่งทับค่าเริ่มต้น 1 */
+    function isOnly(c) {
+      if (!c) return false;
+      if (/Only\s*#?\s*1/i.test(c.ex || '')) return true;
+      if (c.customLimit && /only/i.test(String(c.customLimit)) && !/\d/.test(String(c.customLimit))) return true;
+      return false;
+    }
     function limitOf(db, c) {
       let lim = 4;
+      let fromCustom = false;
       if (c.customLimit) {
         const m = String(c.customLimit).match(/\d+/);
-        if (m) lim = +m[0];
+        if (m) { lim = +m[0]; fromCustom = true; }
         else if (/only/i.test(c.customLimit)) lim = 1;
       }
-      if (/Only\s*#?\s*1/i.test(c.ex || '')) lim = 1;
+      // Only #1 → 1 ใบ เว้นมี customLimit ตัวเลข (กรณีพิเศษใส่ได้ 3 ฯลฯ)
+      if (!fromCustom && isOnly(c)) lim = 1;
       if (db.ban.banned.includes(c.name)) return 0;
       if (db.ban.limit1.includes(c.name)) lim = Math.min(lim, 1);
       if (db.ban.limit2.includes(c.name)) lim = Math.min(lim, 2);
@@ -61,6 +71,6 @@
       try { localStorage.setItem('bot_decks_v1', JSON.stringify(sv)); }
       catch (e) { }
     }
-    return { load, limitOf, savedDecks, saveDecks };
+    return { load, limitOf, isOnly, savedDecks, saveDecks };
   })();
 })(typeof self !== 'undefined' ? self : this);

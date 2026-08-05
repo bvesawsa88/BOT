@@ -25,6 +25,7 @@
     byId(id).onclick = e => { const b = e.target.closest('.db-chip'); if (b) { onPick(b.dataset.v); } };
   }
   function limitOf(c) { return CardDB.limitOf(DB.db, c); }
+  function isOnly(c) { return CardDB.isOnly(c); }
   /* ★ ลิมิตนับต่อ "ชื่อการ์ด" ไม่ใช่ต่อ "รหัส"
      การ์ดชื่อเดียวกันมีหลายรหัส (ต่างซีรีส์/ความหายาก) เช่น "ชายจากอนาคต" มี 8 รหัส
      ถ้านับต่อรหัสจะใส่ได้ 8×4 = 32 ใบ และทะลุ banlist ด้วย (limit2 กลายเป็น 16 ใบ) */
@@ -34,6 +35,14 @@
       const cd = DB.db.byCode[k]; if (cd && cd.name === name) n += ct;
     }));
     return n;
+  }
+  /* Only #1 ในเด็ค — รายชื่อ Only ที่ใส่แล้ว (ปกติต้องมีพอดี 1 ชื่อ · ยกเว้นกรณีพิเศษลิมิต 3) */
+  function onlyNamesInDeck(deck) {
+    const names = new Set();
+    ['main', 'life'].forEach(sec => Object.keys(deck[sec] || {}).forEach(k => {
+      const cd = DB.db.byCode[k]; if (cd && isOnly(cd)) names.add(cd.name);
+    }));
+    return [...names];
   }
   // รวมจำนวนต่อชื่อทั้งเด็ค → { ชื่อ: {n, lim} } ใช้ทั้งตอนตรวจและตอน import
   function perNameCounts(deck) {
@@ -56,10 +65,19 @@
     const sec = c.type === 'Life' ? 'life' : 'main';
     const lim = limitOf(c), cur = DB.deck[sec][code] || 0;
     if (lim === 0) { msg(`"${c.name}" อยู่ในลิสต์ห้ามใส่ (การ์ดบาป)`); return; }
+    // ★ Only #1: เด็คมีได้แค่ 1 ชื่อ — ห้ามผสม Only คนละใบ (ยกเว้นชื่อเดียวกันตามลิมิต)
+    if (isOnly(c)) {
+      const others = onlyNamesInDeck(DB.deck).filter(nm => nm !== c.name);
+      if (others.length) {
+        msg(`Only #1 ใส่ได้ชื่อเดียวต่อเด็ค — มี "${others[0]}" อยู่แล้ว เอาออกก่อนถึงจะใส่ "${c.name}" ได้`);
+        return;
+      }
+    }
     // ★ เทียบกับจำนวน "ชื่อนี้" ทั้งเด็ค (รวมทุกรหัส/ความหายาก) ไม่ใช่แค่รหัสนี้
     const byName = nameCountInDeck(c.name);
     if (byName >= lim) {
-      msg(`"${c.name}" ใส่ได้สูงสุด ${lim} ใบ${lim === 1 ? ' (Only #1 / banlist)' : ''} — ตอนนี้มี ${byName} ใบแล้ว (นับรวมทุกรหัส/ความหายากของชื่อนี้)`);
+      const why = isOnly(c) ? (lim === 1 ? ' (Only #1)' : ` (Only #1 กรณีพิเศษ ลิมิต ${lim})`) : (lim === 1 ? ' (banlist)' : '');
+      msg(`"${c.name}" ใส่ได้สูงสุด ${lim} ใบ${why} — ตอนนี้มี ${byName} ใบแล้ว (นับรวมทุกรหัส/ความหายากของชื่อนี้)`);
       return;
     }
     DB.deck[sec][code] = cur + 1; msg(''); renderDB();
@@ -157,9 +175,17 @@
     const overNames = Object.entries(perNameCounts(DB.deck)).filter(([, v]) => v.n > v.lim);
     const allCodes = Object.keys({ ...DB.deck.main, ...DB.deck.life });
     const nameOf = k => DB.db.byCode[k] ? DB.db.byCode[k].name : '';
+    const onlyNames = onlyNamesInDeck(DB.deck);
+    const onlyOk = onlyNames.length === 1;
+    const onlyLabel = onlyNames.length === 0
+      ? 'ต้องมี Only #1 ใน Main Deck (ยังไม่มี)'
+      : onlyNames.length === 1
+        ? `มี Only #1: ${onlyNames[0]}${(() => { const cd = DB.db.cards.find(x => x.name === onlyNames[0] && isOnly(x)); const lim = cd ? limitOf(cd) : 1; const n = nameCountInDeck(onlyNames[0]); return lim > 1 ? ` ×${n}/${lim}` : ''; })()}`
+        : `Only #1 ใส่ได้ชื่อเดียว — ตอนนี้มี ${onlyNames.length} ชื่อ: ${onlyNames.slice(0, 3).join(' · ')}${onlyNames.length > 3 ? ' …' : ''}`;
     const checks = [
       [mainCount === 50, `Main Deck 50 ใบพอดี (ตอนนี้ ${mainCount})`],
       [lifeCount === 5, `LIFE Card 5 ใบพอดี (ตอนนี้ ${lifeCount})`],
+      [onlyOk, onlyLabel],
       [overNames.length === 0, overNames.length
         ? `เกินลิมิต ${overNames.length} ชื่อ: ` + overNames.slice(0, 3).map(([nm, v]) => `${nm} ${v.n}/${v.lim}`).join(' · ') + (overNames.length > 3 ? ' …' : '')
         : 'ไม่เกินลิมิตต่อชื่อ (≤4 / Only #1 / banlist · นับรวมทุกรหัส)'],
@@ -169,7 +195,8 @@
     const bannedIn = allCodes.filter(k => DB.db.ban.banned.includes(nameOf(k)));
     if (bannedIn.length) checks.push([false, `มีการ์ดห้ามใส่ (การ์ดบาป) ${bannedIn.length} รายการ`]);
     DB.db.ban.chooseOne.forEach(pair => {
-      const have = pair.filter(nm => Object.keys(DB.deck.main).some(k => nameOf(k) === nm));
+      const have = pair.filter(nm => Object.keys(DB.deck.main).some(k => nameOf(k) === nm)
+        || Object.keys(DB.deck.life).some(k => nameOf(k) === nm));
       if (have.length > 1) checks.push([false, `เลือกใส่ได้อย่างเดียว: ${pair.join(' หรือ ')}`]);
     });
     byId('dbChecks').innerHTML = checks.map(([ok, label, warn]) =>
@@ -403,9 +430,20 @@
     if (!m && !l) { byId('dcMsg').textContent = '✗ ไม่พบการ์ดในโค้ด — ตรวจรูปแบบอีกครั้ง'; return; }
     // ★ import ต้องผ่านลิมิตเหมือนกดเพิ่มทีละใบ (เดิมทะลุได้หมด — วาง "10x ขวานเงิน" ก็เข้า)
     //   ตัดส่วนเกินทิ้ง นับรวมต่อชื่อทุกรหัส แล้วรายงานว่าถูกตัดอะไรไปบ้าง
+    //   Only #1: เก็บได้แค่ 1 ชื่อ — ชื่อ Only อื่นตัดทิ้ง
     const used = {}, asked = {}, lims = {};
+    let keptOnlyName = null;
+    const droppedOnly = [];
     ['main', 'life'].forEach(sec => Object.keys(r[sec]).forEach(code => {
       const cd = DB.db.byCode[code]; if (!cd) return;
+      if (isOnly(cd)) {
+        if (keptOnlyName == null) keptOnlyName = cd.name;
+        else if (cd.name !== keptOnlyName) {
+          droppedOnly.push(cd.name);
+          delete r[sec][code];
+          return;
+        }
+      }
       const lim = limitOf(cd); lims[cd.name] = lim;
       asked[cd.name] = (asked[cd.name] || 0) + r[sec][code];
       const keep = Math.min(r[sec][code], Math.max(0, lim - (used[cd.name] || 0)));
@@ -415,6 +453,7 @@
     // รายงานเป็น "ชื่อ" ไม่ใช่ต่อรหัส (ชื่อเดียวมีได้หลายรหัส เดี๋ยวนับซ้ำ)
     const trimmed = Object.keys(asked).filter(nm => asked[nm] > (used[nm] || 0))
       .map(nm => `${nm} ${asked[nm]}→${used[nm] || 0}${lims[nm] === 0 ? ' (ห้ามใส่)' : ''}`);
+    const uniqDropOnly = [...new Set(droppedOnly)];
     m = 0; l = 0;
     Object.values(r.main).forEach(n => m += n); Object.values(r.life).forEach(n => l += n);
     DB.deck = { main: r.main, life: r.life };
@@ -423,6 +462,7 @@
     dcClose();
     let txt = `นำเข้าเด็คแล้ว: ${m} การ์ดหลัก + ${l} ไลฟ์`;
     if (trimmed.length) txt += ` · ⚠️ ตัดส่วนเกินลิมิต ${trimmed.length} ชื่อ (${trimmed.slice(0, 3).join(', ')}${trimmed.length > 3 ? ' …' : ''})`;
+    if (uniqDropOnly.length) txt += ` · ⚠️ ตัด Only #1 ซ้ำชื่อ (${uniqDropOnly.slice(0, 3).join(', ')}${uniqDropOnly.length > 3 ? ' …' : ''}) — เหลือแค่ "${keptOnlyName}"`;
     if (r.unknown.length) txt += ` · ข้ามรหัสไม่รู้จัก ${r.unknown.length} (${r.unknown.slice(0, 4).join(', ')}${r.unknown.length > 4 ? ' …' : ''})`;
     // ★ นำเข้าแล้วยังไม่ได้บันทึก = เกมยังใช้เด็คหลักตัวเก่า (สาเหตุอันดับหนึ่งของ "เข้าไปแล้วเด็คไม่ครบ")
     txt += ' — ⚠️ ยังไม่ได้บันทึก! กดปุ่ม "บันทึก" ก่อนไปเล่น ไม่งั้นเกมจะใช้เด็คเดิม';

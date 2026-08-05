@@ -1,1 +1,521 @@
-{"$schema":"bot-effect-schema v0.2 (auto-generated)","note":"BT09: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี","cards":[{"code":"BT09-001","abilities":[],"parseStatus":"manual"},{"code":"BT09-002","abilities":[],"parseStatus":"manual"},{"code":"BT09-003","abilities":[],"parseStatus":"manual"},{"code":"BT09-004","abilities":[{"trigger":{"on":"lifeRevealedByAttack"},"actions":[{"op":"draw","count":1,"player":"owner","schedule":"nextOwnMainPhase"}]}],"parseStatus":"auto"},{"code":"BT09-005","abilities":[],"parseStatus":"manual"},{"code":"BT09-006","abilities":[],"parseStatus":"manual"},{"code":"BT09-007","abilities":[],"parseStatus":"manual"},{"code":"BT09-008","abilities":[],"parseStatus":"manual"},{"code":"BT09-009","abilities":[],"parseStatus":"manual"},{"code":"BT09-010","abilities":[],"parseStatus":"manual"},{"code":"BT09-011","abilities":[{"keyword":"จุติ","trigger":{"on":"summoned","if":"paidCost"},"actions":[{"op":"draw","count":1,"player":"owner"}]}],"parseStatus":"partial"},{"code":"BT09-012","abilities":[],"parseStatus":"manual"},{"code":"BT09-013","abilities":[],"parseStatus":"manual"},{"code":"BT09-014","abilities":[],"parseStatus":"manual"},{"code":"BT09-015","abilities":[],"parseStatus":"manual"},{"code":"BT09-016","abilities":[],"parseStatus":"manual"},{"code":"BT09-017","abilities":[],"parseStatus":"manual"},{"code":"BT09-018","abilities":[],"parseStatus":"manual"},{"code":"BT09-019","abilities":[],"parseStatus":"manual"},{"code":"BT09-020","abilities":[],"parseStatus":"manual"},{"code":"BT09-021","abilities":[],"parseStatus":"manual"},{"code":"BT09-022","abilities":[],"parseStatus":"manual"},{"code":"BT09-023","abilities":[],"parseStatus":"manual"},{"code":"BT09-024","abilities":[],"parseStatus":"manual"},{"code":"BT09-025","abilities":[],"parseStatus":"manual"},{"code":"BT09-026","abilities":[],"parseStatus":"manual"},{"code":"BT09-027","abilities":[],"parseStatus":"manual"},{"code":"BT09-028","abilities":[],"parseStatus":"manual"},{"code":"BT09-029","abilities":[],"parseStatus":"manual"},{"code":"BT09-030","abilities":[],"parseStatus":"manual"},{"code":"BT09-031","abilities":[],"parseStatus":"manual"},{"code":"BT09-032","abilities":[],"parseStatus":"manual"},{"code":"BT09-033","abilities":[],"parseStatus":"manual"},{"code":"BT09-034","abilities":[],"parseStatus":"manual"},{"code":"BT09-035","abilities":[],"parseStatus":"manual"},{"code":"BT09-036","abilities":[],"parseStatus":"manual"},{"code":"BT09-037","abilities":[],"parseStatus":"manual"},{"code":"BT09-038","abilities":[],"parseStatus":"manual"},{"code":"BT09-039","abilities":[],"parseStatus":"manual"},{"code":"BT09-040","abilities":[],"parseStatus":"manual"},{"code":"BT09-041","abilities":[],"parseStatus":"manual"},{"code":"BT09-042","abilities":[],"parseStatus":"manual"},{"code":"BT09-043","abilities":[],"parseStatus":"manual"},{"code":"BT09-044","abilities":[],"parseStatus":"manual"},{"code":"BT09-045","abilities":[],"parseStatus":"verified"},{"code":"BT09-046","abilities":[],"parseStatus":"manual"},{"code":"BT09-047","abilities":[],"parseStatus":"verified"},{"code":"BT09-048","abilities":[],"parseStatus":"verified"},{"code":"BT09-049","abilities":[],"parseStatus":"manual"},{"code":"BT09-050","abilities":[],"parseStatus":"manual"},{"code":"BT09-051","abilities":[],"parseStatus":"manual"},{"code":"BT09-052","abilities":[],"parseStatus":"manual"},{"code":"BT09-053","abilities":[],"parseStatus":"manual"},{"code":"BT09-054","abilities":[],"parseStatus":"manual"},{"code":"BT09-055","abilities":[],"parseStatus":"manual"},{"code":"BT09-056","abilities":[],"parseStatus":"manual"},{"code":"BT09-057","abilities":[],"parseStatus":"manual"},{"code":"BT09-058","abilities":[],"parseStatus":"manual"},{"code":"BT09-059","abilities":[],"parseStatus":"manual"},{"code":"BT09-060","abilities":[],"parseStatus":"manual"},{"code":"BT09-061","abilities":[],"parseStatus":"manual"},{"code":"BT09-062","abilities":[],"parseStatus":"manual"},{"code":"BT09-063","abilities":[],"parseStatus":"manual"},{"code":"BT09-064","abilities":[],"parseStatus":"manual"},{"code":"BT09-065","abilities":[],"parseStatus":"manual"},{"code":"BT09-066","abilities":[],"parseStatus":"manual"},{"code":"BT09-067","abilities":[],"parseStatus":"manual"},{"code":"BT09-068","abilities":[],"parseStatus":"manual"},{"code":"BT09-069","abilities":[],"parseStatus":"manual"},{"code":"BT09-070","abilities":[],"parseStatus":"manual"},{"code":"BT09-071","abilities":[],"parseStatus":"manual"},{"code":"BT09-072","abilities":[],"parseStatus":"manual"},{"code":"BT09-073","abilities":[],"parseStatus":"manual"},{"code":"BT09-074","abilities":[],"parseStatus":"manual"},{"code":"BT09-075","abilities":[],"parseStatus":"manual"}]}
+{
+  "$schema": "bot-effect-schema v0.2 (auto-generated)",
+  "note": "BT09: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี",
+  "cards": [
+    {
+      "code": "BT09-001",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-002",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-003",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-004",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT09-005",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-006",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-007",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-008",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-009",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-010",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-011",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "BT09-012",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-013",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-014",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-015",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-016",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-017",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-018",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-019",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-020",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-021",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-022",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-023",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-024",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-025",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-026",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-027",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-028",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-029",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-030",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-031",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-032",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-033",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-034",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-035",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-036",
+      "name": "ภูติผลไม้ มะม่วง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ถ้า Land มีป่าพงไพร → ได้โล่มนุษย์",
+      "grantKeywordIfLandNameIncludes": {
+        "keyword": "โล่มนุษย์",
+        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์"
+      }
+    },
+    {
+      "code": "BT09-037",
+      "name": "ภูติผลไม้ มะเหมี่ยว",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "requireLandNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+          "actions": [
+            {
+              "op": "handSummon",
+              "paidCost": false,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ภูติผลไม้"
+                ],
+                "nameNotEquals": "ภูติผลไม้ มะเหมี่ยว"
+              },
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "คำสั่งเสีย ถ้ามีป่า: อัญเชิญภูติผลไม้ที่ไม่ใช่มะเหมี่ยวจากมือ แล้วจั่ว 1"
+    },
+    {
+      "code": "BT09-038",
+      "name": "ภูติผลไม้ มะเฟือง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ถ้ามีป่า + ศัตรูมี LIFE คว่ำ → ได้เตะไข่",
+      "grantKeywordIfLandNameIncludes": {
+        "keyword": "เตะไข่",
+        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+        "requireEnemyFaceDownLife": true
+      }
+    },
+    {
+      "code": "BT09-039",
+      "name": "ภูติผลไม้ มะขาม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ป่าพงไพร เผ่าพงศ์พันธุ์"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ: เปิดหน้าต่างเลือกป่าพงไพรจากเด็คหรือนรกขึ้นมือ — จากเด็คแล้วสับ"
+    },
+    {
+      "code": "BT09-040",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-041",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-042",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-043",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-044",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-045",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT09-046",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-047",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT09-048",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT09-049",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-050",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-051",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-052",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-053",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-054",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-055",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-056",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-057",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-058",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-059",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-060",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-061",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-062",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-063",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-064",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-065",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-066",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-067",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-068",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-069",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-070",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-071",
+      "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "exileDeckTop"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ภูติผลไม้"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "grantSummoned": [
+                {
+                  "keyword": "คำสั่งเสีย",
+                  "trigger": {
+                    "on": "destroyed"
+                  },
+                  "actions": [
+                    {
+                      "op": "exile",
+                      "target": "self"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ออร่าภูติผลไม้ +2 และสามัคคี · สั่งใช้: เนรเทศใบบนสุดเด็ค → อัญเชิญภูติจากนรก (ได้คำสั่งเสียเนรเทศตัวเอง)",
+      "auraNameIncludes": "ภูติผลไม้",
+      "auraPower": 2,
+      "grantKeywordAura": {
+        "keyword": "สามัคคี",
+        "nameIncludes": "ภูติผลไม้"
+      }
+    },
+    {
+      "code": "BT09-072",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-073",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-074",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "BT09-075",
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

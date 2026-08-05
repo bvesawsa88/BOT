@@ -40,7 +40,7 @@
     { "code": "BT01-036", "abilities": [ { "trigger": { "on": "activated" }, "actions": [ { "op": "destroyAllEnemyAvatars" } ] } ], "parseStatus": "auto" },
     { "code": "BT01-037", "abilities": [ { "trigger": { "on": "activated" }, "cost": [ { "op": "sacrifice", "filter": { "type": "Avatar", "symbol": "สัตว์" }, "count": 1 } ], "actions": [ { "op": "draw", "count": 3 } ], "note": "ข้อจำกัด 'เทิร์นนี้อัญเชิญได้แค่สัตว์' = ผู้เล่นคุมเอง" } ], "parseStatus": "auto" },
     { "code": "BT01-038", "abilities": [ { "trigger": { "on": "activated" }, "actions": [ { "op": "draw", "count": 2 } ] } ], "parseStatus": "auto" },
-    { "code": "BT01-039", "abilities": [ { "trigger": { "on": "enemyDeclareAttack" }, "react": true, "actions": [ { "op": "destroyAttacker" } ] } ], "parseStatus": "auto" },
+    { "code": "BT01-039", "name": "เจ้ากล้าดียังไง", "abilities": [ { "trigger": { "on": "enemyDeclareAttack" }, "react": true, "actions": [ { "op": "destroyAttacker" } ] } ], "parseStatus": "verified" },
     { "code": "BT01-040", "abilities": [], "parseStatus": "manual", "note": "ป้องกันการทำลาย — ต้องดัก destroyCard (ถามกติกาละเอียดก่อน)" },
     { "code": "BT01-041", "abilities": [ { "trigger": { "on": "enemyPlayMagic" }, "react": true, "actions": [ { "op": "negate" } ] } ], "parseStatus": "auto", "note": "เมื่อฝ่ายตรงข้ามใช้ Magic → ถามว่าจะใช้ชายจากอนาคตยกเลิกไหม" },
     { "code": "BT01-042", "abilities": [], "parseStatus": "manual", "note": "React ยึด+สวมใส่เมื่อถูกทำลายจากการต่อสู้ — ซับซ้อนมาก" },

@@ -482,11 +482,21 @@
       "name": "เพนกวิ้น ฮัท",
       "abilities": [
         {
-          "trigger": { "on": "activatedFromHand" },
+          "trigger": {
+            "on": "activatedFromHand"
+          },
           "oncePerGame": true,
           "requirePendingLethal": true,
-          "cost": [{ "op": "exileSelf" }],
-          "actions": [{ "op": "cancelLethalEndOppTurn" }]
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "cancelLethalEndOppTurn"
+            }
+          ]
         }
       ],
       "parseStatus": "verified",
@@ -687,23 +697,42 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireLandNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
+              "amountPer": "ownDarkNameIncludes",
+              "nameIncludes": "ภูติผลไม้",
+              "per": 1,
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "requireLandNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+          "actions": [
+            {
+              "op": "darkPick",
+              "filter": {
+                "nameIncludes": [
+                  "ภูติผลไม้"
+                ]
+              },
+              "dest": "deck",
+              "shuffleAfter": true
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "manual",
+      "note": "ต่อเนื่องถ้ามีป่า: POWER +1 ต่อภูติในมิติมืด · คำสั่งเสียถ้ามีป่า: ภูติจากมิติมืดกลับเด็คแล้วสับ"
     },
     {
       "code": "BT11-037",

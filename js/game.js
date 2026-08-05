@@ -129,6 +129,7 @@
   let coinOvT = null, diceOvT = null;
   let announceSrc = null, annGlow = null, annT = null; // ประกาศใช้การ์ด (ชี้เป้า) + ไฮไลต์เป้า
   let announceKind = 'use'; // 'use' = ⚡ ประกาศใช้ · 'attack' = ⚔️ โจมตี (นอนตัวโจมตีให้อัตโนมัติ)
+  let magicDropTarget = null; // ลากเมจิกจากมือทับการ์ด → ร่ายแล้วพยายามเลือกเป้านี้
   let rpsTimerId = null, rpsDeadline = 0;
   let reactTimerId = null, reactDeadline = 0, reactTimerKey = '';
 
@@ -281,6 +282,20 @@
     // มีเอฟเฟกต์นัดจั่วค้าง (เช่น LIFE → จั่ว Main เทิร์นหน้า)
     if ((st.scheduled || []).some(s => s.player === side && s.op === 'draw')) return true;
     return false;
+  }
+  /* จั่วจากแตะเด็ค: เทิร์นตัวเอง + เฟสจั่ว = จั่วเลย · นอกนั้นถามยืนยัน */
+  function isNormalDrawWindow(side) {
+    return !!(st && side && st.active === side && st.phase === 'Draw');
+  }
+  function requestManualDraw(side) {
+    if (!st || st.over || (side !== 'A' && side !== 'B')) return;
+    if (!isNormalDrawWindow(side)) {
+      const why = st.active !== side
+        ? `ไม่ใช่เทิร์นของฝ่าย ${side} (ตา ${st.active})`
+        : `ไม่ใช่เฟสจั่ว (ตอนนี้อยู่เฟส${(PHASE_SLOT[st.phase] && PHASE_SLOT[st.phase].th) || st.phase})`;
+      if (!confirm(`${why}\n\nจะจั่วหรอ?`)) return;
+    }
+    sendAction({ type: 'draw', p: side });
   }
   function syncDeckDrawHint() {
     const md = byId('myDeck'), od = byId('oppDeck');
@@ -1904,9 +1919,32 @@
     else toast('ยังไม่เชื่อมต่อ — รอสักครู่…');
   }
 
+  /* ลากเมจิกจากมือทับการ์ด: หลังร่าย ถ้ามีหน้าต่างเลือกเป้าและใบนั้นใช้ได้ → เลือกให้อัตโนมัติ */
+  function tryConsumeMagicDropTarget() {
+    if (!magicDropTarget || !st) return;
+    const tk = magicDropTarget;
+    const pr = (st.prompts || [])[0];
+    if (!pr) {
+      // ร่ายจบแล้วไม่มีเป้าให้เลือก (หรือยังรอหลังขัดเวท) — อย่าค้างเป้าไปปน prompt อื่น
+      if (!st._pendingMagic) magicDropTarget = null;
+      return;
+    }
+    if (pr.kind === 'react') return; // รอขัดเวท — ค้างเป้าไว้หลัง resolve
+    if (!(mode === 'solo' || seat === pr.chooser)) { magicDropTarget = null; return; }
+    if (!BoTEngine.promptTargetOk(st, tk)) {
+      magicDropTarget = null;
+      return;
+    }
+    magicDropTarget = null;
+    sendAction({ type: 'chooseTarget', k: tk, by: mode === 'solo' ? pr.chooser : undefined });
+  }
+
   function applyA(a) {
     const fx = BoTEngine.applyAction(st, a);
-    if (fx.deny) { toast('🚫 ' + fx.deny, 3200); return fx; }
+    if (fx.deny) {
+      if (a.type === 'playMagic') magicDropTarget = null;
+      toast('🚫 ' + fx.deny, 3200); return fx;
+    }
     if (a.type === 'summon') { (a.payIds || []).forEach(k => delete selMap[k]); delete selMap[a.k]; }
     if (fx.snd) snd(fx.snd);
     if (fx.drawn || (fx.drawnList && fx.drawnList.length)) {
@@ -1958,6 +1996,8 @@
           el.innerHTML = `⚔️ ${esc(who)} โจมตี<br><b>「${esc(an.srcName)}」P${an.pa}</b>${an.tgtName ? ` ➜ <b>「${esc(an.tgtName)}」${an.pd != null ? 'P' + an.pd : ''}</b>` : ''}`;
         else if (an.kind === 'attach')
           el.innerHTML = `🔗 ${esc(who)} สวมใส่<br><b>「${esc(an.srcName)}」</b> ➜ <b>「${esc(an.tgtName)}」</b>${an.pa != null && an.pd != null && an.pa !== an.pd ? `<br>POWER ${an.pa} → <b>${an.pd}</b>` : ''}`;
+        else if (an.kind === 'unity')
+          el.innerHTML = `🤝 ${esc(who)} สามัคคี<br><b>「${esc(an.srcName)}」</b> นอน → <b>「${esc(an.tgtName)}」</b>${an.pa != null ? ` +${an.pa}` : ''}`;
         else
           el.innerHTML = `⚡ ${esc(who)} ใช้ <b>「${esc(an.srcName)}」</b>${an.tgtName ? ` ➜ <b>「${esc(an.tgtName)}」</b>` : ''}`;
         el.classList.toggle('atk', an.kind === 'attack');
@@ -1967,6 +2007,14 @@
       annGlow = { src: an.src, tgt: an.tgt, until: Date.now() + 3200 };
       setTimeout(() => { annGlow = null; render(); }, 3300);
       snd('flip');
+    }
+    if (fx.offerAttach && st.inst[fx.offerAttach] && canControl(fx.offerAttach)) {
+      const modK = fx.offerAttach;
+      setTimeout(() => {
+        if (!st || !st.inst[modK] || !(BoTEngine.zoneOf(st, modK) || '').endsWith('.magic')) return;
+        startAnnounce(modK, 'attach');
+        toast('🔗 แตะหรือลากทับ Avatar เพื่อสวมใส่', 3200);
+      }, 80);
     }
     if (fx.attach && fx.attach.pBefore != null && fx.attach.pAfter != null && fx.attach.pBefore !== fx.attach.pAfter) {
       toast(`🔗 สวมแล้ว — POWER ${fx.attach.pBefore} → ${fx.attach.pAfter}`, 2500);
@@ -1998,6 +2046,7 @@
     }
     render();
     playFxAnims(fx);
+    tryConsumeMagicDropTarget();
     if (fx.critical) {
       toast(`🩸 ฝ่าย ${fx.critical} เข้าสู่สถานะสาหัส! ต้องโดนโจมตี LIFE อีก 1 ครั้งจึงจะแพ้`, 4500);
     }
@@ -2304,6 +2353,11 @@
       const cops = BoTEngine.counterOptions(st, st.pending.target) || [];
       if (cops.includes(k)) classes.push('react-pick');
     }
+    // โล่มนุษย์ — Avatar ที่รับแทนได้กะพริบ
+    if (st.pending && (mode === 'solo' || seat === st.pending.target) && BoTEngine.humanShieldOptions) {
+      const sh = BoTEngine.humanShieldOptions(st, st.pending.target) || [];
+      if (sh.includes(k)) classes.push('react-pick');
+    }
     // 🔗 สวมใส่ — การ์ดยังอยู่ใน Magic Zone (ลากเส้นเชื่อมใน drawLinks) · ป้ายบอกชื่อบนตัว Avatar
     const atts = Object.values(st.inst).filter(x => x.attachedTo === k);
     // สวมได้ไม่จำกัดใบ — ใบเดียวโชว์ชื่อ · หลายใบโชว์จำนวน (ชี้เมาส์ดูรายชื่อครบ)
@@ -2342,6 +2396,8 @@
       qa = `<div class="qa qa-hand"><button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้จากมือ">⚡</button></div>`;
     } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
       const canAtk = cls === 'avatar' && !c.tapped && c.faceUp;
+      const canUnityBtn = cls === 'avatar' && canUseUnity(k);
+      const canModAtt = cls === 'magic' && canAttachFromMagic(k);
       // มีความสามารถสั่งใช้ (activated) → ⚡ = สั่งใช้ · ไม่มี → ⚡ = ประกาศใช้ชี้เป้า
       const hasAct = abs0.some(ab => {
         const on = ab.trigger && ab.trigger.on;
@@ -2351,6 +2407,8 @@
       });
       qa = `<div class="qa">`
         + (canAtk ? `<button class="qa-b qa-atk" data-qa="atk" data-k="${k}" title="โจมตี → ชี้เป้า (นอนให้อัตโนมัติ)">⚔</button>` : '')
+        + (canUnityBtn ? `<button class="qa-b qa-unity" data-qa="unity" data-k="${k}" title="🤝 สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">🤝</button>` : '')
+        + (canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : '')
         + (hasAct
           ? `<button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้ความสามารถ">⚡</button>`
           : `<button class="qa-b" data-qa="ann" data-k="${k}" title="ประกาศใช้ → ชี้เป้า">⚡</button>`)
@@ -2485,6 +2543,7 @@
             txt = `🔗 ${srcN}: แตะ Avatar ที่จะสวมใส่ให้${pr.optional ? ' (หรือข้าม)' : ''}`;
           else if (pr.from === 'ownAvatars') txt = `✨ ${srcN}: แตะ Avatar บนสนามฝั่งเรา`;
           else if (pr.dest === 'preventLeavePick') txt = `🛡️ เนรเทศรัททาทุยจากนรก (${pr.got || 0}/${pr.need || 5}) — แตะการ์ดในหน้าต่าง · ข้าม = ออกสนาม`;
+          else if (pr.from === 'deckOrHell') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คหรือนรก`;
           else if (pr.from === 'hell') txt = `✨ ${srcN}: เลือกการ์ดจากนรก`;
           else txt = `✨ ${srcN}: เลือกการ์ดจากหน้าต่างที่เปิดอยู่`;
         }
@@ -2647,22 +2706,33 @@
       byId('attackText').textContent = `⚔️ ${A.name} (P${BoTEngine.effPower(st, pnd.atk)}${powNote(pnd.atk)}) → ${tgt}${pnd.held ? ' · ฝ่ายรับกำลังตอบโต้…' : ''}`;
       const iAmDef = mode === 'solo' ? (soloBot ? pnd.target === my : true) : seat === pnd.target;
       const iAmAtk = mode === 'solo' ? (soloBot ? pnd.by === my : true) : seat === pnd.by;
-      // กล่องสวนกลับ — โชว์การ์ด React ที่ดักโจมตีได้ในมือของฝ่ายรับ ให้กดใช้ได้ทันที
+      // กล่องสวนกลับ — React ที่ดักโจมตี + Avatar โล่มนุษย์
       const cr = byId('counterRow');
       const myDefSeat = iAmDef ? pnd.target : null;
       const atkPromptPending = (st.prompts || []).some(p => p.chooser === pnd.by || p.whenAttacking || (p.keepSrc && p.dest === 'sacrifice' && p.src === pnd.atk));
       const opts = (iAmDef && !atkPromptPending && BoTEngine.counterOptions) ? BoTEngine.counterOptions(st, pnd.target) : [];
-      if (opts.length) {
+      const shields = (iAmDef && !atkPromptPending && BoTEngine.humanShieldOptions) ? BoTEngine.humanShieldOptions(st, pnd.target) : [];
+      if (opts.length || shields.length) {
         cr.classList.remove('hidden');
-        cr.innerHTML = `<b class="counter-lead">💚 สวนกลับได้ — แตะใบที่กะพริบเขียว:</b>` + opts.map(k => {
-          const cc = st.inst[k];
-          return `<button class="btn-counter small" data-counter="${k}" title="${esc(cc.effect || '')}">🌀 ${esc(cc.name)}</button>`;
-        }).join('');
+        let html = '';
+        if (opts.length) {
+          html += `<b class="counter-lead">💚 สวนกลับได้ — แตะใบที่กะพริบเขียว:</b>` + opts.map(k => {
+            const cc = st.inst[k];
+            return `<button class="btn-counter small" data-counter="${k}" title="${esc(cc.effect || '')}">🌀 ${esc(cc.name)}</button>`;
+          }).join('');
+        }
+        if (shields.length) {
+          html += `<b class="counter-lead">🛡️ โล่มนุษย์ — กดรับการโจมตีแทน:</b>` + shields.map(k => {
+            const cc = st.inst[k];
+            return `<button class="btn-counter small" data-shield="${k}" title="นอนลงแล้วรับการโจมตีแทน">🛡️ ${esc(cc.name)}</button>`;
+          }).join('');
+        }
+        cr.innerHTML = html;
       } else { cr.classList.add('hidden'); cr.innerHTML = ''; }
       // รอผู้โจมตีตอบ whenAttacking (เซ่นไหว้ไพรมอล ฯลฯ) ก่อนโชว์ปุ่มปะทะ
       byId('btnHoldAtk').classList.toggle('hidden', !(iAmDef && !pnd.held && !atkPromptPending));
       byId('btnResolveAtk').classList.toggle('hidden', !(iAmDef && !atkPromptPending));
-      byId('btnResolveAtk').textContent = pnd.held ? 'ปะทะต่อ ▸' : (opts.length ? 'ไม่สวน ปะทะเลย ▸' : 'ปะทะเลย ▸');
+      byId('btnResolveAtk').textContent = pnd.held ? 'ปะทะต่อ ▸' : ((opts.length || shields.length) ? 'ไม่สวน ปะทะเลย ▸' : 'ปะทะเลย ▸');
       byId('btnCancelAtk').classList.toggle('hidden', !iAmAtk);
       if (atkPromptPending) {
         byId('attackText').textContent = `⚔️ ${A.name} ประกาศโจมตี — ตอบเซ่นไหว้/เอฟเฟกต์เมื่อโจมตีก่อน แล้วค่อยปะทะ`;
@@ -3028,6 +3098,26 @@
     const z = BoTEngine.zoneOf(st, k) || '';
     return z === 'land' || z[0] === seat;
   }
+  function cardHasUnityKw(k) {
+    if (!st || !st.inst[k]) return false;
+    if (BoTEngine.hasKw) return !!BoTEngine.hasKw(st, k, 'สามัคคี');
+    const c = st.inst[k];
+    return BoTEngine.keywordsOf(c.code).includes('สามัคคี')
+      || (c.grantedKeywords || []).some(g => g.kw === 'สามัคคี');
+  }
+  /* สามัคคีใช้ได้: ตื่น + มี keyword · มอดสวม: อยู่ใน Magic Zone */
+  function canUseUnity(k) {
+    if (!canControl(k)) return false;
+    const c = st.inst[k];
+    if (!c || c.tapped || !c.faceUp) return false;
+    return (BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && cardHasUnityKw(k);
+  }
+  function canAttachFromMagic(k) {
+    if (!canControl(k)) return false;
+    const c = st.inst[k];
+    if (!c || c.subtype !== 'Modification') return false;
+    return (BoTEngine.zoneOf(st, k) || '').endsWith('.magic');
+  }
 
   /* ── เมนูคำสั่งการ์ด (คลิกเดี่ยวบนสนาม / ใน pile view) ── */
   function showMenu(title, entries, x, y) {
@@ -3092,9 +3182,9 @@
       { row: quick },
       // ถ้ามีสั่งใช้แล้ว ⚡ ในแถวบน = สั่งใช้ — ยังเปิด "ประกาศใช้" เป็นรายการแยกได้
       ...(hasActivated ? [{ label: '📣 ประกาศใช้ → ชี้เป้า (แจ้งอีกฝั่ง)', fn: () => startAnnounce(k) }] : []),
-      // 🤝 สามัคคี — เฉพาะการ์ดที่มี keyword
-      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && (BoTEngine.hasKw ? BoTEngine.hasKw(st, k, 'สามัคคี') : (BoTEngine.keywordsOf(c.code).includes('สามัคคี') || (c.grantedKeywords || []).some(g => g.kw === 'สามัคคี')))
-        ? [{ label: '🤝 สามัคคี — นอนแล้วยก POWER ให้…', fn: () => startAnnounce(k, 'unity') }] : []),
+      // 🤝 สามัคคี — เฉพาะการ์ดที่มี keyword (หรือลากทับผู้รับ / กดไอคอนตอนชี้เมาส์)
+      ...(canUseUnity(k)
+        ? [{ label: '🤝 สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)', fn: () => startAnnounce(k, 'unity') }] : []),
       // 🗡️ แทงหลัง — นอนแล้วยก POWER+1 ให้ผู้โจมตี
       ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')
         ? [{ label: '🗡️ แทงหลัง — นอนแล้วเสริมผู้โจมตี…', fn: () => startAnnounce(k, 'backstab') }] : []),
@@ -3112,8 +3202,8 @@
         return hasShield ? [{ label: '🛡️ โล่มนุษย์ — รับการโจมตีแทน', act: { type: 'humanShield', k, by: side } }] : [];
       })()),
       // 🔗 สวมใส่ — เฉพาะ Magic ชนิด Modification ที่อยู่ใน Magic Zone → เลือก Avatar
-      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.magic') && c.subtype === 'Modification'
-        ? [{ label: '🔗 สวมใส่ → เลือก Avatar', fn: () => startAnnounce(k, 'attach') }] : []),
+      ...(canAttachFromMagic(k)
+        ? [{ label: '🔗 สวมใส่ → เลือก Avatar (หรือลากทับ)', fn: () => startAnnounce(k, 'attach') }] : []),
       // 🤝 คู่หู — เฉพาะการ์ดที่มีข้อความ คู่หู/Link (จับได้เฉพาะชื่อคู่ที่ระบุ)
       ...((onField && (BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && hasBuddyAbility(c))
         ? [c.pairWith && st.inst[c.pairWith]
@@ -3159,10 +3249,10 @@
   // ⚡/⚔️ โหมดชี้เป้า: เลือกการ์ดต้นทางแล้ว → แตะเป้าหมาย (Esc/แตะพื้นว่าง = ยกเลิก · แตะซ้ำใบเดิม = ไม่ชี้เป้า)
   const PICK_HINT = {
     attack: '⚔️ แตะเป้าหมายโจมตี (Avatar หรือ Construct) · ตัวโจมตีจะนอนให้อัตโนมัติ · Esc = ยกเลิก',
-    unity: '🤝 แตะ Avatar ฝั่งเรา "ตัวที่จะรับพลัง" · ตัวที่กดจะนอนแล้วยก POWER ไปให้ · Esc = ยกเลิก',
+    unity: '🤝 แตะหรือลากทับ Avatar ฝั่งเรา "ตัวที่จะรับพลัง" · ตัวที่กดจะนอนแล้วยก POWER ไปให้ · Esc = ยกเลิก',
     backstab: '🗡️ แตะ Avatar ที่สั่งโจมตี · ตัวที่กดจะนอนแล้วเสริม POWER(+1) จนจบการต่อสู้ · สีต่าง = ทำลายผู้โจมตี · Esc = ยกเลิก',
     pair: '🤝 แตะคู่หูที่ระบุบนการ์ด (เฉพาะใบที่มีความสามารถคู่หู/Link) · Esc = ยกเลิก',
-    attach: '🔗 แตะ Avatar ที่จะสวมใส่ให้ (ได้ทั้งสองฝั่ง) · Esc = ยกเลิก',
+    attach: '🔗 แตะหรือลากทับ Avatar ที่จะสวมใส่ให้ (ได้ทั้งสองฝั่ง) · Esc = ยกเลิก',
     use: '⚡ แตะการ์ด "เป้าหมาย" ที่จะใช้ใส่ · แตะใบเดิมซ้ำ = ประกาศเฉยๆ · Esc = ยกเลิก',
   };
   function startAnnounce(k, kind) {
@@ -3175,6 +3265,7 @@
     const by = mode === 'solo' ? (srcSide === 'S' ? my : srcSide) : undefined;
     if (announceKind === 'unity') {
       if (!tgt) { toast('ต้องเลือกตัวที่จะรับพลัง'); return; }
+      if (BoTEngine.ownerOf(st, tgt) !== srcSide) { toast('สามัคคีให้ได้เฉพาะ Avatar ฝั่งตัวเอง'); return; }
       sendAction({ type: 'unity', k: announceSrc, to: tgt, by });
     } else if (announceKind === 'backstab') {
       if (!tgt) { toast('ต้องเลือก Avatar ที่สั่งโจมตี'); return; }
@@ -3188,7 +3279,7 @@
     } else if (announceKind === 'attack') {
       if (!tgt) { toast('ต้องเลือกเป้าโจมตี'); return; }
       const tz = BoTEngine.zoneOf(st, tgt) || '';
-      if (tz.endsWith('.life')) sendAction({ type: 'lifeHit', atk: announceSrc, life: tgt, by });
+      if (tz.endsWith('.life')) sendAction({ type: 'declareAttack', atk: announceSrc, life: tgt, by });
       else sendAction({ type: 'declareAttack', atk: announceSrc, def: tgt, by });
     } else {
       sendAction({ type: 'announce', src: announceSrc, tgt: tgt || undefined, kind: announceKind, by });
@@ -3308,7 +3399,7 @@
     // สอดแนมเปิด (revealAllScout) = ข้อมูลเปิด → ทั้งสองฝั่งเห็นหน้าต่าง / อื่นๆ เฉพาะคนเลือก
     const iAmChooser = !!(pp && (mode === 'solo' || seat === pp.chooser));
     const openScoutBoth = !!(pp && pp.kind === 'pick' && pp.from === 'ids' && !pp.allowAnyZone && pp.revealAllScout);
-    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
+    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'deckOrHell'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
       // สอดแนม (ids จากเด็ค): โชว์ทุกใบที่เปิดเจอ · ใบที่เลือกได้กะพริบ · เมฟิสโต้ฯ ติดป้ายขึ้นมืออัตโนมัติ
       // นรก showAllHell: โชว์ทั้งกอง · ใบตรงเงื่อนไขกะพริบ (ไม่นะโดม / อู๊ด / มณโท)
       const showAllScout = pp.from === 'ids' && !pp.allowAnyZone && (pp.revealAllScout || (pp.ids && pp.ids.length));
@@ -3349,6 +3440,8 @@
           ? `✨ เปิดนรก ${disp.length} ใบ — แตะใบที่กะพริบเพื่อเลือก (${selectable.length})`
             + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
           : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (pp.from === 'deckOrHell')
+        title = `✨ ค้นเด็คหรือนรก — แตะการ์ดที่กะพริบเพื่อเลือกขึ้นมือ`;
       else if (pp.from === 'hell')
         title = `✨ เลือกการ์ดจากนรก`;
       else if (pp.from === 'deckAll')
@@ -3369,8 +3462,10 @@
         title = `✨ สอดแนม — แตะการ์ดที่กะพริบเพื่อเลือก (ขึ้นมือ)`;
       byId('pileTitle').textContent = title;
       byId('pileHint').textContent = iAmChooser
-        ? (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก')
-        : 'อีกฝั่งกำลังเลือก — ดูได้อย่างเดียว';
+        ? (pp.from === 'deckOrHell'
+          ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
+          : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก'))
+        : 'อีกฝั่งกำลังเลือก — ดูอย่างเดียว';
       byId('pileGrid').innerHTML = disp.length
         ? disp.map((k, i) => {
           const isAuto = autoHand.has(k);
@@ -3384,6 +3479,9 @@
             opts.badge = 'ขึ้นมืออัตโนมัติ';
           } else if (showAllPick && !isPick) {
             opts.extraClass = 'scout-reveal-dim';
+          } else if (pp.from === 'deckOrHell') {
+            if ((st.zones[pp.chooser + '.hell'] || []).includes(k)) opts.badge = 'นรก';
+            else if ((st.zones[pp.chooser + '.deck'] || []).includes(k)) opts.badge = 'เด็ค';
           }
           return cardHTML(k, 'magic', opts);
         }).join('')
@@ -3660,6 +3758,8 @@
     e.preventDefault(); e.stopPropagation();
     const k = b.dataset.k; if (!st.inst[k]) return;
     if (b.dataset.qa === 'atk') startAnnounce(k, 'attack');
+    else if (b.dataset.qa === 'unity') startAnnounce(k, 'unity');
+    else if (b.dataset.qa === 'attach') startAnnounce(k, 'attach');
     else if (b.dataset.qa === 'ann') startAnnounce(k);
     else if (b.dataset.qa === 'act') {
       const own = BoTEngine.ownerOf(st, k);
@@ -3675,12 +3775,29 @@
       drag.moved = true; clearTimeout(drag.longT);
       document.body.classList.add('dragging'); // ปิด hover-zoom ระหว่างลาก กันบังเป้า
       if (drag.k && !drag.viewer) drag.ghost = makeGhost(drag.k, e.clientX, e.clientY);
+      // ระหว่างลากสามัคคี/มอด — ไฮไลต์เป้าที่วางได้
+      if (drag.k && st && st.inst[drag.k]) {
+        const src = st.inst[drag.k];
+        const srcZ = BoTEngine.zoneOf(st, drag.k) || '';
+        const srcSide = BoTEngine.ownerOf(st, drag.k);
+        document.querySelectorAll('.card.drag-drop-ok').forEach(n => n.classList.remove('drag-drop-ok'));
+        if (canUseUnity(drag.k)) {
+          (st.zones[srcSide + '.avatar'] || []).filter(t => t !== drag.k).forEach(t => {
+            const el2 = document.querySelector(`[data-cid="${t}"]`); if (el2) el2.classList.add('drag-drop-ok');
+          });
+        } else if (src.subtype === 'Modification' && srcZ.endsWith('.magic')) {
+          ['A', 'B'].forEach(p => (st.zones[p + '.avatar'] || []).forEach(t => {
+            const el2 = document.querySelector(`[data-cid="${t}"]`); if (el2) el2.classList.add('drag-drop-ok');
+          }));
+        }
+      }
     }
     if (drag.ghost) moveGhost(drag.ghost, e.clientX, e.clientY);
   });
 
   document.addEventListener('pointerup', e => {
     document.body.classList.remove('dragging');
+    document.querySelectorAll('.card.drag-drop-ok').forEach(n => n.classList.remove('drag-drop-ok'));
     if (!drag) return;
     clearTimeout(drag.longT);
     const d = drag; drag = null;
@@ -3688,7 +3805,7 @@
     if (d.suppress) return;
 
     if (d.deck) {
-      if (!d.moved) sendAction({ type: 'draw', p: d.deck }); // แตะกองเด็ค = จั่ว 1 (คำสั่งอื่นดูที่แผงขวา)
+      if (!d.moved) requestManualDraw(d.deck); // แตะกองเด็ค = จั่ว 1 (นอกเทิร์น/นอกเฟสจั่วถามก่อน)
       return;
     }
     if (d.pile) { // แตะกองนรก/มิติมืด = เปิดดูทั้งกอง
@@ -3727,18 +3844,35 @@
       if (tCard && tCard.dataset.cid !== d.k) {
         const tk = tCard.dataset.cid, tz = BoTEngine.zoneOf(st, tk);
         const dc = st.inst[d.k];
-        // ลาก Modification ทับ Avatar = สวมใส่ (ต้องอยู่ใน Magic Zone แล้วเท่านั้น)
-        if (dc && dc.type === 'Magic' && dc.subtype === 'Modification' && tz && tz.endsWith('.avatar')) {
-          if ((BoTEngine.zoneOf(st, d.k) || '').endsWith('.magic')) return sendAction({ type: 'attach', k: d.k, to: tk });
-          toast('สวมใส่ได้เฉพาะการ์ดที่อยู่ใน Magic Zone — เล่นการ์ดลง Magic Zone ก่อน');
+        const fromZ = BoTEngine.zoneOf(st, d.k) || '';
+        // ★ Magic จากมือลากทับการ์ดใดๆ = ร่ายเวท (ไม่ใช่โจมตี) · เป้าที่ทับไว้ใช้ตอนเลือกเป้าเอฟเฟกต์
+        if (dc && dc.type === 'Magic' && fromZ.endsWith('.hand')) {
+          magicDropTarget = tk;
+          sendAction({ type: 'playMagic', k: d.k, by: mode === 'solo' ? fromZ[0] : undefined });
           return;
         }
-        if (tz && tz.endsWith('.life')) {
-          // ลากตี LIFE — หงายทีละใบ; ถ้าฝ่ายนั้นสาหัสแล้ว = ท่าปิดเกม
-          return sendAction({ type: 'lifeHit', atk: d.k, life: tk });
+        // ลาก Modification ทับ Avatar = สวมใส่ (ต้องอยู่ใน Magic Zone แล้วเท่านั้น)
+        if (dc && dc.type === 'Magic' && dc.subtype === 'Modification' && tz && tz.endsWith('.avatar')) {
+          if (fromZ.endsWith('.magic')) {
+            announceSrc = null; announceKind = 'use';
+            return sendAction({ type: 'attach', k: d.k, to: tk });
+          }
+          toast('สวมใส่: ลากใบมอดลง Magic Zone ก่อน แล้วค่อยลากทับ Avatar (หรือกด 🔗)');
+          return;
         }
-        if (tz && (tz.endsWith('.avatar') || tz.endsWith('.construct')) && BoTEngine.ownerOf(st, tk) !== BoTEngine.ownerOf(st, d.k)) {
-          // ประกาศโจมตี Avatar หรือ Construct → ฝ่ายรับตอบสนอง/สวน React ได้ แล้วกดปะทะ
+        // ลาก Avatar ที่มีสามัคคี ทับพันธมิตร = สามัคคี
+        if (tz && tz.endsWith('.avatar') && canUseUnity(d.k)
+          && BoTEngine.ownerOf(st, tk) === BoTEngine.ownerOf(st, d.k)) {
+          announceSrc = null; announceKind = 'use';
+          return sendAction({ type: 'unity', k: d.k, to: tk });
+        }
+        // โจมตีได้เฉพาะ Avatar บนสนาม — ห้ามเมจิก/มือไปเป็นผู้โจมตี
+        const atkOk = dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar');
+        if (atkOk && tz && tz.endsWith('.life')) {
+          return sendAction({ type: 'declareAttack', atk: d.k, life: tk });
+        }
+        if (atkOk && tz && (tz.endsWith('.avatar') || tz.endsWith('.construct'))
+          && BoTEngine.ownerOf(st, tk) !== BoTEngine.ownerOf(st, d.k)) {
           return sendAction({ type: 'declareAttack', atk: d.k, def: tk });
         }
       }
@@ -3832,6 +3966,14 @@
         return;
       }
     }
+    // โล่มนุษย์: แตะ Avatar ที่กะพริบ = รับการโจมตีแทน
+    if (st.pending && BoTEngine.humanShieldOptions) {
+      const defSide = st.pending.target;
+      if ((mode === 'solo' || seat === defSide) && (BoTEngine.humanShieldOptions(st, defSide) || []).includes(d.k)) {
+        sendAction({ type: 'humanShield', k: d.k, by: mode === 'solo' ? defSide : undefined });
+        return;
+      }
+    }
     const z = BoTEngine.zoneOf(st, d.k) || '';
     const now = Date.now();
     const dbl = lastClick.k === d.k && (now - lastClick.t) < 350;
@@ -3910,7 +4052,13 @@
   byId('btnResolveAtk').onclick = () => { if (st && st.pending) sendAction({ type: 'resolveAttack', by: mode === 'solo' ? st.pending.target : undefined }); };
   byId('btnCancelAtk').onclick = () => { if (st && st.pending) sendAction({ type: 'cancelAttack', by: mode === 'solo' ? st.pending.by : undefined }); };
   byId('counterRow').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-counter]'); if (!b || !st || !st.pending) return;
+    if (!st || !st.pending) return;
+    const sh = e.target.closest('[data-shield]');
+    if (sh) {
+      sendAction({ type: 'humanShield', k: sh.getAttribute('data-shield'), by: mode === 'solo' ? st.pending.target : undefined });
+      return;
+    }
+    const b = e.target.closest('[data-counter]'); if (!b) return;
     sendAction({ type: 'playMagic', k: b.getAttribute('data-counter'), by: mode === 'solo' ? st.pending.target : undefined });
   });
   byId('btnChainPass').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainPass', by: mode === 'solo' ? st.chainPri : undefined }); };
