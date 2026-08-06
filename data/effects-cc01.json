@@ -1,0 +1,14 @@
+{
+  "cards": [
+    {
+      "code": "CC01-017",
+      "name": "ยักษ์หินแผ่นดินใหญ่",
+      "keywords": ["โล่มนุษย์"],
+      "redirectMagicTargetToSelf": true,
+      "redirectMagicIfSymbol": "ยักษ์",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "โล่มนุษย์ · เมื่อยักษ์ฝ่ายเราถูกเวทเล็ง — นอนยักษ์หินแล้วเปลี่ยนเป้าเวทมาที่ตัวเอง"
+    }
+  ]
+}

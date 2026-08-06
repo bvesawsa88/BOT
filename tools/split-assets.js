@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const sets = ['sd01', 'sd02', 'sd03', 'sd04', 'sd05', 'sd06', 'sd07', 'sd08',
   'kd01', 'kd02', 'kd03', 'kd04',
-  'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11'];
+  'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11', 'cc01'];
 const cards = [];
 for (const s of sets) {
   const j = JSON.parse(fs.readFileSync('data/effects-' + s + '.json', 'utf8'));
