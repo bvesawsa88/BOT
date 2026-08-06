@@ -1,0 +1,1994 @@
+{
+  "category": "magic-Normal",
+  "type": "Magic",
+  "subtype": "Normal",
+  "entries": [
+    {
+      "name": "1 - 2 - 2",
+      "codes": [
+        "BT10-057"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "name": "กระแสอัปมงคล",
+      "codes": [
+        "BT02-048"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "กระแสอัปมงคล — ไร้ผลความสามารถ Avatar ศัตรูจนจบเทิร์น"
+    },
+    {
+      "name": "กรุงโรมใน 1 วัน",
+      "codes": [
+        "SD08-012"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellBuildConstructMulti",
+              "filter": {
+                "type": "Construct",
+                "excludeOnly": true
+              },
+              "countMax": 2,
+              "costSumMax": 5
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กลับบ้านเก่า",
+      "codes": [
+        "BT07-056"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "การเลือกสรรของ พระพิฆเนศ",
+      "codes": [
+        "BT10-053"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "การสละชีพของเทพธิดา",
+      "codes": [
+        "BT08-053"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "กำเนิดจากน้ำ",
+      "codes": [
+        "SD05-015"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "summonUntappedIfLandNameIncludes": "บึงทมิฬ",
+              "summonTapped": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เลือก Avatar {symbol ปลา}ในนรกเรา 1 ใบ : อัญเชิญลงบน Avatar Zone ฝ่ายเราในสภาพนอน ถ้าบนสนามมี Land Magic \"บึงทมิฬ\" อัญเช"
+    },
+    {
+      "name": "เก็บค่าคุ้มครอง",
+      "codes": [
+        "BT03-041"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireLand": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ขอดูดดดดดด",
+      "codes": [
+        "BT08-050"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขอโทษสังคม",
+      "codes": [
+        "BT09-049"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขอมือเธอหน่อย~",
+      "codes": [
+        "KD00-00D"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ขอให้ตีนไม่ติดพื้น",
+      "codes": [
+        "BT09-053"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขายแดก !!!",
+      "codes": [
+        "BT08-048"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ความกล้าหาญ",
+      "codes": [
+        "BT02-045",
+        "KD01-014",
+        "ODY1-086"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "destroyAtEnd": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ความจริงงงงงงง",
+      "codes": [
+        "BT04-047"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwnNameIncludes": "ผู้รู้ความจริง",
+          "actions": [
+            {
+              "op": "revealDeckThenTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ความเจริญ",
+      "codes": [
+        "BT01-038",
+        "CC01-056",
+        "KD01-013",
+        "KD03-012",
+        "KD04-018",
+        "ODY1-068",
+        "PRMO-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ความยุติธรรมสำหรับนนทก",
+      "codes": [
+        "ODY1-088",
+        "SD01-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "คาถา ปลดอาวุสสิวะ",
+      "codes": [
+        "BT07-051",
+        "PRMO-090"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "คาถา เฟรนลี่คัม",
+      "codes": [
+        "BT10-055"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "คาถา สัตตูหลีกปาย",
+      "codes": [
+        "BT07-052"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "คาถา เสกควายเข้าท้อง",
+      "codes": [
+        "BT09-055"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "คำสั่งของพระอิศวร",
+      "codes": [
+        "BT06-046"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "คำสาบานสวนท้อ",
+      "codes": [
+        "SD07-013"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "ค้นขุนพลสีเดียวกันขึ้นมือ (ไม่ Only)",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ขุนพล"
+                    ],
+                    "symbol": "ต่างชาติ",
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            },
+            {
+              "label": "ค้นขุนพล Only สีเดียวกันขึ้นมือ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ขุนพล"
+                    ],
+                    "symbol": "ต่างชาติ"
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เลือกปฏิบัติ : 1) เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา นำ Avatar \"ขุนพล\" ที่เป็น "
+    },
+    {
+      "name": "เครื่องบิน Super Air",
+      "codes": [
+        "BT05-054"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireSummonedOnlySuperAirOrNone": true,
+          "actions": [
+            {
+              "op": "becomeAvatar",
+              "symbol": "หุ่นยนต์",
+              "cost": 5,
+              "gem": 0,
+              "power": 5,
+              "lockSummonExceptNameIncludes": "Super Air"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ใครเจ๋งกว่า !",
+      "codes": [
+        "BT04-045"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "whoIsCooler"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดงพร้อมกัน · Cost รวม 0 · ไม่มี Cost = โชว์มือเฉยๆ"
+    },
+    {
+      "name": "ง่วงมากก็ไปนอน !!!",
+      "codes": [
+        "BT05-051"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bounceTappedToDeckDraw"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "งานวิจัยของพระพรหม",
+      "codes": [
+        "BT06-045"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "จมน้ำ",
+      "codes": [
+        "BT03-046",
+        "CC02-052"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireBothHaveAvatar": true,
+          "actions": [
+            {
+              "op": "bothReturnAvatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "จิตมุ่งมั่นของพระนารายณ์",
+      "codes": [
+        "BT06-047"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ฉุบสั่งตาย",
+      "codes": [
+        "BT02-043",
+        "PRMO-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "rpsDestroy",
+              "seconds": 10
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ช่วยโลกใบนี้ไว้",
+      "codes": [
+        "BT02-041",
+        "CC02-051",
+        "PRMO-010"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ช่วยโลกใบนี้ไว้ — หงาย LIFE ทั้งหมด + ให้เปรตเตะไข่/กันโล่จนจบเทิร์น"
+    },
+    {
+      "name": "ชะตาไม่มีวันจบลง",
+      "codes": [
+        "BT07-053"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ชีวิตที่พอดี",
+      "codes": [
+        "BT10-056"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ซ่อมบำรุงประจำปี",
+      "codes": [
+        "CC01-044"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ซุปเปอร์สแน็ค !!",
+      "codes": [
+        "BT03-045"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 6,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "สัตว์",
+                "side": "any",
+                "count": 1
+              },
+              "destroyAtEnd": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ด่านลอย",
+      "codes": [
+        "BT02-044"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ด่านลอย — เลือก Cost 0-9 สุ่มมือศัตรู"
+    },
+    {
+      "name": "ดาว O.D.Y 88",
+      "codes": [
+        "ODY1-066"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ตั๋วยืน",
+      "codes": [
+        "BT05-055"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwnNameIncludes": "เครื่องบิน Super Air",
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPickMulti",
+              "filter": {
+                "nameIncludes": [
+                  "ผู้โดยสาร Super Air"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "countMax": 2,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ตู้โชว์ไอดอล",
+      "codes": [
+        "BT03-042",
+        "KD03-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwnNameIncludes": "ไอดอล",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไต้ฝุ่น",
+      "codes": [
+        "BT09-057"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "ทำลาย Magic Zone ศัตรู 1 ใบ",
+              "actions": [
+                {
+                  "op": "chooseDestroy",
+                  "zones": [
+                    "magic"
+                  ],
+                  "side": "enemy",
+                  "filter": {},
+                  "optional": false
+                }
+              ]
+            },
+            {
+              "label": "ทำลาย Land Magic 1 ใบ",
+              "actions": [
+                {
+                  "op": "chooseDestroy",
+                  "zones": [
+                    "land"
+                  ],
+                  "filter": {},
+                  "optional": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ถุงเกราะโอเดนย่า",
+      "codes": [
+        "ODY1-065"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ทะลวงส้วม",
+      "codes": [
+        "BT10-062"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "นารายณ์ 10 ปาง",
+      "codes": [
+        "BT10-061"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "บลัดดี้แมรี่",
+      "codes": [
+        "BT09-050"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "บ่อนแตก",
+      "codes": [
+        "BT05-053"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireEnemyAvatarMin": 5,
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "บัญชีหนังหมา",
+      "codes": [
+        "SD03-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ล็อกห้ามใช้ชื่อที่ค้นเป็น Cost — เล่นมือจนกว่าจะเติม flag ภายหลัง"
+    },
+    {
+      "name": "บำเพ็ญประโยชน์",
+      "codes": [
+        "ODY1-089",
+        "SD02-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือลงนรก : จั่วการ์ด 2 ใบ"
+    },
+    {
+      "name": "บีมมมมมมมมมม",
+      "codes": [
+        "BT04-044",
+        "PRMO-059"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "บึงทมิฬ",
+      "codes": [
+        "PRMO-051",
+        "SD05-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar"
+              }
+            },
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เลือก Avatar 1 ใบ ใน Avatar Zone ฝ่ายเรา เปลี่ยนสภาพ Avatar ใบนั้นเป็นสภาพนอน : จั่วการ์ด 1 ใบ"
+    },
+    {
+      "name": "เบียดเบียนผู้อื่น",
+      "codes": [
+        "KD00-00B"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "แบงค์ Portal",
+      "codes": [
+        "BT07-058"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ใบดำใบแดง",
+      "codes": [
+        "PRMO-021",
+        "SD04-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน",
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สอดแนม 1 ใบ : ถ้าเป็น Avatar {Symbol : คน} Cost ไม่เกิน 3 ให้นำลงบน Avatar Zone ฝ่ายเรา แต่ถ้าไม่ใช่ให้ใส่ไว้ใต้ Deck"
+    },
+    {
+      "name": "ใบรับสมัครพนักงานลงกา",
+      "codes": [
+        "CC02-044"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ประชามติ",
+      "codes": [
+        "BT02-042"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ประชามติ — นอนทุกใบฝ่ายเรา แล้วทำลายใบที่ P < ผลรวมที่นอน"
+    },
+    {
+      "name": "ประมาทร่วม",
+      "codes": [
+        "BT01-035",
+        "ODY1-085",
+        "SD05-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "both",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-035"
+    },
+    {
+      "name": "เปลี่ยนเมน",
+      "codes": [
+        "BT07-055"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ผจญภัยด้วยกัน",
+      "codes": [
+        "BT09-052"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ผมขอค้าน !!",
+      "codes": [
+        "BT03-043"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "pickSymbolRandomHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ผู้นำของเหล่าวีรชน",
+      "codes": [
+        "SD06-012"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ทิ้งการ์ดบนมือ 2 ใบ : เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากใน Deck เรา 1 ใบ ขึ้นมือ จากนั้นสับ Deck"
+    },
+    {
+      "name": "ผู้มาเยือน",
+      "codes": [
+        "BT10-060"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "แผนการตู้เย็นทับ",
+      "codes": [
+        "BT09-054"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "แผนการ : ถอยรถชน",
+      "codes": [
+        "BT04-043"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เครื่องจักร"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แผนลับของเหล่าพลเอก",
+      "codes": [
+        "BT06-049"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "พรของอิศวร",
+      "codes": [
+        "CC01-042"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "พระไตรปิฎก",
+      "codes": [
+        "BT11-056"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "พลังแห่งการตีพ่อตีแม่",
+      "codes": [
+        "BT05-056"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "พลังแห่งควางสิริมงคง",
+      "codes": [
+        "BT07-054"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "พายุหิมะเริงระบำ",
+      "codes": [
+        "BT10-058"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "พูดไทยได้ 5 คำ",
+      "codes": [
+        "BT05-050"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "handOrSummon",
+              "summonCostMax": 2,
+              "paidCost": false,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เพ้อเจ้อ",
+      "codes": [
+        "BT07-049"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เพื่อลูกค้า",
+      "codes": [
+        "BT01-037",
+        "ODY1-078"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            }
+          ],
+          "note": "ข้อจำกัด 'เทิร์นนี้อัญเชิญได้แค่สัตว์' = ผู้เล่นคุมเอง"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แพร่พันธ์ุทันใจ",
+      "codes": [
+        "SD08-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "discardAnyThenSummon",
+              "discardFilter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              },
+              "summonFilter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              },
+              "costLteDiscardedSum": true,
+              "from": "deck",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งกี่ใบก็ได้ → อัญเชิญ printed Cost ≤ ผลรวม ฟรีไม่จุติ"
+    },
+    {
+      "name": "มรดกของพระอิศวร",
+      "codes": [
+        "CC02-041"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "เมตตาระยะยาว",
+      "codes": [
+        "BT01-036",
+        "CC01-057",
+        "ODY1-067"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แมลงปอทอด",
+      "codes": [
+        "BT02-047"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "แมลง"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            }
+          ],
+          "note": "ข้อจำกัดโจมตีได้แค่แมลงในเทิร์น = ผู้เล่นคุมเอง"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม้กวาดปีกปักษา",
+      "codes": [
+        "BT09-051"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ยืมมือสังหาร",
+      "codes": [
+        "SD07-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwnNameIncludes": "ขุนพล",
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar"
+              },
+              "until": "endOfTurn",
+              "keepTapped": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เงื่อนไขต้องมี Mod ศัตรูสวม — ผู้เล่นเลือกเป้าที่มี Mod"
+    },
+    {
+      "name": "เยี่ยวรดศาล",
+      "codes": [
+        "BT03-044",
+        "KD03-013"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOwn": {
+            "symbol": "คน",
+            "costMin": 3
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ผี",
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แยกกันไปแตก",
+      "codes": [
+        "BT11-054"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สามารถใช้ได้เมื่อบน Avatar Zone ฝ่ายเรามี Avatar \"สมาชม\" ชื่อไม่ซ้ำกัน 4 ใบ เลือกปฏิบัติ : 1) เนรเทศ Avatar \"สมาชม\" ชื่อ"
+    },
+    {
+      "name": "รถถังลงถนน",
+      "codes": [
+        "CC01-054",
+        "SD04-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothDeckSummonCostMax",
+              "costMax": 5,
+              "ownFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "อัญเชิญ Avatar \"รถถัง\" ที่มีค่า Cost ไม่เกิน 5 จาก Deck เราลงสนามฝั่งเรา 1 ตัว และ อีกฝ่ายอัญเชิญ Avatar ที่มีค่า Cost ไ"
+    },
+    {
+      "name": "ร้อนมากก็เปิดหน้าต่างสิว๊ากกกก",
+      "codes": [
+        "BT02-046",
+        "KD02-015",
+        "PRMO-044"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bounce",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ระเบิดความเกลียดชัง",
+      "codes": [
+        "BT11-058"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ถ้าบน สนามของผู้เล่นทุกคน มี Avatar รวมกัน 10 ใบ หรือมากกว่า ส่งการ์ดทุกใบบนสนามผู้เล่นทุกคนลงนรก"
+    },
+    {
+      "name": "รับซื้อของโจร",
+      "codes": [
+        "BT05-049"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ราคาชาติที่คุณขาย",
+      "codes": [
+        "BT07-050"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "รู้สึกเหมือนโดนแย่งเมีย",
+      "codes": [
+        "CC01-043"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ล้มโต๊ะ",
+      "codes": [
+        "BT04-041",
+        "CC02-053"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothReshuffleHandDraw",
+              "count": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ลิสต์แผนการ",
+      "codes": [
+        "BT07-057"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เลือกมันสำหรับพวก จน !!!",
+      "codes": [
+        "BT04-046",
+        "KD01-015",
+        "KD02-016",
+        "PRMO-101",
+        "SD08-013",
+        "SL01-007"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "จากนรก — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only)",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand"
+                }
+              ]
+            },
+            {
+              "label": "จากเด็ค — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only) แล้วสับ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "lifeBothModes": true,
+      "parseStatus": "verified",
+      "note": " · ใช้แล้วลงนรก"
+    },
+    {
+      "name": "วิญญาณวีรชน",
+      "codes": [
+        "SD06-013"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "scheduleDestroyAfterOppTurn": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ทิ้งการ์ดบนมือ 1 ใบ : อัญเชิญ จุติ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากในนรกเรา 1 ใบ ลงบน"
+    },
+    {
+      "name": "ศิลาหยินหยาง",
+      "codes": [
+        "BT10-059"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สัญญาเลือด",
+      "codes": [
+        "KD02-014"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "drawHellUnique",
+              "symbol": "นรก",
+              "threshold": 5,
+              "countBelow": 1,
+              "countAtLeast": 2
+            }
+          ]
+        }
+      ],
+      "milledOptional": {
+        "actions": [
+          {
+            "op": "exileSelf"
+          },
+          {
+            "op": "hellPick",
+            "filter": {
+              "nameIncludes": [
+                "นายนิรยบาล"
+              ]
+            },
+            "dest": "avatar",
+            "paidCost": false
+          }
+        ]
+      },
+      "parseStatus": "verified",
+      "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์"
+    },
+    {
+      "name": "สิงสู่เพื่อสู่สม",
+      "codes": [
+        "CC02-045"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "สุดยอดท่าไม้ตายผู้กล้า THE END",
+      "codes": [
+        "KD04-012"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "grantAttackAllEnemy",
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ]
+              },
+              "until": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cost": {
+            "exileSelf": true
+          },
+          "actions": [
+            {
+              "op": "hellAttachAllDistinctWeaponMods",
+              "toNameIncludes": "ไมเกรน"
+            }
+          ]
+        }
+      ],
+      "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน",
+      "parseStatus": "manual",
+      "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar"
+    },
+    {
+      "name": "สู่โลกอันเปล่งประกาย!",
+      "codes": [
+        "BT11-057"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เลือก \"ไอ้นัท\" หรือ \"เซอร์นัท\" 1 ใบ บน Avatar Zone เรา : อัญเชิญ Avatar \"อัศวินตลิ่งชัน\" 1 ใบ จากนรกเรา ที่มี Cost เท่าก"
+    },
+    {
+      "name": "เสบียงหลวง",
+      "codes": [
+        "SD07-015"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "drawProvisions",
+              "nameIncludes": "ขุนพล",
+              "symbol": "ต่างชาติ",
+              "min": 2,
+              "countBoost": 2,
+              "countNormal": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ผู้เล่นทุกคน จั่วการ์ด 1 ใบ ถ้าบน Avatar Zone ฝ่ายเรามี \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ ตั้งแต่ 2 ใบขึ้นไป เปลี่ยนควา"
+    },
+    {
+      "name": "หนังมนุษย์ ชุดแก้แค้น",
+      "codes": [
+        "BT08-051"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "หนังสือเอาตัวรอดของกุ่ย",
+      "codes": [
+        "CC02-042"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "หมอนข้างมฤตยูเทวี",
+      "codes": [
+        "CC02-043"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "หยุด!! นี่ตำรวจ",
+      "codes": [
+        "BT07-048"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เหนือฟ้าใต้หล้า ข้าคือมหาจอมเวทย์",
+      "codes": [
+        "BT10-054"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "แหมกำบ่อ้าย",
+      "codes": [
+        "BT08-049"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "อินสตอล บึ้มทั้งไดรฟ์",
+      "codes": [
+        "BT11-059"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 2 ใบ จากนั้น ถ้าใน มิติมืด มี Avatar \"ไวรัส\" ตั้งแต่ 5 ใบขึ้นไป สามารถอัญเชิญ A"
+    },
+    {
+      "name": "เอาแค่การ์ด !!!",
+      "codes": [
+        "ODY1-063"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "โอเดนย่า อร่อยมัก",
+      "codes": [
+        "ODY1-064"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "โอน้อยออกแห่งโชคชะตา",
+      "codes": [
+        "KD00-00C"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "โอเปอเรชั่น : รอยัล",
+      "codes": [
+        "BT11-053"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เลือก \"หน่วยรบ XVI\" ที่อยู่ในสภาพตื่น 2 ใบ บน Avatar Zone เรา และเปลี่ยนเป็น สภาพนอน : ทำลาย Avatar ฝ่ายตรงข้าม 1 ใบ"
+    },
+    {
+      "name": "โอเปอเรชั่น : สเกาท์",
+      "codes": [
+        "BT11-052"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "สอดแนม 3 ใบ อัญเชิญ จุติ \"หน่วยรบ XVI\" 1 ใบ จากที่สอดแนม ลงบน Avatar Zone เรา การ์ดที่เหลือเรียงไว้ล"
+    },
+    {
+      "name": "ไอ นีด เมดิก",
+      "codes": [
+        "PRMO-018",
+        "SD04-015"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "unrevealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สุ่มคว่ำ LIFE Card ของฝ่ายเราได้ 1 ใบ"
+    },
+    {
+      "name": "ฮ่า ฮ่า ฮ่า ผมได้เลื่อนขั้น",
+      "codes": [
+        "SD01-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "เฮือกสุดท้าย",
+      "codes": [
+        "BT06-048"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "Ah-ah, ah!",
+      "codes": [
+        "BT09-058"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "Cross Vaccine",
+      "codes": [
+        "BT11-055"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "Grand Rumble !!!!",
+      "codes": [
+        "BT04-042"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireAvatarCountExact": 6,
+          "actions": [
+            {
+              "op": "grandRumble"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "Jump Scare",
+      "codes": [
+        "BT05-052"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "jumpScare"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "Overdose",
+      "codes": [
+        "BT08-052"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "Skill : Full Drive",
+      "codes": [
+        "BT09-056",
+        "PRMO-107"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

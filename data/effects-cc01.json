@@ -3,12 +3,904 @@
     {
       "code": "CC01-017",
       "name": "ยักษ์หินแผ่นดินใหญ่",
-      "keywords": ["โล่มนุษย์"],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
       "redirectMagicTargetToSelf": true,
       "redirectMagicIfSymbol": "ยักษ์",
       "abilities": [],
       "parseStatus": "manual",
       "note": "โล่มนุษย์ · เมื่อยักษ์ฝ่ายเราถูกเวทเล็ง — นอนยักษ์หินแล้วเปลี่ยนเป้าเวทมาที่ตัวเอง"
+    },
+    {
+      "code": "CC01-014",
+      "name": "วูตาตู",
+      "hostSymbolReplace": "ผี",
+      "reattachOnHostDestroy": true,
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "CC01-048",
+      "name": "น้ำซุปชาบู",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "hostNoUntapUntilNextOwnEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "CC01-023",
+      "name": "ตำรวจไซบอร์ค จ่าคอป",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ตำรวจไซบอร์ค จ่าคอป — โจมตี+ทิ้งมือ: สอดแนม 3 เอาเครื่องจักรขึ้นมือ (ต้องมี discard-on-attack)"
+    },
+    {
+      "code": "CC01-036",
+      "name": "ตึก",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC01-035",
+      "name": "เทวดาตัวเปิด",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC01-022",
+      "name": "นนทก นิ้วเพชร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "targetSymbol:เทพ"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-005",
+      "name": "ปื๊ดเปรตกังฟู",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-002",
+      "name": "พระนารายณ์ เทพผู้พิทักษ์",
+      "abilities": [],
+      "parseStatus": "manual",
+      "keywords": [
+        "โล่มนุษย์",
+        "เตะไข่"
+      ],
+      "halvePrintedInsteadDestroy": true,
+      "note": "โล่มนุษย์ เตะไข่ อัตโนมัติ เมื่อ Avatar ใบนี้จะถูกทำลาย : ปรับ POWER ตั้งต้นของ Avatar ใบนี้ลดลงครึ่งหนึ่งแทนการถูกทำลาย"
+    },
+    {
+      "code": "CC01-003",
+      "name": "พระพรหม เทพผู้สร้าง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-004",
+      "name": "พระอินทร์ เทพขยัน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 3 ใบ เลือก การ์ด {Symbol เทพ} 1 ใบ จากที่สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำไปไว้ใต้ D"
+    },
+    {
+      "code": "CC01-001",
+      "name": "พระอิศวร เทพผู้ทำลาย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-021",
+      "name": "อินทรีย์แมน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "attachSelf",
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allFieldModifications",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-047",
+      "name": "ตุ๊กตางูพันคอ",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-055",
+      "name": "ถาดหลุม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-053",
+      "name": "ไม้เกาหลัง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "keywords": [
+        "เตะไข่"
+      ],
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ เตะไข่ (Avatar ใบนี้สามารถโจมตีไปที่ LIFE Card ได้โดยตรง แม้ว่า Avatar Zone ข"
+    },
+    {
+      "code": "CC01-045",
+      "name": "กฎร้าน",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-046",
+      "name": "ขอให้ทั้งตัวมีแต่---",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-058",
+      "name": "ริกกี้ นักปลอมแปลง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "React ยึด+สวมใส่เมื่อถูกทำลายจากการต่อสู้ — ซับซ้อนมาก"
+    },
+    {
+      "code": "CC01-052",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC01-056",
+      "name": "ความเจริญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-044",
+      "name": "ซ่อมบำรุงประจำปี",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-042",
+      "name": "พรของอิศวร",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-057",
+      "name": "เมตตาระยะยาว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-054",
+      "name": "รถถังลงถนน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothDeckSummonCostMax",
+              "costMax": 5,
+              "ownFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "อัญเชิญ Avatar \"รถถัง\" ที่มีค่า Cost ไม่เกิน 5 จาก Deck เราลงสนามฝั่งเรา 1 ตัว และ อีกฝ่ายอัญเชิญ Avatar ที่มีค่า Cost ไ"
+    },
+    {
+      "code": "CC01-043",
+      "name": "รู้สึกเหมือนโดนแย่งเมีย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-060",
+      "name": "ประตูนรก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHandFilter": {
+              "type": "Avatar",
+              "symbol": "นรก"
+            }
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ ทิ้ง Avatar {Symbol นรก} 1 ใบจากบนมือ : อัญเชิญ Avatar \"นายนิรยบาล\" ค่า Cost ไม่เกิน 4 จาก นรกฝ่าย"
+    },
+    {
+      "code": "CC01-059",
+      "name": "โรงบาล",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "hand"
+            }
+          ],
+          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "CC01-051",
+      "name": "สมชายห้องเช่าพันล้าน",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-049",
+      "name": "Micro Plaza สะพานพลาสติก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "phase": "Main",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้งใน Main Phase : สามารถ ทิ้งการ์ดจากบนมือ 1 ใบ นำ Modification Magic 1 ใบ จาก ใน Deck ฝ่ายเราขึ้นมือ จากนั้น"
+    },
+    {
+      "code": "CC01-050",
+      "name": "SD Plaza สายเหนือเก่า",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-008",
+      "name": "คนอีสาน ยุคครีเตเชียส",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-009",
+      "name": "ชู้รักรัททาทุย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-037",
+      "name": "เด็กไม่ชอบแมลงสาบ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "CC01-006",
+      "name": "ไตรตัน เจ้าสมุทร",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-027",
+      "name": "แมลงปอแจ็ค",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "replaceLandFromDeck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
+    },
+    {
+      "code": "CC01-026",
+      "name": "แมลงปอเลื่อยยนต์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Magic"
+              },
+              "zones": [
+                "magic",
+                "land"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-024",
+      "name": "รัททาทุย",
+      "abilities": [],
+      "parseStatus": "auto",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+    },
+    {
+      "code": "CC01-025",
+      "name": "รัททาทุย พ่อพันธุ์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "requireOwnNameIncludes": "รัททาทุย นางพญา",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "รัททาทุย"
+                ],
+                "costMax": 5
+              },
+              "dest": "avatar",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "กติกาเต็ม = อัญเชิญกี่ใบก็ได้ Cost รวม ≤5 — ตอนนี้อัญเชิญได้ 1 ใบต่อครั้ง"
+    },
+    {
+      "code": "CC01-010",
+      "name": "ลุงบุญโชค",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-038",
+      "name": "ลูกค้าชาบู",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC01-007",
+      "name": "วีรบุรุษสุดซอย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-039",
+      "name": "จอมมังการ์ด",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC01-040",
+      "name": "จอมเวทย์ดำ",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC01-013",
+      "name": "เจนนี่",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-028",
+      "name": "นายนิรยบาล พ่อจีจ้า",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
+    },
+    {
+      "code": "CC01-029",
+      "name": "นายนิรยบาล แว่น",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "offerSummonSelfFromHell",
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "noHandSummon": true,
+      "note": "ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรก"
+    },
+    {
+      "code": "CC01-030",
+      "name": "แบงค์ ผู้รู้ความจริง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {},
+              "dest": "reorder",
+              "restTo": "top"
+            }
+          ],
+          "note": "สอดแนม 3 เรียงตามใจ — dest reorder ยัง partial ใช้ scout ปกติพัก"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "CC01-011",
+      "name": "พญายม With The Shotgun",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-012",
+      "name": "เฟรนชี่",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-016",
+      "name": "แมวนิค",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-015",
+      "name": "HR ผู้รู้ความจริง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-034",
+      "name": "จ่าแดงเดือด Tank Ranger",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ],
+          "note": "สั่งใช้หลังโฮสต์ฆ่าสำเร็จ — เนรเทศ/ทำลายใบนี้แล้วโฮสต์ตื่น (ผู้เล่นกดเมื่อเงื่อนไขครบ)"
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar ใบนี้บน Avatar Zone ไปสวมให้ Avatar \"รถถัง\" ที่อยู่บน Avatar Zone ฝ่ายเรา Avatar รถถัง"
+    },
+    {
+      "code": "CC01-033",
+      "name": "จ่ามะนาว Tank Ranger",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "requireOwnNameIncludes": "รถถัง",
+          "actions": [
+            {
+              "op": "unrevealOwnLife",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ + สวมรถถัง + เมื่อรถถังที่สวมจะถูกทำลาย ทำลายจ่ามะนาวแทน",
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "รถถัง"
+    },
+    {
+      "code": "CC01-032",
+      "name": "ซินแส",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "เสามงคล"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC01-020",
+      "name": "ผู้กองอึ่งอ่าง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-031",
+      "name": "เสามงคล",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เสามงคล — โจมตีไม่ได้ + จั่วเพิ่ม 1 หลัง Draw Phase"
+    },
+    {
+      "code": "CC01-018",
+      "name": "เสามงคล ทรงจีน",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-019",
+      "name": "หมวดเงียบ ทหารรับจ้าง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC01-041",
+      "name": "ไอ้หนุ่มรด.",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
     }
   ]
 }

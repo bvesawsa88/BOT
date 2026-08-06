@@ -1,116 +1,154 @@
 {
-  "$schema": "bot-effect-schema v0.2 (auto-generated)",
-  "note": "BT07: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี",
   "cards": [
     {
       "code": "BT07-001",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "วันชัยเปรตรุ่นพ่อ"
     },
     {
       "code": "BT07-002",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พระแม่อุมาเทวี"
     },
     {
       "code": "BT07-003",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เจ้าแม่กาลี"
     },
     {
       "code": "BT07-004",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พรีวิวบอย"
     },
     {
       "code": "BT07-005",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ฤๅษีพระเจ้าตา"
     },
     {
       "code": "BT07-006",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "อนันตวดี ราชินีแห่งนาค"
     },
     {
       "code": "BT07-007",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สัตว์ทดลอง #1"
     },
     {
       "code": "BT07-008",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "opp"
+            },
+            {
+              "op": "oppHandToDeckTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "ตำรวจไซบอร์ค จ่านิ่ง",
+      "note": "ศัตรูจั่ว 1 → เลือกใบจากมือศัตรูวางบนสุดเด็ค"
     },
     {
       "code": "BT07-009",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เจมี่ ขยะสังคม"
     },
     {
       "code": "BT07-010",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "น้องไอซ์ จี่สมอง"
     },
     {
       "code": "BT07-011",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ไอ้แม๊ก ขยะสังคม"
     },
     {
       "code": "BT07-012",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ครุฑสุบรรณ เจ้าเวหา"
     },
     {
       "code": "BT07-013",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ครุฑเวนไตย เจ้ากำลัง"
     },
     {
       "code": "BT07-014",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ครุฑวัสสวัส เจ้าโลก"
     },
     {
       "code": "BT07-015",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ครุฑสัจจะ เจ้าแห่งแสง"
     },
     {
       "code": "BT07-016",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "ครุฑปรเมศวร เจ้าสมบัติ"
     },
     {
       "code": "BT07-017",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "บึงทมิฬ  People - คุณตะพาบ"
     },
     {
       "code": "BT07-018",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ราชาหิมะ บิง"
     },
     {
       "code": "BT07-019",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ราชินีหิมะ ชีหลิน"
     },
     {
       "code": "BT07-020",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พลทหารหิมะ"
     },
     {
       "code": "BT07-021",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "อัศวินแบงค์"
     },
     {
       "code": "BT07-022",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ชาช่าจัง ไอดอลคนเก่ง"
     },
     {
       "code": "BT07-023",
@@ -135,82 +173,145 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "name": "พี่หน่วง พิธีกรผมสวย"
     },
     {
       "code": "BT07-024",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คุณเก่งพลังช้าง"
     },
     {
       "code": "BT07-025",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ทนายเตะปาก"
     },
     {
       "code": "BT07-026",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ทนายกิ๊บ"
     },
     {
       "code": "BT07-027",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พี่วัฒน์ BGN"
     },
     {
       "code": "BT07-028",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ไอ้ดำ จากนรก"
     },
     {
       "code": "BT07-029",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จอมเวทย์ กาลู"
     },
     {
       "code": "BT07-030",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จอมเวทย์ อะปัด"
     },
     {
       "code": "BT07-031",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จอมเวทย์ เบล่า"
     },
     {
       "code": "BT07-032",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "อาวุธชีวภาพ เอ็มตัวเต็ง"
     },
     {
       "code": "BT07-033",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เดซี่ แห่งสายรุ้ง"
     },
     {
       "code": "BT07-034",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "guessOppTopType",
+              "onHit": [
+                {
+                  "op": "summonSelfFromHandFree",
+                  "noJuti": true
+                },
+                {
+                  "op": "millScouted"
+                }
+              ],
+              "onMiss": [
+                {
+                  "op": "discardSelfFromHand"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "ตำรวจนอกเครื่องแบบ ไซเฮย์"
     },
     {
       "code": "BT07-035",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "targetIsAvatar"
+          },
+          "actions": [
+            {
+              "op": "guessOppTopType",
+              "onHit": [
+                {
+                  "op": "destroyAttackTarget"
+                },
+                {
+                  "op": "millScouted"
+                }
+              ],
+              "onMiss": []
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "ตำรวจไฟแรง เอนโว่"
     },
     {
       "code": "BT07-036",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ตั๊กแตนหยิน"
     },
     {
       "code": "BT07-037",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ตั๊กแตนหยาง"
     },
     {
       "code": "BT07-038",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "วาฬทมิฬ ก้า"
     },
     {
       "code": "BT07-039",
@@ -235,177 +336,212 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "ตั๊กแตนหญิง"
     },
     {
       "code": "BT07-040",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หมอเลิฟ ฟันเหยิน"
     },
     {
       "code": "BT07-041",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คาบู ช่วยด้วย"
     },
     {
       "code": "BT07-042",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "บัวนิด วานรแห่งสวนสัตว์"
     },
     {
       "code": "BT07-043",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แมรี่ พนักงานต้อนรับ"
     },
     {
       "code": "BT07-044",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "หุ่นสนับสนุนผู้กล้า Dเพรส"
     },
     {
       "code": "BT07-045",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "ข้ารับใช้มนุษย์ดาว R18"
     },
     {
       "code": "BT07-046",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "ผีเสื้อของเดซี่"
     },
     {
       "code": "BT07-047",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "เจ้าของร้านปลาทูน่า"
     },
     {
       "code": "BT07-048",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หยุด!! นี่ตำรวจ"
     },
     {
       "code": "BT07-049",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เพ้อเจ้อ"
     },
     {
       "code": "BT07-050",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ราคาชาติที่คุณขาย"
     },
     {
       "code": "BT07-051",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คาถา ปลดอาวุสสิวะ"
     },
     {
       "code": "BT07-052",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คาถา สัตตูหลีกปาย"
     },
     {
       "code": "BT07-053",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ชะตาไม่มีวันจบลง"
     },
     {
       "code": "BT07-054",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พลังแห่งควางสิริมงคง"
     },
     {
       "code": "BT07-055",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เปลี่ยนเมน"
     },
     {
       "code": "BT07-056",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กลับบ้านเก่า"
     },
     {
       "code": "BT07-057",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ลิสต์แผนการ"
     },
     {
       "code": "BT07-058",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แบงค์ Portal"
     },
     {
       "code": "BT07-059",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พันปักษา"
     },
     {
       "code": "BT07-060",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คาถา สตอปปุ"
     },
     {
       "code": "BT07-061",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขอจบรายการแต่เพียงเท่านี้"
     },
     {
       "code": "BT07-062",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขนมณี แฟลร์"
     },
     {
       "code": "BT07-063",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ไม้กายสิทธิ์"
     },
     {
       "code": "BT07-064",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เก้าอี้ เฟิร์สคลาส"
     },
     {
       "code": "BT07-065",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ปลอกคอซื่อสัตย์"
     },
     {
       "code": "BT07-066",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "อาคารผู้โดยสารชั้นต่ำ"
     },
     {
       "code": "BT07-067",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หมู่บ้านเห็ด"
     },
     {
       "code": "BT07-068",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ดินแดนหิมะสีเทา"
     },
     {
       "code": "BT07-069",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สถานีตำรวจ"
     },
     {
       "code": "BT07-070",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "งานเลี้ยงโดนใจ หัวใจโดนเธอ"
     },
     {
       "code": "BT07-071",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เสาธง"
     },
     {
       "code": "BT07-072",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ยานรายการ เถียงทันหน่วง"
     },
     {
       "code": "BT07-073",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "บัลลังก์ตั๊กแตนศตวรรษ"
     },
     {
       "code": "BT07-074",
@@ -455,7 +591,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "ไม่นะ พี่หน่วง !"
     }
   ]
 }

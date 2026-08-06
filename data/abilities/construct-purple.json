@@ -1,0 +1,61 @@
+{
+  "category": "construct-purple",
+  "type": "Construct",
+  "color": "ม่วง",
+  "entries": [
+    {
+      "name": "ด่านเฮาโลก๋วน",
+      "codes": [
+        "SD07-020"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "บัลลังก์โอดิน",
+      "codes": [
+        "BT08-069"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ป้อมยาม",
+      "codes": [
+        "BT06-068"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ยานรายการ เถียงทันหน่วง",
+      "codes": [
+        "BT07-072"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

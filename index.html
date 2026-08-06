@@ -53,7 +53,7 @@
       <button id="mnuPlayBack" class="link-btn menu-back">← กลับเมนูหลัก</button>
     </div>
 
-    <!-- เล่นกับบอท: เลือกเด็คคุณ vs บอท -->
+    <!-- เล่นกับบอท: เลือกเด็คคุณ vs บอท + ระดับความยาก -->
     <div id="menuBotSetup" class="hidden">
       <div class="menu-group-label">เล่นกับบอท</div>
       <div class="menu-matchup">
@@ -66,7 +66,15 @@
         <select id="selBotDeckBot" class="menu-deck-select" title="เด็คของบอท">
           <option value="starter:SD01">SD01 Starter (50+5)</option>
         </select>
+        <label class="menu-deck-lab" for="selBotLevel">ระดับบอท</label>
+        <select id="selBotLevel" class="menu-deck-select" title="ระดับความยากของบอท">
+          <option value="easy">ง่าย — มือใหม่ (อัญเชิญอย่างเดียว)</option>
+          <option value="normal" selected>ปานกลาง — ฝึกซ้อม</option>
+          <option value="hard">โหด — ท้าทาย (เต็มสูตร)</option>
+        </select>
       </div>
+      <p id="botDeckHint" class="menu-bot-hint" hidden></p>
+      <button type="button" id="btnBotPickDeck" class="link-btn">ใช้เด็คที่บอทเล่นเก่งสุด →</button>
       <button id="btnBotStart" class="btn-primary big">เริ่มเล่นกับบอท</button>
       <button id="mnuBotBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
@@ -621,6 +629,14 @@
           <button id="btnPeekTop" class="btn-primary small">ไว้บนเด็ค</button>
           <button id="btnPeekBottom" class="btn-dark small">ไว้ใต้เด็ค</button>
           <button id="btnPeekHell" class="btn-dark small hidden">ส่งนรก</button>
+        </span>
+        <span id="guessTypeRow" class="hidden">
+          <button type="button" class="btn-primary small" data-guess-type="0">อวตาร</button>
+          <button type="button" class="btn-primary small" data-guess-type="1">เมจิก</button>
+          <button type="button" class="btn-primary small" data-guess-type="2">คอนสตรัค</button>
+        </span>
+        <span id="guessRevealRow" class="hidden">
+          <button id="btnGuessContinue" class="btn-primary small">ดำเนินการต่อ ▸</button>
         </span>
         <span id="handOrSummonRow" class="hidden">
           <button id="btnHosHand" class="btn-dark small">ขึ้นมือ</button>

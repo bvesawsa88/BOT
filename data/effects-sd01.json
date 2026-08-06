@@ -1,42 +1,557 @@
 {
-  "$schema": "bot-effect-schema v0.1",
-  "enums": {
-    "trigger.on": ["summoned", "declareAttack", "avatarSummoned", "activated", "static", "lifeRevealedByAttack", "destroyed", "phaseStart", "phaseEnd"],
-    "action.op": ["modifyPower", "draw", "destroy", "discard", "search", "summon", "moveZone", "tap", "untap", "negate", "revealLife", "gainAttackRight", "skipPhase"],
-    "duration": ["instant", "endOfTurn", "whileOnField", "whileEquipped", "nextOwnMainPhase"],
-    "target.select": ["self", "choose", "all", "triggerSource", "equippedAvatar"],
-    "parseStatus": ["auto", "verified", "manual"]
-  },
   "cards": [
-    { "code": "SD01-001", "keywords": ["จุติ"], "abilities": [ { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "modifyPower", "amount": -4, "duration": "endOfTurn", "layer": 4, "target": { "select": "choose", "type": "Avatar", "count": 1, "side": "any" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-002", "keywords": ["อัตโนมัติ"], "abilities": [ { "keyword": "อัตโนมัติ", "trigger": { "on": "declareAttack", "if": "source==self" }, "actions": [ { "op": "modifyPower", "amount": 2, "duration": "endOfTurn", "layer": 4, "target": { "select": "self" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-003", "keywords": ["จุติ"], "abilities": [ { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "modifyPower", "amount": 3, "duration": "endOfTurn", "layer": 4, "target": { "select": "choose", "type": "Avatar", "count": 1, "side": "any" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-004", "keywords": ["ต่อเนื่อง"], "abilities": [ { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [ { "op": "modifyPower", "amount": 1, "duration": "whileOnField", "layer": 3, "target": { "select": "all", "type": "Avatar", "symbol": "เทพ", "side": "own", "zone": "avatarZone" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-005", "keywords": ["จุติ"], "limit": 1, "abilities": [ { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "draw", "count": 3, "player": "owner" } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-006", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-007", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-008", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-009", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-010", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-011", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-012", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-013", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-014", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-015", "abilities": [], "parseStatus": "verified" },
-    { "code": "SD01-016", "abilities": [ { "trigger": { "on": "static", "if": "self.attached" }, "actions": [ { "op": "modifyPower", "amount": 1, "duration": "whileEquipped", "layer": 2, "target": { "select": "equippedAvatar" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-017", "abilities": [ { "trigger": { "on": "avatarSummoned", "if": "any" }, "react": true, "actions": [ { "op": "destroy", "target": { "select": "triggerSource" } } ] } ], "parseStatus": "verified" },
-    { "code": "CC01-052", "name": "อุบัติเหตุ!!!", "abilities": [ { "trigger": { "on": "avatarSummoned", "if": "any" }, "react": true, "actions": [ { "op": "destroy", "target": { "select": "triggerSource" } } ] } ], "parseStatus": "verified", "note": "ซ้ำ SD01-017" },
-    { "code": "PRMO-003", "name": "อุบัติเหตุ!!!", "abilities": [ { "trigger": { "on": "avatarSummoned", "if": "any" }, "react": true, "actions": [ { "op": "destroy", "target": { "select": "triggerSource" } } ] } ], "parseStatus": "verified", "note": "ซ้ำ SD01-017" },
-    { "code": "PRMO-119", "name": "อุบัติเหตุ!!!", "abilities": [ { "trigger": { "on": "avatarSummoned", "if": "any" }, "react": true, "actions": [ { "op": "destroy", "target": { "select": "triggerSource" } } ] } ], "parseStatus": "verified", "note": "ซ้ำ SD01-017" },
-    { "code": "KD01-017", "name": "อุบัติเหตุ!!!", "abilities": [ { "trigger": { "on": "avatarSummoned", "if": "any" }, "react": true, "actions": [ { "op": "destroy", "target": { "select": "triggerSource" } } ] } ], "parseStatus": "verified", "note": "ซ้ำ SD01-017" },
-    { "code": "KD03-016", "name": "อุบัติเหตุ!!!", "abilities": [ { "trigger": { "on": "avatarSummoned", "if": "any" }, "react": true, "actions": [ { "op": "destroy", "target": { "select": "triggerSource" } } ] } ], "parseStatus": "verified", "note": "ซ้ำ SD01-017" },
-    { "code": "SD01-018", "abilities": [ { "trigger": { "on": "activated" }, "cost": [ { "op": "discard", "from": "hand", "count": 1, "filter": { "type": "Avatar", "symbol": "เทพ" } } ], "actions": [ { "op": "draw", "count": 2, "player": "owner" } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-019", "abilities": [ { "trigger": { "on": "activated" }, "actions": [ { "op": "modifyPower", "amount": 2, "duration": "endOfTurn", "layer": 4, "target": { "select": "choose", "type": "Avatar", "symbol": "เทพ", "count": 1, "side": "any" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-020", "abilities": [ { "trigger": { "on": "static", "if": "self.zone==landZone" }, "actions": [ { "op": "modifyPower", "amount": 1, "duration": "whileOnField", "layer": 3, "target": { "select": "all", "type": "Avatar", "symbol": "เทพ", "side": "any", "zone": "avatarZone" } } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-021", "abilities": [ { "trigger": { "on": "lifeRevealedByAttack" }, "actions": [ { "op": "draw", "count": 1, "player": "owner", "schedule": "nextOwnMainPhase" } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-022", "abilities": [ { "trigger": { "on": "lifeRevealedByAttack" }, "actions": [ { "op": "draw", "count": 1, "player": "owner", "schedule": "nextOwnMainPhase" } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-023", "abilities": [ { "trigger": { "on": "lifeRevealedByAttack" }, "actions": [ { "op": "draw", "count": 1, "player": "owner", "schedule": "nextOwnMainPhase" } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-024", "abilities": [ { "trigger": { "on": "lifeRevealedByAttack" }, "actions": [ { "op": "draw", "count": 1, "player": "owner", "schedule": "nextOwnMainPhase" } ] } ], "parseStatus": "verified" },
-    { "code": "SD01-025", "abilities": [ { "trigger": { "on": "lifeRevealedByAttack" }, "actions": [ { "op": "draw", "count": 1, "player": "owner", "schedule": "nextOwnMainPhase" } ] } ], "parseStatus": "verified" }
+    {
+      "code": "SD01-001",
+      "keywords": [
+        "จุติ"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -4,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "พระอิศวร"
+    },
+    {
+      "code": "SD01-002",
+      "keywords": [
+        "อัตโนมัติ"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "พระนารายณ์"
+    },
+    {
+      "code": "SD01-003",
+      "keywords": [
+        "จุติ"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "พระอินทร์"
+    },
+    {
+      "code": "SD01-004",
+      "keywords": [
+        "ต่อเนื่อง"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "นนทก"
+    },
+    {
+      "code": "SD01-005",
+      "keywords": [
+        "จุติ"
+      ],
+      "limit": 1,
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "เมียพระอิศวร"
+    },
+    {
+      "code": "SD01-006",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "ช่างแอร์ดวงซวย"
+    },
+    {
+      "code": "SD01-007",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "เทวดานักมวย"
+    },
+    {
+      "code": "SD01-008",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "เทวดาแบงค์"
+    },
+    {
+      "code": "SD01-009",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "เด็กถ่ายเอกสาร"
+    },
+    {
+      "code": "SD01-010",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "เทวดาตัวเปิด"
+    },
+    {
+      "code": "SD01-011",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "ยักษ์ล้างส้วม"
+    },
+    {
+      "code": "SD01-012",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "ยักษ์แบกปูน"
+    },
+    {
+      "code": "SD01-013",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "เทวดาจิตบำบัด"
+    },
+    {
+      "code": "SD01-014",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "เทวดาเลื่อยยนต์"
+    },
+    {
+      "code": "SD01-015",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "วิรุฬหก"
+    },
+    {
+      "code": "SD01-016",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "น้ำแดง"
+    },
+    {
+      "code": "SD01-017",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "อุบัติเหตุ!!!"
+    },
+    {
+      "code": "CC01-052",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ SD01-017"
+    },
+    {
+      "code": "PRMO-003",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ SD01-017"
+    },
+    {
+      "code": "PRMO-119",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ SD01-017"
+    },
+    {
+      "code": "KD01-017",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ SD01-017"
+    },
+    {
+      "code": "KD03-016",
+      "name": "อุบัติเหตุ!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ SD01-017"
+    },
+    {
+      "code": "SD01-018",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ความยุติธรรมสำหรับนนทก"
+    },
+    {
+      "code": "SD01-019",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ฮ่า ฮ่า ฮ่า ผมได้เลื่อนขั้น"
+    },
+    {
+      "code": "SD01-020",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "เขาไกรลาส"
+    },
+    {
+      "code": "SD01-021",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ไม่นะ อิศวร !"
+    },
+    {
+      "code": "SD01-022",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ไม่นะ นนทก !"
+    },
+    {
+      "code": "SD01-023",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ไม่นะ อัปสร !"
+    },
+    {
+      "code": "SD01-024",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ไม่นะ ซาร่า !"
+    },
+    {
+      "code": "SD01-025",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "name": "ไม่นะ หลวงพ่อ !"
+    }
   ]
 }

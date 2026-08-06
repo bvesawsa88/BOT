@@ -1,31 +1,34 @@
 {
-  "$schema": "bot-effect-schema v0.2 (auto-generated)",
-  "note": "BT08: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี",
   "cards": [
     {
       "code": "BT08-001",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หุ่นนักรบผู้กล้าปีศาจ : อีวิลไมเกรน"
     },
     {
       "code": "BT08-002",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ไอ้ชิด อโยธยา Express"
     },
     {
       "code": "BT08-003",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เณรคู ศิษย์เอกพระอาจารย์"
     },
     {
       "code": "BT08-004",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "น้าเอี๊ยด นักบรรเลง"
     },
     {
       "code": "BT08-005",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ซุนกวน ผู้นำพยัคฆ์แห่งง่อก๊ก"
     },
     {
       "code": "BT08-006",
@@ -51,72 +54,86 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "name": "จิวยี่ กุนซือสำอางแห่งง่อก๊ก"
     },
     {
       "code": "BT08-007",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จิวท่าย ขุนพลคนเหล็กแห่งง่อก๊ก"
     },
     {
       "code": "BT08-008",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กาลาฮัด อัศวินโต๊ะกลมแห่งความกล้าหาญ"
     },
     {
       "code": "BT08-009",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เอเจ้นท์สมูท"
     },
     {
       "code": "BT08-010",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เซอร์นัท ดาบแห่งแสงอรุณ"
     },
     {
       "code": "BT08-011",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ซาบะริว นักกวาดล้างมือเก๋า"
     },
     {
       "code": "BT08-012",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หมอเสริมศักดิ์"
     },
     {
       "code": "BT08-013",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เปรตรัททาทุย"
     },
     {
       "code": "BT08-014",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ริกกี้ ฆาตกรถลกหนัง"
     },
     {
       "code": "BT08-015",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ริกกี้ เชฟมัมมามิย่า"
     },
     {
       "code": "BT08-016",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ริกกี้ คุณหมอ"
     },
     {
       "code": "BT08-017",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "มอเดรด อัศวินโต๊ะกลมแห่งการทรยศ"
     },
     {
       "code": "BT08-018",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โจโฉ ผู้นำเบ็ดเสร็จแห่งวุยก๊ก"
     },
     {
       "code": "BT08-019",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สุมาอี้ กุนซือเจ้าเล่ห์แห่งวุยก๊ก"
     },
     {
       "code": "BT08-020",
@@ -142,182 +159,282 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "name": "เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก"
     },
     {
       "code": "BT08-021",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โอตะท๊อปโดเนท"
     },
     {
       "code": "BT08-022",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "นายพลทหารหิมะ หลินอัน"
     },
     {
       "code": "BT08-023",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "มฤตยูเทวี"
     },
     {
       "code": "BT08-024",
-      "abilities": [],
-      "parseStatus": "manual"
+      "name": "อีสานสลิงเกอร์ ปิ๊ก",
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "exactName": "โคกอีสานนูน"
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
       "code": "BT08-025",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "อีสานสลิงเกอร์ ปิ่น"
     },
     {
       "code": "BT08-026",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "requireMainPhase": true,
+          "actions": [
+            {
+              "op": "revealOppLifeTop",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "อีสานสลิงเกอร์ เปอร์"
     },
     {
       "code": "BT08-027",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กัฟแดน ผู้อำนวยการจอมเวทย์"
     },
     {
       "code": "BT08-028",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พี่ไท่ น้องเฟิง นักดาบวายุ"
     },
     {
       "code": "BT08-029",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เนียจัง ไอดอลอินฟลูเอนเซอร์"
     },
     {
       "code": "BT08-030",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เต่า"
     },
     {
       "code": "BT08-031",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พูรินอล Overdose"
     },
     {
       "code": "BT08-032",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ชาโค่ล Overdose"
     },
     {
       "code": "BT08-033",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เซตาม่อน Overdose"
     },
     {
       "code": "BT08-034",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ฮากลิ้ง วานรกับหมา"
     },
     {
       "code": "BT08-035",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เล่าปี่ ผู้นำคุณธรรมแห่งจ๊กก๊ก"
     },
     {
       "code": "BT08-036",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขงเบ้ง กุนซือซ่อนกายแห่งจ๊กก๊ก"
     },
     {
       "code": "BT08-037",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จูล่ง ขุนพลสุภาพบุรุษแห่งจ๊กก๊ก"
     },
     {
       "code": "BT08-038",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "มณโฑ ราชินีเหล่ายักษ์"
     },
     {
       "code": "BT08-039",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ราชา รด."
     },
     {
       "code": "BT08-040",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จ่าอเวจี ทหารครูฝึก"
     },
     {
       "code": "BT08-041",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ศาสตราจารย์วานร"
     },
     {
       "code": "BT08-042",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ปีศาจวานร"
     },
     {
       "code": "BT08-043",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "รถถังเฟืองเหล็ก"
     },
     {
       "code": "BT08-044",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "ควายแบงค์"
     },
     {
       "code": "BT08-045",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "หัวหน้าทหารหิมะ โจว"
     },
     {
       "code": "BT08-046",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "ตัวอะไรสักอย่างที่ใหญ่และน่ารัก"
     },
     {
       "code": "BT08-047",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "นกอีก๋อย"
     },
     {
       "code": "BT08-048",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขายแดก !!!"
     },
     {
       "code": "BT08-049",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แหมกำบ่อ้าย"
     },
     {
       "code": "BT08-050",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขอดูดดดดดด"
     },
     {
       "code": "BT08-051",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หนังมนุษย์ ชุดแก้แค้น"
     },
     {
       "code": "BT08-052",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "Overdose"
     },
     {
       "code": "BT08-053",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "การสละชีพของเทพธิดา"
     },
     {
       "code": "BT08-054",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โจมตีตัวฉันให้โดนถ้าหากเธอทำได้"
     },
     {
       "code": "BT08-055",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แผนการ : ตอกฝาโลง"
     },
     {
       "code": "BT08-056",
@@ -343,7 +460,8 @@
     {
       "code": "BT08-057",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แหม่อ้ายก็~~~"
     },
     {
       "code": "BT08-058",
@@ -390,57 +508,114 @@
     {
       "code": "BT08-059",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ดาบศักดิ์สิทธิ์ คาเรนต์"
     },
     {
       "code": "BT08-060",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ดาบศักดิ์สิทธิ์ เอกซ์คาลิเบอร์"
     },
     {
       "code": "BT08-061",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขวาน 7 สี"
     },
     {
       "code": "BT08-062",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เนยถั่ว"
     },
     {
       "code": "BT08-063",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "บิฟร็อสต์ สะพานสายรุ้ง"
     },
     {
       "code": "BT08-064",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โรงเรียนเวทย์มนต์"
     },
     {
       "code": "BT08-065",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เทค 1: คืนนรก 6 ใบ (Magic≤2) → จั่ว 1",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "kok1",
+                  "requireOwnNameIncludes": "อีสานสลิงเกอร์",
+                  "actions": [
+                    {
+                      "op": "hellPickMulti",
+                      "countMax": 6,
+                      "magicMax": 2,
+                      "thenDraw": 1,
+                      "trackHellReturn": true,
+                      "requireOwnNameIncludes": "อีสานสลิงเกอร์",
+                      "filter": {}
+                    }
+                  ]
+                },
+                {
+                  "label": "เทค 2: ดวลอีสานสลิงเกอร์ (ต้องคืนนรก≥6 ในเทิร์นนี้ก่อน)",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "kok2",
+                  "requireHellReturnedThisTurnMin": 6,
+                  "actions": [
+                    {
+                      "op": "forceDuelNoTap",
+                      "ownNameIncludes": "อีสานสลิงเกอร์",
+                      "blockReact": true,
+                      "requireHellReturnedThisTurnMin": 6
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "โคกอีสานนูน",
+      "stayOnMagic": true,
+      "note": "เทค1 คืนนรก6 จั่ว1 · เทค2 ดวลได้หลังคืน≥6 ในเทิร์น (สั่งใช้แยกเทิร์นละครั้งต่อเทค)"
     },
     {
       "code": "BT08-066",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เรือรบโบราณ"
     },
     {
       "code": "BT08-067",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สนามของนักวิ่งตัวจริง"
     },
     {
       "code": "BT08-068",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ยิมทมิฬ"
     },
     {
       "code": "BT08-069",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "บัลลังก์โอดิน"
     },
     {
       "code": "BT08-070",
@@ -459,7 +634,68 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "อ่อ กระต่ายตาย"
+    },
+    {
+      "code": "PRMO-108",
+      "name": "อีสานสลิงเกอร์ ปิ๊ก",
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "exactName": "โคกอีสานนูน"
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
+    },
+    {
+      "code": "PRMO-079",
+      "name": "ศาลพระภูมิ",
+      "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ผี"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual"
     }
   ]
 }

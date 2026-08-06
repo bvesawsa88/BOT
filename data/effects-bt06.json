@@ -1,1 +1,512 @@
-{"$schema":"bot-effect-schema v0.2 (auto-generated)","note":"BT06: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี","cards":[{"code":"BT06-001","abilities":[{"trigger":{"on":"lifeRevealedByAttack"},"actions":[{"op":"draw","count":1,"player":"owner","schedule":"nextOwnMainPhase"}]}],"parseStatus":"auto"},{"code":"BT06-002","abilities":[],"parseStatus":"manual"},{"code":"BT06-003","abilities":[],"parseStatus":"manual"},{"code":"BT06-004","abilities":[],"parseStatus":"manual"},{"code":"BT06-005","abilities":[],"parseStatus":"manual"},{"code":"BT06-006","abilities":[],"parseStatus":"manual"},{"code":"BT06-007","abilities":[],"parseStatus":"manual"},{"code":"BT06-008","abilities":[],"parseStatus":"manual"},{"code":"BT06-009","abilities":[],"parseStatus":"manual"},{"code":"BT06-010","abilities":[],"parseStatus":"manual"},{"code":"BT06-011","abilities":[],"parseStatus":"manual"},{"code":"BT06-012","abilities":[],"parseStatus":"manual"},{"code":"BT06-013","abilities":[],"parseStatus":"manual"},{"code":"BT06-014","abilities":[],"parseStatus":"manual"},{"code":"BT06-015","abilities":[],"parseStatus":"manual"},{"code":"BT06-016","abilities":[],"parseStatus":"manual"},{"code":"BT06-017","abilities":[],"parseStatus":"manual"},{"code":"BT06-018","abilities":[],"parseStatus":"manual"},{"code":"BT06-019","abilities":[],"parseStatus":"manual"},{"code":"BT06-020","abilities":[],"parseStatus":"manual"},{"code":"BT06-021","abilities":[],"parseStatus":"manual"},{"code":"BT06-022","abilities":[],"parseStatus":"manual"},{"code":"BT06-023","abilities":[],"parseStatus":"manual"},{"code":"BT06-024","abilities":[],"parseStatus":"manual"},{"code":"BT06-025","abilities":[],"parseStatus":"manual"},{"code":"BT06-026","abilities":[],"parseStatus":"manual"},{"code":"BT06-027","abilities":[],"parseStatus":"manual"},{"code":"BT06-028","abilities":[],"parseStatus":"manual"},{"code":"BT06-029","abilities":[],"parseStatus":"manual"},{"code":"BT06-030","abilities":[],"parseStatus":"manual"},{"code":"BT06-031","name":"งี่เง่า และ งอแง","abilities":[{"keyword":"เลือกปฏิบัติ","trigger":{"on":"chooseMode"},"options":[{"label":"เซ่นไหว้ Avatar ใบนี้ จั่วการ์ด 2 ใบ","actions":[{"op":"sacrificeSelf"},{"op":"draw","count":2}]},{"label":"ได้รับ เตะไข่ จนจบเทิร์น แล้วทำลายตัวเองช่วง End Phase","actions":[{"op":"grantKeyword","keyword":"เตะไข่"},{"op":"destroySelfAtEndPhase"}]}]}],"parseStatus":"verified"},{"code":"BT06-032","abilities":[],"parseStatus":"manual"},{"code":"BT06-033","abilities":[],"parseStatus":"manual"},{"code":"BT06-034","abilities":[],"parseStatus":"manual"},{"code":"BT06-035","abilities":[],"parseStatus":"manual"},{"code":"BT06-036","abilities":[],"parseStatus":"manual"},{"code":"BT06-037","abilities":[],"parseStatus":"manual"},{"code":"BT06-038","abilities":[],"parseStatus":"manual"},{"code":"BT06-039","abilities":[{"trigger":{"on":"declareAttack","if":"targetSymbol:กะปอม"},"actions":[{"op":"destroyTarget"}]}],"parseStatus":"auto"},{"code":"BT06-040","abilities":[],"parseStatus":"manual"},{"code":"BT06-041","abilities":[],"parseStatus":"verified"},{"code":"BT06-042","abilities":[],"parseStatus":"verified"},{"code":"BT06-043","abilities":[],"parseStatus":"verified"},{"code":"BT06-044","abilities":[],"parseStatus":"verified"},{"code":"BT06-045","abilities":[],"parseStatus":"manual"},{"code":"BT06-046","abilities":[],"parseStatus":"manual"},{"code":"BT06-047","abilities":[],"parseStatus":"manual"},{"code":"BT06-048","abilities":[],"parseStatus":"manual"},{"code":"BT06-049","abilities":[],"parseStatus":"manual"},{"code":"BT06-050","abilities":[],"parseStatus":"manual"},{"code":"BT06-051","abilities":[],"parseStatus":"manual"},{"code":"BT06-052","abilities":[],"parseStatus":"manual"},{"code":"BT06-053","abilities":[],"parseStatus":"manual"},{"code":"BT06-054","abilities":[],"parseStatus":"manual"},{"code":"BT06-055","abilities":[],"parseStatus":"manual"},{"code":"BT06-056","abilities":[{"trigger":{"on":"static","if":"self.attached"},"actions":[{"op":"modifyPower","amount":5,"layer":2,"target":{"select":"equippedAvatar"}}]}],"parseStatus":"partial"},{"code":"BT06-057","abilities":[],"parseStatus":"manual"},{"code":"BT06-058","abilities":[],"parseStatus":"manual"},{"code":"BT06-059","abilities":[],"parseStatus":"manual"},{"code":"BT06-060","abilities":[],"parseStatus":"manual"},{"code":"BT06-061","abilities":[],"parseStatus":"manual"},{"code":"BT06-062","abilities":[],"parseStatus":"manual"},{"code":"BT06-063","abilities":[],"parseStatus":"manual"},{"code":"BT06-064","abilities":[],"parseStatus":"manual"},{"code":"BT06-065","abilities":[],"parseStatus":"manual"},{"code":"BT06-066","abilities":[],"parseStatus":"manual"},{"code":"BT06-067","abilities":[],"parseStatus":"manual"},{"code":"BT06-068","abilities":[],"parseStatus":"manual"},{"code":"BT06-069","abilities":[],"parseStatus":"manual"},{"code":"BT06-070","abilities":[],"parseStatus":"manual"}]}
+{
+  "cards": [
+    {
+      "code": "BT06-001",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "วิรูฬ นาคเกล็ดทอง"
+    },
+    {
+      "code": "BT06-002",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ฉัพพยา นาคเกล็ดรุ้ง"
+    },
+    {
+      "code": "BT06-003",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เอรา นาคเกล็ดเขียว"
+    },
+    {
+      "code": "BT06-004",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "อนันต์ ราชาแห่งนาค"
+    },
+    {
+      "code": "BT06-005",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "รีวิวแมน"
+    },
+    {
+      "code": "BT06-006",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "อาเธอร์ ราชาแห่งอัศวินโต๊ะกลม"
+    },
+    {
+      "code": "BT06-007",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เคย์ อัศวินโต๊ะกลมแห่งความหลักแหลม"
+    },
+    {
+      "code": "BT06-008",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ยอดนักบุญ"
+    },
+    {
+      "code": "BT06-009",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "evolveToMigraineKeepAttach"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "หุ่นนักรบผู้กล้า : โปรโตไมเกรน",
+      "note": "สั่งใช้ เมื่อ Avatar ใบนี้ ทำลาย Avatar ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ : ส่ง Avatar ใบนี้ลงนรก และ อั"
+    },
+    {
+      "code": "BT06-010",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "พระอิศวรปลอม"
+    },
+    {
+      "code": "BT06-011",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ไดโนกาฬสินธุ์ - สุธีธรนีซอรัส"
+    },
+    {
+      "code": "BT06-012",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "กัปตัน 7 สี"
+    },
+    {
+      "code": "BT06-013",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "บึงทมิฬ  People  - คุณบลูลอบสเตอร์"
+    },
+    {
+      "code": "BT06-014",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "สวีนนีย์ มนุษย์ดาว R18"
+    },
+    {
+      "code": "BT06-015",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "อามัส มนุษย์ดาว R18"
+    },
+    {
+      "code": "BT06-016",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "จอย มนุษย์ดาว R18"
+    },
+    {
+      "code": "BT06-017",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "วิลโล่ ปลาแกะ"
+    },
+    {
+      "code": "BT06-018",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "จ่ามะนาวแขนเหล็ก"
+    },
+    {
+      "code": "BT06-019",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ผู้เจริญระดับสูงสุด"
+    },
+    {
+      "code": "BT06-020",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "บอล ผู้รักวิตามิน"
+    },
+    {
+      "code": "BT06-021",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ฮิฟีสตัส เทพโอลิมปัสแห่งการช่าง"
+    },
+    {
+      "code": "BT06-022",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "แบงค์ผู้พิชิต"
+    },
+    {
+      "code": "BT06-023",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "อู๊ด คุณแม่"
+    },
+    {
+      "code": "BT06-024",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "พี่หน่วง"
+    },
+    {
+      "code": "BT06-025",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เลอติ๊ก เด็กไม่ชอบแดรคคูลา"
+    },
+    {
+      "code": "BT06-026",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "แอชวิคกับอโศกาบาร์พิศวง"
+    },
+    {
+      "code": "BT06-027",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "สกัลด์ เทพธิดาแห่งวัลฮัลลา"
+    },
+    {
+      "code": "BT06-028",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "โอลรุน เทพธิดาแห่งวัลฮัลลา"
+    },
+    {
+      "code": "BT06-029",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ซีกรุน เทพธิดาแห่งวัลฮัลลา"
+    },
+    {
+      "code": "BT06-030",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "อาม่อน No.7"
+    },
+    {
+      "code": "BT06-031",
+      "name": "งี่เง่า และ งอแง",
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "เซ่นไหว้ Avatar ใบนี้ จั่วการ์ด 2 ใบ",
+              "actions": [
+                {
+                  "op": "sacrificeSelf"
+                },
+                {
+                  "op": "draw",
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "label": "ได้รับ เตะไข่ จนจบเทิร์น แล้วทำลายตัวเองช่วง End Phase",
+              "actions": [
+                {
+                  "op": "grantKeyword",
+                  "keyword": "เตะไข่"
+                },
+                {
+                  "op": "destroySelfAtEndPhase"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT06-032",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "พีเจี้ยน 3000"
+    },
+    {
+      "code": "BT06-033",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เสาซินแสมงคล"
+    },
+    {
+      "code": "BT06-034",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เสามงคล ทรงญี่ปุ่น"
+    },
+    {
+      "code": "BT06-035",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "จ่านุ้ย ทหารช่าง"
+    },
+    {
+      "code": "BT06-036",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เสนาธิการ อาณาจักรของแพง"
+    },
+    {
+      "code": "BT06-037",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "สว นาโนแมชชีน"
+    },
+    {
+      "code": "BT06-038",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "แมมมอธแช่แข็ง"
+    },
+    {
+      "code": "BT06-039",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "targetSymbol:กะปอม"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เรนะ นักล่าไดโนเสาร์"
+    },
+    {
+      "code": "BT06-040",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "แมวเก็นไมฉะ"
+    },
+    {
+      "code": "BT06-041",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "น้องมี่ 3.0"
+    },
+    {
+      "code": "BT06-042",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "พ่อหนุ่มเทสดี"
+    },
+    {
+      "code": "BT06-043",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "พลเอกปั๊ดโธ่"
+    },
+    {
+      "code": "BT06-044",
+      "abilities": [],
+      "parseStatus": "verified",
+      "name": "พลเอกปักเป้า"
+    },
+    {
+      "code": "BT06-045",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "งานวิจัยของพระพรหม"
+    },
+    {
+      "code": "BT06-046",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "คำสั่งของพระอิศวร"
+    },
+    {
+      "code": "BT06-047",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "จิตมุ่งมั่นของพระนารายณ์"
+    },
+    {
+      "code": "BT06-048",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เฮือกสุดท้าย"
+    },
+    {
+      "code": "BT06-049",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "แผนลับของเหล่าพลเอก"
+    },
+    {
+      "code": "BT06-050",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ช่างมาแล้วววว"
+    },
+    {
+      "code": "BT06-051",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ธาตุไฟแตก ๆ"
+    },
+    {
+      "code": "BT06-052",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เสียงเรียกแห่งวัลฮัลลา"
+    },
+    {
+      "code": "BT06-053",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "พลังแฝง"
+    },
+    {
+      "code": "BT06-054",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ลูกแก้วนาคา"
+    },
+    {
+      "code": "BT06-055",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ไสยเวท ย้อนกลับ"
+    },
+    {
+      "code": "BT06-056",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 5,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial",
+      "name": "เท่ระเบิด !!!!"
+    },
+    {
+      "code": "BT06-057",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "กองถ่ายฤาษี"
+    },
+    {
+      "code": "BT06-058",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ดาบศักดิ์สิทธิ์ แกลลาติน"
+    },
+    {
+      "code": "BT06-059",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "นรกในกรง"
+    },
+    {
+      "code": "BT06-060",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "คาเฟ่หมาแมว"
+    },
+    {
+      "code": "BT06-061",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "สภาแบงค์"
+    },
+    {
+      "code": "BT06-062",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ถ้ำนาคา"
+    },
+    {
+      "code": "BT06-063",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ประตูวัลฮัลลา"
+    },
+    {
+      "code": "BT06-064",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "เวทีเพื่อชีวิต"
+    },
+    {
+      "code": "BT06-065",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "รูปปั้นพระอิศวร"
+    },
+    {
+      "code": "BT06-066",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ยานสำรวจ R18"
+    },
+    {
+      "code": "BT06-067",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "กองไฟลูกเสือ"
+    },
+    {
+      "code": "BT06-068",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ป้อมยาม"
+    },
+    {
+      "code": "BT06-069",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "หุบเขา 3 พลเอก"
+    },
+    {
+      "code": "BT06-070",
+      "abilities": [],
+      "parseStatus": "manual",
+      "name": "ตู้วารีบำบัด"
+    }
+  ]
+}

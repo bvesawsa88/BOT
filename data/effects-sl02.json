@@ -1,0 +1,155 @@
+{
+  "cards": [
+    {
+      "code": "SL02-003",
+      "name": "เจค นักฆ่ามือเก๋า",
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "uniqueOnField": true,
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "requireOwnHellNameIncludes": "ของขวัญที่เมียทิ้งไว้ให้",
+          "actions": [
+            {
+              "op": "discardOppRandom",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "note": "ลูกฮึด + ทิ้งมือศัตรูเมื่อมีของขวัญในนรก"
+    },
+    {
+      "code": "SL02-010",
+      "name": "อนันต์ ราชาแห่งนาค",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "SL02-001",
+      "name": "อนันตวดี ราชินีแห่งนาค",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "SL02-009",
+      "name": "เอรา นาคเกล็ดเขียว",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "SL02-008",
+      "name": "พลังแฝง",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "SL02-007",
+      "name": "อย่าให้มีครั้งที่ 2",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyPlayReact"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true
+    },
+    {
+      "code": "SL02-002",
+      "name": "ครุฑเวนไตย เจ้ากำลัง",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "SL02-005",
+      "name": "ง่อวซอรัส",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "SL02-004",
+      "name": "เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "SL02-006",
+      "name": "งี่เง่ากับงอแง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เซ่นไหว้ตัวเอง — จั่ว 2",
+                  "actions": [
+                    {
+                      "op": "sacrificeSelf"
+                    },
+                    {
+                      "op": "draw",
+                      "count": 2
+                    }
+                  ]
+                },
+                {
+                  "label": "ได้เตะไข่จนจบเทิร์น แล้วทำลายตัวเอง End Phase",
+                  "actions": [
+                    {
+                      "op": "grantSelfKeyword",
+                      "keyword": "เตะไข่",
+                      "until": "endOfTurn"
+                    },
+                    {
+                      "op": "destroySelfAtEndPhase"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual"
+    }
+  ]
+}

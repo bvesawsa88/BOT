@@ -128,6 +128,11 @@ async function main() {
   const prevMap = new Map(prev.map(c => [c.uid, c]));
   let added = 0, removed = 0, changed = 0;
   const nextMap = new Map(cards.map(c => [c.uid, c]));
+  // คง gemColor ที่เติมเองไว้ ถ้า bottcg ยังว่าง (สีเพชรบนการ์ดยังไม่ครบใน DB)
+  for (const c of cards) {
+    const p = prevMap.get(c.uid);
+    if (p && p.gemColor && !c.gemColor) c.gemColor = p.gemColor;
+  }
   for (const c of cards) {
     const p = prevMap.get(c.uid);
     if (!p) added++;

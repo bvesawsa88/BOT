@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2 (starter-gen)",
-  "note": "SD05 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
   "cards": [
     {
       "code": "SD05-001",

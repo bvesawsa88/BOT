@@ -1,0 +1,1113 @@
+{
+  "category": "magic-Land",
+  "type": "Magic",
+  "subtype": "Land",
+  "entries": [
+    {
+      "name": "กระทะทองแดง",
+      "codes": [
+        "ODY1-090",
+        "SD03-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "นรก"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ส่ง Avatar {symbol นรก} 1 ใบจากมือลงนรก : ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) 2 ใบ แล้วจั่วการ์ดจาก Deck 2 ใบ"
+    },
+    {
+      "name": "กรุงลงกา",
+      "codes": [
+        "BT05-069"
+      ],
+      "abilities": [],
+      "powerAsGemForSymbol": "ยักษ์",
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เขาไกรลาส",
+      "codes": [
+        "KD01-019",
+        "SD01-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "เขาไกรลาสเอียง",
+      "codes": [
+        "BT01-047",
+        "CC02-059",
+        "ODY1-081"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "anyDeclareAttack",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "attacker",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เขาชนไก่",
+      "codes": [
+        "SD04-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "phase": "Main",
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน"
+              }
+            },
+            {
+              "op": "scoutOneTopOrHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สอดแนม 1 แล้วเลือกบน/ล่าง — ใช้ scoutOneTopOrHell (บนหรือนรก) เป็น proxy"
+    },
+    {
+      "name": "คาเฟ่หมาแมว",
+      "codes": [
+        "BT06-060"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "โคกอีสานนูน",
+      "codes": [
+        "BT08-065"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เทค 1: คืนนรก 6 ใบ (Magic≤2) → จั่ว 1",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "kok1",
+                  "requireOwnNameIncludes": "อีสานสลิงเกอร์",
+                  "actions": [
+                    {
+                      "op": "hellPickMulti",
+                      "countMax": 6,
+                      "magicMax": 2,
+                      "thenDraw": 1,
+                      "trackHellReturn": true,
+                      "requireOwnNameIncludes": "อีสานสลิงเกอร์",
+                      "filter": {}
+                    }
+                  ]
+                },
+                {
+                  "label": "เทค 2: ดวลอีสานสลิงเกอร์ (ต้องคืนนรก≥6 ในเทิร์นนี้ก่อน)",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "kok2",
+                  "requireHellReturnedThisTurnMin": 6,
+                  "actions": [
+                    {
+                      "op": "forceDuelNoTap",
+                      "ownNameIncludes": "อีสานสลิงเกอร์",
+                      "blockReact": true,
+                      "requireHellReturnedThisTurnMin": 6
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "stayOnMagic": true,
+      "parseStatus": "manual",
+      "note": "เทค1 คืนนรก6 จั่ว1 · เทค2 ดวลได้หลังคืน≥6 ในเทิร์น (สั่งใช้แยกเทิร์นละครั้งต่อเทค)"
+    },
+    {
+      "name": "งานเลี้ยงโดนใจ หัวใจโดนเธอ",
+      "codes": [
+        "BT07-070"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ฐานหุ่นนักรบผู้กล้า ซีทันยาน",
+      "codes": [
+        "BT05-070",
+        "KD04-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireNoModUsed": true,
+          "actions": [
+            {
+              "op": "allowExtraWeaponMod",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในเทิร์นนี้ยังไม่ได้ใช้ Modification Magic : ในเทิร์นนี้สามารถใช้ Modification Magic \"อาวุธหุ่น"
+    },
+    {
+      "name": "ด่านตรวจเข้าเมือง",
+      "codes": [
+        "BT09-069"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ดินแดนยุติธรรม",
+      "codes": [
+        "BT10-070"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ดินแดนหิมะสีเทา",
+      "codes": [
+        "BT07-068",
+        "PRMO-103"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ดินแดนแห่งความหลากหลาย",
+      "codes": [
+        "CC02-049"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ถ้ำนาคา",
+      "codes": [
+        "BT06-062"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ทรายดูด",
+      "codes": [
+        "BT05-068"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ทุ่งนาแดนนี้(ไม่มีความหมาย)",
+      "codes": [
+        "BT01-048",
+        "ODY1-082",
+        "PRMO-045"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbols": [
+                  "แมลง",
+                  "สัตว์",
+                  "รัททาทุย",
+                  "คน"
+                ],
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เทศกาลแมลงปอบุก",
+      "codes": [
+        "BT02-059"
+      ],
+      "abilities": [],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "parseStatus": "partial",
+      "note": "เทศกาลแมลงปอบุก — ให้แมลงทุกใบได้สามัคคี (ตอนนี้ keyword บน Land อย่างเดียว ยังไม่กระจายให้แมลง)"
+    },
+    {
+      "name": "นรกในกรง",
+      "codes": [
+        "BT06-059"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "บิฟร็อสต์ สะพานสายรุ้ง",
+      "codes": [
+        "BT08-063"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "แบ่งแยกดินแดน",
+      "codes": [
+        "PRMO-029"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ประตูนรก",
+      "codes": [
+        "BT02-058",
+        "CC01-060",
+        "KD02-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHandFilter": {
+              "type": "Avatar",
+              "symbol": "นรก"
+            }
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ ทิ้ง Avatar {Symbol นรก} 1 ใบจากบนมือ : อัญเชิญ Avatar \"นายนิรยบาล\" ค่า Cost ไม่เกิน 4 จาก นรกฝ่าย"
+    },
+    {
+      "name": "ประตูวัลฮัลลา",
+      "codes": [
+        "BT06-063"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ปราสาทแดรก",
+      "codes": [
+        "BT03-060",
+        "PRMO-031"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==land"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "แดรกคูลา"
+                ],
+                "side": "own"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "แดรกคูลา"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+      "codes": [
+        "BT09-071"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "exileDeckTop"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ภูติผลไม้"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "grantSummoned": [
+                {
+                  "keyword": "คำสั่งเสีย",
+                  "trigger": {
+                    "on": "destroyed"
+                  },
+                  "actions": [
+                    {
+                      "op": "exile",
+                      "target": "self"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "grantKeywordAura": {
+        "keyword": "สามัคคี",
+        "nameIncludes": "ภูติผลไม้"
+      },
+      "auraPower": 2,
+      "auraNameIncludes": "ภูติผลไม้",
+      "parseStatus": "manual",
+      "note": "ออร่าภูติผลไม้ +2 และสามัคคี · สั่งใช้: เนรเทศใบบนสุดเด็ค → อัญเชิญภูติจากนรก (ได้คำสั่งเสียเนรเทศตัวเอง)"
+    },
+    {
+      "name": "พิภพรัททาทุย",
+      "codes": [
+        "BT04-059",
+        "SD08-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "combat",
+              "target": {
+                "select": "attacker"
+              },
+              "ifAttackerSymbol": "รัททาทุย"
+            }
+          ],
+          "fromLand": true
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "cap 6 ผ่านชื่อพิภพรัททาทุยใน avatarCap · +2 ตอนรัททาทุยโจมตี"
+    },
+    {
+      "name": "มวยทะเลลลลลล",
+      "codes": [
+        "BT01-049",
+        "CC02-060",
+        "ODY1-083"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น"
+    },
+    {
+      "name": "มะม่วงดราชิลด์",
+      "codes": [
+        "BT11-070"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "มัลแวร์โซน",
+      "codes": [
+        "BT11-069"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่่งใช้ เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 1 ใบ : อีกฝ่าย ธรณีสูบ 1 ใบ"
+    },
+    {
+      "name": "เมืองลกเอี๋ยง",
+      "codes": [
+        "SD07-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ยุคกาฬสินธุ์โซอิค",
+      "codes": [
+        "BT03-058"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discardGemSum",
+              "min": 3
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "กะปอม"
+              },
+              "dest": "handOrSummon",
+              "summonCostMax": 3,
+              "paidCost": false,
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ราชธานีสามัคคี",
+      "codes": [
+        "BT03-059"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "โรงบาล",
+      "codes": [
+        "BT01-050",
+        "CC01-059",
+        "ODY1-074",
+        "PRMO-050"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "hand"
+            }
+          ],
+          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "name": "โรงบาลรัฐ",
+      "codes": [
+        "BT04-058"
+      ],
+      "abilities": [],
+      "blockLifeUnreveal": true,
+      "parseStatus": "auto"
+    },
+    {
+      "name": "โรงเรียนฝึกหน่วยรบ",
+      "codes": [
+        "BT11-071"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "โรงเรียนเวทย์มนต์",
+      "codes": [
+        "BT08-064"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "วิหารเจ้าสมุทร",
+      "codes": [
+        "CC02-050"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "เวทีแห่งความฝัน",
+      "codes": [
+        "KD03-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "options": [
+            {
+              "label": "สอดแนม 5 — สวมโอตะสูงสุด 2 ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "scoutAttachOta",
+                  "scout": 5,
+                  "maxOta": 2
+                }
+              ]
+            },
+            {
+              "label": "สอดแนม 7 — ไอดอลขึ้นมือ",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 7,
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
+    },
+    {
+      "name": "สถานีตำรวจ",
+      "codes": [
+        "BT07-069"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สภาแบงค์",
+      "codes": [
+        "BT06-061"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สมชาย ห้องเช่าถูกๆ",
+      "codes": [
+        "SD02-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "สมชายห้องเช่าพันล้าน",
+      "codes": [
+        "CC01-051"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "สมาคมผู้รู้ความจริง",
+      "codes": [
+        "BT04-057"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnNameIncludes": "ผู้รู้ความจริง",
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "dest": "reorder",
+              "restTo": "choose"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "สวนกล้วยหนีภาษี",
+      "codes": [
+        "BT09-070"
+      ],
+      "abilities": [],
+      "blockAllLandPlay": true,
+      "destroyAfterGlobalEndPhases": 4,
+      "parseStatus": "manual",
+      "note": "บล็อกใช้ Land ทุกฝ่าย · End Phase รวมทุกฝ่ายครบ 4 ครั้ง → ลงนรก"
+    },
+    {
+      "name": "สิมพลีนรก",
+      "codes": [
+        "SD03-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone",
+                "symbol": "นรก"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "หมู่บ้านพอดี",
+      "codes": [
+        "PRMO-039"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "หมู่บ้านเห็ด",
+      "codes": [
+        "BT07-067"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "อาคารผู้โดยสารชั้นต่ำ",
+      "codes": [
+        "BT07-066"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "อาณาจักรของแพง",
+      "codes": [
+        "BT03-057"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireEnemyCostSumMax": 4,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ราชาอาณาจักรของแพง"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน",
+      "codes": [
+        "BT02-060",
+        "KD01-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "op": "discard",
+            "count": 1
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3,
+                "requireTapped": true
+              },
+              "until": "endOfTurn",
+              "keepTapped": true
+            }
+          ]
+        }
+      ],
+      "forceAllAvatarSymbol": "เทพ",
+      "parseStatus": "manual",
+      "note": "เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น {Symbol เทพ} เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด 1 ใบ แล้วเลือก Avatar 1 "
+    },
+    {
+      "name": "Hot Zone",
+      "codes": [
+        "BT05-067"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "Micro Plaza สะพานพลาสติก",
+      "codes": [
+        "CC01-049",
+        "KD04-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "phase": "Main",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้งใน Main Phase : สามารถ ทิ้งการ์ดจากบนมือ 1 ใบ นำ Modification Magic 1 ใบ จาก ใน Deck ฝ่ายเราขึ้นมือ จากนั้น"
+    },
+    {
+      "name": "Myth Universe Podcast",
+      "codes": [
+        "BT10-071"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "Podcast Untitled Case",
+      "codes": [
+        "BT04-060"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==land"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbols": [
+                  "ผี",
+                  "เปรต",
+                  "เอเลี่ยน",
+                  "ไดโนเสาร์"
+                ],
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "SD Plaza สายเหนือเก่า",
+      "codes": [
+        "CC01-050"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    }
+  ]
+}

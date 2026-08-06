@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2 (auto-generated)",
-  "note": "BT05: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี",
   "cards": [
     {
       "code": "BT05-001",
@@ -40,7 +38,8 @@
     {
       "code": "BT05-002",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แมลงปอนางพญา"
     },
     {
       "code": "BT05-003",
@@ -425,7 +424,7 @@
       "keywords": [
         "ลูกฮึด"
       ],
-      "note": "ลูกฮึดชัด · ทิ้งมือศัตรูเมื่อมีของขวัญในนรก — ยืนยัน random + เงื่อนไข",
+      "note": "ลูกฮึด + ทิ้งมือศัตรูเมื่อมีของขวัญในนรก",
       "uniqueOnField": true
     },
     {
@@ -436,7 +435,8 @@
       "freeSummonIf": {
         "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
         "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
-      }
+      },
+      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
     },
     {
       "code": "BT05-019",
@@ -496,7 +496,7 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "บึงทมิฬ People - คุณเงือกมาวิน"
+      "name": "บึงทมิฬ  People - คุณเงือกมาวิน"
     },
     {
       "code": "BT05-021",
@@ -691,7 +691,7 @@
       "code": "BT05-027",
       "abilities": [],
       "parseStatus": "auto",
-      "name": "บรุนฮิลด์ เทพธิดาแห่งวัลฮัลลา",
+      "name": "บรุนฮิลด์  เทพธิดาแห่งวัลฮัลลา",
       "freeSummonFromHellWhen": {
         "milledBy": {
           "or": [
@@ -982,7 +982,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "คุณเชิดชัย Super Air"
     },
     {
       "code": "BT05-036",
@@ -1064,7 +1065,8 @@
     {
       "code": "BT05-041",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จ่ายุทธ Tank Ranger"
     },
     {
       "code": "BT05-042",
@@ -1087,8 +1089,23 @@
     },
     {
       "code": "BT05-043",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachOtaToIdol",
+              "allowDeckIfNameIncludes": "ทัตดนัยซัง"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "มยุราซัง  ไอดอลยุค 80",
+      "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar \"โอตะ\" 1 ใบจากนรกเรามาสวมใส่ให้ Avatar \"ไอดอล\" ใบอื่น 1 ใบบน Avatar Zone ฝ่ายเรา ถ้าบน"
     },
     {
       "code": "BT05-044",
@@ -1116,27 +1133,32 @@
     {
       "code": "BT05-045",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "นินจาไร้นาม"
     },
     {
       "code": "BT05-046",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "ง่อวซอรัส"
     },
     {
       "code": "BT05-047",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "แมลงปอปีกเหล็ก"
     },
     {
       "code": "BT05-048",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "รถถัง A003"
     },
     {
       "code": "BT05-049",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "รับซื้อของโจร"
     },
     {
       "code": "BT05-050",
@@ -1283,7 +1305,8 @@
     {
       "code": "BT05-056",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พลังแห่งการตีพ่อตีแม่"
     },
     {
       "code": "BT05-057",
@@ -1519,12 +1542,14 @@
     {
       "code": "BT05-066",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "มนุษย์ดัดแปลง"
     },
     {
       "code": "BT05-067",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "Hot Zone"
     },
     {
       "code": "BT05-068",
@@ -1542,8 +1567,24 @@
     },
     {
       "code": "BT05-070",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireNoModUsed": true,
+          "actions": [
+            {
+              "op": "allowExtraWeaponMod",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "ฐานหุ่นนักรบผู้กล้า ซีทันยาน",
+      "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในเทิร์นนี้ยังไม่ได้ใช้ Modification Magic : ในเทิร์นนี้สามารถใช้ Modification Magic \"อาวุธหุ่น"
     },
     {
       "code": "BT05-071",
@@ -1592,7 +1633,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "ไม่นะ ไมเกรน !"
     },
     {
       "code": "BT05-073",
@@ -1633,15 +1675,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "เฮ้ย รัททาทุย ตาย !",
+      "note": "Main ถัดไปอัญเชิญ Cost≤4 จากมือ ฟรีไม่จุติ"
     },
     {
       "code": "BT05-075",

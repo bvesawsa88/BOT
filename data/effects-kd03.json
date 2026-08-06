@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2 (starter-gen)",
-  "note": "KD03 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
   "cards": [
     {
       "code": "KD03-001",
@@ -189,7 +187,11 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT04-009"
+      "note": "แมปจาก BT04-009",
+      "cannotBeAttackTargetIf": {
+        "selfAttachedNameIncludes": "โอตะ",
+        "allyNameIncludes": "ไอดอล"
+      }
     },
     {
       "code": "KD03-006",
@@ -341,9 +343,42 @@
     {
       "code": "KD03-010",
       "name": "วูตาตู",
-      "abilities": [],
-      "parseStatus": "verified",
-      "note": "ไม่มีข้อความเอฟเฟกต์"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ไม่มีข้อความเอฟเฟกต์",
+      "hostSymbolReplace": "ผี",
+      "reattachOnHostDestroy": true
     },
     {
       "code": "KD03-011",
@@ -473,7 +508,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT04-048"
+      "note": "ยกเลิกโจมตีใบนั้น · สวมโอตะให้ไอดอลที่เป็นเป้า"
     },
     {
       "code": "KD03-016",
@@ -495,7 +530,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก KD03-016"
     },
     {
@@ -515,7 +550,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT04-050"
+      "note": "React ตอนสั่งใช้/จุติ/อัตโนมัติ → ยกเลิกความสามารถนั้น + nullify จนจบเทิร์น"
     },
     {
       "code": "KD03-018",
@@ -531,15 +566,24 @@
               "op": "modifyPower",
               "amount": 3,
               "duration": "whileEquipped",
-              "layer": 2,
               "target": {
                 "select": "equippedAvatar"
               }
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "hostNoUntapUntilNextOwnEnd"
+            }
+          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "manual"
     },
     {
       "code": "KD03-019",
@@ -696,7 +740,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก SD01-024"
     },
     {

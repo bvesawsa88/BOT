@@ -1,0 +1,40 @@
+{
+  "category": "construct-green",
+  "type": "Construct",
+  "color": "เขียว",
+  "entries": [
+    {
+      "name": "ตู้วารีบำบัด",
+      "codes": [
+        "BT06-070"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "บัลลังก์ตั๊กแตนศตวรรษ",
+      "codes": [
+        "BT07-073"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "แป้นสกุล อิเล็กทรอนิกส์",
+      "codes": [
+        "BT11-074"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ : สอดแนม 5 ใบ เลือก Avatar \"เครื่องใช้ไฟฟ้า\" 1 ใบ มาวางที่ Magic Zone เรา การ์ดที่เหลือนำกลับ Deck"
+    },
+    {
+      "name": "หุบเขา 3 พลเอก",
+      "codes": [
+        "BT06-069"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

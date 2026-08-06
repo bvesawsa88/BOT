@@ -1,0 +1,1273 @@
+{
+  "category": "life",
+  "type": "Life",
+  "entries": [
+    {
+      "name": "ตั๋งโต๊ะตายแล้วววว",
+      "codes": [
+        "SD07-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ท่านผู้นำตายแล้ว!",
+      "codes": [
+        "SD06-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ กัปตันไกร !",
+      "codes": [
+        "SD05-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ กุ่ย !",
+      "codes": [
+        "SD02-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ครู !",
+      "codes": [
+        "SD02-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ คุณจิระ !",
+      "codes": [
+        "SD05-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ จัน!",
+      "codes": [
+        "SD06-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ จามาล !",
+      "codes": [
+        "SD02-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ เจี๊ยบ !",
+      "codes": [
+        "KD04-025",
+        "SD04-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ โจโฉ",
+      "codes": [
+        "SD07-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ซาร่า !",
+      "codes": [
+        "KD03-024",
+        "SD01-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "ไม่นะ ซุนกวน",
+      "codes": [
+        "SD07-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ แดงเดือด !",
+      "codes": [
+        "KD04-024",
+        "SD04-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ โดม !",
+      "codes": [
+        "BT05-075",
+        "KD01-025",
+        "KD02-022",
+        "KD03-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "gemMin": 3
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Avatar GEM≥3 ขึ้นมือ"
+    },
+    {
+      "name": "ไม่นะ เต๋า !",
+      "codes": [
+        "SD03-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ เตียวเสียน!",
+      "codes": [
+        "BT10-075"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ไตรตั้น !",
+      "codes": [
+        "SD05-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ทองเหม็น!",
+      "codes": [
+        "SD06-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ นนทก !",
+      "codes": [
+        "KD01-023",
+        "SD01-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "ไม่นะ นาย !",
+      "codes": [
+        "SD02-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ บุญช่วย!",
+      "codes": [
+        "SD06-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ เบิ้ม !",
+      "codes": [
+        "BT01-055"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ แบงค์ !",
+      "codes": [
+        "SD03-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ โปโป้ !",
+      "codes": [
+        "BT01-051"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ผู้เล่น TOP 32!",
+      "codes": [
+        "PRMO-080"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ไม่นะ พญายม !",
+      "codes": [
+        "KD02-021",
+        "SD03-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ พระอินทร์ !",
+      "codes": [
+        "KD01-022",
+        "SD04-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ พ่อ !",
+      "codes": [
+        "BT01-052"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ พี่หน่วง !",
+      "codes": [
+        "BT07-075"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะฟุจัง!!",
+      "codes": [
+        "PRMO-098"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ไม่นะ มณโท !",
+      "codes": [
+        "BT07-074",
+        "SD08-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 2
+                  },
+                  "dest": "avatar",
+                  "paidCost": false,
+                  "showAll": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก อัญเชิญ Avatar Cost≤2"
+    },
+    {
+      "name": "ไม่นะ มะนาว !",
+      "codes": [
+        "KD04-023",
+        "SD04-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ มาวิน !",
+      "codes": [
+        "SD05-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ มีมมิจัง !",
+      "codes": [
+        "BT05-073",
+        "KD02-023",
+        "KD03-021",
+        "KD04-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Avatar"
+                  },
+                  "dest": "hand",
+                  "restTo": "bottom"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: สอดแนม 5 เลือก Avatar 1 ขึ้นมือ ที่เหลือใต้เด็ค"
+    },
+    {
+      "name": "ไม่นะ แม่ !",
+      "codes": [
+        "BT01-053"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ แม่นีโม่ !",
+      "codes": [
+        "SD03-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ไมเกรน !",
+      "codes": [
+        "BT05-072",
+        "KD04-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ลูก !",
+      "codes": [
+        "BT01-054",
+        "KD02-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ เล่าปี่",
+      "codes": [
+        "SD07-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ วอเตอร์แมน !",
+      "codes": [
+        "SD05-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ หลวงพ่อ !",
+      "codes": [
+        "SD01-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "ไม่นะ อัปสร !",
+      "codes": [
+        "KD01-024",
+        "SD01-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "ไม่นะ อาม่า",
+      "codes": [
+        "SD07-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ อิศวร !",
+      "codes": [
+        "KD01-021",
+        "SD01-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "ไม่นะ อู๊ด !",
+      "codes": [
+        "BT05-071",
+        "KD02-024",
+        "KD03-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Magic",
+                    "subtype": "Normal"
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "Main ถัดไป: เปิดนรก เลือก Normal Magic ขึ้นมือ"
+    },
+    {
+      "name": "ไม่นะโอคุง!!",
+      "codes": [
+        "PRMO-097"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ไม่นะ ไอ้ดำ !",
+      "codes": [
+        "KD03-023",
+        "SD03-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ ฮอล !",
+      "codes": [
+        "SD02-022"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ Judge!!!",
+      "codes": [
+        "PRMO-099"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ลูก เมีย กู!!!",
+      "codes": [
+        "SD06-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อ่อ กระต่ายตาย",
+      "codes": [
+        "BT08-070"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อ๋อ...ปุ้มปุ้ยตาย !",
+      "codes": [
+        "SD04-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อ่อ เปอร์ลา",
+      "codes": [
+        "BT11-075"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เฮ้ย นางพญา ตาย !",
+      "codes": [
+        "SD08-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เฮ้ย พ่อพันธุ์ ตาย !",
+      "codes": [
+        "SD08-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เฮ้ย รัททาทุย ตาย !",
+      "codes": [
+        "BT05-074",
+        "SD08-021"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4
+                  },
+                  "paidCost": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Main ถัดไปอัญเชิญ Cost≤4 จากมือ ฟรีไม่จุติ"
+    },
+    {
+      "name": "เฮ้ย รัททาทุย โป๊ !",
+      "codes": [
+        "SD08-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    }
+  ]
+}

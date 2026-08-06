@@ -1,0 +1,161 @@
+{
+  "category": "construct-red",
+  "type": "Construct",
+  "color": "แดง",
+  "entries": [
+    {
+      "name": "กำแพงด่านสุดท้าย",
+      "codes": [
+        "SD06-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน",
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restTo": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เงื่อนไข Avatar Zone ว่าง — ผู้เล่นกดเมื่อเข้าเงื่อนไข"
+    },
+    {
+      "name": "ค่ายบางระจัน",
+      "codes": [
+        "PRMO-104",
+        "SD06-018"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ดวงจันทร์วันเพ็ญ",
+      "codes": [
+        "BT10-073"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "นครทิเนนทอล",
+      "codes": [
+        "BT11-072"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "รูปปั้นพระอิศวร",
+      "codes": [
+        "BT06-065"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เรือรบโบราณ",
+      "codes": [
+        "BT08-066"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "วัดคู่บ้านคู่เมือง",
+      "codes": [
+        "SD06-019"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ"
+    },
+    {
+      "name": "เวทีเพื่อชีวิต",
+      "codes": [
+        "BT06-064"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สนามของนักวิ่งตัวจริง",
+      "codes": [
+        "BT08-067"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เสาธง",
+      "codes": [
+        "BT07-071"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

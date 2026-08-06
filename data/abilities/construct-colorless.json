@@ -1,0 +1,164 @@
+{
+  "category": "construct-colorless",
+  "type": "Construct",
+  "color": "ไร้สี",
+  "entries": [
+    {
+      "name": "ตู้เสื้อผ้าของริกกี้",
+      "codes": [
+        "BT09-074"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "บ่อหมัก รัททาทุย",
+      "codes": [
+        "SD08-020"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonType:Avatar&summonSymbol:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "buildSelfAsConstruct"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "symbol:รัททาทุย"
+          },
+          "oncePerTurn": true,
+          "oncePerTurnByName": "บ่อหมัก รัททาทุย",
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งเป็น Cost เพื่ออัญเชิญ Avatar Symbol รัททาทุยเท่านั้น → ก่อสร้างตัวเอง · จั่วเมื่อรัททาทุยถูกทำลาย"
+    },
+    {
+      "name": "โพเดียมสมาคมผู้รู้ความจริง",
+      "codes": [
+        "BT09-072"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "รังรักรัททาทุย",
+      "codes": [
+        "SD08-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "constructed"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ก่อสร้าง / สั่งใช้ (เทิร์นละครั้ง ⚡): เลือก Avatar รัททาทุย C1G1P1 จากเด็คขึ้น Avatar Zone แล้วสับ"
+    },
+    {
+      "name": "วงล้อรัททาทุย",
+      "codes": [
+        "SD08-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==construct"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "สำนักภฤคุ",
+      "codes": [
+        "BT09-073"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "หอสมุดจอมเวทย์",
+      "codes": [
+        "BT10-072"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ห้างโรงเกลือ",
+      "codes": [
+        "BT09-075"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

@@ -1,0 +1,1085 @@
+{
+  "category": "magic-Modification",
+  "type": "Magic",
+  "subtype": "Modification",
+  "entries": [
+    {
+      "name": "กระบองตำรวจ",
+      "codes": [
+        "BT09-068"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "กระบองแสง คทาวุธ",
+      "codes": [
+        "BT05-065"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "untapHostIfEnemyHasAvatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กระสอบ",
+      "codes": [
+        "BT09-065"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "กองถ่ายฤาษี",
+      "codes": [
+        "BT06-057"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เก้าอี้ เฟิร์สคลาส",
+      "codes": [
+        "BT07-064"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขนมณี แฟลร์",
+      "codes": [
+        "BT07-062"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขวาน 7 สี",
+      "codes": [
+        "BT08-061",
+        "PRMO-095"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขวานเงิน",
+      "codes": [
+        "BT02-056",
+        "PRMO-041"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ขวานทอง",
+      "codes": [
+        "BT03-055",
+        "CC02-058",
+        "KD01-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ขวานไม้เน่าๆเหม็นๆ",
+      "codes": [
+        "BT03-054"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ของขวัญจากโอตะ",
+      "codes": [
+        "BT04-054",
+        "KD03-019"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ค้อนโยเนียร์",
+      "codes": [
+        "BT09-064"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ง้าวมังกรเขียว",
+      "codes": [
+        "SD07-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ช็อตกัน นัยนาวุธ",
+      "codes": [
+        "BT02-057"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ช็อตกัน นัยนาวุธ — ทำลายด้วยการต่อสู้สำเร็จ: หงาย LIFE ศัตรู 1"
+    },
+    {
+      "name": "ดาบใบข้าว X",
+      "codes": [
+        "SD06-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ"
+    },
+    {
+      "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
+      "codes": [
+        "BT04-055"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ดาบศักดิ์สิทธิ์ แกลลาติน",
+      "codes": [
+        "BT06-058"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ดาบศักดิ์สิทธิ์ คาเรนต์",
+      "codes": [
+        "BT08-059"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ดาบศักดิ์สิทธิ์ อาลอนไดร์ท",
+      "codes": [
+        "BT05-064"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromHell": true,
+          "requireNoModUsed": true,
+          "actions": [
+            {
+              "op": "mill",
+              "count": 1
+            },
+            {
+              "op": "attachSelfFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            },
+            {
+              "op": "markModUsed"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "+1 และกันโล่มนุษย์ตอนโจมตี · ธรณีสูบจากนรกมาสวมยัง partial"
+    },
+    {
+      "name": "ดาบศักดิ์สิทธิ์ เอกซ์คาลิเบอร์",
+      "codes": [
+        "BT08-060"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ดาบแห่งแสงอรุณ & นัทคาลิเบอร์",
+      "codes": [
+        "BT11-064"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ตรีศูล ไตรตัน",
+      "codes": [
+        "SD05-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireNoModUsed": true,
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "บึงทมิฬ"
+                ],
+                "subtype": "Land"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
+        }
+      ],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ตีพ่อ",
+      "codes": [
+        "BT01-046",
+        "ODY1-072",
+        "PRMO-007"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "sentToHell"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "ตื่นเมื่อทำลายสำเร็จใน Battle = ยังเล่นมือ"
+    },
+    {
+      "name": "ตีแม่",
+      "codes": [
+        "BT01-045",
+        "ODY1-071",
+        "PRMO-008"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "sentToHell"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ตุ๊กตางูพันคอ",
+      "codes": [
+        "CC01-047"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ถาดหลุม",
+      "codes": [
+        "CC01-055",
+        "SD04-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เท่ระเบิด !!!!",
+      "codes": [
+        "BT06-056"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 5,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "name": "นวมรัททาทุย",
+      "codes": [
+        "SD08-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarSymbol",
+              "symbol": "รัททาทุย",
+              "per": 1,
+              "includeSelf": true,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "น้ำใจ",
+      "codes": [
+        "PRE0-001-2"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "น้ำชูกำลัง",
+      "codes": [
+        "BT01-043",
+        "ODY1-079",
+        "PRMO-004"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownTurnEnd",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "น้ำซุปชาบู",
+      "codes": [
+        "CC01-048",
+        "KD03-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "hostNoUntapUntilNextOwnEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "น้ำแดง",
+      "codes": [
+        "ODY1-075",
+        "SD01-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "เนยถั่ว",
+      "codes": [
+        "BT08-062"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ประกันชั้นต่ำ",
+      "codes": [
+        "BT02-055"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ปลอกคอซื่อสัตย์",
+      "codes": [
+        "BT07-065",
+        "PRMO-129"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ปืนจักรวุทธ",
+      "codes": [
+        "CC02-048"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ปืนฉมวก",
+      "codes": [
+        "SD05-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
+    },
+    {
+      "name": "ปืนเล็กยาว",
+      "codes": [
+        "BT04-056"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แผนการ : แกงส้มตะปูเสียบ",
+      "codes": [
+        "BT03-052",
+        "CC02-057"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "destroyHostIfPower0": true,
+      "parseStatus": "auto"
+    },
+    {
+      "name": "มนุษย์ดัดแปลง",
+      "codes": [
+        "BT05-066"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ไม้กายสิทธิ์",
+      "codes": [
+        "BT07-063"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ไม้เกาหลัง",
+      "codes": [
+        "CC01-053",
+        "ODY1-076",
+        "PRMO-005",
+        "SD02-017"
+      ],
+      "abilities": [],
+      "keywords": [
+        "เตะไข่"
+      ],
+      "parseStatus": "manual",
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ เตะไข่ (Avatar ใบนี้สามารถโจมตีไปที่ LIFE Card ได้โดยตรง แม้ว่า Avatar Zone ข"
+    },
+    {
+      "name": "ยันต์ผ้าประเจียด",
+      "codes": [
+        "SD06-016"
+      ],
+      "abilities": [],
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "parseStatus": "manual",
+      "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
+    },
+    {
+      "name": "ยาแก้ไอน้ำดำ",
+      "codes": [
+        "BT03-053"
+      ],
+      "abilities": [],
+      "ignoreNegativePower": true,
+      "parseStatus": "auto"
+    },
+    {
+      "name": "รั้วของชาติ",
+      "codes": [
+        "BT01-044",
+        "ODY1-080"
+      ],
+      "abilities": [],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "auto",
+      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม"
+    },
+    {
+      "name": "ลูกแก้วนาคา",
+      "codes": [
+        "BT06-054"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ศาสตราวุธศักดิ์สิทธิ์ โวลุสปา",
+      "codes": [
+        "BT10-067"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สายฟ้า วัชระ",
+      "codes": [
+        "BT03-056"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไสยเวท ย้อนกลับ",
+      "codes": [
+        "BT06-055"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "หนึ่งเดียวเพื่อทุกอย่าง",
+      "codes": [
+        "BT11-068"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "หยินหยางทอร์นาโด",
+      "codes": [
+        "BT10-068"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "หอกศักดิ์สิทธิ์ เอ็ดดา",
+      "codes": [
+        "BT09-066"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "หอกแหลมแทงทุกวัน",
+      "codes": [
+        "SD03-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "requireMilledThisTurn": true,
+          "requireNoModUsed": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self"
+            }
+          ]
+        }
+      ],
+      "milledOptional": {
+        "requireNoModUsed": true,
+        "countsAsModification": true,
+        "actions": [
+          {
+            "op": "attach",
+            "from": "self"
+          }
+        ]
+      },
+      "parseStatus": "verified",
+      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ + ยังไม่ใช้ Mod → ใช้จากนรกได้"
+    },
+    {
+      "name": "หอกแหลมแทงทุกวัน ทุกวัน",
+      "codes": [
+        "KD02-019",
+        "ODY1-077"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "requireMilledThisTurn": true,
+          "requireNoModUsed": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self"
+            }
+          ]
+        }
+      ],
+      "milledOptional": {
+        "requireNoModUsed": true,
+        "countsAsModification": true,
+        "actions": [
+          {
+            "op": "attach",
+            "from": "self"
+          }
+        ]
+      },
+      "parseStatus": "verified",
+      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)"
+    },
+    {
+      "name": "อาวุธของเพมมุ ดาบมารไร้พ่าย",
+      "codes": [
+        "BT10-069"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "อาวุธของเพมมุ ปืนพกรุ่น 19",
+      "codes": [
+        "BT09-067"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "อาวุธนคร ดินสอ 5H",
+      "codes": [
+        "BT11-067"
+      ],
+      "abilities": [],
+      "parseStatus": "partial"
+    },
+    {
+      "name": "อาวุธนคร ปืนพกงูเห่า",
+      "codes": [
+        "BT11-065"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อาวุธนคร ลูกซองจุ้ย",
+      "codes": [
+        "BT11-066"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อาวุธนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
+      "codes": [
+        "KD04-014"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
+      "codes": [
+        "BT04-053"
+      ],
+      "abilities": [],
+      "parseStatus": "auto",
+      "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
+    },
+    {
+      "name": "อาวุธหุ่นนักรบผู้กล้า \"อีโบล่า ซอร์ด\"",
+      "codes": [
+        "BT03-051",
+        "KD04-013"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "amountIfHostNameIncludes": {
+                "name": "หุ่นนักรบผู้กล้า",
+                "amount": 3
+              },
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
+      "codes": [
+        "BT05-063",
+        "KD04-015"
+      ],
+      "abilities": [],
+      "parseStatus": "auto"
+    }
+  ]
+}

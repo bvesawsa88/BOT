@@ -1,0 +1,877 @@
+{
+  "cards": [
+    {
+      "code": "CC02-016",
+      "name": "อินาริ โอคามิ แห่งการเก็บเกี่ยว",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==magicZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellPerN",
+              "perN": 15,
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "fromMagicZone": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            },
+            {
+              "op": "draw",
+              "countPer": "ownHellPerN",
+              "perN": 15,
+              "per": 1
+            }
+          ]
+        }
+      ],
+      "abilitiesFromMagicZone": true,
+      "parseStatus": "manual"
+    },
+    {
+      "code": "CC02-022",
+      "name": "คนรวย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "oncePerTurn": true,
+          "countsAsReact": true,
+          "actions": [
+            {
+              "op": "negateByGiveHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง"
+    },
+    {
+      "code": "CC02-003",
+      "name": "คุณโดม ผู้จัดการทีมการ์ด",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-024",
+      "name": "จอมหักกระดูก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "onFight"
+          },
+          "actions": [
+            {
+              "op": "lockPowerPrinted",
+              "target": {
+                "select": "foe"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์"
+      ]
+    },
+    {
+      "code": "CC02-025",
+      "name": "โจอี้ นักบอลขาหัก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonColor:แดง"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "summoned"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-004",
+      "name": "นักดาบตะวันแดง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-023",
+      "name": "นางอัปสร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "blockReactUntilCombatEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "nameAliases": [
+        "พระนารายณ์"
+      ]
+    },
+    {
+      "code": "CC02-002",
+      "name": "บัมเบิ้ลแบงค์",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-021",
+      "name": "ปื้ด เด็กเปรต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownRevealedLife",
+              "per": 2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-001",
+      "name": "มหาราชาสีนิล",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-005",
+      "name": "หมีบราซิล",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-058",
+      "name": "ขวานทอง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-048",
+      "name": "ปืนจักรวุทธ",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-057",
+      "name": "แผนการ : แกงส้มตะปูเสียบ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "destroyHostIfPower0": true
+    },
+    {
+      "code": "CC02-046",
+      "name": "กาจอก",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-055",
+      "name": "งับ",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "symbol": "กะปอม"
+              },
+              "dest": "hand",
+              "restTo": "bottom",
+              "shuffleAfter": true,
+              "thenIfFound": [
+                {
+                  "op": "destroyAttacker"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-061",
+      "name": "ชายจากอนาคต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
+    },
+    {
+      "code": "CC02-047",
+      "name": "เราจะตายแล้วท่านหยุดเถอะ",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-056",
+      "name": "เหน็บกินมือ",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDrawFromDeckByEffect"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "ยกเลิกขึ้นมือจากเด็คด้วยเอฟเฟกต์ — ต้องมี hook ตอน draw-by-effect"
+    },
+    {
+      "code": "CC02-054",
+      "name": "เอากล้วยมานี่ย์ !!!!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-052",
+      "name": "จมน้ำ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireBothHaveAvatar": true,
+          "actions": [
+            {
+              "op": "bothReturnAvatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-051",
+      "name": "ช่วยโลกใบนี้ไว้",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ช่วยโลกใบนี้ไว้ — หงาย LIFE ทั้งหมด + ให้เปรตเตะไข่/กันโล่จนจบเทิร์น"
+    },
+    {
+      "code": "CC02-044",
+      "name": "ใบรับสมัครพนักงานลงกา",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-041",
+      "name": "มรดกของพระอิศวร",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-053",
+      "name": "ล้มโต๊ะ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothReshuffleHandDraw",
+              "count": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-045",
+      "name": "สิงสู่เพื่อสู่สม",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-042",
+      "name": "หนังสือเอาตัวรอดของกุ่ย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-043",
+      "name": "หมอนข้างมฤตยูเทวี",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-059",
+      "name": "เขาไกรลาสเอียง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "anyDeclareAttack",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "attacker",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-049",
+      "name": "ดินแดนแห่งความหลากหลาย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-060",
+      "name": "มวยทะเลลลลลล",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น"
+    },
+    {
+      "code": "CC02-050",
+      "name": "วิหารเจ้าสมุทร",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-027",
+      "name": "จ่างู อสรพิษพิฆาตจักรกล",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "targetSymbol:หุ่นยนต์"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-026",
+      "name": "ซันนี่",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย"
+                ],
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-006",
+      "name": "ซุส เทพเจ้าสูงสุดแห่งโอลิมปัส",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-028",
+      "name": "ไดโนกาฬสินธุ์ - กินรีมิมัส",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "symbol": "กะปอม",
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-031",
+      "name": "บอสทุเรียน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonColor:ฟ้า"
+          },
+          "actions": [
+            {
+              "op": "scoutTopKeepOrHandIfSameSymbolAsSummoned",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-009",
+      "name": "บึงทมิฬ  People - คุณปลาชด",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-030",
+      "name": "มนุษย์รัททาทุย",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarSymbol",
+              "symbol": "รัททาทุย",
+              "per": 1,
+              "includeSelf": true,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-029",
+      "name": "ริกกี้ คุณตาใจดี",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-008",
+      "name": "ลุงน้อย พ่อค้าไก่ย่าง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-010",
+      "name": "หมีขาว",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-007",
+      "name": "ไอ้ชนหมา",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-034",
+      "name": "แดรกคูลา",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "grantDraculaRevive"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-013",
+      "name": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-011",
+      "name": "ตุตันคาเมน ฟาโรห์ทองคำ",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-012",
+      "name": "เตียวเสียน จันทร์หลบโฉมสุดา",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-014",
+      "name": "แร้งทึ้งศพ",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-036",
+      "name": "วิไลวรรณ แม่แบงค์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonColor:ม่วง"
+          },
+          "actions": [
+            {
+              "op": "scoutOneTopOrHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-032",
+      "name": "ศาลพระภูมิ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ผี"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
+      "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual"
+    },
+    {
+      "code": "CC02-033",
+      "name": "สารวัตร ตำรวจสัมภเวสี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ตำรวจสัมภเวสี"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-015",
+      "name": "หมีดำ",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-035",
+      "name": "Ecycle",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {},
+              "dest": "deckBottom"
+            },
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-039",
+      "name": "พญายักษ์ ทศกัณฐ์",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-038",
+      "name": "พาลี",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "onFight"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "target": {
+                "select": "foe"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-017",
+      "name": "มอร์ฟีน Overdose",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-037",
+      "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "รถถัง B66 — ต้องมีคนสวมถึงโจมตีได้"
+    },
+    {
+      "code": "CC02-019",
+      "name": "ราชาใบก้อน",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-040",
+      "name": "วีรชนชีวภาพ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonColor:เขียว"
+          },
+          "actions": [
+            {
+              "op": "grantImmuneOppMagicSummoned",
+              "until": "oppNextEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC02-020",
+      "name": "หมีเหลือง",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "CC02-018",
+      "name": "หุ่นพิฆาต 300%",
+      "abilities": [],
+      "parseStatus": "stub"
+    }
+  ]
+}

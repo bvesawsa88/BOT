@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2 (auto-generated)",
-  "note": "BT11: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี",
   "cards": [
     {
       "code": "BT11-001",

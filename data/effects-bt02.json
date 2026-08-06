@@ -1,169 +1,1017 @@
 {
-  "$schema": "bot-effect-schema v0.2",
-  "note": "BT02 — แปลงรอบออโต้ · ใบ manual ด้านล่างรอคำอธิบายจากผู้ใช้ (มีชื่อไทยใน note)",
   "cards": [
-    { "code": "BT02-001", "name": "บุญลือ วีรบุรุษเปรต", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "revealOwnLife", "count": 1 } ] },
-      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [ { "op": "modifyPower", "amountPer": "allRevealedLife", "per": 1, "layer": 3, "target": { "select": "self" } } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-002", "name": "วันชัย พ่อบุญลือ", "abilities": [
-      { "trigger": { "on": "paidAsCost", "if": "summonSymbol:เปรต" }, "actions": [ { "op": "grantProtectSummoned" } ] }
-    ], "parseStatus": "auto" },
-    { "code": "BT02-003", "name": "กัญญา แม่บุญลือ", "abilities": [
-      { "trigger": { "on": "paidAsCost", "if": "summonSymbol:เปรต" }, "actions": [ { "op": "draw", "count": 1 }, { "op": "discard" } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-004", "name": "พี่เช 10 ล้อท่าอิฐ", "abilities": [
-      { "keyword": "อัตโนมัติ", "trigger": { "on": "declareAttack", "if": "source==self" }, "cost": [ { "op": "discard", "from": "hand", "count": 1 } ], "actions": [ { "op": "modifyPower", "amount": 2, "duration": "endOfTurn", "layer": 4, "target": { "select": "self" } } ], "note": "cost ทิ้งมือตอนโจมตียัง partial — ตอนนี้ +2 ตอนประกาศโจมตีโดยไม่บังคับทิ้ง" }
-    ], "parseStatus": "partial" },
-
-    { "code": "BT02-005", "name": "ตำรวจไซบอร์ค จ่าคอป", "abilities": [], "parseStatus": "manual", "note": "ตำรวจไซบอร์ค จ่าคอป — โจมตี+ทิ้งมือ: สอดแนม 3 เอาเครื่องจักรขึ้นมือ (ต้องมี discard-on-attack)" },
-    { "code": "BT02-006", "name": "คนรวย", "abilities": [], "parseStatus": "manual", "note": "คนรวย — ยกเลิกความสามารถโดยให้อีกฝ่ายการ์ด 1 ใบ + ห้าม React ในเทิร์น" },
-
-    { "code": "BT02-007", "name": "อ๊บ", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "sacrifice", "filter": { "type": "Avatar" }, "count": 1 } ], "note": "เลือก Avatar ฝ่ายเรา (นอกจากตัวเอง) เซ่นไหว้ — sacrifice cost แบบไม่มีผลหลัง; ใช้ pick sacrifice" }
-    ], "parseStatus": "partial" },
-
-    { "code": "BT02-008", "name": "พระพรหม", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
-        { "op": "sacrifice", "filter": { "type": "Avatar" }, "then": [
-          { "op": "hellPick", "filter": { "type": "Avatar", "costMax": 8, "sameSymbolAs": "sacrificed", "nameNot": "sacrificed" }, "dest": "avatar", "paidCost": true }
-        ] }
-      ] }
-    ], "parseStatus": "auto" },
-    { "code": "BT02-009", "name": "มีมมิจัง ไอดอลหน้าใหม่", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
-        { "op": "deckPick", "filter": { "type": "Avatar", "nameIncludes": ["โอตะ"] }, "dest": "attachSelf", "shuffleAfter": true }
-      ] }
-    ], "parseStatus": "auto" },
-    { "code": "BT02-010", "name": "โอตะ รุ่นก่อตั้ง", "abilities": [
-      { "trigger": { "on": "chooseMode" }, "options": [
-        { "label": "สวมใส่ให้ไอดอล", "actions": [ { "op": "attach", "from": "self", "targetFilter": { "nameIncludes": ["ไอดอล"] } } ] },
-        { "label": "อัญเชิญจากสภาพสวมใส่", "actions": [ { "op": "detachSummonSelf" } ] }
-      ] }
-    ], "protectReplace": true, "protectReplaceIfHostNameIncludes": "ไอดอล", "parseStatus": "auto" },
-
-    { "code": "BT02-011", "name": "แม่ศรีนวล", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "deckPick", "filter": { "nameIncludes": ["ลูกแม่ศรีนวล", "พ่อบุญใหญ่"] }, "dest": "hand", "shuffleAfter": true } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-012", "name": "แมลงปอแจ็ค", "abilities": [], "parseStatus": "manual", "note": "แมลงปอแจ็ค — ทำลาย Land แล้วเอา Land จากเด็คมาเล่น" },
-
-    { "code": "BT02-013", "name": "แมลงปอ เปื้อนรังสี", "abilities": [
-      { "keyword": "คำสั่งเสีย", "trigger": { "on": "destroyed" }, "actions": [ { "op": "chooseDestroy", "filter": { "type": "Magic" }, "zones": ["magic", "land"] } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-014", "name": "ซันนี่", "abilities": [
-      { "keyword": "ต่อเนื่อง", "trigger": { "on": "static", "if": "self.zone==avatarZone" }, "actions": [ { "op": "modifyPower", "amount": 1, "layer": 3, "target": { "select": "all", "type": "Avatar", "side": "own", "nameIncludes": ["กุ่ย", "ฮอล", "นาย"], "zone": "avatarZone" } } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-015", "name": "เอเลี่ยนแสงสีฟ้า", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
-        { "op": "discard", "then": [ { "op": "coinDestroyChoose", "filter": { "type": "Avatar" } } ] }
-      ] }
-    ], "parseStatus": "auto" },
-    { "code": "BT02-016", "name": "ฤษี โคบุตร", "abilities": [], "parseStatus": "manual", "note": "ฤษี โคบุตร — เมื่อใช้เวท Symbol ฤษี: เลือก Avatar +1" },
-
-    { "code": "BT02-017", "name": "แรงงานทาสออฟฟิศ", "abilities": [
-      { "trigger": { "on": "ownTurnEnd" }, "actions": [ { "op": "returnSelfToDeck", "pos": "bottom", "shuffle": false } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-018", "name": "ธอร์ เทพเจ้าสายฟ้า แห่ง แอสการ์ด", "abilities": [], "parseStatus": "manual", "note": "ธอร์ — หลังทำลายจากการต่อสู้: ทำลายอีกใบที่ P = ผลต่าง" },
-
-    { "code": "BT02-019", "name": "โอดิน พ่อทุกสถาบัน แห่ง แอสการ์ด", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [
-        { "op": "mill", "who": "owner", "count": 9 },
-        { "op": "deckPick", "filter": { "symbol": "เทพ" }, "dest": "hand", "shuffleAfter": true }
-      ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-020", "name": "นินจินแมน", "abilities": [
-      { "trigger": { "on": "turnStart" }, "actions": [ { "op": "draw", "countPer": "ownAttachedMods", "per": 1 } ], "note": "จั่วตามจำนวน Mod ที่สวม — ต้องรองรับ countPer" }
-    ], "parseStatus": "partial" },
-
-    { "code": "BT02-021", "name": "กัปตัน ไกร", "abilities": [], "parseStatus": "manual", "note": "กัปตัน ไกร — ทิ้งมือทั้งหมดแล้วเอา Avatar ศัตรูขึ้นมือ" },
-    { "code": "BT02-022", "name": "แบงค์ ผู้รู้ความจริง", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "scout", "count": 3, "filter": {}, "dest": "reorder", "restTo": "top" } ], "note": "สอดแนม 3 เรียงตามใจ — dest reorder ยัง partial ใช้ scout ปกติพัก" }
-    ], "parseStatus": "partial" },
-
-    { "code": "BT02-023", "name": "40ดีกรีแมน", "abilities": [], "parseStatus": "manual", "note": "40ดีกรีแมน — อีกฝ่ายเลือกเป้าโจมตีแทน" },
-    { "code": "BT02-024", "name": "เสามงคล", "abilities": [], "parseStatus": "manual", "note": "เสามงคล — โจมตีไม่ได้ + จั่วเพิ่ม 1 หลัง Draw Phase" },
-
-    { "code": "BT02-025", "name": "ซินแส", "abilities": [
-      { "keyword": "จุติ", "trigger": { "on": "summoned", "if": "paidCost" }, "actions": [ { "op": "deckPick", "filter": { "nameIncludes": ["เสามงคล"] }, "dest": "hand", "shuffleAfter": true } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-026", "name": "ชุ่ย โจรสุสาน", "abilities": [], "parseStatus": "manual", "note": "ชุ่ย โจรสุสาน — ทั้งสองฝ่ายคืนนรกอีกฝ่าย 5 ใบเข้าเด็ค" },
-    { "code": "BT02-027", "name": "พยาบาล เอ๋", "abilities": [], "parseStatus": "manual", "note": "พยาบาล เอ๋ — ไม่ถูกทำลายจากการถูกโจมตี: สุ่มคว่ำ LIFE 1" },
-    { "code": "BT02-028", "name": "สตีฟ Tank Ranger", "abilities": [], "parseStatus": "manual", "note": "สตีฟ Tank Ranger — สวมใส่รถถัง / +2 / บังคับโจมตี" },
-    { "code": "BT02-029", "name": "รถถัง B66 - เอ็กซ์เซลเซอร์", "abilities": [], "parseStatus": "manual", "note": "รถถัง B66 — ต้องมีคนสวมถึงโจมตีได้" },
-
-    { "code": "BT02-030", "name": "ป้าข้างบ้าน", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-031", "name": "ตู้เย็นเบอร์ 1", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-032", "name": "แมลงปอ", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-033", "name": "ผู้เจริญระดับ 4", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-034", "name": "ผีทีวี", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-035", "name": "พุ่มไม้กินคน", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-036", "name": "ต้นมะม่วง", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-037", "name": "มาวิน", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-038", "name": "หมาฟู", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-039", "name": "วานร ละโว้", "abilities": [], "parseStatus": "verified" },
-    { "code": "BT02-040", "name": "โลทัน", "abilities": [], "parseStatus": "verified" },
-
-    { "code": "BT02-041", "name": "ช่วยโลกใบนี้ไว้", "abilities": [], "parseStatus": "manual", "note": "ช่วยโลกใบนี้ไว้ — หงาย LIFE ทั้งหมด + ให้เปรตเตะไข่/กันโล่จนจบเทิร์น" },
-    { "code": "BT02-042", "name": "ประชามติ", "abilities": [], "parseStatus": "manual", "note": "ประชามติ — นอนทุกใบฝ่ายเรา แล้วทำลายใบที่ P < ผลรวมที่นอน" },
-    { "code": "BT02-043", "name": "ฉุบสั่งตาย", "abilities": [
-      { "trigger": { "on": "activated" }, "actions": [ { "op": "rpsDestroy", "seconds": 10 } ] }
-    ], "parseStatus": "auto" },
-    { "code": "BT02-044", "name": "ด่านลอย", "abilities": [], "parseStatus": "manual", "note": "ด่านลอย — เลือก Cost 0-9 สุ่มมือศัตรู" },
-
-    { "code": "BT02-045", "name": "ความกล้าหาญ", "abilities": [
-      { "trigger": { "on": "activated" }, "actions": [ { "op": "modifyPower", "amount": 4, "duration": "endOfTurn", "target": { "select": "choose", "type": "Avatar", "side": "own", "count": 1 }, "destroyAtEnd": true } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-046", "name": "ร้อนมากก็เปิดหน้าต่างสิว๊ากกกก", "abilities": [
-      { "trigger": { "on": "activated" }, "actions": [ { "op": "bounce", "from": "enemy", "filter": { "type": "Avatar" } } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-047", "name": "แมลงปอทอด", "abilities": [
-      { "trigger": { "on": "activated" }, "cost": [ { "op": "sacrifice", "filter": { "type": "Avatar", "symbol": "แมลง" }, "count": 1 } ], "actions": [ { "op": "draw", "count": 3 } ], "note": "ข้อจำกัดโจมตีได้แค่แมลงในเทิร์น = ผู้เล่นคุมเอง" }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-048", "name": "กระแสอัปมงคล", "abilities": [], "parseStatus": "manual", "note": "กระแสอัปมงคล — ไร้ผลความสามารถ Avatar ศัตรูจนจบเทิร์น" },
-
-    { "code": "BT02-049", "name": "กระแสสิริมงคล", "abilities": [
-      { "trigger": { "on": "enemyDeclareAttack" }, "react": true, "actions": [ { "op": "draw", "count": 1 } ], "note": "จั่วตามจำนวนที่โจมตี — ปกติ 1 ตัว/ครั้ง" }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-050", "name": "เคี้ยวเพื่อนเธอซะ", "abilities": [], "parseStatus": "manual", "note": "เคี้ยวเพื่อนเธอซะ — React อัญเชิญ: เซ่นหลายใบแล้วอัญเชิญจากมือตาม GEM" },
-    { "code": "BT02-051", "name": "ถวาย", "abilities": [], "parseStatus": "manual", "note": "ถวาย — กันทำลายโดยทิ้งมือทั้งหมด" },
-
-    { "code": "BT02-052", "name": "เอากล้วยมานี่ย์ !!!!!!", "abilities": [
-      { "trigger": { "on": "enemyDeclareAttack" }, "react": true, "actions": [ { "op": "modifyPower", "amount": -2, "duration": "endOfTurn", "target": { "select": "choose", "type": "Avatar", "side": "enemy", "count": 1 } } ] }
-    ], "parseStatus": "auto" },
-
-    { "code": "BT02-053", "name": "ฟ้องครู", "abilities": [], "parseStatus": "manual", "note": "ฟ้องครู — นอนใบอื่นฝ่ายเรา ยก POWER ให้เป้าที่ถูกตี" },
-
-    { "code": "BT02-054", "name": "ไปเลยมอนตี้", "abilities": [
-      { "keyword": "React", "trigger": { "on": "enemyDeclareAttack" }, "actions": [ { "op": "weakenAttacker", "per": 2, "count": ["ownSide"], "until": "endOfTurn" } ] }
-    ], "parseStatus": "verified" },
-    { "code": "SD06-014", "name": "ไปเลยมอนตี้", "abilities": [
-      { "keyword": "React", "trigger": { "on": "enemyDeclareAttack" }, "actions": [ { "op": "weakenAttacker", "per": 2, "count": ["ownSide"], "until": "endOfTurn" } ] }
-    ], "parseStatus": "verified", "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์" },
-    { "code": "KD01-018", "name": "ไปเลยมอนตี้", "abilities": [
-      { "keyword": "React", "trigger": { "on": "enemyDeclareAttack" }, "actions": [ { "op": "weakenAttacker", "per": 2, "count": ["ownSide"], "until": "endOfTurn" } ] }
-    ], "parseStatus": "verified", "note": "ซ้ำ BT02-054" },
-
-    { "code": "BT02-055", "name": "ประกันชั้นต่ำ", "abilities": [], "protectReplace": true, "parseStatus": "auto" },
-
-    { "code": "BT02-056", "name": "ขวานเงิน", "abilities": [
-      { "trigger": { "on": "static", "if": "self.attached" }, "actions": [ { "op": "modifyPower", "amount": 2, "layer": 2, "target": { "select": "equippedAvatar" } } ] }
-    ], "nullifyHost": true, "parseStatus": "auto" },
-
-    { "code": "BT02-057", "name": "ช็อตกัน นัยนาวุธ", "abilities": [], "parseStatus": "manual", "note": "ช็อตกัน นัยนาวุธ — ทำลายด้วยการต่อสู้สำเร็จ: หงาย LIFE ศัตรู 1" },
-    { "code": "BT02-058", "name": "ประตูนรก", "abilities": [], "parseStatus": "manual", "note": "ประตูนรก — ทิ้งนรกจากมือ อัญเชิญนายนิรยบาล Cost≤4 จากนรก" },
-    { "code": "BT02-059", "name": "เทศกาลแมลงปอบุก", "keywords": ["สามัคคี"], "abilities": [], "parseStatus": "partial", "note": "เทศกาลแมลงปอบุก — ให้แมลงทุกใบได้สามัคคี (ตอนนี้ keyword บน Land อย่างเดียว ยังไม่กระจายให้แมลง)" },
-    { "code": "BT02-060", "name": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน", "abilities": [], "parseStatus": "manual", "note": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน — เปลี่ยน Symbol เป็นเทพ + ยึดชั่วคราว Cost≤3 ที่นอน" }
+    {
+      "code": "BT02-001",
+      "name": "บุญลือ วีรบุรุษเปรต",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-002",
+      "name": "วันชัย พ่อบุญลือ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonSymbol:เปรต"
+          },
+          "actions": [
+            {
+              "op": "grantProtectSummoned"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-003",
+      "name": "กัญญา แม่บุญลือ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonSymbol:เปรต"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            },
+            {
+              "op": "discard"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-004",
+      "name": "พี่เช 10 ล้อท่าอิฐ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "note": "cost ทิ้งมือตอนโจมตียัง partial — ตอนนี้ +2 ตอนประกาศโจมตีโดยไม่บังคับทิ้ง"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "BT02-005",
+      "name": "ตำรวจไซบอร์ค จ่าคอป",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ตำรวจไซบอร์ค จ่าคอป — โจมตี+ทิ้งมือ: สอดแนม 3 เอาเครื่องจักรขึ้นมือ (ต้องมี discard-on-attack)"
+    },
+    {
+      "code": "BT02-006",
+      "name": "คนรวย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "oncePerTurn": true,
+          "countsAsReact": true,
+          "actions": [
+            {
+              "op": "negateByGiveHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง"
+    },
+    {
+      "code": "BT02-007",
+      "name": "อ๊บ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar"
+              },
+              "count": 1
+            }
+          ],
+          "note": "เลือก Avatar ฝ่ายเรา (นอกจากตัวเอง) เซ่นไหว้ — sacrifice cost แบบไม่มีผลหลัง; ใช้ pick sacrifice"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "BT02-008",
+      "name": "พระพรหม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 8,
+                    "sameSymbolAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-009",
+      "name": "มีมมิจัง ไอดอลหน้าใหม่",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "dest": "attachSelf",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-010",
+      "name": "โอตะ รุ่นก่อตั้ง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "สวมใส่ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "ไอดอล",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-011",
+      "name": "แม่ศรีนวล",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ลูกแม่ศรีนวล",
+                  "พ่อบุญใหญ่"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-012",
+      "name": "แมลงปอแจ็ค",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "replaceLandFromDeck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
+    },
+    {
+      "code": "BT02-013",
+      "name": "แมลงปอ เปื้อนรังสี",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Magic"
+              },
+              "zones": [
+                "magic",
+                "land"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-014",
+      "name": "ซันนี่",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย"
+                ],
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-015",
+      "name": "เอเลี่ยนแสงสีฟ้า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "discard",
+              "then": [
+                {
+                  "op": "coinDestroyChoose",
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-016",
+      "name": "ฤษี โคบุตร",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ฤษี โคบุตร — เมื่อใช้เวท Symbol ฤษี: เลือก Avatar +1"
+    },
+    {
+      "code": "BT02-017",
+      "name": "แรงงานทาสออฟฟิศ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToDeck",
+              "pos": "bottom",
+              "shuffle": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-018",
+      "name": "ธอร์ เทพเจ้าสายฟ้า แห่ง แอสการ์ด",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ธอร์ — หลังทำลายจากการต่อสู้: ทำลายอีกใบที่ P = ผลต่าง"
+    },
+    {
+      "code": "BT02-019",
+      "name": "โอดิน พ่อทุกสถาบัน แห่ง แอสการ์ด",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "owner",
+              "count": 9
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-020",
+      "name": "นินจินแมน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "turnStart"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "countPer": "ownAttachedMods",
+              "per": 1
+            }
+          ],
+          "note": "จั่วตามจำนวน Mod ที่สวม — ต้องรองรับ countPer"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "BT02-021",
+      "name": "กัปตัน ไกร",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "กัปตัน ไกร — ทิ้งมือทั้งหมดแล้วเอา Avatar ศัตรูขึ้นมือ"
+    },
+    {
+      "code": "BT02-022",
+      "name": "แบงค์ ผู้รู้ความจริง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {},
+              "dest": "reorder",
+              "restTo": "top"
+            }
+          ],
+          "note": "สอดแนม 3 เรียงตามใจ — dest reorder ยัง partial ใช้ scout ปกติพัก"
+        }
+      ],
+      "parseStatus": "partial"
+    },
+    {
+      "code": "BT02-023",
+      "name": "40ดีกรีแมน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "40ดีกรีแมน — อีกฝ่ายเลือกเป้าโจมตีแทน"
+    },
+    {
+      "code": "BT02-024",
+      "name": "เสามงคล",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เสามงคล — โจมตีไม่ได้ + จั่วเพิ่ม 1 หลัง Draw Phase"
+    },
+    {
+      "code": "BT02-025",
+      "name": "ซินแส",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "เสามงคล"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-026",
+      "name": "ชุ่ย โจรสุสาน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ชุ่ย โจรสุสาน — ทั้งสองฝ่ายคืนนรกอีกฝ่าย 5 ใบเข้าเด็ค"
+    },
+    {
+      "code": "BT02-027",
+      "name": "พยาบาล เอ๋",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พยาบาล เอ๋ — ไม่ถูกทำลายจากการถูกโจมตี: สุ่มคว่ำ LIFE 1"
+    },
+    {
+      "code": "BT02-028",
+      "name": "สตีฟ Tank Ranger",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สตีฟ Tank Ranger — สวมใส่รถถัง / +2 / บังคับโจมตี"
+    },
+    {
+      "code": "BT02-029",
+      "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "รถถัง B66 — ต้องมีคนสวมถึงโจมตีได้"
+    },
+    {
+      "code": "BT02-030",
+      "name": "ป้าข้างบ้าน",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-031",
+      "name": "ตู้เย็นเบอร์ 1",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-032",
+      "name": "แมลงปอ",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-033",
+      "name": "ผู้เจริญระดับ 4",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-034",
+      "name": "ผีทีวี",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-035",
+      "name": "พุ่มไม้กินคน",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-036",
+      "name": "ต้นมะม่วง",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-037",
+      "name": "มาวิน",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-038",
+      "name": "หมาฟู",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-039",
+      "name": "วานร ละโว้",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-040",
+      "name": "โลทัน",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "BT02-041",
+      "name": "ช่วยโลกใบนี้ไว้",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ช่วยโลกใบนี้ไว้ — หงาย LIFE ทั้งหมด + ให้เปรตเตะไข่/กันโล่จนจบเทิร์น"
+    },
+    {
+      "code": "BT02-042",
+      "name": "ประชามติ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ประชามติ — นอนทุกใบฝ่ายเรา แล้วทำลายใบที่ P < ผลรวมที่นอน"
+    },
+    {
+      "code": "BT02-043",
+      "name": "ฉุบสั่งตาย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "rpsDestroy",
+              "seconds": 10
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-044",
+      "name": "ด่านลอย",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ด่านลอย — เลือก Cost 0-9 สุ่มมือศัตรู"
+    },
+    {
+      "code": "BT02-045",
+      "name": "ความกล้าหาญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "destroyAtEnd": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-046",
+      "name": "ร้อนมากก็เปิดหน้าต่างสิว๊ากกกก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bounce",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-047",
+      "name": "แมลงปอทอด",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "แมลง"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            }
+          ],
+          "note": "ข้อจำกัดโจมตีได้แค่แมลงในเทิร์น = ผู้เล่นคุมเอง"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-048",
+      "name": "กระแสอัปมงคล",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "กระแสอัปมงคล — ไร้ผลความสามารถ Avatar ศัตรูจนจบเทิร์น"
+    },
+    {
+      "code": "BT02-049",
+      "name": "กระแสสิริมงคล",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "note": "จั่วตามจำนวนที่โจมตี — ปกติ 1 ตัว/ครั้ง"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-050",
+      "name": "เคี้ยวเพื่อนเธอซะ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เคี้ยวเพื่อนเธอซะ — React อัญเชิญ: เซ่นหลายใบแล้วอัญเชิญจากมือตาม GEM"
+    },
+    {
+      "code": "BT02-051",
+      "name": "ถวาย",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ถวาย — กันทำลายโดยทิ้งมือทั้งหมด"
+    },
+    {
+      "code": "BT02-052",
+      "name": "เอากล้วยมานี่ย์ !!!!!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-053",
+      "name": "ฟ้องครู",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ฟ้องครู — นอนใบอื่นฝ่ายเรา ยก POWER ให้เป้าที่ถูกตี"
+    },
+    {
+      "code": "BT02-054",
+      "name": "ไปเลยมอนตี้",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "weakenAttacker",
+              "per": 2,
+              "count": [
+                "ownSide"
+              ],
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD06-014"
+    },
+    {
+      "code": "SD06-014",
+      "name": "ไปเลยมอนตี้",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "weakenAttacker",
+              "per": 2,
+              "count": [
+                "ownSide"
+              ],
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
+    },
+    {
+      "code": "KD01-018",
+      "name": "ไปเลยมอนตี้",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "weakenAttacker",
+              "per": 2,
+              "count": [
+                "ownSide"
+              ],
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054"
+    },
+    {
+      "code": "BT02-055",
+      "name": "ประกันชั้นต่ำ",
+      "abilities": [],
+      "protectReplace": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-056",
+      "name": "ขวานเงิน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "nullifyHost": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT02-057",
+      "name": "ช็อตกัน นัยนาวุธ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ช็อตกัน นัยนาวุธ — ทำลายด้วยการต่อสู้สำเร็จ: หงาย LIFE ศัตรู 1"
+    },
+    {
+      "code": "BT02-058",
+      "name": "ประตูนรก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHandFilter": {
+              "type": "Avatar",
+              "symbol": "นรก"
+            }
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ ทิ้ง Avatar {Symbol นรก} 1 ใบจากบนมือ : อัญเชิญ Avatar \"นายนิรยบาล\" ค่า Cost ไม่เกิน 4 จาก นรกฝ่าย"
+    },
+    {
+      "code": "BT02-059",
+      "name": "เทศกาลแมลงปอบุก",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "abilities": [],
+      "parseStatus": "partial",
+      "note": "เทศกาลแมลงปอบุก — ให้แมลงทุกใบได้สามัคคี (ตอนนี้ keyword บน Land อย่างเดียว ยังไม่กระจายให้แมลง)"
+    },
+    {
+      "code": "BT02-060",
+      "name": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "op": "discard",
+            "count": 1
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3,
+                "requireTapped": true
+              },
+              "until": "endOfTurn",
+              "keepTapped": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น {Symbol เทพ} เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด 1 ใบ แล้วเลือก Avatar 1 ",
+      "forceAllAvatarSymbol": "เทพ"
+    }
   ]
 }

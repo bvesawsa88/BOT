@@ -1,0 +1,361 @@
+{
+  "category": "avatar-colorless",
+  "type": "Avatar",
+  "color": "ไร้สี",
+  "entries": [
+    {
+      "name": "คราเค่น ปลาหมึกปีศาจ",
+      "codes": [
+        "BT09-021"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "จ่ายุทธ ทหารรักชาติ",
+      "codes": [
+        "BT09-040"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "โซน่า โพลีกอน",
+      "codes": [
+        "BT09-022"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "โดมรัททาทุย",
+      "codes": [
+        "SD08-003"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "sacrificeSelf"
+            },
+            {
+              "op": "showHandBuildConstruct",
+              "filter": {
+                "type": "Construct",
+                "symbol": "รัททาทุย"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เซ่นตัวเองแล้วก่อสร้าง Construct จากมือทันที ไม่จ่าย Cost"
+    },
+    {
+      "name": "นายนิรยบาล กล้าม",
+      "codes": [
+        "KD02-010",
+        "ODY1-058",
+        "PRMO-046",
+        "SD03-008"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "นายนิรยบาล ชาวนา",
+      "codes": [
+        "KD02-013",
+        "ODY1-057",
+        "SD03-006"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "นายนิรยบาล ปฎิรูป",
+      "codes": [
+        "KD02-011",
+        "ODY1-056",
+        "PRMO-002",
+        "SD03-007"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "นายนิรยบาล อ้วน",
+      "codes": [
+        "KD02-008",
+        "SD03-004"
+      ],
+      "abilities": [],
+      "millBonusExtra": 2,
+      "millBonusExceptSelf": true,
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์"
+    },
+    {
+      "name": "แบงค์ ตัวแดง",
+      "codes": [
+        "BT09-028"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ผีเสื้อของเดซี่",
+      "codes": [
+        "BT07-046"
+      ],
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "พญายม",
+      "codes": [
+        "KD02-003",
+        "PRMO-020",
+        "SD03-001"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
+    },
+    {
+      "name": "พระนารายณ์",
+      "codes": [
+        "KD01-006",
+        "PRMO-027",
+        "SD01-002",
+        "SL01-004"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "อัตโนมัติ"
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "พอง พอง",
+      "codes": [
+        "BT09-045"
+      ],
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "พี่่ NUT",
+      "codes": [
+        "BT09-048"
+      ],
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "เพนกวินหิมะ เหลียง",
+      "codes": [
+        "BT09-015"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "มิสเตอร์โบโบ้",
+      "codes": [
+        "BT09-027"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "รัททาทุยกินซาก",
+      "codes": [
+        "SD08-005"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "exileHellDistinctNames",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              },
+              "thenBuffSelfPer": 1,
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "รัททาทุย นินจา",
+      "codes": [
+        "BT09-016"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "รัททาทุยโป๊",
+      "codes": [
+        "SD08-008"
+      ],
+      "abilities": [],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "verified",
+      "note": "keyword โล่มนุษย์ (เอนจินรองรับ)"
+    },
+    {
+      "name": "รัททาทุย เฝ้าทวาร",
+      "codes": [
+        "SD08-011"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีเอฟเฟกต์"
+    },
+    {
+      "name": "รัททาทุย พาราไซท์",
+      "codes": [
+        "SD08-006"
+      ],
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "รัทาทุย หัวค้อน",
+      "codes": [
+        "SD08-007"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Construct",
+                "symbol": "รัททาทุย"
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "วิญญาณร้าย",
+      "codes": [
+        "BT09-047"
+      ],
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "วินดิโก้",
+      "codes": [
+        "BT09-032"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สกินวอคเกอร์",
+      "codes": [
+        "BT09-033"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สตางค์น้องชายแบงค์ ตัวเขียว",
+      "codes": [
+        "BT09-029"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2 (starter-gen)",
-  "note": "KD02 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
   "cards": [
     {
       "code": "KD02-001",
@@ -104,8 +102,8 @@
           ]
         }
       ],
-      "parseStatus": "verified",
-      "note": "จุติ : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญเชิญลง Avatar Zone ฝ่ายเรา"
+      "parseStatus": "manual",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
       "code": "KD02-004",
@@ -188,7 +186,7 @@
           "actions": [
             {
               "op": "mill",
-              "count": 1,
+              "count": 2,
               "who": "self"
             },
             {
@@ -200,9 +198,7 @@
                 "select": "self"
               }
             }
-          ],
-          "oncePerTurn": true,
-          "oncePerTurnTag": "fightMill"
+          ]
         },
         {
           "keyword": "อัตโนมัติ",
@@ -212,7 +208,7 @@
           "actions": [
             {
               "op": "mill",
-              "count": 1,
+              "count": 2,
               "who": "self"
             },
             {
@@ -224,13 +220,11 @@
                 "select": "self"
               }
             }
-          ],
-          "oncePerTurn": true,
-          "oncePerTurnTag": "fightMill"
+          ]
         }
       ],
-      "parseStatus": "verified",
-      "note": "อัตโนมัติเมื่อโจมตี (Avatar/LIFE) หรือเป็นเป้า: ธรณีสูบ 1 + POWER +1 จนจบเทิร์น (รวมกันเทิร์นละครั้ง)"
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
     },
     {
       "code": "KD02-007",
@@ -248,16 +242,16 @@
           ]
         }
       ],
-      "parseStatus": "verified",
-      "note": "อัตโนมัติ ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรกได้ #การ์ดใบนี้ไม่สามา",
+      "parseStatus": "manual",
+      "note": "ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรก",
       "noHandSummon": true
     },
     {
       "code": "KD02-008",
       "name": "นายนิรยบาล อ้วน",
       "abilities": [],
-      "parseStatus": "verified",
-      "note": "ต่อเนื่อง เมื่อมีการ ธรณีสูบ จากความสามารถของการ์ดฝ่ายเรา ยกเว้น \"นายนิรยบาล อ้วน\" ธรณีสูบ เพิ่ม 2 ใบ",
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์",
       "millBonusExtra": 2,
       "millBonusExceptSelf": true
     },
@@ -417,7 +411,7 @@
         }
       ],
       "parseStatus": "verified",
-      "note": "แมปจาก SD08-013 · lifeBothModes · ใช้แล้วลงนรก",
+      "note": " · ใช้แล้วลงนรก",
       "lifeBothModes": true
     },
     {

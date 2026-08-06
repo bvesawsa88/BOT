@@ -1,0 +1,1244 @@
+{
+  "category": "magic-React",
+  "type": "Magic",
+  "subtype": "React",
+  "entries": [
+    {
+      "name": "กฎร้าน",
+      "codes": [
+        "CC01-045"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "กระแสสิริมงคล",
+      "codes": [
+        "BT02-049"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "note": "จั่วตามจำนวนที่โจมตี — ปกติ 1 ตัว/ครั้ง"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กลับหลังหัน !!!",
+      "codes": [
+        "BT04-052"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "swapCostPowerCombat"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กาจอก",
+      "codes": [
+        "CC02-046"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ขอจบรายการแต่เพียงเท่านี้",
+      "codes": [
+        "BT07-061"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ขอให้ทั้งตัวมีแต่---",
+      "codes": [
+        "CC01-046"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ขึ้นมาเร็ว ไอ้ลูกลิง !!",
+      "codes": [
+        "SD04-018"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireOwnNameIncludes": "รถถัง",
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ]
+              },
+              "dest": "attachHost",
+              "attachHostFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              },
+              "thenDestroyAttackerIfAttached": true,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar รถถังเป็นเป้าโจมตี : สอดแนม (ดูการ์ดใบบนสุดของเด็ค) 5 ใบ เลือก Avatar {symbol คน} ที่ติดชื่อ \"Tank Ranger\" "
+    },
+    {
+      "name": "คว้าปืนมายิงหมี",
+      "codes": [
+        "BT03-049",
+        "KD04-020"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand"
+            },
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "duration": "combat",
+              "target": {
+                "select": "attacker"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "คาถา โปเตกโต้",
+      "codes": [
+        "BT10-066"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "คาถา สตอปปุ",
+      "codes": [
+        "BT07-060"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เคี้ยวเพื่อนเธอซะ",
+      "codes": [
+        "BT02-050",
+        "ODY1-087"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เคี้ยวเพื่อนเธอซะ — React อัญเชิญ: เซ่นหลายใบแล้วอัญเชิญจากมือตาม GEM"
+    },
+    {
+      "name": "งับ",
+      "codes": [
+        "BT03-050",
+        "CC02-055"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "symbol": "กะปอม"
+              },
+              "dest": "hand",
+              "restTo": "bottom",
+              "shuffleAfter": true,
+              "thenIfFound": [
+                {
+                  "op": "destroyAttacker"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "งานจับมือ",
+      "codes": [
+        "BT04-048",
+        "KD03-015"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:ไอดอล"
+          },
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "attach",
+              "from": "hell",
+              "filter": {
+                "nameIncludes": [
+                  "โอตะ"
+                ]
+              },
+              "targetFilter": {
+                "nameIncludes": [
+                  "ไอดอล"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ยกเลิกโจมตีใบนั้น · สวมโอตะให้ไอดอลที่เป็นเป้า"
+    },
+    {
+      "name": "จิ้มมันเลย จิ้ม!",
+      "codes": [
+        "SD03-020"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เจ้ากล้าดียังไง",
+      "codes": [
+        "BT01-039",
+        "ODY1-084",
+        "PRMO-068"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroyAttacker"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "โจมตีตัวฉันให้โดนถ้าหากเธอทำได้",
+      "codes": [
+        "BT08-054"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ช่างมาแล้วววว",
+      "codes": [
+        "BT06-050"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ชายจากอนาคต",
+      "codes": [
+        "BT01-041",
+        "CC02-061",
+        "KD02-018",
+        "KD04-019",
+        "ODY1-069",
+        "PRMO-056",
+        "SD05-020",
+        "SL01-006"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
+    },
+    {
+      "name": "เชาว์ปัญญาลิง - ชิงปัญญาเรา",
+      "codes": [
+        "BT04-050",
+        "KD03-017"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React ตอนสั่งใช้/จุติ/อัตโนมัติ → ยกเลิกความสามารถนั้น + nullify จนจบเทิร์น"
+    },
+    {
+      "name": "ตัดเน็ต",
+      "codes": [
+        "BT09-062"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ถวาย",
+      "codes": [
+        "BT02-051"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ถวาย — กันทำลายโดยทิ้งมือทั้งหมด"
+    },
+    {
+      "name": "ทะลุบ้านทะลุโกศ",
+      "codes": [
+        "BT09-061"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ทำไมถึงเอาแต่ดูละครับ ?!",
+      "codes": [
+        "BT11-063"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [],
+          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "เมื่อฝ่ายตรงข้ามโจมตี : เลือก Avatar 1 ใบบน Avatar Zone ฝ่ายเรา ที่อยู่ในสถานะ ["
+    },
+    {
+      "name": "ธาตุไฟแตก ๆ",
+      "codes": [
+        "BT06-051"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "น้ำวนชักโครก",
+      "codes": [
+        "SD05-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireOwnNameIncludes": "บึงทมิฬ People",
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "flipTapsExceptAttacker"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar \"บึงทมิฬ People\" เป็นเป้าหมายการโจมตี : ยกเลิกการโจมตีนั้น และเปลี่"
+    },
+    {
+      "name": "ปืนใหญ่ไทยประดิษฐ์",
+      "codes": [
+        "SD06-015"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned"
+          },
+          "react": true,
+          "requireOwn": {
+            "effectIncludes": "ค่ายบางระจัน"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "own",
+              "filter": {
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "zones": [
+                "avatar"
+              ]
+            },
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เมื่อฝ่ายตรงข้ามอัญเชิญ Avatar และเราควบคุม Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน T"
+    },
+    {
+      "name": "ไปคุยกับรากมะม่วง",
+      "codes": [
+        "BT10-063"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ไปเลยมอนตี้",
+      "codes": [
+        "BT02-054",
+        "KD01-018",
+        "PRMO-157",
+        "SD06-014"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "weakenAttacker",
+              "per": 2,
+              "count": [
+                "ownSide"
+              ],
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก SD06-014"
+    },
+    {
+      "name": "แผนการ : ตอกฝาโลง",
+      "codes": [
+        "BT08-055"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "แผนการ : เพดานถล่ม",
+      "codes": [
+        "BT05-061"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarTapped"
+          },
+          "requireEnemyTappedMin": 2,
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar",
+                "tapped": true
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "any"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "พระคุ้มครอง",
+      "codes": [
+        "BT05-057"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "oppBattlePhaseStart"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "grantCombatImmuneAllOwn",
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "พลังแฝง",
+      "codes": [
+        "BT06-053",
+        "PRMO-134",
+        "SL02-008"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "พันปักษา",
+      "codes": [
+        "BT07-059"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "เพื่อชาติ",
+      "codes": [
+        "SD04-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เมื่ออีกฝ่ายประกาศโจมตี ทำลาย Avatar \"รถถัง\" บนสนามฝ่ายเรา 1 ใบ : ทำลาย Avatar ท"
+    },
+    {
+      "name": "ฟ้องครู",
+      "codes": [
+        "BT02-053"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ฟ้องครู — นอนใบอื่นฝ่ายเรา ยก POWER ให้เป้าที่ถูกตี"
+    },
+    {
+      "name": "ไม่เจ้ายังไม่พร้อม",
+      "codes": [
+        "BT03-047",
+        "PRMO-028"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarSummoned"
+          },
+          "actions": [
+            {
+              "op": "tap",
+              "target": "triggerSource"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "รหัสดำ",
+      "codes": [
+        "BT05-059"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cost": [
+            {
+              "op": "sacNamedUnique",
+              "names": [
+                "คุณเชิดชัย Super Air",
+                "เครื่องบิน Super Air"
+              ],
+              "nameIncludesExtra": "Super Air",
+              "extraCount": 2,
+              "totalUnique": 4
+            }
+          ],
+          "actions": [
+            {
+              "op": "revealOppLifeOrWin",
+              "count": 3,
+              "winIfFaceDownLte": 2
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ระเบิดVery Fat Man",
+      "codes": [
+        "SD02-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "sacrificeNamesOneEach",
+              "names": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ],
+              "then": [
+                {
+                  "op": "destroyAllEnemyAvatars"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ส่ง Avatar \"กุ่ย\",\"ฮอล\" และ \"นาย\" อย่างละ 1 ใบ จากบนมือเรา และ,หรือ บนสนามเราลงนรก : ทำลาย Avatar ทุกใบบนสนามฝ่ายตรงข้าม"
+    },
+    {
+      "name": "รัททาท่วม",
+      "codes": [
+        "SD08-015"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "symbol:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "deckPickMulti",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "multiAvatar",
+              "multiMin": 1,
+              "multiMax": 2,
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React อัญเชิญ C1G1P1 1-2 ใบ ไม่จุติ"
+    },
+    {
+      "name": "รัททาทุยเกาะหน้า",
+      "codes": [
+        "BT08-058"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "symbol:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy",
+              "optional": true
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อรัททาทุยฝ่ายเราถูกทำลาย → ทำลายศัตรู Cost≤5 แล้วอัญเชิญ C1G1P1 จากเด็ค ไม่จุติ"
+    },
+    {
+      "name": "ริกกี้ นักปลอมแปลง",
+      "codes": [
+        "BT01-042",
+        "CC01-058",
+        "ODY1-070"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "React ยึด+สวมใส่เมื่อถูกทำลายจากการต่อสู้ — ซับซ้อนมาก"
+    },
+    {
+      "name": "เราจะตายแล้วท่านหยุดเถอะ",
+      "codes": [
+        "CC02-047"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "ลงกาโพรเทคชั่น",
+      "codes": [
+        "BT09-063"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ลดราคาล้นตลาด",
+      "codes": [
+        "BT04-051"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireBothHaveMods": true,
+          "actions": [
+            {
+              "op": "bothDestroyOneMod"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้ได้ตลอดเมื่อทั้งสองฝ่ายมี Mod สวม · ผู้ใช้เลือกฝ่ายละ 1"
+    },
+    {
+      "name": "ลุ้นเยี่ยวเหนียว",
+      "codes": [
+        "BT08-056"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "requireBothHaveAvatar": true,
+          "react": true,
+          "actions": [
+            {
+              "op": "diceLowestDeckBottomAllAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เมื่อศัตรูประกาศโจมตีและทั้งสองฝ่ายมี Avatar: ทั้งคู่ทอยเต๋า — แต้มน้อยสุด Avatar ทั้งหมดกลับใต้เด็ค (เสมอ=ทั้งคู่)"
+    },
+    {
+      "name": "วิชานินจา ผนึกเงา",
+      "codes": [
+        "BT10-064"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "วิชานินจา รุกรับพลิกผัน",
+      "codes": [
+        "BT10-065"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "สละเพื่อนเพื่อช่วยเพื่อน",
+      "codes": [
+        "SD02-019"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "sacrificeHandOrField",
+              "nameIncludesAny": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ],
+              "then": [
+                {
+                  "op": "bounce",
+                  "from": "any",
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือเรา หรือ บนสนามเราลงนรก : นำ Avatar 1 ใบบนสนามกลับขึ้นมือ"
+    },
+    {
+      "name": "เสียงเรียกแห่งวัลฮัลลา",
+      "codes": [
+        "BT06-052"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "หนีคือยอดกลยุทธ์",
+      "codes": [
+        "PRMO-110",
+        "SD07-016"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "bounce",
+              "from": "own",
+              "filter": {
+                "type": "Avatar"
+              },
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
+    },
+    {
+      "name": "หมอมาแล้วววว",
+      "codes": [
+        "BT01-040",
+        "ODY1-073",
+        "PRMO-035",
+        "SD07-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "grantCombatImmune",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
+    },
+    {
+      "name": "เหตุผลที่ยังหายใจ",
+      "codes": [
+        "BT11-062"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar เราถูกทำลาย ถ้า Avatar ใบนั้น เป็นใบที่ 2 ที่ถูกทำลายในเทิร์นนี้ โดยการ เนรเทศการ์ดในนรกเรา 1 ใบ : เลือก Av"
+    },
+    {
+      "name": "เหน็บกินมือ",
+      "codes": [
+        "BT05-060",
+        "CC02-056"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDrawFromDeckByEffect"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "ยกเลิกขึ้นมือจากเด็คด้วยเอฟเฟกต์ — ต้องมี hook ตอน draw-by-effect"
+    },
+    {
+      "name": "แหม่อ้ายก็~~~",
+      "codes": [
+        "BT08-057",
+        "PRMO-133"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ให้ข้าวฉันถ้าคุณเป็นคนดี",
+      "codes": [
+        "BT11-061"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อเริ่มต้น Battle Phase ของฝ่ายตรงข้าม เลือก Avatar ของฝ่ายตรงข้าม 1 ใบ : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ A"
+    },
+    {
+      "name": "อย่าให้มีครั้งที่ 2",
+      "codes": [
+        "BT05-058",
+        "KD02-017",
+        "PRMO-100",
+        "SL02-007"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyPlayReact"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อะไรวะ !",
+      "codes": [
+        "KD00-00A"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "อุบัติเหตุ!!!",
+      "codes": [
+        "CC01-052",
+        "KD01-017",
+        "KD03-016",
+        "PRMO-003",
+        "PRMO-119",
+        "SD01-017"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "name": "เอากล้วยมานี่ย์ !!!!!!",
+      "codes": [
+        "BT02-052",
+        "CC02-054"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เอาไปอยู่ด้วย",
+      "codes": [
+        "BT04-049",
+        "PRMO-069"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyedByOpp",
+            "if": "symbol:ผี"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React ถามใช้ไหม · นับตายต่อสู้ด้วย"
+    },
+    {
+      "name": "เอาเสื้อมาหมุนๆแล้วตบ",
+      "codes": [
+        "BT03-048"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "returnHandToDeck",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "แมลง"
+              },
+              "zones": [
+                "avatar"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ฮึบบบบบบบบบบบบ",
+      "codes": [
+        "BT05-062"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "ลูกฮึด",
+              "duration": "endOfTurn",
+              "from": "any"
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto",
+      "note": "React จังหวะจริงอาจกว้างกว่าประกาศโจมตี — ถามรอบหน้า"
+    },
+    {
+      "name": "ไฮแจ็ค ไฮรีเทิร์น",
+      "codes": [
+        "BT11-060"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar อีกฝ่ายโจมตี เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 1 ใบ : ปรับ POWER ตั้งต้นของ Avatar ที่โจมตีให้กลายเป"
+    },
+    {
+      "name": "Skill : Hypersense",
+      "codes": [
+        "BT09-059"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "Skill : Second Energy",
+      "codes": [
+        "BT09-060"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    }
+  ]
+}

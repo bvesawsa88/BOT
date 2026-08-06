@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2 (starter-gen)",
-  "note": "KD01 — gen จากข้อความ + แมปชื่อซ้ำ · auto/partial/manual",
   "cards": [
     {
       "code": "KD01-001",
@@ -170,7 +168,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก SD01-002",
       "keywords": [
         "อัตโนมัติ"
@@ -253,7 +251,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อโจมตี: ฝ่ายตรงข้ามใช้ React ไม่ได้จนจบการต่อสู้ · #นับเป็นชื่อ พระนารายณ์",
       "nameAliases": [
         "พระนารายณ์"
@@ -386,8 +384,9 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD08-013"
+      "parseStatus": "verified",
+      "note": " · ใช้แล้วลงนรก",
+      "lifeBothModes": true
     },
     {
       "code": "KD01-016",
@@ -428,7 +427,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก KD01-017"
     },
     {
@@ -453,7 +452,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก KD01-018"
+      "note": "แมปจาก SD06-014"
     },
     {
       "code": "KD01-019",
@@ -481,7 +480,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก SD01-020"
     },
     {
@@ -533,7 +532,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก SD01-021"
     },
     {
@@ -574,7 +573,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก SD01-022"
     },
     {
@@ -595,7 +594,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก SD01-023"
     },
     {

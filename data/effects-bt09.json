@@ -1,21 +1,22 @@
 {
-  "$schema": "bot-effect-schema v0.2 (auto-generated)",
-  "note": "BT09: แปลงอัตโนมัติ — auto ต้องมีคนตรวจตามกติกาจริง, manual = เล่นมือบนโต๊ะเสรี",
   "cards": [
     {
       "code": "BT09-001",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พระอิศวร วีลแชร์"
     },
     {
       "code": "BT09-002",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เนอร์เกิ้ล เนียร์ สมาชิกลัทธิแห่หัว"
     },
     {
       "code": "BT09-003",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "นางฟ้าลูกซอง"
     },
     {
       "code": "BT09-004",
@@ -34,37 +35,44 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "name": "DJ ปีโป้"
     },
     {
       "code": "BT09-005",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กัณหา นาคเกล็ดดำ"
     },
     {
       "code": "BT09-006",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ลูเซีย โพลีกอน"
     },
     {
       "code": "BT09-007",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โฮคุ โพลีกอน"
     },
     {
       "code": "BT09-008",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เพมมุ ยอดมนุษย์"
     },
     {
       "code": "BT09-009",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สไปรท์ ยอดสุนัข"
     },
     {
       "code": "BT09-010",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เมย์ แวมไพร์โกธิค"
     },
     {
       "code": "BT09-011",
@@ -84,127 +92,167 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "name": "เจ้าหญิงรวงข้าว"
     },
     {
       "code": "BT09-012",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กุ่ย หน้าตาดี"
     },
     {
       "code": "BT09-013",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ฮอล หน้าตาดี"
     },
     {
       "code": "BT09-014",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "นาย หน้าตาดี"
     },
     {
       "code": "BT09-015",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เพนกวินหิมะ เหลียง"
     },
     {
       "code": "BT09-016",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "รัททาทุย นินจา"
     },
     {
       "code": "BT09-017",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "พี่โปจิ เจ้าลัทธิแห่หัว"
     },
     {
       "code": "BT09-018",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ตัวอะไรสักอย่าง"
     },
     {
       "code": "BT09-019",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หมาป่าเดียวดาย"
     },
     {
       "code": "BT09-020",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กัล มนุษย์ดาว R18"
     },
     {
       "code": "BT09-021",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คราเค่น ปลาหมึกปีศาจ"
     },
     {
       "code": "BT09-022",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โซน่า โพลีกอน"
     },
     {
       "code": "BT09-023",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ริน บันนี่เกิร์ล"
     },
     {
       "code": "BT09-024",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ธอร์ บุตรแห่งโอดิน"
     },
     {
       "code": "BT09-025",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โลกิ เจ้าชายยักษ์น้ำแข็ง"
     },
     {
       "code": "BT09-026",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "mill",
+              "count": 1,
+              "who": "opp"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "แมวดำ สมาชิกลัทธิแห่หัว",
+      "note": "โหมดพี่โปจิ (เนรเทศใบบนสุดนรกศัตรู) ยังไม่ครอบ — ใช้ธรณีสูบอย่างเดียว"
     },
     {
       "code": "BT09-027",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "มิสเตอร์โบโบ้"
     },
     {
       "code": "BT09-028",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แบงค์ ตัวแดง"
     },
     {
       "code": "BT09-029",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สตางค์น้องชายแบงค์ ตัวเขียว"
     },
     {
       "code": "BT09-030",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ลาพิเน่ โพลีกอน"
     },
     {
       "code": "BT09-031",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ลูเซเน่ โพลีกอน"
     },
     {
       "code": "BT09-032",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "วินดิโก้"
     },
     {
       "code": "BT09-033",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สกินวอคเกอร์"
     },
     {
       "code": "BT09-034",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ปอนด์ สมาชิกลัทธิแห่หัว"
     },
     {
       "code": "BT09-035",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "เนฟิล ยักษ์ตัวสุดท้าย"
     },
     {
       "code": "BT09-036",
@@ -293,157 +341,227 @@
     {
       "code": "BT09-040",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "จ่ายุทธ ทหารรักชาติ"
     },
     {
       "code": "BT09-041",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ท้าวเวสสุวรรณ"
     },
     {
       "code": "BT09-042",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "นักท่องเรื่องราว ขวัญตา"
     },
     {
       "code": "BT09-043",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขวัญตา เรื่องราว ราชาแห่งนาค"
     },
     {
       "code": "BT09-044",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขวัญตา เรื่องราว ครุฑเจ้าเวหา"
     },
     {
       "code": "BT09-045",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "พอง พอง"
     },
     {
       "code": "BT09-046",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ตัวอะไรสักอย่าง"
     },
     {
       "code": "BT09-047",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "วิญญาณร้าย"
     },
     {
       "code": "BT09-048",
       "abilities": [],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "name": "พี่่ NUT"
     },
     {
       "code": "BT09-049",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขอโทษสังคม"
     },
     {
       "code": "BT09-050",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "บลัดดี้แมรี่"
     },
     {
       "code": "BT09-051",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ไม้กวาดปีกปักษา"
     },
     {
       "code": "BT09-052",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ผจญภัยด้วยกัน"
     },
     {
       "code": "BT09-053",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ขอให้ตีนไม่ติดพื้น"
     },
     {
       "code": "BT09-054",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "แผนการตู้เย็นทับ"
     },
     {
       "code": "BT09-055",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "คาถา เสกควายเข้าท้อง"
     },
     {
       "code": "BT09-056",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "Skill : Full Drive"
     },
     {
       "code": "BT09-057",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "ทำลาย Magic Zone ศัตรู 1 ใบ",
+              "actions": [
+                {
+                  "op": "chooseDestroy",
+                  "zones": [
+                    "magic"
+                  ],
+                  "side": "enemy",
+                  "filter": {},
+                  "optional": false
+                }
+              ]
+            },
+            {
+              "label": "ทำลาย Land Magic 1 ใบ",
+              "actions": [
+                {
+                  "op": "chooseDestroy",
+                  "zones": [
+                    "land"
+                  ],
+                  "filter": {},
+                  "optional": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "name": "ไต้ฝุ่น",
+      "reactAnyWindow": true
     },
     {
       "code": "BT09-058",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "Ah-ah, ah!"
     },
     {
       "code": "BT09-059",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "Skill : Hypersense"
     },
     {
       "code": "BT09-060",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "Skill : Second Energy"
     },
     {
       "code": "BT09-061",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ทะลุบ้านทะลุโกศ"
     },
     {
       "code": "BT09-062",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ตัดเน็ต"
     },
     {
       "code": "BT09-063",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ลงกาโพรเทคชั่น"
     },
     {
       "code": "BT09-064",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ค้อนโยเนียร์"
     },
     {
       "code": "BT09-065",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กระสอบ"
     },
     {
       "code": "BT09-066",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "หอกศักดิ์สิทธิ์ เอ็ดดา"
     },
     {
       "code": "BT09-067",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "อาวุธของเพมมุ ปืนพกรุ่น 19"
     },
     {
       "code": "BT09-068",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "กระบองตำรวจ"
     },
     {
       "code": "BT09-069",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ด่านตรวจเข้าเมือง"
     },
     {
       "code": "BT09-070",
+      "name": "สวนกล้วยหนีภาษี",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "blockAllLandPlay": true,
+      "destroyAfterGlobalEndPhases": 4,
+      "note": "บล็อกใช้ Land ทุกฝ่าย · End Phase รวมทุกฝ่ายครบ 4 ครั้ง → ลงนรก"
     },
     {
       "code": "BT09-071",
@@ -500,22 +618,26 @@
     {
       "code": "BT09-072",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "โพเดียมสมาคมผู้รู้ความจริง"
     },
     {
       "code": "BT09-073",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "สำนักภฤคุ"
     },
     {
       "code": "BT09-074",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ตู้เสื้อผ้าของริกกี้"
     },
     {
       "code": "BT09-075",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "manual",
+      "name": "ห้างโรงเกลือ"
     }
   ]
 }

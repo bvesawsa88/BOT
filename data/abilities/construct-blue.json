@@ -1,0 +1,58 @@
+{
+  "category": "construct-blue",
+  "type": "Construct",
+  "color": "ฟ้า",
+  "entries": [
+    {
+      "name": "กองไฟลูกเสือ",
+      "codes": [
+        "BT06-067"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ยานสำรวจ R18",
+      "codes": [
+        "BT06-066"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "ยิมทมิฬ",
+      "codes": [
+        "BT08-068"
+      ],
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "name": "รูปประจำบ้าน",
+      "codes": [
+        "BT11-073"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง Avatar เราจะไม่ถูกเปลี่ยนการควบคุม"
+    },
+    {
+      "name": "ZeedZad Server",
+      "codes": [
+        "BT10-074"
+      ],
+      "abilities": [],
+      "grantKeywordAura": {
+        "keyword": "ลูกฮึด",
+        "nameIncludes": "แก๊งขยะ",
+        "side": "own"
+      },
+      "costZeroIfDistinctOwnNameIncludes": {
+        "nameIncludes": "แก๊งขยะ",
+        "min": 2
+      },
+      "parseStatus": "manual",
+      "note": "Cost 0 ถ้าแก๊งขยะชื่อไม่ซ้ำ ≥2 · ออร่าลูกฮึดให้แก๊งขยะ"
+    }
+  ]
+}

@@ -1,6 +1,4 @@
 {
-  "$schema": "bot-effect-schema v0.2",
-  "note": "BT04 — auto ที่ชัดแล้ว · manual รอคำอธิบาย",
   "cards": [
     {
       "code": "BT04-001",
@@ -167,9 +165,23 @@
     {
       "code": "BT04-008",
       "name": "ลูกคนรวย",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "oncePerTurn": true,
+          "countsAsReact": true,
+          "actions": [
+            {
+              "op": "negateByGiveHand"
+            }
+          ]
+        }
+      ],
       "setPowerFrom": "oppHandCount",
-      "parseStatus": "auto"
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เทิร์นละครั้ง ในเทิร์นใครก็ได้ เมื่ออีกฝ่ายใช้ความสามารถการ์ด นำการ์ด 1 ใบ บนมือเราให้อีกฝ่าย : ยกเลิกความสามา"
     },
     {
       "code": "BT04-009",
@@ -1030,9 +1042,9 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "เลือกมันสำหรับพวก จน !!!",
-      "note": "ไลฟ์หงาย≥4 และมากกว่าศัตรู → ทำทั้งสองข้อ (กดเลือกปฏิบัติ หรือเล่นเวทแล้วเลือก)",
+      "note": " · ใช้แล้วลงนรก",
       "lifeBothModes": true
     },
     {
@@ -1260,27 +1272,26 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.zone==land"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
               "duration": "combat",
-              "layer": 4,
               "target": {
-                "select": "attacking",
-                "symbol": "รัททาทุย"
-              }
+                "select": "attacker"
+              },
+              "ifAttackerSymbol": "รัททาทุย"
             }
-          ]
+          ],
+          "fromLand": true
         }
       ],
       "parseStatus": "auto",
       "name": "พิภพรัททาทุย",
       "pipopRatExpand": true,
-      "note": "คุมรัททาทุยได้ 6 ถ้าล้วน; เสีย Land ตอนมี 6 ต้องตัดเหลือ 4"
+      "note": "cap 6 ผ่านชื่อพิภพรัททาทุยใน avatarCap · +2 ตอนรัททาทุยโจมตี"
     },
     {
       "code": "BT04-060",
