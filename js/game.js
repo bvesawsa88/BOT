@@ -549,6 +549,7 @@
           netKind: netKind || null,
           seat, room: room || '',
           realMode: !!realMode,
+          soloBot: !!soloBot,
           gameStart: gameStart || 0,
           seqNum: seqNum || 0,
           myReady: !!myReady,
@@ -4367,6 +4368,7 @@
       const act = activeDeckSpec();
       const opp = oppDeckSpec() || act;
       st = BoTEngine.buildInitialState(soloCards, Math.random, { A: act.spec, B: opp.spec });
+      if (soloBot) st.skipLethalPlead = true;
       selMap = {}; mullMode = false; gameStart = Date.now();
       my = 'A'; opp = 'B'; seat = 'A';
       applyPerspective();
@@ -4598,6 +4600,7 @@
         A: you.spec,
         B: botD.spec
       });
+      st.skipLethalPlead = true;
       toast(`🤖 คุณ: ${you.name} · บอท: ${botD.name}`);
       gameStart = Date.now(); selMap = {};
       startTable();
@@ -4878,11 +4881,13 @@
       mode = 'solo';
       seat = data.seat || 'A';
       realMode = !!data.realMode;
+      soloBot = !!data.soloBot;
       st = data.st;
+      if (soloBot && st) st.skipLethalPlead = true;
       gameStart = data.gameStart || Date.now();
       selMap = {};
       startTable();
-      toast(realMode ? '🎴 กู้โต๊ะโหมดการ์ดจริงต่อจากก่อนรีเฟรช' : 'กู้โต๊ะซ้อมต่อจากก่อนรีเฟรช', 2800);
+      toast(soloBot ? '🤖 กู้โต๊ะเล่นกับบอทต่อจากก่อนรีเฟรช' : (realMode ? '🎴 กู้โต๊ะโหมดการ์ดจริงต่อจากก่อนรีเฟรช' : 'กู้โต๊ะซ้อมต่อจากก่อนรีเฟรช'), 2800);
     }).catch(() => { clearPersistedTable(); showScreen('menu'); });
   }
 

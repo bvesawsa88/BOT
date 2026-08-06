@@ -6489,6 +6489,15 @@
           const fdown = lives.filter(k => st.inst[k] && !st.inst[k].faceUp);
           if (lives.length > 0 && fdown.length === 0) {
             A.tapped = true;
+            // โหมดบอท: ไม่ถามอ้อนวอนขอเทิร์น — จบเกมทันที
+            if (st.skipLethalPlead) {
+              addLog(st, 'S', `⚠️ ${A.name} ท่าปิดเกมใส่ฝ่าย ${ot} (สาหัส) — โหมดบอทไม่ถามอ้อนวอน จบเกม`);
+              declareBuffs(st, a.atk);
+              declareEffects(st, fx, a.atk, null, rng);
+              resolveCombat(st, fx, a.atk, null, a.life);
+              fx.snd = 'clash';
+              break;
+            }
             st.pendingLethal = { atk: a.atk, life: a.life, by: oa, target: ot, phase: 'plead' };
             addLog(st, 'S', `⚠️ ${A.name} ประกาศท่าปิดเกมใส่ฝ่าย ${ot} (สถานะสาหัส) — ถามฝั่ง ${ot}: จะอ้อนวอนขออีกเทิร์นนึงไหม?`);
             fx.lethalAsk = { by: oa, target: ot, atk: a.atk };
