@@ -452,7 +452,12 @@ body.dragging .card.hand:hover{transform:none}
 @keyframes selPop{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .sel-bar span{font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:600;color:var(--cream);line-height:1.45}
 .sel-bar button{font-size:14px;padding:9px 16px;border-radius:9px;white-space:nowrap}
-.attack-bar{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px 16px;background:rgba(176,51,40,.3);border:2px solid var(--red-lite);border-radius:11px;margin:5px auto;max-width:96%;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 1px rgba(210,210,216,.25);position:relative;z-index:30}
+/* แถบโจมตี/พรอมต์ — ลอยเหมือน sel-bar ไม่กินที่ flex ระหว่างเสื่อกับมือ (กันดัน/ทับเมจิกโซนตอนรออีกฝ่าย) */
+.attack-bar{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:175;
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  padding:9px 16px;background:rgba(176,51,40,.3);border:2px solid var(--red-lite);border-radius:11px;
+  margin:0;max-width:min(96%,760px);font-size:14px;
+  box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 1px rgba(210,210,216,.25)}
 #attackBar:not(.hidden),#promptBar:not(.hidden){animation:attackPulse 1.25s ease-in-out infinite}
 @keyframes attackPulse{0%,100%{box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 1px rgba(210,210,216,.25)}50%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 3px rgba(240,240,243,.5)}}
 #attackText{font-weight:700}

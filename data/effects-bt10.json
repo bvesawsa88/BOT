@@ -114,7 +114,56 @@
     },
     {
       "code": "BT10-004",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "โกเอมอน นินจาจอมโจร",
+          "allowBattleIfFaceUpLifeMin": 3,
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "โกเอมอน นินจาจอมโจร"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "trigger": {
+                    "on": "lifeRevealedByAttack"
+                  },
+                  "actions": [
+                    {
+                      "op": "oppHellPick",
+                      "filter": {
+                        "type": "Magic"
+                      },
+                      "optional": true,
+                      "thenDiscard": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "name": "โกเอมอน นินจาจอมโจร"
     },
@@ -139,14 +188,93 @@
               "shuffleAfter": true
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "ฮันโซ นินจาในตำนาน",
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "ฮันโซ นินจาในตำนาน"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "เตะไข่",
+              "until": "endOfTurn",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ]
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "manual",
       "name": "ฮันโซ นินจาในตำนาน"
     },
     {
       "code": "BT10-006",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "ชิโยเมะ นินจาสาว",
+          "anyPlayerMainPhase": true,
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "ชิโยเมะ นินจาสาว"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "name": "ชิโยเมะ นินจาสาว"
     },
@@ -732,7 +860,54 @@
     },
     {
       "code": "BT10-065",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOnlyNameIncludes": "นินจา",
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "นินจาที่เลือกได้เตะไข่จนจบเทิร์น",
+                  "actions": [
+                    {
+                      "op": "grantKeyword",
+                      "keyword": "เตะไข่",
+                      "until": "endOfTurn",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "นินจา"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "เนรเทศนินจาที่เลือก แล้วคืนช่วง End Phase",
+                  "actions": [
+                    {
+                      "op": "pick",
+                      "from": "own",
+                      "required": true,
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "นินจา"
+                        ]
+                      },
+                      "dest": "exileThenReturnEnd"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "name": "วิชานินจา รุกรับพลิกผัน"
     },

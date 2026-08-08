@@ -145,7 +145,62 @@
     {
       "code": "BT11-010",
       "name": "ฟูมะ นินจาแห่งสายลม",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "ฟูมะ นินจาแห่งสายลม",
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "ฟูมะ นินจาแห่งสายลม"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "schedule",
+              "when": "ownEndPhase",
+              "actions": [
+                {
+                  "op": "exileSelf"
+                },
+                {
+                  "op": "schedule",
+                  "when": "nextOwnMainPhase",
+                  "actions": [
+                    {
+                      "op": "summonSelfFromDark",
+                      "noJuti": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "note": "สั่งใช้ จากบนมือ : เลือก Avatar \"นินจา\" 1 ใบ ที่ไม่ได้ชื่อ ฟูมะ นินจาแห่งสายลม บน Avatar Zone เรา นำกลับขึ้นมือ และ อัญเ"
     },

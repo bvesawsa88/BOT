@@ -317,7 +317,26 @@
   });
   byId('dbClearDeck').onclick = () => { DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB(); };
   let STARTERS_DB = null;
-  fetch(asset('data/starters.json')).then(r => r.json()).then(j => { STARTERS_DB = j; }).catch(() => { });
+  function fillStarterSelect(db) {
+    const sel = byId('dbFillStarter');
+    if (!sel || !db) return;
+    const cur = sel.value;
+    const keys = Object.keys(db);
+    sel.innerHTML = keys.map(k => {
+      const p = db[k];
+      const label = (p && (p.label || p.name)) || k;
+      return `<option value="${esc(k)}">${esc(label)}</option>`;
+    }).join('');
+    if (keys.includes(cur)) sel.value = cur;
+    else if (keys.includes('SD01')) sel.value = 'SD01';
+  }
+  Promise.all([
+    fetch(asset('data/starters.json')).then(r => r.json()).catch(() => null),
+    fetch(asset('data/custom-decks.json')).then(r => r.json()).catch(() => null),
+  ]).then(([starters, custom]) => {
+    STARTERS_DB = Object.assign({}, starters || {}, custom || {});
+    fillStarterSelect(STARTERS_DB);
+  });
   byId('dbFillSD01').onclick = () => {
     const ser = (byId('dbFillStarter') && byId('dbFillStarter').value) || 'SD01';
     const preset = STARTERS_DB && STARTERS_DB[ser];

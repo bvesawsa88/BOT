@@ -11,15 +11,18 @@
   let STARTERS = null;
   function ensurePlayReady() {
     if (playReady) return playReady;
-    playReady = loadScript(asset('js/engine.js')).then(() =>
+    playReady = loadScript(asset('js/engine.js'))
+      .then(() => loadScript(asset('js/bot-ai.js')))
+      .then(() =>
       Promise.all([
         fetch(asset('data/effects-all.json')).then(r => r.json()).catch(() => null),
         fetch(asset('data/starters.json')).then(r => r.json()).catch(() => null),
+        fetch(asset('data/custom-decks.json')).then(r => r.json()).catch(() => null),
         fetch('/api/effects-db').then(r => r.json()).catch(() => ({ cards: [] })),
         fetch(asset('data/cards.json')).then(r => r.json()).catch(() => null),
         fetch(asset('data/set-releases.json')).then(r => r.json()).catch(() => null),
-      ]).then(([base, starters, dbData, cardsData, setRel]) => {
-        STARTERS = starters || {};
+      ]).then(([base, starters, customDecks, dbData, cardsData, setRel]) => {
+        STARTERS = Object.assign({}, starters || {}, customDecks || {});
         if (setRel) BoTEngine.loadSetReleases(setRel);
         if (base) BoTEngine.loadEffects([base]);
         else {
@@ -1824,7 +1827,7 @@
       else sel.value = 'starter:SD01';
     } catch (e) { sel.value = 'starter:SD01'; }
   }
-  /* คะแนนว่าบอท heuristic เล่นเด็คนี้ได้ดีแค่ไหน (สีเดียว / curve / เวทอัตโนมัติ / ไม่คอมโบซับซ้อน) */
+  /* คะแนนว่าบอทเล่นเด็คนี้ได้ดีแค่ไหน (สีเดียว / curve / มีแลนด์ชัด / อาร์คไทป์ที่ BotAI รู้จัก) */
   function scoreDeckForBot(key, deck) {
     const spec = deck && deck.spec;
     if (!spec || !spec.main) return { key, name: (deck && deck.name) || key, score: -1, why: '' };
@@ -1832,10 +1835,12 @@
     const byCode = {};
     (Array.isArray(db) ? db : []).forEach(c => { if (c && c.code) byCode[c.code] = c; });
     let avatars = 0, costs = 0, powers = 0, colors = {}, land = 0, react = 0, mod = 0, activated = 0, noPaid = 0, complex = 0, n = 0;
+    let isan = 0, forest = 0, swamp = 0;
     for (const [code, cnt] of Object.entries(spec.main)) {
       const c = byCode[code]; if (!c) continue;
       const e = (BoTEngine.effectOf && BoTEngine.effectOf(code, c.name)) || {};
       const abs = e.abilities || [];
+      const nm = c.name || '';
       for (let i = 0; i < (+cnt || 0); i++) {
         n++;
         if (c.type === 'Avatar') {
@@ -1850,6 +1855,9 @@
           else if (c.subtype === 'React') react++;
           else if (c.subtype === 'Modification') mod++;
         }
+        if (/โคกอีสานนูน|อีสานสลิงเกอร์/.test(nm)) isan++;
+        if (/ป่าพงไพร|ภูติผลไม้/.test(nm)) forest++;
+        if (/บึงทมิฬ/.test(nm)) swamp++;
         if (e.noPaidSummon || e.noHandSummon) noPaid++;
         if (abs.some(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'playMagic'))) activated++;
         if (abs.some(ab => ab.trigger && ab.trigger.on === 'chooseMode') || abs.length > 3) complex++;
@@ -1859,6 +1867,7 @@
     const avgP = avatars ? powers / avatars : 0;
     const top = Object.values(colors).sort((a, b) => b - a)[0] || 0;
     const mono = avatars ? top / avatars : 0;
+    const archBonus = Math.max(isan, forest, swamp) >= 4 ? 28 : Math.max(isan, forest, swamp) >= 2 ? 14 : 0;
     let score = Math.min(avatars, 28) * 2.2
       + Math.max(0, 12 - Math.abs(avgC - 3.5)) * 4
       + avgP * 3
@@ -1867,10 +1876,15 @@
       + Math.min(react, 8) * 3.5
       + mod * 3
       + Math.min(activated, 12) * 3
+      + archBonus
       - noPaid * 8
-      - complex * 2.5;
+      - complex * 1.5;
     const colLabel = Object.entries(colors).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([c, v]) => c + v).join('/');
-    const why = `สี${Math.round(mono * 100)}% · curve ${avgC.toFixed(1)} · P${avgP.toFixed(1)} · ${colLabel || '—'}`;
+    let archTag = '';
+    if (isan >= forest && isan >= swamp && isan >= 2) archTag = ' · อีสาน';
+    else if (forest >= isan && forest >= swamp && forest >= 2) archTag = ' · ป่าพงไพร';
+    else if (swamp >= 2) archTag = ' · บึงทมิฬ';
+    const why = `สี${Math.round(mono * 100)}% · curve ${avgC.toFixed(1)} · P${avgP.toFixed(1)} · ${colLabel || '—'}${archTag}`;
     return { key, name: deck.name || key, score, why, mono, avatars };
   }
   function rankDecksForBot() {
@@ -2240,7 +2254,7 @@
     return fx;
   }
 
-  /* ── บอทฝั่ง B (โหมดซ้อมคนเดียว) — heuristic + ระดับความยาก easy/normal/hard ── */
+  /* ── บอทฝั่ง B — heuristic + BotAI (อาร์คไทป์ / เงื่อนไขแลนด์ / ลำดับเทค) ── */
   function botActive() { return mode === 'solo' && soloBot && st && !st.over && !byId('table').classList.contains('hidden'); }
   function botDelayMs() {
     const lv = getBotLevel();
@@ -2250,6 +2264,11 @@
   const eff = k => BoTEngine.effPower(st, k);
   let botFailKeys = new Set();
   let botFailTurn = -1;
+  function botAI() { return (typeof BotAI !== 'undefined' && BotAI) ? BotAI : null; }
+  function botArch() {
+    const AI = botAI();
+    return AI ? AI.detectArchetype(st, 'B') : 'generic';
+  }
   function botKey(a) {
     try { return JSON.stringify(a); } catch (e) { return String(a && a.type); }
   }
@@ -2267,18 +2286,40 @@
     botFailKeys.clear();
     return true;
   }
+  function botModeOptionDeny(k, opt) {
+    if (BoTEngine.chooseModeOptionDeny)
+      return BoTEngine.chooseModeOptionDeny(st, k, 'B', opt);
+    if (!opt) return 'ไม่มีตัวเลือก';
+    if (opt.requireHellReturnedThisTurnMin != null) {
+      const got = (st.hellReturnedThisTurn && st.hellReturnedThisTurn.B) || 0;
+      if (got < opt.requireHellReturnedThisTurnMin)
+        return `ต้องคืนนรก ≥ ${opt.requireHellReturnedThisTurnMin} ก่อน`;
+    }
+    if (opt.requireOwnNameIncludes) {
+      const ok = (st.zones['B.avatar'] || []).some(id => BoTEngine.nameMatches(st.inst[id], opt.requireOwnNameIncludes));
+      if (!ok) return `ต้องมี "${opt.requireOwnNameIncludes}"`;
+    }
+    return null;
+  }
   function botCardVal(k) {
     const c = st.inst[k]; if (!c) return 0;
+    const AI = botAI();
+    const arch = botArch();
     const p = +c.power || 0, cost = +c.cost || 0, gem = +c.gem || 0;
-    if (c.type === 'Avatar') return 40 + p * 12 - cost * 2;
-    if (c.type === 'Construct') return 25 + p * 8;
-    if (c.type === 'Magic') {
-      if (c.subtype === 'Land') return 35;
-      if (c.subtype === 'React') return 28;
-      if (c.subtype === 'Modification') return 22 + gem;
-      return 18 + gem;
+    let v = gem;
+    if (c.type === 'Avatar') v = 40 + p * 12 - cost * 2;
+    else if (c.type === 'Construct') v = 25 + p * 8;
+    else if (c.type === 'Magic') {
+      if (c.subtype === 'Land') v = 35;
+      else if (c.subtype === 'React') v = 28;
+      else if (c.subtype === 'Modification') v = 22 + gem;
+      else v = 18 + gem;
     }
-    return gem;
+    if (AI) {
+      if (AI.isWantedLandCard(c, arch)) v += 40;
+      if (AI.cardIsKeyEnabler(c, arch)) v += 30;
+    }
+    return v;
   }
   function botMagicTypeFree(mtype) {
     return !(st.magicUsed && st.magicUsed.B && st.magicUsed.B[mtype]);
@@ -2290,16 +2331,23 @@
     const avColor = (eAll && eAll.allColors) ? '' : (c0.color || '');
     const hand = (st.zones['B.hand'] || []).filter(x => x !== summonK);
     const usable = [];
-    const unusable = [];
     for (const o of hand) {
       const info = payGemInfo(st.inst[o], c0);
       const ok = BoTEngine.gemPaysFor ? BoTEngine.gemPaysFor(info.gc, avColor) : (!avColor || info.gc === 'ขาว' || info.gc === avColor);
       const pe = BoTEngine.effectOf && BoTEngine.effectOf(st.inst[o].code, st.inst[o].name);
       if (pe && pe.costOnlyForNameIncludes && !(c0.name || '').includes(pe.costOnlyForNameIncludes)) continue;
       if (pe && pe.costOnlyForSymbol && c0.symbol !== pe.costOnlyForSymbol) continue;
-      (ok ? usable : unusable).push({ k: o, g: info.g, keep: botCardVal(o) });
+      // เก็บแลนด์/เอนเอเบลอร์เด็คไว้จ่ายทีหลัง
+      let keep = botCardVal(o);
+      const AI = botAI();
+      if (AI) {
+        const arch = botArch();
+        if (AI.isWantedLandCard(st.inst[o], arch)) keep += 80;
+        if (AI.cardIsKeyEnabler(st.inst[o], arch)) keep += 50;
+        if (st.inst[o].subtype === 'React') keep += 25;
+      }
+      if (ok) usable.push({ k: o, g: info.g, keep });
     }
-    // จ่ายด้วยใบมูลค่าต่ำก่อน · GEM มากก่อนในกลุ่มเดียวกัน
     usable.sort((a, b) => a.keep - b.keep || b.g - a.g);
     let gem = 0; const pay = [];
     for (const o of usable) {
@@ -2308,7 +2356,6 @@
       gem += o.g;
     }
     if (gem < cost) return null;
-    // exactGemPay: ตัดใบท้ายที่เกินถ้าทำได้
     if (eAll && eAll.exactGemPay && gem !== cost) {
       while (pay.length && gem > cost) {
         const last = pay[pay.length - 1];
@@ -2330,7 +2377,9 @@
     if (c.type === 'Avatar') s += 20;
     if (c.type === 'Construct') s += 8;
     const enemies = (st.zones['A.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
-    if (enemies.length && enemies.every(e => eff(e) < p)) s += 15; // ฆ่าบอร์ดศัตรูได้
+    if (enemies.length && enemies.every(e => eff(e) < p)) s += 15;
+    const AI = botAI();
+    if (AI) s += AI.summonSynergyBonus(st, 'B', k, botArch());
     return s;
   }
   function botTrySummon() {
@@ -2352,16 +2401,17 @@
       if (zone.length + conZone.length >= 8) continue;
       const eBot = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
       if (eBot && (eBot.noPaidSummon || eBot.noHandSummon)) continue;
-      if (eBot && eBot.sacrificeSummon) continue; // ต้องเลือกเซ่น — ปล่อยผ่าน prompt ถ้ามีทางอื่น
+      if (eBot && eBot.sacrificeSummon) continue;
       const free = !!(BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, k));
       const cost = free ? 0 : (BoTEngine.effCost ? BoTEngine.effCost(st, k) : (+c.cost || 0));
-      if (lv === 'easy' && cost > 4 && !free) continue; // มือใหม่ไม่ลงใบแพง
+      if (lv === 'easy' && cost > 4 && !free) continue;
       const pay = free ? [] : botBuildPay(k, cost);
       if (pay == null) continue;
       candidates.push({ k, to: c.type === 'Construct' ? 'B.construct' : 'B.avatar', pay, free, score: botSummonScore(k) });
     }
     candidates.sort((a, b) => b.score - a.score);
     for (const cand of candidates) {
+      if (cand.score < -20 && getBotLevel() !== 'easy') continue; // เงื่อนไขไม่พร้อม — รอ
       const a = { type: 'summon', k: cand.k, to: cand.to, payIds: cand.pay, by: 'B' };
       if (cand.free) a.free = true;
       if (botSend(a)) return true;
@@ -2387,27 +2437,20 @@
   }
   function botTryPlayMagic() {
     const hand = st.zones['B.hand'] || [];
-    const hasLand = (st.zones['land'] || []).some(k => {
-      const c = st.inst[k];
-      return c && (c.controller === 'B' || BoTEngine.ownerOf(st, k) === 'B');
-    });
+    const AI = botAI();
+    const arch = botArch();
     const ranked = [];
     for (const k of hand) {
       const c = st.inst[k]; if (!c || c.type !== 'Magic') continue;
       const mtype = c.subtype || 'Normal';
-      if (mtype === 'React') continue; // เก็บไว้สวนตอนถูกโจมตี
+      if (mtype === 'React') continue;
       if (!botMagicTypeFree(mtype)) continue;
-      let score = 10;
-      if (mtype === 'Land') score = hasLand ? -5 : 50;
-      else if (mtype === 'Modification') {
-        const hosts = (st.zones['B.avatar'] || []).length;
-        if (!hosts) continue;
-        score = 30;
-      } else {
-        const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
-        const abs = (e && e.abilities) || [];
-        if (abs.some(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'playMagic'))) score = 28;
-        else score = 12;
+      let score;
+      if (AI) score = AI.magicPlayScore(st, 'B', k, arch, botMagicTypeFree);
+      else {
+        const land = (st.zones['land'] || []).length;
+        score = mtype === 'Land' ? (land ? -5 : 50) : (mtype === 'Modification' ? 30 : 18);
+        if (mtype === 'Modification' && !(st.zones['B.avatar'] || []).length) continue;
       }
       ranked.push({ k, score });
     }
@@ -2419,6 +2462,8 @@
     return false;
   }
   function botTryActivate() {
+    const AI = botAI();
+    const arch = botArch();
     const pools = [
       ...(st.zones['B.avatar'] || []),
       ...(st.zones['B.construct'] || []),
@@ -2428,32 +2473,42 @@
         const c = st.inst[k]; if (!c) return false;
         const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
         return e && (e.abilities || []).some(ab => ab.trigger && ab.trigger.on === 'activatedFromHand');
-      })
+      }),
+      // สั่งใช้จากนรก (ถ้าการ์ดรองรับ)
+      ...(st.zones['B.hell'] || []).filter(k => cardHasActivatedAbility(k)),
     ];
-    // ลองจาก POWER สูง / มือท้าย
-    const ranked = pools.slice().sort((a, b) => botCardVal(b) - botCardVal(a));
-    for (const k of ranked) {
-      if (!cardHasActivatedAbility(k)) continue;
-      if (botSend({ type: 'activateAbility', k, by: 'B' })) return true;
+    const ranked = pools.slice().map(k => ({
+      k,
+      score: AI ? AI.activateScore(st, 'B', k, arch) : botCardVal(k),
+    })).sort((a, b) => b.score - a.score);
+    for (const it of ranked) {
+      if (it.score < -50) continue;
+      if (!cardHasActivatedAbility(it.k)) continue;
+      if (botSend({ type: 'activateAbility', k: it.k, by: 'B' })) return true;
     }
     return false;
   }
   function botTryMain() {
     const lv = getBotLevel();
-    if (lv === 'easy') return botTrySummon(); // มือใหม่: อัญเชิญอย่างเดียว
-    if (botTryAttach()) return true;
-    if (botTryPlayMagic()) return true;
-    if (botTryActivate()) return true;
-    if (botTrySummon()) return true;
-    if (botTryPlayMagic()) return true;
-    if (botTrySummon()) return true;
-    if (botTryAttach()) return true;
+    const AI = botAI();
+    const arch = botArch();
+    const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
+    // ถ้าพร้อมเปิดเทค/เรียกจากนรก — แทรก activate ขึ้นก่อน
+    if (AI && lv !== 'easy' && AI.shouldActivateBeforeSummon(st, 'B', arch)) {
+      if (botTryActivate()) return true;
+    }
+    for (const step of steps) {
+      if (step === 'magic' && botTryPlayMagic()) return true;
+      if (step === 'summon' && botTrySummon()) return true;
+      if (step === 'activate' && botTryActivate()) return true;
+      if (step === 'attach' && botTryAttach()) return true;
+    }
     if (lv === 'hard' && botTryActivate()) return true;
     return false;
   }
   function botTryAttack() {
     const lv = getBotLevel();
-    const mine = (st.zones['B.avatar'] || []).filter(k => !st.inst[k].tapped && st.inst[k].type === 'Avatar');
+    const mine = (st.zones['B.avatar'] || []).filter(k => st.inst[k] && !st.inst[k].tapped && st.inst[k].type === 'Avatar');
     const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
     const enemyCons = (st.zones['A.construct'] || []).slice();
     const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
@@ -2469,7 +2524,7 @@
         else if (lv !== 'easy' && ap === dp && (mine.length > 1 || enemies.length === 1))
           plans.push({ atk, def: e, score: 40 + dp - ap });
         else if (lv === 'hard' && ap + 1 >= dp && mine.length >= 2 && enemies.length >= 2)
-          plans.push({ atk, def: e, score: 25 + dp }); // เทรดเกือบเสมอเมื่อบอร์ดหนา
+          plans.push({ atk, def: e, score: 25 + dp });
       }
       if (lv !== 'easy') {
         for (const e of enemyCons) {
@@ -2482,10 +2537,8 @@
         if (life) plans.push({ atk, life, score: (lv === 'hard' || race) ? 120 + ap : 90 + ap });
       }
     }
-    // easy: บางครั้งข้ามโจมตีชีวิตถ้ายังมีตัว — เล่นช้าลง
     if (lv === 'easy' && plans.some(p => p.life) && Math.random() < 0.25) {
-      const onlyLife = plans.filter(p => p.life);
-      if (onlyLife.length === plans.length) return false;
+      if (plans.every(p => p.life)) return false;
     }
     plans.sort((a, b) => b.score - a.score);
     for (const p of plans) {
@@ -2501,25 +2554,30 @@
     const from = pr.from || '';
     const enemySide = k => BoTEngine.ownerOf(st, k) === 'A';
     const ownSide = k => BoTEngine.ownerOf(st, k) === 'B';
-    // ทำลาย / ลดพลังศัตรู → ตัวแข็งสุด
-    if (pr.kind === 'chooseDestroy' || dest === 'destroy' || dest === 'hell' && from === 'enemyAvatars'
+    const AI = botAI();
+    const arch = botArch();
+
+    if (pr.kind === 'chooseDestroy' || dest === 'destroy' || (dest === 'hell' && from === 'enemyAvatars')
       || from === 'enemyAvatars' || (pr.side === 'enemy' && pr.kind !== 'chooseBuff')) {
       const enemies = cands.filter(enemySide).sort((a, b) => eff(b) - eff(a) || botCardVal(b) - botCardVal(a));
       if (enemies[0]) return enemies[0];
     }
-    // ทิ้งมือตัวเอง → ใบมูลค่าต่ำ (เก็บ Avatar แข็ง / React)
     if (pr.kind === 'chooseDiscard' || dest === 'discard' || dest === 'giveHandNegate' || dest === 'giveToOpp' || from === 'ownHand') {
       return cands.slice().sort((a, b) => botCardVal(a) - botCardVal(b))[0];
     }
-    // เซ่นไหว้ / สละ Avatar ตัวเอง → POWER ต่ำสุด
     if (dest === 'sacrifice' || dest === 'sacSummon' || dest === 'bothReturn' || from === 'ownAvatars') {
       if (dest === 'attachTo' || dest === 'avatar') {
         return cands.filter(ownSide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
       }
       return cands.filter(ownSide).sort((a, b) => eff(a) - eff(b) || botCardVal(a) - botCardVal(b))[0] || cands[0];
     }
-    // อัญเชิญจากเด็ค/นรก → POWER สูง
-    if (dest === 'avatar' || dest === 'hand' || dest === 'scoutOtaHost') {
+    // อัญเชิญ / ขึ้นมือ / คืนเด็ค — เลือกตามอาร์คไทป์
+    if (dest === 'avatar' || dest === 'hand' || dest === 'scoutOtaHost' || dest === 'deck' || from === 'ownHell'
+      || pr.kind === 'hellPick' || /hell/i.test(dest + from + (pr.kind || ''))) {
+      if (AI) {
+        const pick = AI.pickSummonTarget(st, 'B', cands, arch);
+        if (pick) return pick;
+      }
       return cands.slice().sort((a, b) => {
         const ca = st.inst[a], cb = st.inst[b];
         const pa = (ca && ca.type === 'Avatar') ? (+ca.power || 0) : -1;
@@ -2527,12 +2585,10 @@
         return pb - pa || botCardVal(b) - botCardVal(a);
       })[0];
     }
-    // บัฟฟ์
     if (pr.kind === 'chooseBuff') {
       if (pr.amt >= 0) return cands.filter(ownSide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
       return cands.filter(enemySide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
     }
-    // ค่าเริ่มต้น: ชอบเป้าศัตรูแข็ง / ไม่ก็ใบมูลค่าสูง
     const en = cands.filter(enemySide).sort((a, b) => eff(b) - eff(a));
     if (en[0]) return en[0];
     return cands.slice().sort((a, b) => botCardVal(b) - botCardVal(a))[0];
@@ -2540,20 +2596,34 @@
   function botHandlePrompt(pr) {
     const cands = BoTEngine.promptCandidates(st, pr);
     if (pr.kind === 'chooseMode' && pr.options && pr.options.length) {
-      // ทายประเภท → Avatar บ่อยสุด; ไม่ก็ข้อแรกที่ใช้ได้
-      let opt = 0;
-      if (pr.guessTypes) {
-        const av = pr.options.findIndex(o => /อวตาร|Avatar/i.test((o && (o.label || o.name)) || ''));
-        if (av >= 0) opt = av;
+      const AI = botAI();
+      const denyFn = opt => botModeOptionDeny(pr.src, opt);
+      let opt = AI
+        ? AI.pickChooseModeIndex(st, 'B', pr, denyFn)
+        : 0;
+      // ลองทีละตัวเลือกที่ใช้ได้ — กันค้างเมื่อเทค 1 ใช้ไปแล้ว
+      const order = [opt];
+      for (let i = 0; i < pr.options.length; i++) if (i !== opt) order.push(i);
+      for (const i of order) {
+        if (denyFn(pr.options[i])) continue;
+        if (botSend({
+          type: 'chooseMode', k: pr.src, opt: i,
+          label: (pr.options[i] && pr.options[i].label) || '', by: 'B',
+        })) return;
       }
-      botSend({ type: 'chooseMode', k: pr.src, opt, label: (pr.options[opt] && pr.options[opt].label) || '', by: 'B' });
+      // ทุกทางใช้ไม่ได้ — ข้ามเพื่อไม่ค้างโต๊ะ (แม้ optional=false บาง dest ยอมข้าม)
+      if (!botSend({ type: 'skipPrompt', by: 'B' })) {
+        // กันลูป: มาร์คว่า prompt นี้ลองแล้ว แล้วไปต่อไม่ได้ก็รอ tick ถัดไปหลัง fail key
+        botFailKeys.add('chooseMode:stuck:' + (pr.src || ''));
+      }
       return;
     }
     if (pr.kind === 'react') {
       const pick = (pr.options && pr.options[0]) || pr.src;
-      // ใช้ขัดเวทเมื่อมี — คุ้มกว่าปล่อยผ่าน
-      if (pick) botSend({ type: 'chooseTarget', k: pick, by: 'B' });
-      else botSend({ type: 'reactNo', by: 'B' });
+      if (pick) {
+        if (!botSend({ type: 'chooseTarget', k: pick, by: 'B' }))
+          botSend({ type: 'reactNo', by: 'B' });
+      } else botSend({ type: 'reactNo', by: 'B' });
       return;
     }
     if (pr.kind === 'magicRedirect') { botSend({ type: 'magicRedirectYes', by: 'B' }); return; }
@@ -2571,17 +2641,29 @@
       else botSend({ type: 'skipPrompt', by: 'B' });
       return;
     }
+    if (pr.kind === 'guessReveal') {
+      // ตำรวจสอดแนม: หลังเปิดโชว์ท็อปเด็ค — กดดำเนินการต่อ (ถูก=นรก+ผล / ผิด=ไว้เดิม)
+      botSend({ type: 'guessRevealContinue', by: 'B' });
+      return;
+    }
     if (pr.kind === 'peekTop') {
       const card = pr.card;
       const val = card ? botCardVal(card) : 0;
-      const where = (pr.allowHell && val < 15) ? 'hell' : (val < 20 ? 'bottom' : 'top');
+      const AI = botAI();
+      const arch = botArch();
+      let where = (pr.allowHell && val < 15) ? 'hell' : (val < 20 ? 'bottom' : 'top');
+      // เก็บแลนด์/เอนเอเบลอร์ไว้บน
+      if (card && AI && (AI.isWantedLandCard(st.inst[card], arch) || AI.cardIsKeyEnabler(st.inst[card], arch)))
+        where = 'top';
       botSend({ type: 'peekTopPlace', where, by: 'B' });
       return;
     }
     if (pr.kind === 'handOrSummon') {
       const cid = pr.card;
       const c = cid && st.inst[cid];
-      const where = (c && c.type === 'Avatar' && (+c.power || 0) >= 3) ? 'avatar' : 'hand';
+      const AI = botAI();
+      let where = (c && c.type === 'Avatar' && (+c.power || 0) >= 3) ? 'avatar' : 'hand';
+      if (c && AI && AI.cardIsKeyEnabler(c, botArch()) && c.type === 'Avatar') where = 'avatar';
       botSend({ type: 'handOrSummonPick', where, by: 'B' });
       return;
     }
@@ -2591,33 +2673,87 @@
       botSend({ type: 'pickSymbol', symbol, by: 'B' });
       return;
     }
+    // โคกอีสานนูน เทค 1 ฯลฯ — คืนนรกทีละใบจนครบ / พอใช้เทค 2
+    if (pr.dest === 'hellMultiDeck') {
+      const got = pr.multiGot || 0;
+      const max = pr.multiMax || 4;
+      const magicMax = pr.magicMax;
+      const magicGot = pr.magicGot || 0;
+      if (got >= max || !cands.length) {
+        botSend({ type: 'skipPrompt', by: 'B' });
+        return;
+      }
+      const filtered = cands.filter(k => {
+        const c = st.inst[k];
+        if (!c) return false;
+        if (magicMax != null && c.type === 'Magic' && magicGot >= magicMax) return false;
+        return true;
+      });
+      if (!filtered.length) {
+        botSend({ type: 'skipPrompt', by: 'B' });
+        return;
+      }
+      // คืนใบมูลค่าต่ำก่อน · เก็บเอนเอเบลอร์/แลนด์ไว้ในนรกถ้ายังไม่จำเป็น
+      const AI = botAI();
+      const arch = botArch();
+      const ranked = filtered.slice().sort((a, b) => {
+        let sa = botCardVal(a), sb = botCardVal(b);
+        if (AI) {
+          if (AI.cardIsKeyEnabler(st.inst[a], arch) || AI.isWantedLandCard(st.inst[a], arch)) sa += 60;
+          if (AI.cardIsKeyEnabler(st.inst[b], arch) || AI.isWantedLandCard(st.inst[b], arch)) sb += 60;
+        }
+        return sa - sb;
+      });
+      if (botSend({ type: 'chooseTarget', k: ranked[0], by: 'B' })) return;
+      botSend({ type: 'skipPrompt', by: 'B' });
+      return;
+    }
     const pick = botPickTarget(pr, cands);
-    if (pick) botSend({ type: 'chooseTarget', k: pick, by: 'B' });
-    else if (pr.optional !== false) botSend({ type: 'skipPrompt', by: 'B' });
+    if (pick) {
+      if (!botSend({ type: 'chooseTarget', k: pick, by: 'B' })) {
+        // เป้าแรก fail — ลองใบอื่นก่อนค้าง
+        for (const k of cands) {
+          if (k === pick) continue;
+          if (botSend({ type: 'chooseTarget', k, by: 'B' })) return;
+        }
+        if (pr.optional !== false) botSend({ type: 'skipPrompt', by: 'B' });
+        else scheduleBot();
+      }
+      return;
+    }
+    if (pr.optional !== false) botSend({ type: 'skipPrompt', by: 'B' });
     else if (cands[0]) botSend({ type: 'chooseTarget', k: cands[0], by: 'B' });
     else botSend({ type: 'skipPrompt', by: 'B' });
   }
   function botMulliganIds() {
-    if (getBotLevel() === 'easy') return []; // มือใหม่คงมือเสมอ
+    if (getBotLevel() === 'easy') return [];
     const hand = (st.zones['B.hand'] || []).slice();
     if (hand.length < 5) return [];
+    const AI = botAI();
+    const arch = botArch();
     const avatars = hand.filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
     const playable = avatars.filter(k => {
       const cost = BoTEngine.effCost ? BoTEngine.effCost(st, k) : (+st.inst[k].cost || 0);
       return !!botBuildPay(k, cost);
     });
-    if (playable.length >= 1 && avatars.length >= 1) {
+    const hasKey = hand.some(k => AI && (AI.isWantedLandCard(st.inst[k], arch) || AI.cardIsKeyEnabler(st.inst[k], arch)));
+    if (playable.length >= 1 && (avatars.length >= 1 || hasKey)) {
       if (getBotLevel() === 'hard' && playable.length === 1 && avatars.length >= 3) {
-        // โหด: ทิ้ง Avatar แพงที่ลงไม่ได้ทิ้งไว้ใบเล่นได้
         return hand.filter(k => avatars.includes(k) && !playable.includes(k) && (+st.inst[k].cost || 0) >= 5)
-          .sort((a, b) => botCardVal(a) - botCardVal(b)).slice(0, 2);
+          .sort((a, b) => {
+            const sa = AI ? AI.mulliganKeepScore(st, 'B', a, arch, false) : botCardVal(a);
+            const sb = AI ? AI.mulliganKeepScore(st, 'B', b, arch, false) : botCardVal(b);
+            return sa - sb;
+          }).slice(0, 2);
       }
       return [];
     }
     const drop = hand.filter(k => {
       const c = st.inst[k]; if (!c) return false;
+      if (AI && (AI.isWantedLandCard(c, arch) || AI.cardIsKeyEnabler(c, arch))) return false;
       if (c.type === 'Avatar' && (+c.cost || 0) >= 6 && !playable.includes(k)) return true;
       if (c.type === 'Magic' && c.subtype === 'Modification' && !avatars.length) return true;
+      if (AI && AI.mulliganKeepScore(st, 'B', k, arch, playable.includes(k)) < 0) return true;
       return false;
     }).sort((a, b) => botCardVal(a) - botCardVal(b));
     return drop.slice(0, Math.min(getBotLevel() === 'hard' ? 4 : 3, drop.length));
@@ -2626,6 +2762,10 @@
     const sc = st.scout;
     if (!sc || sc.p !== 'B') return false;
     const rest = (sc.ids || []).filter(k => st.inst[k] && !(sc.taken || []).includes(k));
+    const AI = botAI();
+    const arch = botArch();
+    const keepTop = rest.some(k => AI && (AI.isWantedLandCard(st.inst[k], arch) || AI.cardIsKeyEnabler(st.inst[k], arch)));
+    if (keepTop) return botSend({ type: 'scoutEnd', where: 'top', by: 'B' });
     const avg = rest.reduce((s, k) => s + botCardVal(k), 0) / (rest.length || 1);
     const bury = rest.length && rest.every(k => botCardVal(k) < avg * 0.7);
     return botSend({ type: 'scoutEnd', where: bury ? 'bottom' : 'top', by: 'B' });
@@ -2658,7 +2798,6 @@
   }
   function botTick() {
     if (!botActive()) return;
-    // มัลลิแกนฝั่งบอท — ประเมินมือเบื้องต้น
     if (st.turn === 1 && !st.fpDrawn && !st.awaitBattleStart) {
       const done = st.mulliganDone || {};
       if (!done.B) {
@@ -2671,13 +2810,11 @@
     }
     if (st.scout && st.scout.p === 'B') { botHandleScout(); return; }
     if ((st.chain || []).length && st.chainPri === 'B') {
-      // ยังไม่เล่นเข้าเชนเชิงรุก — ผ่านเพื่อไม่ค้างเกม (React ใช้ตอนถูกโจมตีแล้ว)
       botSend({ type: 'chainPass', by: 'B' });
       return;
     }
     const pr = (st.prompts || [])[0];
     if (pr && pr.chooser === 'B') return botHandlePrompt(pr);
-    // รอคู่ต่อสู้ตอบ prompt / เวทค้างหลังขัด — อย่าเล่นต่อหรือสั่งใช้ซ้ำ
     if (pr || st._pendingMagic) return;
     if (st.pending && st.pending.target === 'B') { botDefend(); return; }
     if (st.pending && st.pending.by === 'B') return;
@@ -3154,7 +3291,8 @@
       const millRow = byId('milledOptionalRow');
       if (millRow) millRow.classList.toggle('hidden', !(mine && pr.kind === 'milledOptional'));
       // เลือกมันสำหรับพวกจน ฯลฯ — เปิด modal เลือก นรก/เด็ค อัตโนมัติ
-      if (mine && pr.kind === 'chooseMode' && pr.options && pr.options.length) {
+      // ★ ทายประเภทตำรวจ (guessTypes) = ใช้ปุ่มบนแถบเท่านั้น ห้ามเปิด modal ทับ/ดันเมจิกโซน
+      if (mine && pr.kind === 'chooseMode' && pr.options && pr.options.length && !pr.guessTypes) {
         const modal = byId('choiceModal');
         if (modal && modal.classList.contains('hidden')) {
           openChoiceFromEffects(pr.src, pr.options);
@@ -3170,12 +3308,11 @@
       if (guessRow) guessRow.classList.toggle('hidden', !(mine && pr.kind === 'guessReveal'));
       const guessTypeRow = byId('guessTypeRow');
       if (guessTypeRow) guessTypeRow.classList.toggle('hidden', !(mine && pr.kind === 'chooseMode' && pr.guessTypes));
-      // ทายประเภท: เปิด modal ประกาศ อวตาร/เมจิก/คอนสตรัค
-      if (mine && pr.kind === 'chooseMode' && pr.guessTypes && pr.options && pr.options.length) {
-        const title = document.querySelector('#choiceModal .dc-title');
-        const note = document.querySelector('#choiceModal .dc-note');
-        if (title) title.textContent = '👁 ประกาศประเภทท็อปเด็ค';
-        if (note) note.innerHTML = 'เลือกได้แค่ <b>อวตาร</b> / <b>เมจิก</b> / <b>คอนสตรัค</b> — ระบบจะเปิดโชว์ใบบนสุดเด็คฝ่ายตรงข้ามก่อน';
+      // ทายประเภทค้าง — ปิด modal ถ้าเผลอเปิดไว้ (กันบังสนาม)
+      if (pr.kind === 'chooseMode' && pr.guessTypes) {
+        const modal = byId('choiceModal');
+        if (modal && !modal.classList.contains('hidden') && choiceCtx && choiceCtx.k === pr.src)
+          closeChoicePopup(true);
       }
       const hosRow = byId('handOrSummonRow');
       if (hosRow) {
@@ -3966,18 +4103,17 @@
   function openChoiceFromEffects(k, options) {
     closeMenu();
     const c = st.inst[k]; if (!c) return;
+    const pr0 = st && (st.prompts || [])[0];
+    // ทายประเภทตำรวจ — ใช้ปุ่มบนแถบ ไม่เปิด modal ทับสนาม
+    if (pr0 && pr0.kind === 'chooseMode' && pr0.guessTypes && pr0.src === k) return;
     const opts = (options || []).map(o => o.label || 'ตัวเลือก');
     if (!opts.length) { toast('ไม่พบตัวเลือก'); return; }
     choiceCtx = { k, opts, sel: 0 };
     byId('choiceCardName').textContent = c.name;
-    const pr0 = st && (st.prompts || [])[0];
-    const guess = !!(pr0 && pr0.kind === 'chooseMode' && pr0.guessTypes && pr0.src === k);
     const title = document.querySelector('#choiceModal .dc-title');
     const note = document.querySelector('#choiceModal .dc-note');
-    if (title) title.textContent = guess ? '👁 ประกาศประเภทท็อปเด็ค' : '🎯 เลือกปฏิบัติ';
-    if (note) note.innerHTML = guess
-      ? 'เลือกได้แค่ <b>อวตาร</b> / <b>เมจิก</b> / <b>คอนสตรัค</b> — ระบบจะเปิดโชว์ใบบนสุดเด็คฝ่ายตรงข้ามก่อน'
-      : 'เลือกจาก <b>นรก</b> หรือ <b>เด็ค</b> แล้วกดยืนยัน — ระบบจะเปิดการ์ดที่เลือกได้ให้แตะต่อ';
+    if (title) title.textContent = '🎯 เลือกปฏิบัติ';
+    if (note) note.innerHTML = 'เลือกจาก <b>นรก</b> หรือ <b>เด็ค</b> แล้วกดยืนยัน — ระบบจะเปิดการ์ดที่เลือกได้ให้แตะต่อ';
     renderChoiceOpts();
     byId('choiceModal').classList.remove('hidden');
   }
@@ -5318,6 +5454,8 @@
         B: botD.spec
       });
       st.skipLethalPlead = true;
+      botFailKeys = new Set();
+      botFailTurn = -1;
       const lvLabel = botLevel === 'easy' ? 'ง่าย' : botLevel === 'hard' ? 'โหด' : 'ปานกลาง';
       toast(`🤖 คุณ: ${you.name} · บอท(${lvLabel}): ${botD.name}`);
       gameStart = Date.now(); selMap = {};

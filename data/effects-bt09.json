@@ -121,7 +121,23 @@
     },
     {
       "code": "BT09-016",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownAvatarLeftField"
+          },
+          "cost": {
+            "discardGemSumExact": 3
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "noJuti": true,
+              "bySelfAbility": false
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
       "name": "รัททาทุย นินจา"
     },
