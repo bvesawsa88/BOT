@@ -46,7 +46,7 @@
       "keywords": [
         "แทงหลัง"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั"
     },
     {
@@ -213,7 +213,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "งี่เง่า และ งอแง",
@@ -538,7 +538,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ตำรวจสัมภเวสี นิวัต",
@@ -914,7 +914,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
     },
     {
@@ -938,7 +938,7 @@
         }
       ],
       "noHandSummon": true,
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรก"
     },
     {
@@ -1300,7 +1300,7 @@
       "keywords": [
         "สามัคคี"
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "พี่ไท่ น้องเฟิง นักดาบวายุ",
@@ -1559,7 +1559,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โหมดพี่โปจิ (เนรเทศใบบนสุดนรกศัตรู) ยังไม่ครอบ — ใช้ธรณีสูบอย่างเดียว"
     },
     {
@@ -1743,7 +1743,7 @@
         "keyword": "โล่มนุษย์",
         "side": "enemy"
       },
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ในช่วง Battle Phase Avatar ฝ่ายตรงข้ามทุกใบได้รับ โล่มนุษย์ อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : ฝ่ายตรงข้ามจะต"
     },
     {
@@ -1961,7 +1961,7 @@
       ],
       "hostSymbolReplace": "ผี",
       "reattachOnHostDestroy": true,
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ศาลพระภูมิ",
@@ -1993,7 +1993,7 @@
         }
       ],
       "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual"
     },
     {
@@ -2091,7 +2091,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้จะ เพื่ม POWER ตามจำนวน Avatar \"นายนิรยบาล\" ที่ชื่อต่างกันในนรกเราชื่อละ 1"
     },
     {
@@ -2217,7 +2217,7 @@
       "keywords": [
         "ลูกฮึด"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
@@ -2272,7 +2272,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "อู๊ด คุณแม่",
@@ -2440,7 +2440,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone"
     },
     {

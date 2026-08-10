@@ -70,7 +70,7 @@
         }
       ],
       "abilitiesFromMagicZone": true,
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "code": "CC02-022",
@@ -89,7 +89,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง"
     },
     {
@@ -617,7 +617,9 @@
       "code": "CC02-029",
       "name": "ริกกี้ คุณตาใจดี",
       "abilities": [],
-      "parseStatus": "stub"
+      "immuneOppMagicTarget": true,
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ไม่รับผล Magic ฝ่ายตรงข้ามที่เล็งตัวนี้"
     },
     {
       "code": "CC02-008",
@@ -722,7 +724,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
       "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual"
     },
@@ -839,8 +841,38 @@
     {
       "code": "CC02-019",
       "name": "ราชาใบก้อน",
-      "abilities": [],
-      "parseStatus": "stub"
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "paySelfCostMinus",
+              "minus": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar"
+              ],
+              "filter": {
+                "type": "Avatar",
+                "costLteSrc": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ · เทิร์นละครั้ง จ่าย Cost−1 ทำลาย Avatar ศัตรู Cost ≤ ตัวเอง"
     },
     {
       "code": "CC02-040",

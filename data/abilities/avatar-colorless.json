@@ -98,7 +98,7 @@
       "abilities": [],
       "millBonusExtra": 2,
       "millBonusExceptSelf": true,
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์"
     },
     {
@@ -146,7 +146,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
@@ -245,8 +245,24 @@
       "codes": [
         "BT09-016"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownAvatarLeftField"
+          },
+          "cost": {
+            "discardGemSumExact": 3
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "noJuti": true,
+              "bySelfAbility": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "รัททาทุยโป๊",

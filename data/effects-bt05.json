@@ -1103,7 +1103,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "มยุราซัง  ไอดอลยุค 80",
       "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar \"โอตะ\" 1 ใบจากนรกเรามาสวมใส่ให้ Avatar \"ไอดอล\" ใบอื่น 1 ใบบน Avatar Zone ฝ่ายเรา ถ้าบน"
     },
@@ -1582,7 +1582,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ฐานหุ่นนักรบผู้กล้า ซีทันยาน",
       "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในเทิร์นนี้ยังไม่ได้ใช้ Modification Magic : ในเทิร์นนี้สามารถใช้ Modification Magic \"อาวุธหุ่น"
     },

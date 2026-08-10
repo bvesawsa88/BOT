@@ -4,7 +4,7 @@
       "code": "SD07-001",
       "name": "กวนอู ขุนพลภักดีแห่งจ๊กก๊ก",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "กันเป้าความสามารถใส่ขุนพลอื่น — เล่นมือบางส่วน",
       "keywords": [
         "ลูกฮึด"
@@ -48,7 +48,7 @@
       "code": "SD07-004",
       "name": "แฮหัวเอี๋ยน ขุนพลธนูแห่งวุยก๊ก",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง",
       "keywords": [
         "แทงหลัง"
@@ -83,7 +83,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โล่มนุษย์ คำสั่งเสีย : เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา Avatar ใบที่เลือก POW",
       "keywords": [
         "โล่มนุษย์"
@@ -93,7 +93,7 @@
       "code": "SD07-006",
       "name": "ซุนเซ็ก ขุนพลไฟแรงแห่งง่อก๊ก",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง",
       "keywords": [
         "แทงหลัง"
@@ -132,7 +132,7 @@
           "note": "เมื่อมีการเปลี่ยนเป้าโจมตี — ผู้เล่นกดสั่งใช้"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ในช่วง Battle Phase Avatar ฝ่ายตรงข้ามทุกใบได้รับ โล่มนุษย์ อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : ฝ่ายตรงข้ามจะต",
       "grantKeywordAura": {
         "keyword": "โล่มนุษย์",
@@ -184,7 +184,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ถ้าได้สีฟ้าสามารถอัญเชิญแทนขึ้นมือ — thenIfColor ทำงานเมื่อเลือกจาก scout",
       "keywords": [
         "แทงหลัง"
@@ -194,7 +194,7 @@
       "code": "SD07-009",
       "name": "ขุนศึกแบงค์ แซ่อู๋",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั",
       "keywords": [
         "แทงหลัง"
@@ -268,7 +268,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เลือกปฏิบัติ : 1) เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา นำ Avatar \"ขุนพล\" ที่เป็น "
     },
     {
@@ -298,7 +298,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เงื่อนไขต้องมี Mod ศัตรูสวม — ผู้เล่นเลือกเป้าที่มี Mod"
     },
     {
@@ -321,7 +321,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ผู้เล่นทุกคน จั่วการ์ด 1 ใบ ถ้าบน Avatar Zone ฝ่ายเรามี \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ ตั้งแต่ 2 ใบขึ้นไป เปลี่ยนควา"
     },
     {
@@ -345,7 +345,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
     },
     {
@@ -367,7 +367,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {

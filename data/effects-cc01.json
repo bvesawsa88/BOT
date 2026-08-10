@@ -9,7 +9,7 @@
       "redirectMagicTargetToSelf": true,
       "redirectMagicIfSymbol": "ยักษ์",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โล่มนุษย์ · เมื่อยักษ์ฝ่ายเราถูกเวทเล็ง — นอนยักษ์หินแล้วเปลี่ยนเป้าเวทมาที่ตัวเอง"
     },
     {
@@ -49,7 +49,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "code": "CC01-048",
@@ -82,7 +82,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "code": "CC01-023",
@@ -131,7 +131,7 @@
       "code": "CC01-002",
       "name": "พระนารายณ์ เทพผู้พิทักษ์",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์",
         "เตะไข่"
@@ -253,7 +253,7 @@
       "code": "CC01-053",
       "name": "ไม้เกาหลัง",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "keywords": [
         "เตะไข่"
       ],
@@ -368,7 +368,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัญเชิญ Avatar \"รถถัง\" ที่มีค่า Cost ไม่เกิน 5 จาก Deck เราลงสนามฝั่งเรา 1 ตัว และ อีกฝ่ายอัญเชิญ Avatar ที่มีค่า Cost ไ"
     },
     {
@@ -471,7 +471,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้งใน Main Phase : สามารถ ทิ้งการ์ดจากบนมือ 1 ใบ นำ Modification Magic 1 ใบ จาก ใน Deck ฝ่ายเราขึ้นมือ จากนั้น"
     },
     {
@@ -522,7 +522,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
     },
     {
@@ -676,7 +676,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
     },
     {
@@ -695,7 +695,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "noHandSummon": true,
       "note": "ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรก"
     },
@@ -801,7 +801,7 @@
           "note": "สั่งใช้หลังโฮสต์ฆ่าสำเร็จ — เนรเทศ/ทำลายใบนี้แล้วโฮสต์ตื่น (ผู้เล่นกดเมื่อเงื่อนไขครบ)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar ใบนี้บน Avatar Zone ไปสวมให้ Avatar \"รถถัง\" ที่อยู่บน Avatar Zone ฝ่ายเรา Avatar รถถัง"
     },
     {
@@ -839,8 +839,8 @@
           ]
         }
       ],
-      "parseStatus": "manual",
-      "note": "จุติ + สวมรถถัง + เมื่อรถถังที่สวมจะถูกทำลาย ทำลายจ่ามะนาวแทน",
+      "parseStatus": "auto",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) ถ้ามี Avatar \"รถถัง\" บนสนามฝ่ายเรา สุ่มคว่ำ LIFE Card ฝ่",
       "protectReplace": true,
       "protectReplaceIfHostNameIncludes": "รถถัง"
     },

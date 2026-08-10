@@ -47,7 +47,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : สอดแนม (แสดงการ์ดใบบนสุดของ Deck) 5 ใบ นำ \"จ่ามะนาว\" ห"
     },
     {
@@ -85,7 +85,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) ถ้ามี Avatar \"รถถัง\" บนสนามฝ่ายเรา สุ่มคว่ำ LIFE Card ฝ่",
       "protectReplace": true,
       "protectReplaceIfHostNameIncludes": "รถถัง"
@@ -144,7 +144,7 @@
           "note": "สั่งใช้หลังโฮสต์ฆ่าสำเร็จ — เนรเทศ/ทำลายใบนี้แล้วโฮสต์ตื่น (ผู้เล่นกดเมื่อเงื่อนไขครบ)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar ใบนี้บน Avatar Zone ไปสวมให้ Avatar \"รถถัง\" ที่อยู่บน Avatar Zone ฝ่ายเรา Avatar รถถัง"
     },
     {
@@ -181,7 +181,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให",
       "nameAliases": [
         "รถถัง"
@@ -264,7 +264,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัญเชิญ Avatar \"รถถัง\" ที่มีค่า Cost ไม่เกิน 5 จาก Deck เราลงสนามฝั่งเรา 1 ตัว และ อีกฝ่ายอัญเชิญ Avatar ที่มีค่า Cost ไ"
     },
     {
@@ -283,7 +283,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สุ่มคว่ำ LIFE Card ของฝ่ายเราได้ 1 ใบ"
     },
     {
@@ -310,7 +310,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สอดแนม 1 ใบ : ถ้าเป็น Avatar {Symbol : คน} Cost ไม่เกิน 3 ให้นำลงบน Avatar Zone ฝ่ายเรา แต่ถ้าไม่ใช่ให้ใส่ไว้ใต้ Deck"
     },
     {
@@ -339,7 +339,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่ออีกฝ่ายประกาศโจมตี ทำลาย Avatar \"รถถัง\" บนสนามฝ่ายเรา 1 ใบ : ทำลาย Avatar ท"
     },
     {
@@ -375,7 +375,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar รถถังเป็นเป้าโจมตี : สอดแนม (ดูการ์ดใบบนสุดของเด็ค) 5 ใบ เลือก Avatar {symbol คน} ที่ติดชื่อ \"Tank Ranger\" "
     },
     {
@@ -427,7 +427,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สอดแนม 1 แล้วเลือกบน/ล่าง — ใช้ scoutOneTopOrHell (บนหรือนรก) เป็น proxy"
     },
     {

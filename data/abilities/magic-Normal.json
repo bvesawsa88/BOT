@@ -106,7 +106,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เลือก Avatar {symbol ปลา}ในนรกเรา 1 ใบ : อัญเชิญลงบน Avatar Zone ฝ่ายเราในสภาพนอน ถ้าบนสนามมี Land Magic \"บึงทมิฬ\" อัญเช"
     },
     {
@@ -376,7 +376,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เลือกปฏิบัติ : 1) เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา นำ Avatar \"ขุนพล\" ที่เป็น "
     },
     {
@@ -689,7 +689,7 @@
         }
       ],
       "reactAnyWindow": true,
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ถุงเกราะโอเดนย่า",
@@ -769,7 +769,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ล็อกห้ามใช้ชื่อที่ค้นเป็น Cost — เล่นมือจนกว่าจะเติม flag ภายหลัง"
     },
     {
@@ -806,7 +806,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือลงนรก : จั่วการ์ด 2 ใบ"
     },
     {
@@ -870,7 +870,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เลือก Avatar 1 ใบ ใน Avatar Zone ฝ่ายเรา เปลี่ยนสภาพ Avatar ใบนั้นเป็นสภาพนอน : จั่วการ์ด 1 ใบ"
     },
     {
@@ -916,7 +916,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สอดแนม 1 ใบ : ถ้าเป็น Avatar {Symbol : คน} Cost ไม่เกิน 3 ให้นำลงบน Avatar Zone ฝ่ายเรา แต่ถ้าไม่ใช่ให้ใส่ไว้ใต้ Deck"
     },
     {
@@ -1024,7 +1024,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ดบนมือ 2 ใบ : เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากใน Deck เรา 1 ใบ ขึ้นมือ จากนั้นสับ Deck"
     },
     {
@@ -1343,7 +1343,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เงื่อนไขต้องมี Mod ศัตรูสวม — ผู้เล่นเลือกเป้าที่มี Mod"
     },
     {
@@ -1411,7 +1411,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัญเชิญ Avatar \"รถถัง\" ที่มีค่า Cost ไม่เกิน 5 จาก Deck เราลงสนามฝั่งเรา 1 ตัว และ อีกฝ่ายอัญเชิญ Avatar ที่มีค่า Cost ไ"
     },
     {
@@ -1583,7 +1583,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ดบนมือ 1 ใบ : อัญเชิญ จุติ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากในนรกเรา 1 ใบ ลงบน"
     },
     {
@@ -1686,7 +1686,7 @@
         }
       ],
       "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน",
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar"
     },
     {
@@ -1720,7 +1720,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ผู้เล่นทุกคน จั่วการ์ด 1 ใบ ถ้าบน Avatar Zone ฝ่ายเรามี \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ ตั้งแต่ 2 ใบขึ้นไป เปลี่ยนควา"
     },
     {
@@ -1851,7 +1851,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สุ่มคว่ำ LIFE Card ของฝ่ายเราได้ 1 ใบ"
     },
     {

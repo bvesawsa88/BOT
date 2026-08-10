@@ -135,7 +135,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง"
     },
     {
@@ -306,7 +306,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
     },
     {
@@ -1009,7 +1009,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น {Symbol เทพ} เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด 1 ใบ แล้วเลือก Avatar 1 ",
       "forceAllAvatarSymbol": "เทพ"
     }

@@ -85,7 +85,7 @@
       "keywords": [
         "สามัคคี"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้"
     },
     {
@@ -828,7 +828,7 @@
       "keywords": [
         "สามัคคี"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้"
     },
     {
@@ -918,7 +918,7 @@
           "note": "ทอยคี่→ตื่น — ใช้ optionalDiscardUntapSelf เป็น proxy (ผู้เล่นกดสั่งใช้เมื่อรอดการต่อสู้)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Avatar ใบนี้สั่งโจมตีและไม่ถูกทำลายจากการต่อสู้ ถ้าบน Avatar Zone ฝ่ายเรา มี Avatar \"บึงทมิฬ"
     },
     {
@@ -1055,7 +1055,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เปลี่ยนการ์ดใบนี้จากสภาพตื่นเป็นสภาพนอน เลือก Avatar \"บึงทมิฬ People\" ใบอื่นบนสนามฝ่ายเรา 1 ใบ : A"
     },
     {
@@ -1067,7 +1067,7 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "\"โล่มนุษย์\" อัติโนมัติ เมื่อการ์ดใบนี้ใช้ความสามารถ \"โล่มนุษย์\" POWER+2 จนจบการต่อสู้นั้น"
     },
     {
@@ -1097,7 +1097,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จำนวนสอดแนมตาม Avatar นอน — ใช้ 3 ใบเป็นค่ากลาง"
     },
     {
@@ -1141,7 +1141,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัติโนมัติ เมื่อการ์ดใบนี้สั่งโจมตีหรือตกเป็นเป้าหมายการโจมตี : POWER ของการ์ดใบนี้จะเพิ่มขึ้นตาม Avatar ที่อยู่ในสภาพนอ"
     },
     {
@@ -1355,7 +1355,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "พี่โปจิ เจ้าลัทธิแห่หัว",
@@ -1700,7 +1700,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
     },
     {
@@ -2064,7 +2064,9 @@
         "CC02-029"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "immuneOppMagicTarget": true,
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ไม่รับผล Magic ฝ่ายตรงข้ามที่เล็งตัวนี้"
     },
     {
       "name": "ริกกี้ คุณหมอ",
@@ -2303,7 +2305,7 @@
       "extraSymbols": [
         "ปลา"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : อัญเชิญ \"บึงทมิฬ People\" จากใน Deck เรา 2 ใบ ในสภาพนอน แต่ถ้า Land Magic Zone มี \"บึงทมิฬ\" ให"
     },
     {
@@ -2343,7 +2345,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : นำ Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" ได้ส"
     },
     {
@@ -2530,7 +2532,7 @@
       "keywords": [
         "แทงหลัง"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ถ้าได้สีฟ้าสามารถอัญเชิญแทนขึ้นมือ — thenIfColor ทำงานเมื่อเลือกจาก scout"
     },
     {
@@ -2750,6 +2752,8 @@
           ]
         }
       ],
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "ไอดอล",
       "parseStatus": "auto"
     },
     {
@@ -2789,6 +2793,8 @@
           ]
         }
       ],
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "ไอดอล",
       "parseStatus": "auto"
     },
     {
@@ -2845,7 +2851,7 @@
       "keywords": [
         "สามัคคี"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้"
     },
     {
@@ -2933,7 +2939,7 @@
       "keywords": [
         "แทงหลัง"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
     }
   ]

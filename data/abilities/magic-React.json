@@ -112,7 +112,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar รถถังเป็นเป้าโจมตี : สอดแนม (ดูการ์ดใบบนสุดของเด็ค) 5 ใบ เลือก Avatar {symbol คน} ที่ติดชื่อ \"Tank Ranger\" "
     },
     {
@@ -432,7 +432,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar \"บึงทมิฬ People\" เป็นเป้าหมายการโจมตี : ยกเลิกการโจมตีนั้น และเปลี่"
     },
     {
@@ -473,7 +473,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อฝ่ายตรงข้ามอัญเชิญ Avatar และเราควบคุม Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน T"
     },
     {
@@ -625,7 +625,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่ออีกฝ่ายประกาศโจมตี ทำลาย Avatar \"รถถัง\" บนสนามฝ่ายเรา 1 ใบ : ทำลาย Avatar ท"
     },
     {
@@ -722,7 +722,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar \"กุ่ย\",\"ฮอล\" และ \"นาย\" อย่างละ 1 ใบ จากบนมือเรา และ,หรือ บนสนามเราลงนรก : ทำลาย Avatar ทุกใบบนสนามฝ่ายตรงข้าม"
     },
     {
@@ -871,7 +871,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อศัตรูประกาศโจมตีและทั้งสองฝ่ายมี Avatar: ทั้งคู่ทอยเต๋า — แต้มน้อยสุด Avatar ทั้งหมดกลับใต้เด็ค (เสมอ=ทั้งคู่)"
     },
     {
@@ -887,8 +887,55 @@
       "codes": [
         "BT10-065"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOnlyNameIncludes": "นินจา",
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "นินจาที่เลือกได้เตะไข่จนจบเทิร์น",
+                  "actions": [
+                    {
+                      "op": "grantKeyword",
+                      "keyword": "เตะไข่",
+                      "until": "endOfTurn",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "นินจา"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "เนรเทศนินจาที่เลือก แล้วคืนช่วง End Phase",
+                  "actions": [
+                    {
+                      "op": "pick",
+                      "from": "own",
+                      "required": true,
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "นินจา"
+                        ]
+                      },
+                      "dest": "exileThenReturnEnd"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "สละเพื่อนเพื่อช่วยเพื่อน",
@@ -922,7 +969,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือเรา หรือ บนสนามเราลงนรก : นำ Avatar 1 ใบบนสนามกลับขึ้นมือ"
     },
     {
@@ -957,7 +1004,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
     },
     {
@@ -984,7 +1031,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {

@@ -109,7 +109,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "พี่บูม แก๊งขยะ"
     },
     {
@@ -164,7 +164,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "โกเอมอน นินจาจอมโจร"
     },
     {
@@ -228,7 +228,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ฮันโซ นินจาในตำนาน"
     },
     {
@@ -275,7 +275,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ชิโยเมะ นินจาสาว"
     },
     {
@@ -321,7 +321,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ตำรวจเอไอ มุเค"
     },
     {
@@ -429,7 +429,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "พี่เจมส์ แก๊งขยะ"
     },
     {
@@ -599,7 +599,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "code": "BT10-033",
@@ -631,7 +631,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ตำรวจสัมภเวสี ทาย"
     },
     {
@@ -709,7 +709,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "นักข่าวสาว เดย์วัน",
       "gemAsCostForNameIncludes": "ตำรวจ",
       "gemAsCostValue": 5,
@@ -741,7 +741,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "เบรกเกต แก๊งขยะ"
     },
     {
@@ -908,7 +908,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "วิชานินจา รุกรับพลิกผัน"
     },
     {
@@ -962,7 +962,7 @@
     {
       "code": "BT10-074",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ZeedZad Server",
       "costZeroIfDistinctOwnNameIncludes": {
         "nameIncludes": "แก๊งขยะ",
@@ -1110,7 +1110,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     }
   ]
 }

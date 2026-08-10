@@ -197,7 +197,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ"
     },
     {
@@ -340,7 +340,7 @@
           "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ตีพ่อ",
@@ -555,7 +555,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "น้ำแดง",
@@ -598,6 +598,7 @@
         "BT02-055"
       ],
       "abilities": [],
+      "protectReplace": true,
       "parseStatus": "auto"
     },
     {
@@ -607,7 +608,9 @@
         "PRMO-129"
       ],
       "abilities": [],
-      "parseStatus": "manual"
+      "controlImmune": true,
+      "parseStatus": "auto",
+      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "name": "ปืนจักรวุทธ",
@@ -641,7 +644,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
     },
     {
@@ -724,7 +727,7 @@
       "keywords": [
         "เตะไข่"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ เตะไข่ (Avatar ใบนี้สามารถโจมตีไปที่ LIFE Card ได้โดยตรง แม้ว่า Avatar Zone ข"
     },
     {
@@ -736,7 +739,7 @@
       "keywords": [
         "ลูกฮึด"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
     },
     {

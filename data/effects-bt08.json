@@ -71,9 +71,51 @@
     },
     {
       "code": "BT08-009",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "เอเจ้นท์สมูท"
+      "name": "เอเจ้นท์สมูท",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "เอเจ้นท์สมูท"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": "เอเจ้นท์สมูท",
+              "perN": 2,
+              "per": 1,
+              "onlyOwnBattlePhase": true,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย สอดแนม 3 หาเอเจ้นท์สมูท · Battle Phase ฝ่ายเรา POWER = ⌊สมูทในนรก÷2⌋"
     },
     {
       "code": "BT08-010",
@@ -210,7 +252,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
@@ -259,7 +301,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "อีสานสลิงเกอร์ เปอร์"
     },
     {
@@ -454,7 +496,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อศัตรูประกาศโจมตีและทั้งสองฝ่ายมี Avatar: ทั้งคู่ทอยเต๋า — แต้มน้อยสุด Avatar ทั้งหมดกลับใต้เด็ค (เสมอ=ทั้งคู่)"
     },
     {
@@ -588,7 +630,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "โคกอีสานนูน",
       "stayOnMagic": true,
       "note": "เทค1 คืนนรก6 จั่ว1 · เทค2 ดวลได้หลังคืน≥6 ในเทิร์น (สั่งใช้แยกเทิร์นละครั้งต่อเทค)"

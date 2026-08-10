@@ -38,7 +38,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar {symbol นรก} 1 ใบจากมือลงนรก : ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) 2 ใบ แล้วจั่วการ์ดจาก Deck 2 ใบ"
     },
     {
@@ -132,7 +132,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สอดแนม 1 แล้วเลือกบน/ล่าง — ใช้ scoutOneTopOrHell (บนหรือนรก) เป็น proxy"
     },
     {
@@ -194,7 +194,7 @@
         }
       ],
       "stayOnMagic": true,
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทค1 คืนนรก6 จั่ว1 · เทค2 ดวลได้หลังคืน≥6 ในเทิร์น (สั่งใช้แยกเทิร์นละครั้งต่อเทค)"
     },
     {
@@ -226,7 +226,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในเทิร์นนี้ยังไม่ได้ใช้ Modification Magic : ในเทิร์นนี้สามารถใช้ Modification Magic \"อาวุธหุ่น"
     },
     {
@@ -501,7 +501,7 @@
       },
       "auraPower": 2,
       "auraNameIncludes": "ภูติผลไม้",
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ออร่าภูติผลไม้ +2 และสามัคคี · สั่งใช้: เนรเทศใบบนสุดเด็ค → อัญเชิญภูติจากนรก (ได้คำสั่งเสียเนรเทศตัวเอง)"
     },
     {
@@ -807,7 +807,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
     },
     {
@@ -895,7 +895,7 @@
       "abilities": [],
       "blockAllLandPlay": true,
       "destroyAfterGlobalEndPhases": 4,
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "บล็อกใช้ Land ทุกฝ่าย · End Phase รวมทุกฝ่ายครบ 4 ครั้ง → ลงนรก"
     },
     {
@@ -941,8 +941,29 @@
       "codes": [
         "BT07-067"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "halveFloor": true,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar ทุกใบ ลด POWER ตั้งต้นลงครึ่งหนึ่ง (ปัดลง) — บัฟจากความสามารถไม่โดนหั่น"
     },
     {
       "name": "อาคารผู้โดยสารชั้นต่ำ",
@@ -1018,7 +1039,7 @@
         }
       ],
       "forceAllAvatarSymbol": "เทพ",
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น {Symbol เทพ} เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด 1 ใบ แล้วเลือก Avatar 1 "
     },
     {
@@ -1057,7 +1078,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้งใน Main Phase : สามารถ ทิ้งการ์ดจากบนมือ 1 ใบ นำ Modification Magic 1 ใบ จาก ใน Deck ฝ่ายเราขึ้นมือ จากนั้น"
     },
     {

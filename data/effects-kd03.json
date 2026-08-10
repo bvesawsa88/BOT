@@ -103,7 +103,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone",
       "costOnlyForNameIncludes": "ไอดอล"
     },
@@ -210,7 +210,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar \"โอตะ\" 1 ใบจากนรกเรามาสวมใส่ให้ Avatar \"ไอดอล\" ใบอื่น 1 ใบบน Avatar Zone ฝ่ายเรา ถ้าบน"
     },
     {
@@ -248,7 +248,9 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT02-010"
+      "note": "แมปจาก BT02-010",
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "ไอดอล"
     },
     {
       "code": "KD03-008",
@@ -297,7 +299,9 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT03-014"
+      "note": "แมปจาก BT03-014",
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "ไอดอล"
     },
     {
       "code": "KD03-009",
@@ -375,7 +379,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ไม่มีข้อความเอฟเฟกต์",
       "hostSymbolReplace": "ผี",
       "reattachOnHostDestroy": true
@@ -397,7 +401,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
     },
     {
@@ -583,7 +587,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "code": "KD03-019",
@@ -639,7 +643,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
     },
     {

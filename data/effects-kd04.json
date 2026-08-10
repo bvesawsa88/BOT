@@ -39,7 +39,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 ",
       "controlImmune": true
     },
@@ -90,7 +90,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : สอดแนม 5 ใบ เลือก Avatar \"ไมเกรน\" 1 ใบจากที่ สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำกลับเข้า Deck"
     },
     {
@@ -148,7 +148,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้ เมื่อ Avatar ใบนี้ ทำลาย Avatar ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ : ส่ง Avatar ใบนี้ลงนรก และ อั"
     },
     {
@@ -176,7 +176,7 @@
       "abilities": [],
       "parseStatus": "auto",
       "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)",
-      "protectReplaceForNameIncludes": "หุ่นนักรบผู้กล้า : ไมเกรน"
+      "protectReplaceForNameIncludes": "ไมเกรน"
     },
     {
       "code": "KD04-007",
@@ -260,8 +260,8 @@
           ]
         }
       ],
-      "parseStatus": "manual",
-      "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง (ไม่ตอบสนองเวท/แอคติเวตทั่วไป)"
+      "parseStatus": "auto",
+      "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง"
     },
     {
       "code": "KD04-010",
@@ -280,8 +280,8 @@
           ]
         }
       ],
-      "parseStatus": "manual",
-      "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง (ไม่ตอบสนองเวท/แอคติเวตทั่วไป)"
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เทิร์นละครั้ง ในเทิร์นใครก็ได้ เมื่ออีกฝ่ายใช้ความสามารถการ์ด นำการ์ด 1 ใบ บนมือเราให้อีกฝ่าย : ยกเลิกความสามา"
     },
     {
       "code": "KD04-011",
@@ -325,7 +325,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar",
       "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน"
     },
@@ -396,7 +396,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในเทิร์นนี้ยังไม่ได้ใช้ Modification Magic : ในเทิร์นนี้สามารถใช้ Modification Magic \"อาวุธหุ่น"
     },
     {
@@ -424,7 +424,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้งใน Main Phase : สามารถ ทิ้งการ์ดจากบนมือ 1 ใบ นำ Modification Magic 1 ใบ จาก ใน Deck ฝ่ายเราขึ้นมือ จากนั้น"
     },
     {

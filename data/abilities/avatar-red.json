@@ -137,8 +137,57 @@
       "codes": [
         "BT10-004"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "โกเอมอน นินจาจอมโจร",
+          "allowBattleIfFaceUpLifeMin": 3,
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "โกเอมอน นินจาจอมโจร"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "trigger": {
+                    "on": "lifeRevealedByAttack"
+                  },
+                  "actions": [
+                    {
+                      "op": "oppHellPick",
+                      "filter": {
+                        "type": "Magic"
+                      },
+                      "optional": true,
+                      "thenDiscard": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "คนเช็ดโต๊ะอัศวินโต๊ะกลม",
@@ -170,7 +219,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โต๊ะ: ยกเลิกได้เฉพาะตอนอีกฝ่ายอัญเชิญ(จุติ) — ยื่นมือ 1 ใบ นับ React · เทิร์นละครั้ง"
     },
     {
@@ -460,8 +509,49 @@
       "codes": [
         "BT10-006"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "ชิโยเมะ นินจาสาว",
+          "anyPlayerMainPhase": true,
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "ชิโยเมะ นินจาสาว"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ซัลลี่วอดก้า",
@@ -520,7 +610,7 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โล่มนุษย์ คำสั่งเสีย : เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา Avatar ใบที่เลือก POW"
     },
     {
@@ -533,7 +623,7 @@
       "keywords": [
         "แทงหลัง"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
     },
     {
@@ -711,7 +801,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : สอดแนม 5 ใบ เลือก Avatar \"ไมเกรน\" 1 ใบจากที่ สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำกลับเข้า Deck"
     },
     {
@@ -779,7 +869,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ศัตรูจั่ว 1 → เลือกใบจากมือศัตรูวางบนสุดเด็ค"
     },
     {
@@ -828,7 +918,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ตึก",
@@ -1329,7 +1419,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "+1 ขณะสวม; ถ้ามีค่ายบนสนาม ผู้เล่นบวกเพิ่มมือได้ (+2 ตามข้อความ)"
     },
     {
@@ -1516,7 +1606,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
     },
     {
@@ -1532,7 +1622,7 @@
         "เตะไข่"
       ],
       "halvePrintedInsteadDestroy": true,
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โล่มนุษย์ เตะไข่ อัตโนมัติ เมื่อ Avatar ใบนี้จะถูกทำลาย : ปรับ POWER ตั้งต้นของ Avatar ใบนี้ลดลงครึ่งหนึ่งแทนการถูกทำลาย"
     },
     {
@@ -1845,7 +1935,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย : สอดแนม 5 ใบ เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box 1 ใบ ยกเว้น พ่อแท่น ผู้นำอาวุโส ขึ้นมือ การ์ด"
     },
     {
@@ -2003,7 +2093,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "เพมมุ ยอดมนุษย์",
@@ -2018,8 +2108,63 @@
       "codes": [
         "BT11-010"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "ฟูมะ นินจาแห่งสายลม",
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "ฟูมะ นินจาแห่งสายลม"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "schedule",
+              "when": "ownEndPhase",
+              "actions": [
+                {
+                  "op": "exileSelf"
+                },
+                {
+                  "op": "schedule",
+                  "when": "nextOwnMainPhase",
+                  "actions": [
+                    {
+                      "op": "summonSelfFromDark",
+                      "noJuti": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ : เลือก Avatar \"นินจา\" 1 ใบ ที่ไม่ได้ชื่อ ฟูมะ นินจาแห่งสายลม บน Avatar Zone เรา นำกลับขึ้นมือ และ อัญเ"
     },
     {
@@ -2200,7 +2345,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ ทิ้งการ์ดบนมือ 2 ใบ : ก่อสร้าง Construct Card \"ค่ายบางระจัน\" 1 ใบ จาก Deck เรา จากนั้นสับ Deck"
     },
     {
@@ -2335,7 +2480,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
     },
     {
@@ -2382,7 +2527,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
     },
     {
@@ -2426,7 +2571,8 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "controlImmune": true,
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 "
     },
     {
@@ -2553,7 +2699,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เทิร์นละครั้ง ในเทิร์นใครก็ได้ เมื่ออีกฝ่ายใช้ความสามารถการ์ด นำการ์ด 1 ใบ บนมือเราให้อีกฝ่าย : ยกเลิกความสามา"
     },
     {
@@ -2578,8 +2724,41 @@
       "codes": [
         "BT07-001"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireFaceDownOwnLife": true,
+          "actions": [
+            {
+              "op": "revealAndActivateOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "+1 ต่อ LIFE ที่หงายทั้งสองฝ่าย · เทิร์นละครั้งหงาย LIFE ใบบนสุดแล้วใช้ผลทันที (รวมผล Main ถัดไป)"
     },
     {
       "name": "วันชัย พ่อบุญลือ",
@@ -2814,7 +2993,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้ เมื่อ Avatar ใบนี้ ทำลาย Avatar ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ : ส่ง Avatar ใบนี้ลงนรก และ อั"
     },
     {
@@ -2936,6 +3115,7 @@
         "KD04-006"
       ],
       "abilities": [],
+      "protectReplaceForNameIncludes": "ไมเกรน",
       "parseStatus": "auto",
       "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)"
     },
@@ -2958,7 +3138,7 @@
           "note": "สั่งใช้เมื่อค่ายจะถูกทำลาย — ส่งตัวเองใต้เด็คแล้วค่ายรอด (ผู้เล่นกดเมื่อเงื่อนไขครบ; protect ทำมือได้)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Construct \"ค่ายบางระจัน\" จะถูกทำลายจากความสามารถของ Avatar หรือ การ์ด Magic ส่งการ์ดใบนี้จาก"
     },
     {
@@ -3107,8 +3287,50 @@
       "codes": [
         "BT08-009"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "เอเจ้นท์สมูท"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": "เอเจ้นท์สมูท",
+              "perN": 2,
+              "per": 1,
+              "onlyOwnBattlePhase": true,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย สอดแนม 3 หาเอเจ้นท์สมูท · Battle Phase ฝ่ายเรา POWER = ⌊สมูทในนรก÷2⌋"
     },
     {
       "name": "เอรา นาคเกล็ดเขียว",
@@ -3185,9 +3407,47 @@
               "shuffleAfter": true
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "ฮันโซ นินจาในตำนาน",
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "ฮันโซ นินจาในตำนาน"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "เตะไข่",
+              "until": "endOfTurn",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ]
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto"
     },
     {
       "name": "โฮคุ โพลีกอน",

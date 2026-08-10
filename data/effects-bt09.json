@@ -138,7 +138,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "รัททาทุย นินจา"
     },
     {
@@ -212,7 +212,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "แมวดำ สมาชิกลัทธิแห่หัว",
       "note": "โหมดพี่โปจิ (เนรเทศใบบนสุดนรกศัตรู) ยังไม่ครอบ — ใช้ธรณีสูบอย่างเดียว"
     },
@@ -274,7 +274,7 @@
       "code": "BT09-036",
       "name": "ภูติผลไม้ มะม่วง",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้า Land มีป่าพงไพร → ได้โล่มนุษย์",
       "grantKeywordIfLandNameIncludes": {
         "keyword": "โล่มนุษย์",
@@ -312,14 +312,14 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย ถ้ามีป่า: อัญเชิญภูติผลไม้ที่ไม่ใช่มะเหมี่ยวจากมือ แล้วจั่ว 1"
     },
     {
       "code": "BT09-038",
       "name": "ภูติผลไม้ มะเฟือง",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้ามีป่า + ศัตรูมี LIFE คว่ำ → ได้เตะไข่",
       "grantKeywordIfLandNameIncludes": {
         "keyword": "เตะไข่",
@@ -351,7 +351,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ: เปิดหน้าต่างเลือกป่าพงไพรจากเด็คหรือนรกขึ้นมือ — จากเด็คแล้วสับ"
     },
     {
@@ -494,7 +494,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ไต้ฝุ่น",
       "reactAnyWindow": true
     },
@@ -574,7 +574,7 @@
       "code": "BT09-070",
       "name": "สวนกล้วยหนีภาษี",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "blockAllLandPlay": true,
       "destroyAfterGlobalEndPhases": 4,
       "note": "บล็อกใช้ Land ทุกฝ่าย · End Phase รวมทุกฝ่ายครบ 4 ครั้ง → ลงนรก"
@@ -622,7 +622,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ออร่าภูติผลไม้ +2 และสามัคคี · สั่งใช้: เนรเทศใบบนสุดเด็ค → อัญเชิญภูติจากนรก (ได้คำสั่งเสียเนรเทศตัวเอง)",
       "auraNameIncludes": "ภูติผลไม้",
       "auraPower": 2,

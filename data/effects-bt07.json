@@ -2,9 +2,42 @@
   "cards": [
     {
       "code": "BT07-001",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "วันชัยเปรตรุ่นพ่อ"
+      "name": "วันชัยเปรตรุ่นพ่อ",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireFaceDownOwnLife": true,
+          "actions": [
+            {
+              "op": "revealAndActivateOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "+1 ต่อ LIFE ที่หงายทั้งสองฝ่าย · เทิร์นละครั้งหงาย LIFE ใบบนสุดแล้วใช้ผลทันที (รวมผล Main ถัดไป)"
     },
     {
       "code": "BT07-002",
@@ -62,7 +95,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ตำรวจไซบอร์ค จ่านิ่ง",
       "note": "ศัตรูจั่ว 1 → เลือกใบจากมือศัตรูวางบนสุดเด็ค"
     },
@@ -265,7 +298,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ตำรวจนอกเครื่องแบบ ไซเฮย์"
     },
     {
@@ -292,7 +325,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ตำรวจไฟแรง เอนโว่"
     },
     {
@@ -491,9 +524,11 @@
     },
     {
       "code": "BT07-065",
+      "name": "ปลอกคอซื่อสัตย์",
       "abilities": [],
-      "parseStatus": "manual",
-      "name": "ปลอกคอซื่อสัตย์"
+      "controlImmune": true,
+      "parseStatus": "auto",
+      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "BT07-066",
@@ -503,9 +538,30 @@
     },
     {
       "code": "BT07-067",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "หมู่บ้านเห็ด"
+      "name": "หมู่บ้านเห็ด",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "halveFloor": true,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar ทุกใบ ลด POWER ตั้งต้นลงครึ่งหนึ่ง (ปัดลง) — บัฟจากความสามารถไม่โดนหั่น"
     },
     {
       "code": "BT07-068",

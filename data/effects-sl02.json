@@ -149,7 +149,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     }
   ]
 }

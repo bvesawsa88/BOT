@@ -49,7 +49,8 @@
       "keywords": [
         "ลูกฮึด"
       ],
-      "parseStatus": "manual",
+      "controlImmune": true,
+      "parseStatus": "auto",
       "note": "กันเป้าความสามารถใส่ขุนพลอื่น — เล่นมือบางส่วน"
     },
     {
@@ -101,7 +102,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : สอดแนม (แสดงการ์ดใบบนสุดของ Deck) 5 ใบ นำ \"จ่ามะนาว\" ห"
     },
     {
@@ -331,7 +332,7 @@
           "note": "สั่งใช้หลังโฮสต์ฆ่าสำเร็จ — เนรเทศ/ทำลายใบนี้แล้วโฮสต์ตื่น (ผู้เล่นกดเมื่อเงื่อนไขครบ)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar ใบนี้บน Avatar Zone ไปสวมให้ Avatar \"รถถัง\" ที่อยู่บน Avatar Zone ฝ่ายเรา Avatar รถถัง"
     },
     {
@@ -380,10 +381,10 @@
           ]
         }
       ],
-      "parseStatus": "manual",
-      "note": "จุติ + สวมรถถัง + เมื่อรถถังที่สวมจะถูกทำลาย ทำลายจ่ามะนาวแทน",
       "protectReplace": true,
-      "protectReplaceIfHostNameIncludes": "รถถัง"
+      "protectReplaceIfHostNameIncludes": "รถถัง",
+      "parseStatus": "auto",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) ถ้ามี Avatar \"รถถัง\" บนสนามฝ่ายเรา สุ่มคว่ำ LIFE Card ฝ่"
     },
     {
       "name": "จ่ายุทธ Tank Ranger",
@@ -703,7 +704,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ตำรวจพ่อลูกอ่อน คามุ",
@@ -741,7 +742,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "เต่า",
@@ -863,7 +864,7 @@
       "cannotBeAttackTargetIf": {
         "allyNameIncludes": "ตำรวจ"
       },
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "นักท่องเรื่องราว ขวัญตา",
@@ -989,7 +990,7 @@
           ]
         }
       ],
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ปอนด์ สมาชิกลัทธิแห่หัว",
@@ -1029,6 +1030,7 @@
         "BT05-038"
       ],
       "abilities": [],
+      "protectReplaceForNameIncludes": "เครื่องบิน Super Air",
       "parseStatus": "auto"
     },
     {
@@ -1330,7 +1332,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่องถ้ามีป่า: POWER +1 ต่อภูติในมิติมืด · คำสั่งเสียถ้ามีป่า: ภูติจากมิติมืดกลับเด็คแล้วสับ"
     },
     {
@@ -1359,7 +1361,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ: เปิดหน้าต่างเลือกป่าพงไพรจากเด็คหรือนรกขึ้นมือ — จากเด็คแล้วสับ"
     },
     {
@@ -1373,7 +1375,7 @@
         "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
         "requireEnemyFaceDownLife": true
       },
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้ามีป่า + ศัตรูมี LIFE คว่ำ → ได้เตะไข่"
     },
     {
@@ -1386,7 +1388,7 @@
         "keyword": "โล่มนุษย์",
         "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์"
       },
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้า Land มีป่าพงไพร → ได้โล่มนุษย์"
     },
     {
@@ -1422,7 +1424,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย ถ้ามีป่า: อัญเชิญภูติผลไม้ที่ไม่ใช่มะเหมี่ยวจากมือ แล้วจั่ว 1"
     },
     {
@@ -1477,7 +1479,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar \"โอตะ\" 1 ใบจากนรกเรามาสวมใส่ให้ Avatar \"ไอดอล\" ใบอื่น 1 ใบบน Avatar Zone ฝ่ายเรา ถ้าบน"
     },
     {
@@ -1644,7 +1646,7 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "โล่มนุษย์ · เมื่อยักษ์ฝ่ายเราถูกเวทเล็ง — นอนยักษ์หินแล้วเปลี่ยนเป้าเวทมาที่ตัวเอง"
     },
     {
@@ -1697,8 +1699,38 @@
       "codes": [
         "CC02-019"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "paySelfCostMinus",
+              "minus": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar"
+              ],
+              "filter": {
+                "type": "Avatar",
+                "costLteSrc": true
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ · เทิร์นละครั้ง จ่าย Cost−1 ทำลาย Avatar ศัตรู Cost ≤ ตัวเอง"
     },
     {
       "name": "ราชา รด.",
@@ -2210,7 +2242,7 @@
         }
       ],
       "abilitiesFromMagicZone": true,
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "name": "ไอ้หนุ่มรด.",
@@ -2260,7 +2292,7 @@
       "nameAliases": [
         "รถถัง"
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให"
     }
   ]

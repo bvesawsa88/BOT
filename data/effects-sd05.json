@@ -38,7 +38,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัติโนมัติ เมื่อการ์ดใบนี้สั่งโจมตีหรือตกเป็นเป้าหมายการโจมตี : POWER ของการ์ดใบนี้จะเพิ่มขึ้นตาม Avatar ที่อยู่ในสภาพนอ"
     },
     {
@@ -60,7 +60,7 @@
           "note": "ทอยคี่→ตื่น — ใช้ optionalDiscardUntapSelf เป็น proxy (ผู้เล่นกดสั่งใช้เมื่อรอดการต่อสู้)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Avatar ใบนี้สั่งโจมตีและไม่ถูกทำลายจากการต่อสู้ ถ้าบน Avatar Zone ฝ่ายเรา มี Avatar \"บึงทมิฬ"
     },
     {
@@ -88,14 +88,14 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จำนวนสอดแนมตาม Avatar นอน — ใช้ 3 ใบเป็นค่ากลาง"
     },
     {
       "code": "SD05-004",
       "name": "บึงทมิฬ  People - คุณอังคณา",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "\"โล่มนุษย์\" อัติโนมัติ เมื่อการ์ดใบนี้ใช้ความสามารถ \"โล่มนุษย์\" POWER+2 จนจบการต่อสู้นั้น",
       "keywords": [
         "โล่มนุษย์"
@@ -129,7 +129,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เปลี่ยนการ์ดใบนี้จากสภาพตื่นเป็นสภาพนอน เลือก Avatar \"บึงทมิฬ People\" ใบอื่นบนสนามฝ่ายเรา 1 ใบ : A"
     },
     {
@@ -160,7 +160,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ : อัญเชิญ \"บึงทมิฬ People\" จากใน Deck เรา 2 ใบ ในสภาพนอน แต่ถ้า Land Magic Zone มี \"บึงทมิฬ\" ให",
       "nameAliases": [
         "บึงทมิฬ People"
@@ -242,7 +242,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เลือก Avatar 1 ใบ ใน Avatar Zone ฝ่ายเรา เปลี่ยนสภาพ Avatar ใบนั้นเป็นสภาพนอน : จั่วการ์ด 1 ใบ"
     },
     {
@@ -268,7 +268,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เลือก Avatar {symbol ปลา}ในนรกเรา 1 ใบ : อัญเชิญลงบน Avatar Zone ฝ่ายเราในสภาพนอน ถ้าบนสนามมี Land Magic \"บึงทมิฬ\" อัญเช"
     },
     {
@@ -291,7 +291,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar \"บึงทมิฬ People\" เป็นเป้าหมายการโจมตี : ยกเลิกการโจมตีนั้น และเปลี่"
     },
     {
@@ -319,7 +319,7 @@
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
     },
     {
@@ -355,7 +355,7 @@
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "manual"
+      "parseStatus": "auto"
     },
     {
       "code": "SD05-019",

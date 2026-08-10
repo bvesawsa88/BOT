@@ -23,14 +23,15 @@ const META_KEYS = [
   'freeSummonIf', 'uniqueOnField', 'exactGemPay', 'allColors', 'blockLifeUnreveal',
   'grantKeywordAura', 'grantKeywordIfAllyNameIncludes', 'grantKeywordIfLandNameIncludes',
   'ignoreNegativePower', 'auraPower', 'auraNameIncludes',
-  'immuneOppMagicTarget', 'millInsteadDestroy', 'lifeBothModes',
+  'immuneOppMagicTarget', 'millInsteadDestroy', 'lifeBothModes', 'controlImmune',
   'addToHandWhenScoutedByNameIncludes', 'addToHandWhenMilledOrScoutedByNameIncludes',
   'extraSymbols', 'destroyHostIfPower0', 'powerAsGemForSymbol',
   'gemAsCostForNameIncludes', 'revealOppDeckTopIfOwnNameIncludes', 'cannotBeAttackTargetIf',
   'cannotBeAttackTargetIfOwnSymbolOther', 'hostSymbolReplace', 'reattachOnHostDestroy', 'reactAnyWindow',
   'costZeroIfDistinctOwnNameIncludes', 'costZeroIfOwnSymbol', 'abilitiesFromMagicZone',
   'blockAllLandPlay', 'destroyAfterGlobalEndPhases', 'stayOnMagic', 'remainOnMagic',
-  'allowOppTurnMagic', 'oncePerTurnCard', 'revealDeckTops'
+  'allowOppTurnMagic', 'oncePerTurnCard', 'revealDeckTops',
+  'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes'
 ];
 
 function loadJson(p) {
@@ -169,6 +170,9 @@ function writeCategories(byName) {
     };
     Object.assign(entry, pickMeta(eff));
     if (!entry.keywords) delete entry.keywords;
+    const hasFx = entry.abilities.length || (entry.keywords && entry.keywords.length)
+      || META_KEYS.some(k => entry[k] != null);
+    if (hasFx && entry.parseStatus === 'manual') entry.parseStatus = 'auto';
     if (!entry.abilities.length && !Object.keys(pickMeta(eff)).length) {
       entry.parseStatus = entry.parseStatus || 'stub';
     }

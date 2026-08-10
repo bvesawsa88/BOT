@@ -133,7 +133,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ ทิ้งการ์ดบนมือ 2 ใบ : ก่อสร้าง Construct Card \"ค่ายบางระจัน\" 1 ใบ จาก Deck เรา จากนั้นสับ Deck"
     },
     {
@@ -187,7 +187,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย : สอดแนม 5 ใบ เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box 1 ใบ ยกเว้น พ่อแท่น ผู้นำอาวุโส ขึ้นมือ การ์ด"
     },
     {
@@ -207,7 +207,7 @@
           "note": "สั่งใช้เมื่อค่ายจะถูกทำลาย — ส่งตัวเองใต้เด็คแล้วค่ายรอด (ผู้เล่นกดเมื่อเงื่อนไขครบ; protect ทำมือได้)"
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Construct \"ค่ายบางระจัน\" จะถูกทำลายจากความสามารถของ Avatar หรือ การ์ด Magic ส่งการ์ดใบนี้จาก"
     },
     {
@@ -246,7 +246,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "+1 ขณะสวม; ถ้ามีค่ายบนสนาม ผู้เล่นบวกเพิ่มมือได้ (+2 ตามข้อความ)"
     },
     {
@@ -297,7 +297,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ดบนมือ 2 ใบ : เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากใน Deck เรา 1 ใบ ขึ้นมือ จากนั้นสับ Deck"
     },
     {
@@ -328,7 +328,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ดบนมือ 1 ใบ : อัญเชิญ จุติ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากในนรกเรา 1 ใบ ลงบน"
     },
     {
@@ -391,14 +391,14 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เมื่อฝ่ายตรงข้ามอัญเชิญ Avatar และเราควบคุม Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน T"
     },
     {
       "code": "SD06-016",
       "name": "ยันต์ผ้าประเจียด",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด",
       "attachOnly": {
         "effectIncludes": "ค่ายบางระจัน"
@@ -423,7 +423,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ",
       "attachOnly": {
         "effectIncludes": "ค่ายบางระจัน"
@@ -496,7 +496,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "เงื่อนไข Avatar Zone ว่าง — ผู้เล่นกดเมื่อเข้าเงื่อนไข"
     },
     {

@@ -51,7 +51,7 @@
         "nameIncludes": "แก๊งขยะ",
         "min": 2
       },
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "Cost 0 ถ้าแก๊งขยะชื่อไม่ซ้ำ ≥2 · ออร่าลูกฮึดให้แก๊งขยะ"
     }
   ]

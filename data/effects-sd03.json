@@ -25,7 +25,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
@@ -78,7 +78,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
     },
     {
@@ -97,7 +97,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ถ้าการ์ดใบนี้ถูกส่งลงนรกด้วยผลของ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) : สามารถอัญเชิญการ์ดใบนี้ลง Avatar Zone จากนรก",
       "noHandSummon": true
     },
@@ -105,7 +105,7 @@
       "code": "SD03-004",
       "name": "นายนิรยบาล อ้วน",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์",
       "millBonusExtra": 2,
       "millBonusExceptSelf": true
@@ -133,7 +133,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้จะ เพื่ม POWER ตามจำนวน Avatar \"นายนิรยบาล\" ที่ชื่อต่างกันในนรกเราชื่อละ 1"
     },
     {
@@ -238,7 +238,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar {symbol นรก} 1 ใบจากมือลงนรก : ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) 2 ใบ แล้วจั่วการ์ดจาก Deck 2 ใบ"
     },
     {
@@ -265,7 +265,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ล็อกห้ามใช้ชื่อที่ค้นเป็น Cost — เล่นมือจนกว่าจะเติม flag ภายหลัง"
     },
     {

@@ -4,10 +4,11 @@
    trigger ที่รองรับ: summoned · activated · static · declareAttack · anyDeclareAttack ·
      enemyDeclareAttack (React) · avatarSummoned (React) · lifeRevealedByAttack · destroyed ·
      milled (ธรณีสูบ) · sentToHell · ownTurnEnd · turnStart · battlePhaseStart · selfDamaged · enemyActivateAbility · chooseMode
-   op: modifyPower(choose/self/all/equippedAvatar, amountPer) · draw · mill · scout · deckPick ·
+   op: modifyPower(choose/self/all/equippedAvatar, amountPer, halveFloor) · draw · mill · scout · deckPick ·
      hellPick · chooseDestroy · destroyTarget · destroyAttacker · destroyAllEnemyAvatars ·
      sacrifice(cost) · discard(cost) · counterSelf · untapHost · returnSelfToDeck ·
-     revealOwnLife · unrevealOwnLife */
+     revealOwnLife · unrevealOwnLife · revealAndActivateOwnLife
+   amountPer: ownHellNameIncludesPerN (+ onlyOwnBattlePhase) · ownHellPerN · allRevealedLife · … */
 (function (root, factory) {
   if (typeof module !== 'undefined' && module.exports) module.exports = factory();
   else root.BoTEngine = factory();
@@ -65,7 +66,7 @@
     'freeSummonIf', 'uniqueOnField', 'exactGemPay', 'allColors', 'blockLifeUnreveal',
     'grantKeywordAura', 'grantKeywordIfAllyNameIncludes', 'grantKeywordIfLandNameIncludes',
     'ignoreNegativePower', 'auraPower', 'auraNameIncludes',
-    'immuneOppMagicTarget', 'millInsteadDestroy', 'lifeBothModes',
+    'immuneOppMagicTarget', 'millInsteadDestroy', 'lifeBothModes', 'controlImmune',
     'addToHandWhenScoutedByNameIncludes', 'addToHandWhenMilledOrScoutedByNameIncludes',
     'extraSymbols', 'destroyHostIfPower0', 'powerAsGemForSymbol',
     'gemAsCostForNameIncludes', 'revealOppDeckTopIfOwnNameIncludes', 'cannotBeAttackTargetIf',
@@ -423,20 +424,25 @@
   }
 
   function controlImmuneBlock(st, targetK, srcK) {
-    const e = fxId(st, targetK);
-    if (!e) return null;
-    if (e.controlImmune) {
+    const check = (e, label) => {
+      if (!e || !e.controlImmune) return null;
       if (e.controlImmuneExcept) {
         const src = st.inst[srcK];
         if (src && nameMatches(src, e.controlImmuneExcept)) return null;
-        return `"${nameOf(st, targetK)}" ไม่ถูกเปลี่ยนการควบคุม (ยกเว้น ${e.controlImmuneExcept})`;
+        return `"${label}" ไม่ถูกเปลี่ยนการควบคุม (ยกเว้น ${e.controlImmuneExcept})`;
       }
-      return `"${nameOf(st, targetK)}" ไม่ถูกเปลี่ยนการควบคุม`;
+      return `"${label}" ไม่ถูกเปลี่ยนการควบคุม`;
+    };
+    const selfHit = check(fxId(st, targetK), nameOf(st, targetK));
+    if (selfHit) return selfHit;
+    // ปลอกคอซื่อสัตย์ ฯลฯ: ใบสวมให้โฮสต์กันเปลี่ยนการควบคุม
+    for (const id in st.inst) {
+      const m = st.inst[id];
+      if (!m || m.attachedTo !== targetK) continue;
+      const hit = check(fxCard(m), nameOf(st, targetK));
+      if (hit) return hit;
     }
-    if (!e.controlImmuneExcept) return null;
-    const src = st.inst[srcK];
-    if (src && nameMatches(src, e.controlImmuneExcept)) return null;
-    return `"${nameOf(st, targetK)}" ไม่ถูกเปลี่ยนการควบคุม (ยกเว้น ${e.controlImmuneExcept})`;
+    return null;
   }
 
   function fireSentToHell(st, fx, k, side) {
@@ -1282,6 +1288,9 @@
       if (!ok) return false;
     }
     if (f.costMax != null && effCost(st, k) > f.costMax) return false;
+    if (f.costLteSrc && f._srcK) {
+      if (effCost(st, k) > effCost(st, f._srcK)) return false;
+    }
     if (f.cost != null && effCost(st, k) !== +f.cost) return false;
     if (f.gem != null && (+c.gem || 0) !== +f.gem) return false;
     if (f.gemMin != null && (+c.gem || 0) < +f.gemMin) return false;
@@ -1546,8 +1555,16 @@
       return { total, base: +c.power || 0, lines: [{ amt: total, label: 'สลับ Cost↔POWER (ใช้ Cost เป็น POWER)' }], note: 'swap' };
     }
     if ((st.buffs || []).some(b => b.k === k && b.lockPrinted && b.until === 'combat')) {
-      const total = Math.max(0, +c.power || 0);
-      return { total, base: total, lines: [{ amt: total, label: 'ล็อก POWER ตั้งต้น (จนจบการต่อสู้)' }], note: 'lock' };
+      let printed = Math.max(0, +c.power || 0);
+      const zLock = zoneOf(st, k) || '';
+      if (zLock.endsWith('.avatar') && c.faceUp) {
+        const hasHalve = (st.zones['land'] || []).some(lk => {
+          const s = st.inst[lk]; if (!s || !s.faceUp) return false;
+          return abil(st, lk, 'static').some(ab => (ab.actions || []).some(ac => ac.op === 'modifyPower' && ac.halveFloor));
+        });
+        if (hasHalve) printed = Math.floor((+c.power || 0) / 2);
+      }
+      return { total: printed, base: printed, lines: [{ amt: printed, label: 'ล็อก POWER ตั้งต้น (จนจบการต่อสู้)' }], note: 'lock' };
     }
     {
       const e = fxCard(c);
@@ -1580,9 +1597,35 @@
         }
       }
     }
-    const base = +c.power || 0;
+    const printed = +c.power || 0;
+    let base = printed;
+    const kz0 = zoneOf(st, k) || '';
+    let halvePrintedFrom = '';
+    if (kz0.endsWith('.avatar') && c.type === 'Avatar' && c.faceUp) {
+      (st.zones['land'] || []).forEach(lk => {
+        const s = st.inst[lk]; if (!s || !s.faceUp) return;
+        abil(st, lk, 'static').forEach(ab => {
+          const cond = (ab.trigger && ab.trigger.if) || '';
+          if (cond && cond !== 'self.zone==landZone' && cond !== 'self.zone==land') return;
+          (ab.actions || []).forEach(ac => {
+            if (ac.op !== 'modifyPower' || !ac.halveFloor) return;
+            const t = ac.target || {};
+            if (t.select && t.select !== 'all') return;
+            if (t.type && c.type !== t.type) return;
+            if (t.zone === 'avatarZone' && !kz0.endsWith('.avatar')) return;
+            if (t.symbol && !cardSymbols(st, k).includes(t.symbol)) return;
+            if (t.nameIncludes && !t.nameIncludes.some(n => nameMatches(c, n))) return;
+            halvePrintedFrom = s.name;
+          });
+        });
+      });
+      if (halvePrintedFrom) base = Math.floor(printed / 2);
+    }
     let p = base;
-    lines.push({ amt: base, label: 'ค่าตั้งต้นบนการ์ด' });
+    lines.push({ amt: printed, label: 'ค่าตั้งต้นบนการ์ด' });
+    if (halvePrintedFrom && base !== printed) {
+      add(base - printed, `「${halvePrintedFrom}」ลดครึ่งค่าตั้งต้น (ปัดลง)`);
+    }
     if (c.counters) { add(c.counters, 'เคาน์เตอร์'); p += c.counters; }
     if (+c.powerDelta) {
       if (c.powerDeltaFrom && c.powerDeltaFrom.length) {
@@ -1593,7 +1636,7 @@
       } else add(+c.powerDelta, 'ปรับถาวร (จนกว่าออกจากสนาม)');
       p += +c.powerDelta;
     }
-    const kz = zoneOf(st, k) || '';
+    const kz = kz0;
     if (kz.endsWith('.avatar') && c.type === 'Avatar' && c.faceUp) {
       const side = kz[0];
       if (c.curse && c.curse.powerMod) { add(c.curse.powerMod, `คำสาป${c.curse.symbol ? ' ' + c.curse.symbol : ''}`); p += c.curse.powerMod; }
@@ -1719,6 +1762,18 @@
                 const perN = ac.perN || 15;
                 const hellN = (st.zones[side + '.hell'] || []).length;
                 amt = (ac.per || 1) * Math.floor(hellN / perN);
+              } else if (ac.amountPer === 'ownHellNameIncludesPerN') {
+                if (ac.onlyOwnBattlePhase && !(st.phase === 'Battle' && st.active === side)) amt = 0;
+                else {
+                  const needle = ac.nameIncludes || ac.nameIncludesAny || '';
+                  const needles = Array.isArray(needle) ? needle : [needle];
+                  const perN = ac.perN || 2;
+                  const n = (st.zones[side + '.hell'] || []).filter(id => {
+                    const hc = st.inst[id];
+                    return hc && needles.some(nm => nameMatches(hc, nm));
+                  }).length;
+                  amt = (ac.per || 1) * Math.floor(n / perN);
+                }
               }
               else amt = ac.amount || 0;
             }
@@ -1817,7 +1872,30 @@
         }
       }
     }
+    // ริกกี้ ฯลฯ: React ที่ผลแค่ทำลาย/ลดผู้โจมตี — ใช้ไม่ได้ถ้าผู้โจมตีกัน Magic
+    const atk = st.pending && st.pending.atk;
+    if (atk && isImmuneOppMagicTarget(st, atk)) {
+      const ops = [];
+      abs.forEach(ab => (ab.actions || []).forEach(ac => { if (ac && ac.op) ops.push(ac.op); }));
+      const onlyAtk = ops.length > 0 && ops.every(op => op === 'destroyAttacker' || op === 'weakenAttacker');
+      if (onlyAtk)
+        return `ใช้ "${cardName}" ไม่ได้ — "${nameOf(st, atk)}" ไม่รับผลจาก Magic ฝ่ายตรงข้าม`;
+    }
     return null;
+  }
+
+  function isImmuneOppMagicTarget(st, k) {
+    const e = fxId(st, k);
+    return !!(e && e.immuneOppMagicTarget);
+  }
+  /* ทำลายด้วย Magic ของอีกฝ่าย — ให้ destroyCard เคารพ immuneOppMagicTarget */
+  function destroyOptsFromMagic(st, srcK, targetK) {
+    const src = st.inst[srcK];
+    if (!src || src.type !== 'Magic') return {};
+    const so = ownerOf(st, srcK);
+    const to = ownerOf(st, targetK);
+    if (so && to && so !== to) return { fromOppMagic: true, fromOppCard: true, byOpp: true, fromMagic: true };
+    return { fromMagic: true };
   }
 
   /* การ์ดสวนกลับที่เล่นได้ตอนนี้ (React ที่ดักโจมตี) สำหรับฝ่าย owner — ใช้โชว์กล่องสวนกลับฝั่ง client */
@@ -1888,13 +1966,14 @@
       });
     if (p.kind === 'chooseDestroy') {
       const out = [];
+      const filt = Object.assign({}, p.filter || {}, p.src ? { _srcK: p.src } : {});
       (p.zones || ['magic', 'land']).forEach(zn => {
-        if (zn === 'land') (st.zones['land'] || []).forEach(k => { if (matchFilterEx(st, k, p.filter)) out.push(k); });
+        if (zn === 'land') (st.zones['land'] || []).forEach(k => { if (matchFilterEx(st, k, filt)) out.push(k); });
         else ['A', 'B'].forEach(s => {
           if (p.side === 'enemy' && s === p.chooser) return;
           if (p.side === 'own' && s !== p.chooser) return;
           (st.zones[s + '.' + zn] || []).forEach(k => {
-            if (!matchFilterEx(st, k, p.filter)) return;
+            if (!matchFilterEx(st, k, filt)) return;
             // ริกกี้: ไม่ให้เลือกเป็นเป้า Magic ศัตรู
             const eImm = fxId(st, k);
             if (eImm && eImm.immuneOppMagicTarget && p.fromOppMagic) return;
@@ -2053,7 +2132,7 @@
     }
     if (p.kind === 'chooseDestroy') {
       addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ทำลาย ${nameOf(st, targetK)}`);
-      destroyCard(st, fx, targetK, p.ignoreProtect ? { ignoreProtect: true } : { fromOppMagic: !!p.fromOppMagic, fromOppCard: !!p.fromOppCard, byOpp: !!p.byOpp });
+      destroyCard(st, fx, targetK, p.ignoreProtect ? { ignoreProtect: true } : destroyOptsFromMagic(st, p.src, targetK));
       if (p.afterAlienGive) {
         (p.alienRevealed || []).forEach(k => { if (st.inst[k]) delete st.inst[k].revealed; });
         pushAlienGive(st, p.src, p.chooser);
@@ -2209,6 +2288,20 @@
         addLog(st, owner, exact
           ? `ทิ้งมือรวม GEM ให้พอดี ${need} (ห้ามทิ้งใบไม่มี GEM)`
           : `ทิ้งมือรวม GEM ≥ ${need} (ห้ามทิ้งใบไม่มี GEM)`);
+      } else if (costOp.op === 'paySelfCostMinus') {
+        const minus = costOp.minus != null ? costOp.minus : 1;
+        const need = Math.max(0, effCost(st, srcK) - minus);
+        if (need <= 0) {
+          addLog(st, owner, `จ่ายค่า Cost−${minus}: ไม่ต้องทิ้ง (Cost เหลือ 0)`);
+          runActions(st, fx, actions, { src: srcK, owner, rng });
+        } else {
+          st.prompts.push({
+            kind: 'chooseDiscard', src: srcK, chooser: owner,
+            filter: { gemMin: 1 }, excludeIds: [srcK],
+            gemSumMin: need, gemSumExact: false, gemGot: 0, actions, effectDiscard: true
+          });
+          addLog(st, owner, `จ่ายค่า Cost−${minus}: ทิ้งมือรวม GEM ≥ ${need}`);
+        }
       } else if (costOp.op === 'returnHandToDeck') {
         st.prompts.push({ kind: 'chooseDiscard', src: srcK, chooser: owner, filter: costOp.filter, actions, toDeck: true, effectDiscard: true });
       } else if (costOp.op === 'sacrifice') {
@@ -2383,10 +2476,16 @@
       // React อื่น (อุบัติเหตุ ฯลฯ) หลังไม่ถูกชายจากอนาคตยกเลิก
       if (pend.mode === 'destroyAttacker') {
         if (st.inst[pend.target] && (zoneOf(st, pend.target) || '').endsWith('.avatar')) {
-          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, pend.src)}: ส่ง ${nameOf(st, pend.target)} ที่ประกาศโจมตีลงนรก`);
-          destroyCard(st, fx, pend.target);
+          if (isImmuneOppMagicTarget(st, pend.target) && pend.owner !== ownerOf(st, pend.target)) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, pend.src)}: ${nameOf(st, pend.target)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกทำลาย`);
+          } else {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, pend.src)}: ส่ง ${nameOf(st, pend.target)} ที่ประกาศโจมตีลงนรก`);
+            destroyCard(st, fx, pend.target, destroyOptsFromMagic(st, pend.src, pend.target));
+          }
         }
-        if (st.pending && st.pending.atk === pend.target) { st.pending = null; addLog(st, 'S', 'การโจมตียกเลิก — ผู้โจมตีไม่อยู่แล้ว'); }
+        if (st.pending && st.pending.atk === pend.target && !(st.inst[pend.target] && (zoneOf(st, pend.target) || '').endsWith('.avatar'))) {
+          st.pending = null; addLog(st, 'S', 'การโจมตียกเลิก — ผู้โจมตีไม่อยู่แล้ว');
+        }
       } else if (pend.actions && pend.actions.length) {
         // จ่ายค่าเซ่นก่อนรันผล (เพื่อชาติ หลังไม่ถูกขัด)
         if (pend.costList && pend.costList[0] && pend.costList[0].op === 'sacrifice') {
@@ -3052,6 +3151,47 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           op: 'runActions', actions: ac.actions || [], src: ctx.src
         });
         addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: นัดทำผลใน ${ac.when || 'nextOwnMainPhase'}`);
+      } else if (ac.op === 'revealAndActivateOwnLife') {
+        /* วันชัยเปรตรุ่นพ่อ: หงาย LIFE ใบบนสุด แล้วใช้ผลทันที
+           ถ้าผลระบุ "ใน Main Phase ถัดไป" ให้ทำในเทิร์นนี้ทันที */
+        const need = ac.count || 1;
+        const arr = st.zones[ctx.owner + '.life'] || [];
+        const picked = [];
+        for (let i = arr.length - 1; i >= 0 && picked.length < need; i--) {
+          const id = arr[i];
+          if (st.inst[id] && !st.inst[id].faceUp) picked.push(id);
+        }
+        if (!picked.length) {
+          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี LIFE ที่คว่ำให้หงาย`);
+        } else {
+          picked.forEach(lifeId => {
+            const L = st.inst[lifeId];
+            L.faceUp = true;
+            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: หงาย LIFE "${L.name}" แล้วสั่งใช้ผลทันที`);
+            fx.flip = lifeId;
+            fx.snd = 'flip';
+            const flattenImmediate = (list) => {
+              const out = [];
+              (list || []).forEach(a0 => {
+                if (!a0) return;
+                if (a0.op === 'schedule') {
+                  flattenImmediate(a0.actions || []).forEach(x => out.push(x));
+                  return;
+                }
+                const copy = Object.assign({}, a0);
+                if (copy.schedule === 'nextOwnMainPhase') delete copy.schedule;
+                out.push(copy);
+              });
+              return out;
+            };
+            abilitiesOf(L.code, 'lifeRevealedByAttack', L.name).forEach(ab => {
+              const acts = flattenImmediate(ab.actions || []);
+              if (!acts.length) return;
+              addLog(st, ctx.owner, `สั่งใช้ผล LIFE "${L.name}" ทันที (ข้ามรอ Main ถัดไป)`);
+              runActions(st, fx, acts, { src: lifeId, owner: ctx.owner, rng: ctx.rng || Math.random });
+            });
+          });
+        }
       } else if (ac.op === 'chooseMode') {
         st.prompts.push({ kind: 'chooseMode', src: ctx.src, chooser: ctx.owner, optional: false, options: ac.options || [] });
         prompted = true;
@@ -3488,7 +3628,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const opp = other(ctx.owner);
         const targets = (st.zones[opp + '.avatar'] || []).slice();
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทำลาย Avatar ฝั่ง ${opp} ทั้งหมด (${targets.length} ใบ)`);
-        targets.forEach(t => destroyCard(st, fx, t));
+        targets.forEach(t => destroyCard(st, fx, t, destroyOptsFromMagic(st, ctx.src, t)));
         fx.snd = 'clash';
       } else if (ac.op === 'destroy' || ac.op === 'destroyTarget') {
         let tgt = null;
@@ -3497,7 +3637,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         else if (ctx.target) tgt = ctx.target;
         if (tgt && st.inst[tgt] && zoneOf(st, tgt)) {
           addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทำลาย ${nameOf(st, tgt)}`);
-          destroyCard(st, fx, tgt); fx.snd = 'clash';
+          destroyCard(st, fx, tgt, destroyOptsFromMagic(st, ctx.src, tgt)); fx.snd = 'clash';
         } else if (ac.target && ac.target.select === 'choose') {
           const side = ac.target.side === 'enemy' ? 'enemyAvatars' : ac.target.side === 'own' ? 'ownAvatars' : 'allAvatars';
           const filt = Object.assign({}, ac.target);
@@ -3769,7 +3909,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีเป้าหมายให้เลือก — ข้าม`);
       } else if (ac.op === 'chooseDestroy') {
-        const p = { kind: 'chooseDestroy', src: ctx.src, chooser: ctx.owner, filter: ac.filter, zones: ac.zones, side: ac.side || null, srcToHell: !!ctx.toHellAfter, optional: !!ac.optional };
+        const srcC = st.inst[ctx.src];
+        const fromMagic = srcC && srcC.type === 'Magic';
+        const p = {
+          kind: 'chooseDestroy', src: ctx.src, chooser: ctx.owner, filter: ac.filter, zones: ac.zones, side: ac.side || null,
+          srcToHell: !!ctx.toHellAfter, optional: !!ac.optional,
+          fromOppMagic: fromMagic && ac.side === 'enemy', fromOppCard: fromMagic && ac.side === 'enemy'
+        };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีเป้าหมายให้ทำลาย — ข้าม`);
       } else if (ac.op === 'bothReshuffleHandDraw') {
@@ -4059,18 +4205,28 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         // React: ทำลายตัวที่ประกาศโจมตี (ctx.attacker) — ต้องยังอยู่ใน Avatar Zone
         const atk = ctx.attacker;
         if (atk && st.inst[atk] && (zoneOf(st, atk) || '').endsWith('.avatar')) {
-          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ส่ง ${nameOf(st, atk)} ที่ประกาศโจมตีลงนรก`);
-          destroyCard(st, fx, atk); ctx.attackerKilled = true; fx.snd = 'clash';
+          if (isImmuneOppMagicTarget(st, atk) && ownerOf(st, ctx.src) !== ownerOf(st, atk)) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกทำลาย`);
+          } else {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ส่ง ${nameOf(st, atk)} ที่ประกาศโจมตีลงนรก`);
+            const died = destroyCard(st, fx, atk, destroyOptsFromMagic(st, ctx.src, atk));
+            if (died) ctx.attackerKilled = true;
+            fx.snd = 'clash';
+          }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีผู้โจมตีให้ทำลาย`);
       } else if (ac.op === 'weakenAttacker') {
         // React: ลด POWER ผู้โจมตี — amount คงที่ (กรอกในเอดิเตอร์) หรือ per × จำนวนการ์ดตามแหล่ง (JSON) ไม่นับตัวเวทสวนเอง
         const atk = ctx.attacker;
         if (atk && st.inst[atk]) {
-          let amt, note = '';
-          if (ac.amount != null && ac.count == null) amt = -Math.abs(ac.amount);
-          else { let n = 0; (ac.count || ['ownSide']).forEach(s => n += countSource(st, ctx.owner, s, ctx.src)); amt = -(ac.per || 1) * n; note = ` (นับ ${n} ใบ)`; }
-          st.buffs.push({ k: atk, amt: amt, until: ac.until || 'endOfTurn', from: ctx.src });
-          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} POWER ${amt}${note} → เหลือ P${effPower(st, atk)}`);
+          if (isImmuneOppMagicTarget(st, atk) && ownerOf(st, ctx.src) !== ownerOf(st, atk)) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกลด POWER`);
+          } else {
+            let amt, note = '';
+            if (ac.amount != null && ac.count == null) amt = -Math.abs(ac.amount);
+            else { let n = 0; (ac.count || ['ownSide']).forEach(s => n += countSource(st, ctx.owner, s, ctx.src)); amt = -(ac.per || 1) * n; note = ` (นับ ${n} ใบ)`; }
+            st.buffs.push({ k: atk, amt: amt, until: ac.until || 'endOfTurn', from: ctx.src });
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} POWER ${amt}${note} → เหลือ P${effPower(st, atk)}`);
+          }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีผู้โจมตีให้ลดพลัง`);
       } else if (ac.op === 'cancelAttackByRestAlly') {
         const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, dest: 'cancelAttackRest', optional: true, requireUntapped: true };
@@ -5698,10 +5854,16 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             }
             if (p.mode === 'destroyAttacker') {
               if (st.inst[p.target] && (zoneOf(st, p.target) || '').endsWith('.avatar')) {
-                addLog(st, 'S', `เอฟเฟกต์ ${m.name}: ส่ง ${nameOf(st, p.target)} ที่ประกาศโจมตีลงนรก`);
-                destroyCard(st, fx, p.target);
+                if (isImmuneOppMagicTarget(st, p.target) && p.chooser !== ownerOf(st, p.target)) {
+                  addLog(st, 'S', `เอฟเฟกต์ ${m.name}: ${nameOf(st, p.target)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกทำลาย`);
+                } else {
+                  addLog(st, 'S', `เอฟเฟกต์ ${m.name}: ส่ง ${nameOf(st, p.target)} ที่ประกาศโจมตีลงนรก`);
+                  destroyCard(st, fx, p.target, destroyOptsFromMagic(st, p.src, p.target));
+                }
               }
-              if (st.pending && st.pending.atk === p.target) { st.pending = null; addLog(st, 'S', 'การโจมตียกเลิก — ผู้โจมตีไม่อยู่แล้ว'); }
+              if (st.pending && st.pending.atk === p.target && !(st.inst[p.target] && (zoneOf(st, p.target) || '').endsWith('.avatar'))) {
+                st.pending = null; addLog(st, 'S', 'การโจมตียกเลิก — ผู้โจมตีไม่อยู่แล้ว');
+              }
             } else if (p.actions && p.actions.length) {
               runActions(st, fx, p.actions, { src: p.src, owner: p.chooser, target: p.target, triggerSource: p.target, rng: rng });
             } else {
@@ -6905,10 +7067,16 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         if (p.mode === 'destroyAttacker') {
           if (st.inst[p.target] && (zoneOf(st, p.target) || '').endsWith('.avatar')) {
-            addLog(st, 'S', `เอฟเฟกต์ ${m.name}: ส่ง ${nameOf(st, p.target)} ที่ประกาศโจมตีลงนรก`);
-            destroyCard(st, fx, p.target);
+            if (isImmuneOppMagicTarget(st, p.target) && p.chooser !== ownerOf(st, p.target)) {
+              addLog(st, 'S', `เอฟเฟกต์ ${m.name}: ${nameOf(st, p.target)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกทำลาย`);
+            } else {
+              addLog(st, 'S', `เอฟเฟกต์ ${m.name}: ส่ง ${nameOf(st, p.target)} ที่ประกาศโจมตีลงนรก`);
+              destroyCard(st, fx, p.target, destroyOptsFromMagic(st, p.src, p.target));
+            }
           }
-          if (st.pending && st.pending.atk === p.target) { st.pending = null; addLog(st, 'S', 'การโจมตียกเลิก — ผู้โจมตีไม่อยู่แล้ว'); }
+          if (st.pending && st.pending.atk === p.target && !(st.inst[p.target] && (zoneOf(st, p.target) || '').endsWith('.avatar'))) {
+            st.pending = null; addLog(st, 'S', 'การโจมตียกเลิก — ผู้โจมตีไม่อยู่แล้ว');
+          }
         } else if (p.actions && p.actions.length) {
           runActions(st, fx, p.actions, { src: p.src, owner: p.chooser, target: p.target, triggerSource: p.target, rng: rng });
         } else {
@@ -7867,6 +8035,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (!(st.zones['A.avatar'] || []).length || !(st.zones['B.avatar'] || []).length)
             return deny('ใช้ไม่ได้ — ต้องมี Avatar ทั้งสองฝ่าย');
         }
+        if (ab.requireFaceDownOwnLife) {
+          const hasDown = (st.zones[owner + '.life'] || []).some(id => st.inst[id] && !st.inst[id].faceUp);
+          if (!hasDown) return deny('ใช้ไม่ได้ — ไม่มี LIFE ที่คว่ำให้หงาย');
+        }
         if (ab.requireEnemyCostSumMax != null) {
           const opp = other(owner);
           const sum = (st.zones[opp + '.avatar'] || []).reduce((n, id) => n + effCost(st, id), 0);
@@ -7899,6 +8071,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const total = (st.zones[owner + '.hand'] || []).filter(id => id !== a.k)
               .reduce((n, id) => n + (+(st.inst[id] && st.inst[id].gem) || 0), 0);
             if (total < (costOp.min || 3)) return deny(`GEM ในมือรวม ${total} < ${costOp.min || 3}`);
+          } else if (costOp.op === 'paySelfCostMinus') {
+            const minus = costOp.minus != null ? costOp.minus : 1;
+            const need = Math.max(0, effCost(st, a.k) - minus);
+            if (need > 0) {
+              const total = (st.zones[owner + '.hand'] || []).filter(id => id !== a.k)
+                .reduce((n, id) => n + (+(st.inst[id] && st.inst[id].gem) || 0), 0);
+              if (total < need) return deny(`จ่าย Cost−${minus} ต้องการ GEM ≥ ${need} (ในมือมี ${total})`);
+            }
           } else if (costOp.op === 'returnHandToDeck') {
             if (!(st.zones[owner + '.hand'] || []).some(x => matchFilterEx(st, x, costOp.filter)))
               return deny('ไม่มีมือให้คืนเด็ค');

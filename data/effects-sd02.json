@@ -23,7 +23,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้",
       "keywords": [
         "สามัคคี"
@@ -52,7 +52,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้",
       "keywords": [
         "สามัคคี"
@@ -81,7 +81,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้",
       "keywords": [
         "สามัคคี"
@@ -135,7 +135,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : นำ Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" ได้ส"
     },
     {
@@ -233,14 +233,14 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar \"กุ่ย\",\"ฮอล\" และ \"นาย\" อย่างละ 1 ใบ จากบนมือเรา และ,หรือ บนสนามเราลงนรก : ทำลาย Avatar ทุกใบบนสนามฝ่ายตรงข้าม"
     },
     {
       "code": "SD02-017",
       "name": "ไม้เกาหลัง",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ เตะไข่ (Avatar ใบนี้สามารถโจมตีไปที่ LIFE Card ได้โดยตรง แม้ว่า Avatar Zone ข",
       "keywords": [
         "เตะไข่"
@@ -277,7 +277,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือลงนรก : จั่วการ์ด 2 ใบ"
     },
     {
@@ -310,7 +310,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือเรา หรือ บนสนามเราลงนรก : นำ Avatar 1 ใบบนสนามกลับขึ้นมือ"
     },
     {
