@@ -2419,17 +2419,36 @@
     return false;
   }
   function botTryAttach() {
+    const AI = botAI();
     const mods = (st.zones['B.magic'] || []).filter(k => {
       const c = st.inst[k];
       return c && c.subtype === 'Modification' && !c.attachedTo;
     });
     if (!mods.length) return false;
-    const hosts = (st.zones['B.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar')
-      .sort((a, b) => eff(b) - eff(a));
+    const hosts = (st.zones['B.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
     if (!hosts.length) return false;
-    mods.sort((a, b) => botCardVal(b) - botCardVal(a));
+    const enemyN = (st.zones['A.avatar'] || []).length;
+    mods.sort((a, b) => {
+      const ca = st.inst[a], cb = st.inst[b];
+      const eggA = AI && AI.modGrantsKickEgg ? AI.modGrantsKickEgg(ca) : /ไม้เกาหลัง|เตะไข่/.test((ca && (ca.name || '') + (ca.effect || '')) || '');
+      const eggB = AI && AI.modGrantsKickEgg ? AI.modGrantsKickEgg(cb) : /ไม้เกาหลัง|เตะไข่/.test((cb && (cb.name || '') + (cb.effect || '')) || '');
+      if (eggA !== eggB) return eggA ? -1 : 1;
+      return botCardVal(b) - botCardVal(a);
+    });
     for (const mod of mods) {
-      for (const host of hosts) {
+      const c = st.inst[mod];
+      const grantsEgg = AI && AI.modGrantsKickEgg ? AI.modGrantsKickEgg(c) : /ไม้เกาหลัง|เตะไข่/.test((c && (c.name || '') + (c.effect || '')) || '');
+      const rankedHosts = hosts.slice().sort((a, b) => {
+        if (grantsEgg) {
+          const eggA = !!BoTEngine.hasKw(st, a, 'เตะไข่');
+          const eggB = !!BoTEngine.hasKw(st, b, 'เตะไข่');
+          // ให้มอดเตะไข่กับตัวที่ยังไม่มี — สำคัญเมื่อศัตรูมีบล็อกเกอร์
+          if (eggA !== eggB) return eggA ? 1 : -1;
+          if (enemyN) return eff(b) - eff(a);
+        }
+        return eff(b) - eff(a);
+      });
+      for (const host of rankedHosts) {
         if (botSend({ type: 'attach', k: mod, to: host, by: 'B' })) return true;
       }
     }
@@ -2492,6 +2511,14 @@
     const lv = getBotLevel();
     const AI = botAI();
     const arch = botArch();
+    // มีมอดรอสวม (ไม้เกาหลัง ฯลฯ) — สวมก่อนเพื่อให้เตะไข่ติดก่อนเข้า Battle
+    const pendingMod = (st.zones['B.magic'] || []).some(k => {
+      const c = st.inst[k];
+      return c && c.subtype === 'Modification' && !c.attachedTo;
+    });
+    if (pendingMod && (st.zones['B.avatar'] || []).some(k => st.inst[k] && st.inst[k].type === 'Avatar')) {
+      if (botTryAttach()) return true;
+    }
     const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
     // ถ้าพร้อมเปิดเทค/เรียกจากนรก — แทรก activate ขึ้นก่อน
     if (AI && lv !== 'easy' && AI.shouldActivateBeforeSummon(st, 'B', arch)) {
@@ -2506,6 +2533,59 @@
     if (lv === 'hard' && botTryActivate()) return true;
     return false;
   }
+  /** สามัคคี — นอนผู้ให้ เสริม POWER ให้ผู้รับก่อนโจมตี */
+  function botTryUnity() {
+    const lv = getBotLevel();
+    if (lv === 'easy' && Math.random() < 0.55) return false;
+    const mine = (st.zones['B.avatar'] || []).filter(k => {
+      const c = st.inst[k];
+      return c && c.type === 'Avatar' && c.faceUp !== false && !c.tapped;
+    });
+    if (mine.length < 2) return false;
+    const donors = mine.filter(k => cardHasUnityKw(k));
+    if (!donors.length) return false;
+    const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
+    const life = (st.zones['A.life'] || []).find(k => st.inst[k] && !st.inst[k].faceUp);
+    const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
+    const oppLifeDown = (st.zones['A.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
+    const race = oppLifeDown <= myLifeDown;
+    const pairs = [];
+    for (const giver of donors) {
+      for (const recv of mine) {
+        if (giver === recv) continue;
+        const gp = eff(giver);
+        const rp = eff(recv);
+        const boosted = rp + gp;
+        let score = boosted * 2 - gp * 0.5;
+        // ผู้รับควรเป็นตัวโจมตีหลัก (พลังสูงกว่าผู้ให้ หรือมีเตะไข่)
+        if (rp >= gp) score += 20;
+        else score -= 15;
+        const canEgg = !!BoTEngine.hasKw(st, recv, 'เตะไข่');
+        if (canEgg && life) {
+          score += 50 + (race ? 25 : 0);
+          if (enemies.length) score += 30; // ทะลุบล็อกเกอร์ไปตี LIFE
+        }
+        let enablesKill = false;
+        for (const e of enemies) {
+          const dp = eff(e);
+          if (rp <= dp && boosted > dp) { enablesKill = true; score += 80 + dp * 2; break; }
+          if (boosted > dp) score += 8;
+        }
+        if (!enablesKill && !canEgg && enemies.length && boosted <= Math.max(...enemies.map(eff), 0))
+          score -= 40;
+        // อย่าสามัคคีถ้าเหลือผู้รับตัวเดียวแล้วยังตีอะไรไม่ได้
+        const leftoverAtk = mine.filter(k => k !== giver).length;
+        if (leftoverAtk < 1) score -= 100;
+        if (lv === 'hard') score += 10;
+        if (score > 30) pairs.push({ giver, recv, score });
+      }
+    }
+    pairs.sort((a, b) => b.score - a.score);
+    for (const p of pairs) {
+      if (botSend({ type: 'unity', k: p.giver, to: p.recv, by: 'B' })) return true;
+    }
+    return false;
+  }
   function botTryAttack() {
     const lv = getBotLevel();
     const mine = (st.zones['B.avatar'] || []).filter(k => st.inst[k] && !st.inst[k].tapped && st.inst[k].type === 'Avatar');
@@ -2514,14 +2594,19 @@
     const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     const oppLifeDown = (st.zones['A.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     const race = oppLifeDown <= myLifeDown;
+    const life = (st.zones['A.life'] || []).find(k => st.inst[k] && !st.inst[k].faceUp);
     const plans = [];
     for (const atk of mine) {
       const ap = eff(atk);
       if (ap <= 0) continue;
+      const canEgg = !!BoTEngine.hasKw(st, atk, 'เตะไข่') || !!(st.inst[atk] && st.inst[atk]._allowLifeDespiteAvatars);
+      let canBeatAny = false;
       for (const e of enemies) {
         const dp = eff(e);
-        if (ap > dp) plans.push({ atk, def: e, score: 100 + dp * 3 - ap * 0.2 });
-        else if (lv !== 'easy' && ap === dp && (mine.length > 1 || enemies.length === 1))
+        if (ap > dp) {
+          canBeatAny = true;
+          plans.push({ atk, def: e, score: 100 + dp * 3 - ap * 0.2 });
+        } else if (lv !== 'easy' && ap === dp && (mine.length > 1 || enemies.length === 1))
           plans.push({ atk, def: e, score: 40 + dp - ap });
         else if (lv === 'hard' && ap + 1 >= dp && mine.length >= 2 && enemies.length >= 2)
           plans.push({ atk, def: e, score: 25 + dp });
@@ -2532,9 +2617,17 @@
           if (ap > dp) plans.push({ atk, def: e, score: 55 + dp });
         }
       }
-      if (enemies.length === 0) {
-        const life = (st.zones['A.life'] || []).find(k => st.inst[k] && !st.inst[k].faceUp);
-        if (life) plans.push({ atk, life, score: (lv === 'hard' || race) ? 120 + ap : 90 + ap });
+      // ตี LIFE: ไม่มีศัตรู หรือมี「เตะไข่」/เอฟเฟกต์พิเศษ (ไม้เกาหลัง)
+      if (life && (enemies.length === 0 || canEgg)) {
+        let lifeScore = (lv === 'hard' || race) ? 120 + ap : 90 + ap;
+        if (canEgg && enemies.length) {
+          // มีบล็อกเกอร์ — เตะไข่ยังแข่งกับเทรดได้ (แข่ง LIFE / ฆ่าไม่ได้)
+          lifeScore = canBeatAny
+            ? ((lv === 'hard' || race) ? 95 + ap : 70 + ap)
+            : (130 + ap + (race ? 20 : 0));
+          if (oppLifeDown <= 2) lifeScore += 35;
+        }
+        plans.push({ atk, life, score: lifeScore });
       }
     }
     if (lv === 'easy' && plans.some(p => p.life) && Math.random() < 0.25) {
@@ -2825,6 +2918,8 @@
       return;
     }
     if (st.phase === 'Battle') {
+      // สามัคคีก่อน แล้วค่อยโจมตี (รวมตี LIFE ด้วยเตะไข่จากไม้เกาหลัง ฯลฯ)
+      if (botTryUnity()) return;
       if (botTryAttack()) return;
       const bh = st.zones['B.hand'] || [];
       if (bh.length > 7) {

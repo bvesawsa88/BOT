@@ -469,6 +469,22 @@
     }
     return null;
   }
+  /* ★ เด็คว่าง (เห็นพื้นกอง) = แพ้ทันที — ไม่รอจนจั่วไม่ได้ */
+  function checkDeckEmptyLoss(st, fx, player) {
+    if (!st || st.over || (player !== 'A' && player !== 'B')) return false;
+    if ((st.zones[player + '.deck'] || []).length) return false;
+    const win = other(player);
+    st.over = { winner: win };
+    if (fx) fx.over = win;
+    addLog(st, 'S', `💀 เด็ค ${player} หมด (เห็นพื้น) — ${win} ชนะ! จบเกม`);
+    return true;
+  }
+  function checkAllDecksEmptyLoss(st, fx) {
+    if (!st || st.over) return false;
+    if (checkDeckEmptyLoss(st, fx, 'A')) return true;
+    if (checkDeckEmptyLoss(st, fx, 'B')) return true;
+    return false;
+  }
   function takeFromDeckToHand(st, player, count, fx) {
     const got = [];
     for (let i = 0; i < (count || 0); i++) {
@@ -483,6 +499,7 @@
       got.push(k);
     }
     if (fx && got.length) noteDrawn(fx, player, got);
+    checkDeckEmptyLoss(st, fx, player);
     return got;
   }
 
@@ -557,6 +574,9 @@
       addLog(st, 'S', `Token "${st.inst[k].name}" ออกจาก Avatar Zone → นำออกจากเกม`);
       delete st.inst[k];
     }
+    // ใบออกจากเด็คแล้วกองว่าง = แพ้ทันที (เห็นพื้น)
+    if (from.endsWith('.deck') && (from[0] === 'A' || from[0] === 'B'))
+      checkDeckEmptyLoss(st, fx || {}, from[0]);
   }
 
   /* สร้าง Token (ตัวแทน Avatar) — อยู่บน Avatar Zone · ออกจากโซนเมื่อไหร่ = นำออกจากเกม */
@@ -1139,6 +1159,7 @@
         /* only when milled by migraine scout — skip generic mill */
       }
     });
+    checkDeckEmptyLoss(st, fx, player);
     return milledIds;
   }
 
@@ -4023,7 +4044,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (e && e.scoutBonusConstruct) count += e.scoutBonusConstruct;
         });
         let ids = (st.zones[ctx.owner + '.deck'] || []).slice(-Math.min(count, (st.zones[ctx.owner + '.deck'] || []).length)).reverse();
-        if (!ids.length) { addLog(st, 'S', `สอดแนมไม่ได้ — เด็คหมด`); return; }
+        if (!ids.length) {
+          addLog(st, 'S', `สอดแนมไม่ได้ — เด็คหมด`);
+          checkDeckEmptyLoss(st, fx, ctx.owner);
+          return;
+        }
         // คนแก่ฯ: ถูกสอดแนมโดยผู้รู้ความจริง → อัญเชิญ (ไม่จุติ)
         {
           const kept = [];
@@ -7332,7 +7357,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const p = deckSide(a.p); // เด็คของคนที่กดเสมอ
         // ★ สอดแนมค้างอยู่ = ห้ามจั่วเพิ่ม (ตามกติกา) จนกว่าจะจัดการ์ดที่เหลือเสร็จ
         if (st.scout && st.scout.p === p) return deny('กำลังสอดแนมอยู่ — จั่วเพิ่มไม่ได้ ต้องเลือกไว้บนกอง/ใต้กองให้เสร็จก่อน');
-        if (!(st.zones[p + '.deck'] || []).length) { st.over = { winner: other(p) }; fx.over = other(p); addLog(st, 'S', `💀 เด็ค ${p} หมด จั่วไม่ได้ — ${other(p)} ชนะ! จบเกม`); break; }
+        if (!(st.zones[p + '.deck'] || []).length) { checkDeckEmptyLoss(st, fx, p); break; }
         const got = takeFromDeckToHand(st, p, 1, fx);
         addLog(st, p, 'จั่ว 1 ใบ'); break;
       }
@@ -8603,8 +8628,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         {
           const dd = st.zones[st.active + '.deck'];
           if (!dd.length) {
-            st.over = { winner: other(st.active) }; fx.over = other(st.active);
-            addLog(st, 'S', `💀 เด็ค ${st.active} หมด จั่วต้นเทิร์นไม่ได้ — ${other(st.active)} ชนะ!`);
+            checkDeckEmptyLoss(st, fx, st.active);
           } else {
             const got = takeFromDeckToHand(st, st.active, 1, fx);
             addLog(st, st.active, 'จั่วต้นเทิร์น 1 ใบ');
@@ -8680,6 +8704,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     }
     // ทรายดูด: หลังทุก action (ลง Land / ลด POWER ฯลฯ) กวาด Avatar P0
     sweepDestroyPowerZero(st, fx);
+
+    // เด็คว่าง (เห็นพื้น) = แพ้ทันที — กันกรณีย้ายใบออกเด็คนอก take/mill/doMove
+    if (!st.over) checkAllDecksEmptyLoss(st, fx);
 
     // นรสิง: เลือกอัญเชิญนารายจากนรกครบแล้ว → ทำจบเทิร์นต่ออัตโนมัติ
     if (st._endTurnResume && !(st.prompts || []).length && a.type !== 'endTurn' && !fx.deny) {

@@ -28,6 +28,16 @@
     return (E && E.effectOf && E.effectOf(c.code, c.name)) || null;
   }
   function nameOf(c) { return (c && c.name) || ''; }
+  function otherSide(side) { return side === 'A' ? 'B' : 'A'; }
+
+  /** มอด/การ์ดนี้ให้เตะไข่ไหม (ไม้เกาหลัง ฯลฯ) */
+  function modGrantsKickEgg(c) {
+    if (!c) return false;
+    const E = eng();
+    if (E && E.keywordsOf && E.keywordsOf(c.code, c.name).includes('เตะไข่')) return true;
+    const txt = (c.effect || '') + ' ' + nameOf(c);
+    return /เตะไข่|ไม้เกาหลัง/.test(txt);
+  }
 
   function zoneIds(st, z) { return (st && st.zones && st.zones[z]) || []; }
   function landCards(st) {
@@ -204,6 +214,12 @@
       if (!hosts) return -999;
       score = 32;
       if (arch === ARCH.ISAN || arch === ARCH.FOREST) score += 5;
+      // ไม้เกาหลัง / มอดให้เตะไข่ — สำคัญเมื่อศัตรูมีบล็อกเกอร์
+      if (modGrantsKickEgg(c)) {
+        const enemyN = zoneIds(st, otherSide(side) + '.avatar').length;
+        score += enemyN ? 55 : 15;
+        if (/ไม้เกาหลัง/.test(nameOf(c))) score += 10;
+      }
       return score;
     }
 
@@ -389,5 +405,6 @@
     hellReturned,
     ownNameOnField,
     wantedLandNeedle,
+    modGrantsKickEgg,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
