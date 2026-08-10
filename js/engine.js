@@ -2578,6 +2578,7 @@
           doMove(st, pend.src, pend.owner + '.hell', null, fx);
           addLog(st, 'S', `วาง Land ไม่ได้ — ถูกบล็อกการใช้ Land`);
         } else {
+          // แลนด์เดิมเคลียร์ตอนใช้แล้ว — เคลียร์ซ้ำกันพลาด
           clearLandZoneFor(st, fx, pend.src);
           doMove(st, pend.src, 'land', null, fx);
           c.faceUp = true;
@@ -2592,6 +2593,12 @@
       }
     } else if (pend.type === 'confirmNegate') {
       // ชายจากอนาคต ฯลฯ ทำงานหลังคู่ต่อสู้ไม่ขัด — ยกเลิกเวทเป้า
+      // หา playLand ที่ถูกยกเลิก (ซ้อนชายได้)
+      let cancelledLandPlay = null;
+      for (let ip = pend.innerPending; ip; ip = ip.innerPending) {
+        if (ip.type === 'playLand') { cancelledLandPlay = ip; break; }
+        if (ip.type !== 'confirmNegate') break;
+      }
       if (pend.target && st.inst[pend.target] && zoneOf(st, pend.target)) {
         const magOwner = ownerOf(st, pend.target);
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, pend.src)}: ยกเลิกการใช้ "${nameOf(st, pend.target)}"`);
@@ -2604,6 +2611,10 @@
         if (orig) resolvePendingMagic(st, fx, orig, r);
       } else if (pend.innerPending && pend.innerPending.pendingSummon) {
         resumePendingSummon(st, fx, pend.innerPending.pendingSummon);
+      } else if (cancelledLandPlay) {
+        // ยกเลิกการใช้ Land → แลนด์เดิมต้องหลุด (กันกรณีที่ยังไม่เคลียร์ตอนใช้)
+        clearLandZoneFor(st, fx, null);
+        addLog(st, 'S', `การใช้ Land ถูกยกเลิก — Land Zone ว่าง (แลนด์เดิมหลุดแล้ว)`);
       }
       fx.snd = 'clash';
     }
@@ -5578,11 +5589,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           doMove(st, a.k, owner + '.magic', null, fx); c.faceUp = true;
           addLog(st, owner, `ใช้ Land ${c.name}`);
           fx.snd = 'place';
+          // ใช้ Land = แลนด์เดิมหลุดทันที (แม้ใบใหม่ยังรอชายจากอนาคต)
+          clearLandZoneFor(st, fx, a.k);
           if (offerMagicNegateReact(st, fx, owner, a.k)) {
             st._pendingMagic = { type: 'playLand', src: a.k, owner };
             break;
           }
-          clearLandZoneFor(st, fx, a.k);
           doMove(st, a.k, 'land', null, fx); c.controller = owner;
           addLog(st, owner, `วาง Land ${c.name}`);
           armGlobalEndPhaseTimer(st, a.k);
@@ -7539,6 +7551,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           return deny('เทิร์นแรกของผู้เริ่มก่อน โจมตีไม่ได้');
         if (strict && isPlayer && oa !== by) return deny('โจมตีด้วย Avatar ฝั่งตัวเองเท่านั้น');
         if (strict && isPlayer && st.active !== by) return deny('โจมตีได้ในเทิร์นของคุณ');
+        if (!(zoneOf(st, a.atk) || '').endsWith('.avatar')) return deny('โจมตีได้เฉพาะ Avatar บนสนาม');
+        if (A.faceUp === false) return deny(`"${A.name}" คว่ำอยู่ — โจมตีไม่ได้`);
+        if (A.tapped) return deny(`"${A.name}" นอนอยู่ — ประกาศโจมตีไม่ได้`);
         ensureBattle();
         // จีสัส: โจมตีได้เมื่อมือว่าง
         {

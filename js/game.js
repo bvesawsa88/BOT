@@ -4135,7 +4135,19 @@
     use: '⚡ แตะการ์ด "เป้าหมาย" ที่จะใช้ใส่ · แตะใบเดิมซ้ำ = ประกาศเฉยๆ · Esc = ยกเลิก',
   };
   function startAnnounce(k, kind) {
-    announceSrc = k; announceKind = kind || 'use'; closeMenu();
+    const kind0 = kind || 'use';
+    if (kind0 === 'attack') {
+      const c0 = st.inst[k];
+      if (!c0 || c0.tapped) {
+        toast(`😴 "${(c0 && c0.name) || 'การ์ด'}" นอนอยู่ — ประกาศโจมตีไม่ได้`, 3200);
+        return;
+      }
+      if (c0.faceUp === false) {
+        toast(`คว่ำอยู่ — โจมตีไม่ได้`, 2800);
+        return;
+      }
+    }
+    announceSrc = k; announceKind = kind0; closeMenu();
     toast(PICK_HINT[announceKind] || PICK_HINT.use, 4200);
     render(); // ไฮไลต์เป้าที่เลือกได้
   }
@@ -4157,6 +4169,12 @@
       sendAction({ type: 'attach', k: announceSrc, to: tgt, by });
     } else if (announceKind === 'attack') {
       if (!tgt) { toast('ต้องเลือกเป้าโจมตี'); return; }
+      const atkC = st.inst[announceSrc];
+      if (!atkC || atkC.tapped) {
+        toast(`😴 "${(atkC && atkC.name) || 'การ์ด'}" นอนอยู่ — ประกาศโจมตีไม่ได้`, 3200);
+        announceSrc = null; announceKind = 'use';
+        return;
+      }
       const tz = BoTEngine.zoneOf(st, tgt) || '';
       if (tz.endsWith('.life')) sendAction({ type: 'declareAttack', atk: announceSrc, life: tgt, by });
       else sendAction({ type: 'declareAttack', atk: announceSrc, def: tgt, by });
@@ -4789,14 +4807,19 @@
           announceSrc = null; announceKind = 'use';
           return sendAction({ type: 'unity', k: d.k, to: tk });
         }
-        // โจมตีได้เฉพาะ Avatar บนสนาม — ห้ามเมจิก/มือไปเป็นผู้โจมตี
-        const atkOk = dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar');
+        // โจมตีได้เฉพาะ Avatar บนสนามที่ตื่น — ห้ามตัวนอน / เมจิก / มือ
+        const atkOk = dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar') && !dc.tapped && dc.faceUp !== false;
         if (atkOk && tz && tz.endsWith('.life')) {
           return sendAction({ type: 'declareAttack', atk: d.k, life: tk });
         }
         if (atkOk && tz && (tz.endsWith('.avatar') || tz.endsWith('.construct'))
           && BoTEngine.ownerOf(st, tk) !== BoTEngine.ownerOf(st, d.k)) {
           return sendAction({ type: 'declareAttack', atk: d.k, def: tk });
+        }
+        if (dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar') && dc.tapped
+          && tz && (tz.endsWith('.life') || tz.endsWith('.avatar') || tz.endsWith('.construct'))) {
+          toast(`😴 "${dc.name}" นอนอยู่ — ประกาศโจมตีไม่ได้`, 3200);
+          return;
         }
       }
       const zEl = el.closest('[data-drop]');
