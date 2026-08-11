@@ -81,8 +81,8 @@ if (s.includes("ac.op === 'guessOppTopType'")) {
       } else if (ac.op === 'revealOppLifeTop') {
         const opp = other(ctx.owner);
         const life = st.zones[opp + '.life'] || [];
-        const top = life.length ? life[life.length - 1] : null;
-        if (top && st.inst[top] && !st.inst[top].faceUp) {
+        const top = life.find(id => st.inst[id] && !st.inst[id].faceUp) || null;
+        if (top) {
           st.inst[top].faceUp = true;
           addLog(st, 'S', \`หงาย LIFE ใบบนสุดของ \${opp}: "\${nameOf(st, top)}"\`);
         } else addLog(st, 'S', 'หงาย LIFE ไม่ได้ (ว่างหรือหงายอยู่แล้ว)');

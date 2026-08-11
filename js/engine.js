@@ -390,14 +390,19 @@
     if (ids.some(Boolean)) fx.snd = 'draw';
   }
 
+  /* LIFE "บนสุด" = ต้นอาร์เรย์ (index 0) — ตรงกับ UI (ใบบนสุดของกอง) และลำดับตอนโจมตีหงาย */
   function revealOwnLife(st, side, count) {
     const arr = st.zones[side + '.life'] || [];
     let done = 0;
-    for (let i = arr.length - 1; i >= 0 && done < count; i--) {
+    for (let i = 0; i < arr.length && done < count; i++) {
       if (!st.inst[arr[i]].faceUp) { st.inst[arr[i]].faceUp = true; done++; addLog(st, 'S', `เอฟเฟกต์: หงาย LIFE "${nameOf(st, arr[i])}" ของ ${side}`); }
     }
   }
   function unrevealOwnLife(st, side, count, rng) {
+    if (inCritical(st, side)) {
+      addLog(st, 'S', `สถานะสาหัส: ฝ่าย ${side} ฮีล LIFE ไม่ได้`);
+      return;
+    }
     if ((st.zones['land'] || []).some(id => fxId(st, id) && fxId(st, id).blockLifeUnreveal)) {
       addLog(st, 'S', 'โรงบาลรัฐ: LIFE ไม่สามารถคว่ำกลับได้ — ฮีลไม่เกิดผล');
       return;
@@ -1039,9 +1044,27 @@
     });
   }
 
-  /* จบ hellPickMulti: สับเด็ค จั่ว บัฟตามจำนวนที่คืน */
+  /* นับใบในนรกที่เลือกคืนได้ (เคารพ magicMax) — ใช้เช็คครบ countExact ก่อนเปิดเทค */
+  function hellPickCapacity(st, owner, magicMax, filter) {
+    const hell = st.zones[owner + '.hell'] || [];
+    let nonMagic = 0, magic = 0;
+    hell.forEach(k => {
+      if (!st.inst[k]) return;
+      if (filter && !matchFilterEx(st, k, filter)) return;
+      if (st.inst[k].type === 'Magic') magic++;
+      else nonMagic++;
+    });
+    if (magicMax == null) return nonMagic + magic;
+    return nonMagic + Math.min(magicMax | 0, magic);
+  }
+
+  /* จบ hellPickMulti: สับเด็ค จั่ว บัฟตามจำนวนที่คืน (ถ้ามี multiExact ต้องครบก่อนถึงจะนับ/จั่ว) */
   function finishHellMulti(st, fx, p, rng) {
     const n = p.multiGot || 0;
+    if (p.multiExact != null && n < p.multiExact) {
+      addLog(st, p.chooser, `เก็บไม่ได้ — คืนนรกไม่ครบ ${p.multiExact} ใบ (ได้ ${n})`);
+      return false;
+    }
     if (p.trackHellReturn && n > 0) {
       st.hellReturnedThisTurn = st.hellReturnedThisTurn || {};
       st.hellReturnedThisTurn[p.chooser] = (st.hellReturnedThisTurn[p.chooser] || 0) + n;
@@ -1056,6 +1079,16 @@
       st.buffs.push({ k: p.src, amt: (p.buffPer || 1) * n, until: 'endOfTurn' });
       addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, p.src)}: POWER +${(p.buffPer || 1) * n} จนจบเทิร์น (คืน ${n} ใบ)`);
     }
+    return true;
+  }
+
+  function abortHellMulti(st, fx, p) {
+    const ids = (p.returnedIds || []).slice().reverse();
+    ids.forEach(k => {
+      if (st.inst[k] && zoneOf(st, k)) doMove(st, k, p.chooser + '.hell', null, fx);
+    });
+    if (p.onceTag) unclaimOncePerTurn(st, p.src, p.onceTag);
+    addLog(st, p.chooser, `ยกเลิกคืนนรก — เก็บไม่ได้ (ต้องครบ ${p.multiExact || p.multiMax} ใบ)`);
   }
 
   /* จบเป่ายิ้งฉุบ → ผู้ชนะเลือกทำลาย Avatar (ignoreProtect) */
@@ -1423,9 +1456,22 @@
       if (got < opt.requireHellReturnedThisTurnMin)
         return `ใช้ไม่ได้ — ต้องคืนนรก ≥ ${opt.requireHellReturnedThisTurnMin} ในเทิร์นนี้ก่อน (ตอนนี้ ${got}) · ใช้เทค 1 ก่อน`;
     }
+    if (opt.requireHellPickExact != null) {
+      const ac = (opt.actions || []).find(x => x.op === 'hellPickMulti') || {};
+      const cap = hellPickCapacity(st, owner, ac.magicMax != null ? ac.magicMax : null, ac.filter || {});
+      if (cap < opt.requireHellPickExact)
+        return `ใช้ไม่ได้ — ต้องคืนนรกครบ ${opt.requireHellPickExact} ใบ (ในนรกเลือกได้ ${cap} ใบ) · เก็บไม่ได้แล้วใช้เทค 2 ไม่ได้`;
+    }
     if (opt.requireOwnNameIncludes) {
       const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], opt.requireOwnNameIncludes));
       if (!ok) return `ใช้ไม่ได้ — ต้องมี "${opt.requireOwnNameIncludes}" บนสนาม`;
+    } else {
+      // เผื่อเทควางเงื่อนไขไว้ใน action (เช่น forceDuelNoTap.ownNameIncludes)
+      const acNeed = (opt.actions || []).map(x => x.requireOwnNameIncludes || x.ownNameIncludes).find(Boolean);
+      if (acNeed) {
+        const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], acNeed));
+        if (!ok) return `ใช้ไม่ได้ — ต้องมี "${acNeed}" บนสนาม`;
+      }
     }
     return null;
   }
@@ -2310,19 +2356,13 @@
           ? `ทิ้งมือรวม GEM ให้พอดี ${need} (ห้ามทิ้งใบไม่มี GEM)`
           : `ทิ้งมือรวม GEM ≥ ${need} (ห้ามทิ้งใบไม่มี GEM)`);
       } else if (costOp.op === 'paySelfCostMinus') {
+        // 「Avatar ใบนี้ Cost -1」= ลด Cost บนตัวเอง (ไม่ทิ้งมือ) แล้วรันผล
         const minus = costOp.minus != null ? costOp.minus : 1;
-        const need = Math.max(0, effCost(st, srcK) - minus);
-        if (need <= 0) {
-          addLog(st, owner, `จ่ายค่า Cost−${minus}: ไม่ต้องทิ้ง (Cost เหลือ 0)`);
-          runActions(st, fx, actions, { src: srcK, owner, rng });
-        } else {
-          st.prompts.push({
-            kind: 'chooseDiscard', src: srcK, chooser: owner,
-            filter: { gemMin: 1 }, excludeIds: [srcK],
-            gemSumMin: need, gemSumExact: false, gemGot: 0, actions, effectDiscard: true
-          });
-          addLog(st, owner, `จ่ายค่า Cost−${minus}: ทิ้งมือรวม GEM ≥ ${need}`);
-        }
+        const before = effCost(st, srcK);
+        st.inst[srcK].costDelta = (st.inst[srcK].costDelta || 0) - minus;
+        const after = effCost(st, srcK);
+        addLog(st, owner, `จ่ายค่า: ${nameOf(st, srcK)} Cost −${minus} (${before} → ${after})`);
+        runActions(st, fx, actions, { src: srcK, owner, rng });
       } else if (costOp.op === 'returnHandToDeck') {
         st.prompts.push({ kind: 'chooseDiscard', src: srcK, chooser: owner, filter: costOp.filter, actions, toDeck: true, effectDiscard: true });
       } else if (costOp.op === 'sacrifice') {
@@ -2862,8 +2902,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       } else if (ac.op === 'revealOwnLifeMarked') {
         const arr = st.zones[ctx.owner + '.life'] || [];
         let done = 0;
-        // บน→ล่าง: จากท้ายอาร์เรย์ (ใบบนสุด)
-        for (let i = arr.length - 1; i >= 0 && done < (ac.count || 1); i--) {
+        // บน→ล่าง: จากต้นอาร์เรย์ (ใบบนสุด = ใบเดียวกับที่โดนโจมตีก่อน)
+        for (let i = 0; i < arr.length && done < (ac.count || 1); i++) {
           const id = arr[i];
           if (st.inst[id] && !st.inst[id].faceUp) {
             st.inst[id].faceUp = true;
@@ -2873,15 +2913,21 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           }
         }
       } else if (ac.op === 'unrevealMarkedLife') {
-        const arr = st.zones[ctx.owner + '.life'] || [];
-        arr.forEach(id => {
-          const L = st.inst[id];
-          if (L && L.lifeMark === (ac.mark || 'naw') && L.faceUp) {
-            L.faceUp = false;
-            delete L.lifeMark;
-            addLog(st, 'S', `เอฟเฟกต์: คว่ำ LIFE ที่หงายด้วยน้องนาวกลับ`);
-          }
-        });
+        if (inCritical(st, ctx.owner)) {
+          addLog(st, 'S', `สถานะสาหัส: ฝ่าย ${ctx.owner} ฮีล LIFE ไม่ได้`);
+        } else if ((st.zones['land'] || []).some(id => fxId(st, id) && fxId(st, id).blockLifeUnreveal)) {
+          addLog(st, 'S', 'โรงบาลรัฐ: LIFE ไม่สามารถคว่ำกลับได้ — ฮีลไม่เกิดผล');
+        } else {
+          const arr = st.zones[ctx.owner + '.life'] || [];
+          arr.forEach(id => {
+            const L = st.inst[id];
+            if (L && L.lifeMark === (ac.mark || 'naw') && L.faceUp) {
+              L.faceUp = false;
+              delete L.lifeMark;
+              addLog(st, 'S', `เอฟเฟกต์: คว่ำ LIFE ที่หงายด้วยน้องนาวกลับ`);
+            }
+          });
+        }
       } else if (ac.op === 'hellReturnFilter') {
         const hell = st.zones[ctx.owner + '.hell'] || [];
         const matches = hell.filter(id => matchFilterEx(st, id, ac.filter || {}));
@@ -3189,7 +3235,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const need = ac.count || 1;
         const arr = st.zones[ctx.owner + '.life'] || [];
         const picked = [];
-        for (let i = arr.length - 1; i >= 0 && picked.length < need; i--) {
+        for (let i = 0; i < arr.length && picked.length < need; i++) {
           const id = arr[i];
           if (st.inst[id] && !st.inst[id].faceUp) picked.push(id);
         }
@@ -3335,8 +3381,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       } else if (ac.op === 'revealOppLifeTop') {
         const opp = other(ctx.owner);
         const life = st.zones[opp + '.life'] || [];
-        const top = life.length ? life[life.length - 1] : null;
-        if (top && st.inst[top] && !st.inst[top].faceUp) {
+        // ใบบนสุด = ใบแรกที่ยังคว่ำ (ลำดับเดียวกับตอนโจมตี LIFE)
+        const top = life.find(id => st.inst[id] && !st.inst[id].faceUp) || null;
+        if (top) {
           st.inst[top].faceUp = true;
           addLog(st, 'S', `หงาย LIFE ใบบนสุดของ ${opp}: "${nameOf(st, top)}"`);
         } else addLog(st, 'S', 'หงาย LIFE ไม่ได้ (ว่างหรือหงายอยู่แล้ว)');
@@ -3428,20 +3475,40 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: สอดแนม "${nameOf(st, top)}" — เลือกไว้บนหรือใต้เด็ค`);
         }
       } else if (ac.op === 'hellPickMulti') {
-        // ภูเวียง / โคกอีสานนูน: เลือกจากนรกสูงสุด N ใบกลับเด็ค แล้วจั่ว + บัฟ
+        // ภูเวียง / โคกอีสานนูน: เลือกจากนรกกลับเด็ค แล้วจั่ว + บัฟ
+        // countExact = ต้องครบถึงจะ "เก็บได้" (เช่น เทค 1 โคก ต้อง 6 ใบ)
         if (ac.requireOwnNameIncludes) {
           const ok = (st.zones[ctx.owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], ac.requireOwnNameIncludes));
           if (!ok) { addLog(st, 'S', `ใช้ไม่ได้ — ต้องมี "${ac.requireOwnNameIncludes}" บนสนาม`); return; }
         }
+        const exact = ac.countExact != null ? ac.countExact : null;
+        const maxN = ac.countMax != null ? ac.countMax : (exact || 4);
+        if (exact != null) {
+          const cap = hellPickCapacity(st, ctx.owner, ac.magicMax != null ? ac.magicMax : null, ac.filter || {});
+          if (cap < exact) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เก็บไม่ได้ — ในนรกเลือกได้ ${cap}/${exact} ใบ`);
+            if (ctx.onceTag) unclaimOncePerTurn(st, ctx.src, ctx.onceTag);
+            return;
+          }
+        }
         const p = {
           kind: 'pick', from: 'hell', src: ctx.src, chooser: ctx.owner, filter: ac.filter,
-          dest: 'hellMultiDeck', optional: true, multiMax: ac.countMax || 4, multiGot: 0,
+          dest: 'hellMultiDeck', optional: exact == null, multiMax: maxN, multiGot: 0,
+          multiExact: exact, multiMin: exact != null ? exact : (ac.countMin != null ? ac.countMin : null),
           thenDraw: ac.thenDraw || 0, buffPer: ac.buffPer || 0, shuffleAfter: true,
           magicMax: ac.magicMax != null ? ac.magicMax : null, magicGot: 0,
           trackHellReturn: !!ac.trackHellReturn,
+          returnedIds: [], onceTag: ctx.onceTag || null,
         };
-        if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกจากนรกสูงสุด ${p.multiMax} ใบกลับเด็ค (ข้ามได้เมื่อพอใจ)`); }
-        else {
+        if (promptCandidates(st, p).length) {
+          st.prompts.push(p); prompted = true;
+          addLog(st, ctx.owner, exact != null
+            ? `เอฟเฟกต์ ${nameOf(st, ctx.src)}: คืนนรกให้ครบ ${exact} ใบกลับเด็ค (ไม่ครบ = เก็บไม่ได้)`
+            : `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกจากนรกสูงสุด ${p.multiMax} ใบกลับเด็ค (ข้ามได้เมื่อพอใจ)`);
+        } else if (exact != null) {
+          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เก็บไม่ได้ — ไม่มีการ์ดในนรก`);
+          if (ctx.onceTag) unclaimOncePerTurn(st, ctx.src, ctx.onceTag);
+        } else {
           addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดในนรก — จั่วอย่างเดียว`);
           if (ac.thenDraw) runActions(st, fx, [{ op: 'draw', count: ac.thenDraw }], { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
         }
@@ -6503,11 +6570,16 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             }
           } else if (p.dest === 'hellMultiDeck') {
             doMove(st, a.k, p.chooser + '.deck', null, fx);
+            p.returnedIds = p.returnedIds || [];
+            p.returnedIds.push(a.k);
             p.multiGot = (p.multiGot || 0) + 1;
             if (st.inst[a.k] && st.inst[a.k].type === 'Magic') p.magicGot = (p.magicGot || 0) + 1;
-            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: นำ ${nameOf(st, a.k)} จากนรกกลับเด็ค (${p.multiGot}/${p.multiMax})`);
-            if (p.multiGot < (p.multiMax || 4) && promptCandidates(st, p).length) {
+            const need = p.multiExact != null ? p.multiExact : (p.multiMax || 4);
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: นำ ${nameOf(st, a.k)} จากนรกกลับเด็ค (${p.multiGot}/${need})`);
+            if (p.multiGot < need && promptCandidates(st, p).length) {
               st.prompts.unshift(p);
+            } else if (p.multiExact != null && p.multiGot < p.multiExact) {
+              abortHellMulti(st, fx, p);
             } else {
               finishHellMulti(st, fx, p, rng);
             }
@@ -6919,6 +6991,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             break;
           }
         }
+        if (p.dest === 'hellMultiDeck' && p.multiExact != null && (p.multiGot || 0) < p.multiExact)
+          return deny(`ต้องคืนนรกให้ครบ ${p.multiExact} ใบก่อน (ตอนนี้ ${p.multiGot || 0}) — ไม่ครบเก็บไม่ได้`);
         if (p.optional === false && p.kind !== 'peekTop' && p.dest !== 'hellMultiDeck') return deny('เอฟเฟกต์นี้ต้องเลือกเป้า (ยกเลิกไม่ได้)');
         if (p.multiExact && (p.multiGot || 0) < p.multiExact) return deny(`ต้องอัญเชิญให้ครบ ${p.multiExact} ใบ`);
         if (p.multiMin && (p.multiGot || 0) < p.multiMin) return deny(`ต้องอัญเชิญอย่างน้อย ${p.multiMin} ใบ`);
@@ -6941,7 +7015,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           break;
         }
         if (p.dest === 'hellMultiDeck') {
-          finishHellMulti(st, fx, p, rng);
+          if (p.multiExact != null && (p.multiGot || 0) < p.multiExact) abortHellMulti(st, fx, p);
+          else finishHellMulti(st, fx, p, rng);
           break;
         }
         if (p.dest === 'exileDistinctHell') {
@@ -7178,7 +7253,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               });
             }
           } else if (pend.type === 'chooseMode' && pend.actions) {
-            runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng });
+            runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng, onceTag: pend.onceTag || null });
           }
         }
         // ไม่ใช้อุบัติเหตุ → Avatar รอด → รันจุติ
@@ -7523,6 +7598,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const c = st.inst[a.k]; if (!c) break;
         if (strict && isPlayer && ownerOf(st, a.k) !== by) return deny('โหมดกติกา: หงาย/คว่ำได้เฉพาะการ์ดตัวเอง');
         const isLife = (zoneOf(st, a.k) || '').endsWith('.life');
+        const lifeOwner = isLife ? ownerOf(st, a.k) : null;
+        if (isLife && c.faceUp && inCritical(st, lifeOwner))
+          return deny('สถานะสาหัส: ฮีล LIFE ไม่ได้');
         if (isLife && c.faceUp && (st.zones['land'] || []).some(id => fxId(st, id) && fxId(st, id).blockLifeUnreveal))
           return deny('โรงบาลรัฐ: LIFE ไม่สามารถคว่ำกลับได้');
         c.faceUp = !c.faceUp;
@@ -7746,15 +7824,6 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         break;
       }
 
-      case 'cancelAttack': {
-        if (!st.pending) break;
-        if (isPlayer && by !== st.pending.by) return deny('เฉพาะฝ่ายผู้โจมตีที่ยกเลิกได้');
-        addLog(st, st.pending.by, `ยกเลิกการโจมตีของ ${nameOf(st, st.pending.atk)}`);
-        clearCombatBuffs(st);
-        st.pending = null;
-        break;
-      }
-
       /* ผ่านเชน — ฝ่ายที่มีสิทธิ์ตอบโต้กดผ่าน → ตัดสินเชนจากบนลงล่าง */
       case 'chainPass': {
         if (!st.chain.length) break;
@@ -7824,7 +7893,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           st.prompts.shift();
           addLog(st, ownP, `🎯 ${c.name} · เลือกปฏิบัติ → ข้อ ${idx + 1}${optP && optP.label ? ': ' + optP.label : ''}`);
           if (optP && (optP.actions || []).length)
-            runActions(st, fx, optP.actions, { src: a.k, owner: ownP, rng: rng, toHellAfter: !!pr0.srcToHell });
+            runActions(st, fx, optP.actions, { src: a.k, owner: ownP, rng: rng, toHellAfter: !!pr0.srcToHell, onceTag: optP.oncePerTurnTag || null });
           else if (pr0.srcToHell && zoneOf(st, a.k)) doMove(st, a.k, ownP + '.hell', null, fx);
           fx.snd = fx.snd || 'place';
           break;
@@ -7848,12 +7917,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         addLog(st, own, `🎯 ${c.name} · เลือกปฏิบัติ → ข้อ ${idx + 1}${a.label ? ': ' + a.label : ''}${opt && opt.label ? ': ' + opt.label : ''}`);
         if (opt && (opt.actions || []).length) {
           if (kz.endsWith('.avatar') && offerAbilityReact(st, fx, own, a.k, {
-            type: 'chooseMode', src: a.k, owner: own, actions: opt.actions
+            type: 'chooseMode', src: a.k, owner: own, actions: opt.actions, onceTag: opt.oncePerTurnTag || null
           })) {
             fx.snd = 'tap';
             break;
           }
-          runActions(st, fx, opt.actions, { src: a.k, owner: own, rng: rng });
+          runActions(st, fx, opt.actions, { src: a.k, owner: own, rng: rng, onceTag: opt.oncePerTurnTag || null });
         }
         fx.snd = fx.snd || 'place';
         break;
@@ -8112,13 +8181,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               .reduce((n, id) => n + (+(st.inst[id] && st.inst[id].gem) || 0), 0);
             if (total < (costOp.min || 3)) return deny(`GEM ในมือรวม ${total} < ${costOp.min || 3}`);
           } else if (costOp.op === 'paySelfCostMinus') {
-            const minus = costOp.minus != null ? costOp.minus : 1;
-            const need = Math.max(0, effCost(st, a.k) - minus);
-            if (need > 0) {
-              const total = (st.zones[owner + '.hand'] || []).filter(id => id !== a.k)
-                .reduce((n, id) => n + (+(st.inst[id] && st.inst[id].gem) || 0), 0);
-              if (total < need) return deny(`จ่าย Cost−${minus} ต้องการ GEM ≥ ${need} (ในมือมี ${total})`);
-            }
+            /* ลด Cost บนตัวเอง — ไม่ต้องมี GEM ในมือ */
           } else if (costOp.op === 'returnHandToDeck') {
             if (!(st.zones[owner + '.hand'] || []).some(x => matchFilterEx(st, x, costOp.filter)))
               return deny('ไม่มีมือให้คืนเด็ค');

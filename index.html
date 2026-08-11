@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260803i">
+<link rel="stylesheet" href="css/style.css?v=20260811o">
 </head>
 <body>
 
@@ -421,8 +421,7 @@
         </table>
 
         <h3>จ่าย Cost</h3>
-        <p>ระบบไม่หักการ์ดให้ — เลือกการ์ดในมือที่จะทิ้ง แล้วกดปุ่ม <b>"ทิ้งชุดนี้เพื่อจ่าย Cost"</b>
-        ระบบจะขึ้น log ชื่อทุกใบ + เด้งป๊อปอัพให้อีกฝั่งเห็นว่าเราทิ้งอะไรไป</p>
+        <p>เมื่ออัญเชิญ/ใช้ความสามารถ ระบบจะให้เลือกการ์ดในมือที่กะพริบเพื่อทิ้งจ่าย Cost ตามที่การ์ดกำหนด</p>
 
         <h3>มัลลิแกน (เปลี่ยนมือตอนเริ่มเกม)</h3>
         <p>ตอนเปิดโต๊ะจะมีแถบถาม "เปลี่ยนมือไหม?" ทีละคน (คนเริ่มก่อนตอบก่อน) เปลี่ยนกี่ใบก็ได้
@@ -453,6 +452,7 @@
         <p><b>สถานะสาหัส + ท่าปิดเกม</b> (ตาม Rule Book):</p>
         <ol class="hw-ol">
           <li>โจมตีหงาย LIFE ทีละใบ จนหงายครบทั้ง 5 ใบ → ฝ่ายนั้นเข้า <b>สถานะสาหัส</b> (ยังไม่แพ้)</li>
+          <li>ขณะสาหัส <b>ฮีล LIFE ไม่ได้</b> (คว่ำกลับไม่ได้)</li>
           <li>ต้องโจมตีเข้า LIFE Zone ของฝ่ายสาหัสอีก <b>1 ครั้ง</b> จึงจะชนะ</li>
           <li>ตอนประกาศท่าปิดเกม จะถามฝั่งสาหัส: <b>จะอ้อนวอนขออีกเทิร์นนึงไหม?</b></li>
           <li>กด <b>ใช่</b> → บังคับให้ฝ่ายโจมตีตอบว่ายอมไหม · ถ้ายอม = ยกเลิกโจมตีแล้วจบเทิร์นฝ่ายโจมตี · ไม่ยอม = จบเกม</li>
@@ -588,35 +588,42 @@
       <svg id="linkLayer" class="hidden" preserveAspectRatio="none"></svg>
       <div id="oppHandRow" class="hand-row"></div>
 
-      <!-- ฝั่งบอท/ตรงข้าม — playmat จริงเป็น background + โซนโปร่งใสวางทับตามช่องในรูป -->
-      <div class="mat mat-opp"><div class="mat-in">
-        <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="oppConstructZone"><div id="oppConstruct" class="zone-cards"></div></div>
-        <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="oppAvatarZone"><b id="oppAvatarTag" class="cap-badge"></b><div id="oppAvatar" class="zone-cards"></div></div>
-        <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="oppMagicZone"><div id="oppMagic" class="zone-cards"></div></div>
-        <div class="mz mz-life" data-lb="LIFE" id="oppLifeZone"><b id="oppLifeWho" class="hidden"></b><em id="oppCrit" class="crit"></em><div id="oppLife" class="zone-cards"></div></div>
-        <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="oppHell"><span class="pile-count" id="oppHellCount">0</span></div>
-        <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="oppDeck" title="คลิก = จั่ว"><span class="pile-count" id="oppDeckCount">0</span></div>
-        <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="oppDark"><span class="pile-count" id="oppDarkCount">0</span></div>
-      </div></div>
+      <!-- สนาม 3D มุมเอียง (มืออยู่นอก tilt · การ์ดสนามขนาดคงที่) -->
+      <div id="fieldStage">
+        <div id="fieldTilt">
+          <!-- ฝั่งบอท/ตรงข้าม — playmat จริงเป็น background + โซนโปร่งใสวางทับตามช่องในรูป -->
+          <div class="mat mat-opp"><div class="mat-in">
+            <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="oppConstructZone"><div id="oppConstruct" class="zone-cards"></div></div>
+            <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="oppAvatarZone"><b id="oppAvatarTag" class="cap-badge"></b><div id="oppAvatar" class="zone-cards"></div></div>
+            <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="oppMagicZone"><div id="oppMagic" class="zone-cards"></div></div>
+            <div class="mz mz-life" data-lb="LIFE" id="oppLifeZone"><b id="oppLifeWho" class="hidden"></b><em id="oppCrit" class="crit"></em><div id="oppLife" class="zone-cards"></div></div>
+            <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="oppHell"><span class="pile-count" id="oppHellCount">0</span></div>
+            <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="oppDeck" title="คลิก = จั่ว"><span class="pile-count" id="oppDeckCount">0</span></div>
+            <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="oppDark"><span class="pile-count" id="oppDarkCount">0</span></div>
+          </div></div>
 
-      <!-- ช่องเฟสกลางสนาม — มือถือแตะเพื่อจบเทิร์นได้ -->
-      <div id="phaseSlot" class="phase-slot" role="button" tabindex="0" title="แตะเพื่อจบเทิร์น">
-        <span id="phaseSlotLabel" class="ps-label">MAIN PHASE</span>
-        <span id="phaseSlotSub" class="ps-sub">แตะเพื่อจบเทิร์น</span>
+          <!-- ช่องเฟสกลางสนาม — มือถือแตะเพื่อจบเทิร์นได้ -->
+          <div id="phaseSlot" class="phase-slot" role="button" tabindex="0" title="แตะเพื่อจบเทิร์น">
+            <span id="phaseSlotLabel" class="ps-label">MAIN PHASE</span>
+            <span id="phaseSlotSub" class="ps-sub">แตะเพื่อจบเทิร์น</span>
+          </div>
+
+          <!-- ฝั่งเรา -->
+          <div class="mat mat-my"><div class="mat-in">
+            <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="myConstructZone"><div id="myConstruct" class="zone-cards"></div></div>
+            <div class="mz mz-land" data-lb="LAND" data-drop="land" id="myLandZone"><div id="land" class="zone-cards"></div></div>
+            <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="myAvatarZone"><b id="myAvatarTag" class="cap-badge"></b><div id="myAvatar" class="zone-cards"></div></div>
+            <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="myMagicZone"><div id="myMagic" class="zone-cards"></div></div>
+            <div class="mz mz-life" data-lb="LIFE" id="myLifeZone"><em id="myCrit" class="crit"></em><div id="myLife" class="zone-cards"></div></div>
+            <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="myHell"><span class="pile-count" id="myHellCount">0</span></div>
+            <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="myDeck" title="คลิก = จั่ว"><span class="pile-count" id="myDeckCount">0</span></div>
+            <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="myDark"><span class="pile-count" id="myDarkCount">0</span></div>
+          </div></div>
+        </div>
       </div>
 
-      <!-- ฝั่งเรา -->
-      <div class="mat mat-my"><div class="mat-in">
-        <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="myConstructZone"><div id="myConstruct" class="zone-cards"></div></div>
-        <div class="mz mz-land" data-lb="LAND" data-drop="land" id="myLandZone"><div id="land" class="zone-cards"></div></div>
-        <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="myAvatarZone"><b id="myAvatarTag" class="cap-badge"></b><div id="myAvatar" class="zone-cards"></div></div>
-        <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="myMagicZone"><div id="myMagic" class="zone-cards"></div></div>
-        <div class="mz mz-life" data-lb="LIFE" id="myLifeZone"><em id="myCrit" class="crit"></em><div id="myLife" class="zone-cards"></div></div>
-        <div class="mz mz-hell pile" data-lb="นรก" data-drop="" id="myHell"><span class="pile-count" id="myHellCount">0</span></div>
-        <div class="mz mz-deck deck-pile" data-lb="เด็ค" data-deck="" id="myDeck" title="คลิก = จั่ว"><span class="pile-count" id="myDeckCount">0</span></div>
-        <div class="mz mz-dark pile dark-pile" data-lb="มิติมืด" data-drop="" id="myDark"><span class="pile-count" id="myDarkCount">0</span></div>
-      </div></div>
-
+      <!-- แถบลอย (เชน/พรอมต์/โจมตี/มัลลิแกน) — กองแนวตั้งไม่ทับกัน -->
+      <div id="floatBars">
       <div id="chainBar" class="attack-bar chain-bar hidden">
         <span id="chainText"></span>
         <button id="btnChainNegate" class="btn-dark small hidden">🚫 ยกเลิกเวทบนสุด</button>
@@ -664,22 +671,11 @@
         <button id="btnLethalCounter" class="btn-gold small hidden">ใช่ — ขอเทิร์นนึง</button>
         <button id="btnLethalAccept" class="btn-primary small hidden">ไม่ — จบเกม</button>
       </div>
-      <div id="attackBar" class="attack-bar hidden">
-        <span id="attackText"></span>
-        <span id="counterRow" class="counter-row hidden"></span>
-        <button id="btnResolveAtk" class="btn-primary small hidden">ปะทะเลย ▸</button>
-        <button id="btnCancelAtk" class="btn-dark small hidden">ยกเลิกโจมตี</button>
-      </div>
-      <div id="selBar" class="sel-bar hidden">
-        <span id="selText"></span>
-        <button id="btnPay" class="btn-primary small">ทิ้งชุดนี้เพื่อจ่าย Cost</button>
-        <button id="btnRevealHand" class="btn-gold small" title="เปิดการ์ดที่เลือกให้อีกฝั่งดู (กดซ้ำที่ใบเดิม = ปิดกลับ)">👁 เปิดให้อีกฝั่งดู</button>
-        <button id="btnClearSel" class="btn-dark small">ยกเลิก</button>
-      </div>
       <div id="mullBar" class="sel-bar hidden">
         <span id="mullText"></span>
         <button id="btnMullGo" class="btn-primary small">เปลี่ยน 0 ใบ ▸</button>
         <button id="btnMullKeep" class="btn-dark small">เก็บมือนี้</button>
+      </div>
       </div>
 
       <div id="myHandRow" class="hand-row my-hand" data-drop=""></div>
@@ -998,10 +994,10 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260809b"></script>
+<script src="js/util.js?v=20260811o"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260809b"></script>
+<script src="js/game.js?v=20260811o"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

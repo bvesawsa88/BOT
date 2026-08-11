@@ -98,17 +98,20 @@ const BY_SET = {
       stayOnMagic: true,
       abilities: [{
         trigger: { on: 'activated' },
+        requireOwnNameIncludes: 'อีสานสลิงเกอร์',
         actions: [{
           op: 'chooseMode',
           options: [
             {
-              label: 'เทค 1: คืนนรก 6 ใบ (Magic≤2) → จั่ว 1',
+              label: 'เทค 1: คืนนรกครบ 6 ใบ (Magic≤2) → จั่ว 1',
               oncePerTurn: true,
               oncePerTurnTag: 'kok1',
               requireOwnNameIncludes: 'อีสานสลิงเกอร์',
+              requireHellPickExact: 6,
               actions: [{
                 op: 'hellPickMulti',
                 countMax: 6,
+                countExact: 6,
                 magicMax: 2,
                 thenDraw: 1,
                 trackHellReturn: true,
@@ -117,9 +120,10 @@ const BY_SET = {
               }]
             },
             {
-              label: 'เทค 2: ดวลอีสานสลิงเกอร์ (ต้องคืนนรก≥6 ในเทิร์นนี้ก่อน)',
+              label: 'เทค 2: ดวลอีสานสลิงเกอร์ (ต้องคืนนรกครบ 6 ในเทิร์นนี้ก่อน)',
               oncePerTurn: true,
               oncePerTurnTag: 'kok2',
+              requireOwnNameIncludes: 'อีสานสลิงเกอร์',
               requireHellReturnedThisTurnMin: 6,
               actions: [{
                 op: 'forceDuelNoTap',
@@ -132,7 +136,7 @@ const BY_SET = {
         }]
       }],
       parseStatus: 'manual',
-      note: 'เทค1 คืนนรก6 จั่ว1 · เทค2 ดวลได้หลังคืน≥6 ในเทิร์น (สั่งใช้แยกเทิร์นละครั้งต่อเทค)'
+      note: 'ต้องมีอีสานสลิงเกอร์บนสนามถึงใช้เทคได้ · เทค1 คืนนรกครบ6 · เทค2 หลังคืนครบ6 ในเทิร์น'
     }
   },
   'effects-bt09.json': {
