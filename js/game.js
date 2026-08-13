@@ -2733,6 +2733,9 @@
         const opts = (pr.options || []).slice().sort((a, b) => botCardVal(a) - botCardVal(b));
         if (useReact && opts.length) {
           for (const k of opts) {
+            const rc = st.inst[k];
+            // อย่าให้มีครั้งที่ 2 ขัดได้เฉพาะ React — อย่าใช้สวนโจมตี
+            if (rc && /อย่าให้มีครั้งที่/.test(rc.name || '')) continue;
             if (botSend({ type: 'chooseTarget', k, by: 'B' })) return;
           }
         }

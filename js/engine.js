@@ -2088,7 +2088,8 @@
     });
   }
 
-  /* React ที่เล่นนอกเทิร์นได้ตอนถูกโจมตี (ฮึบ / ไปคุยกับรากมะม่วง ฯลฯ) — รวมในหน้าต่างถาม */
+  /* React ที่เล่นได้ตอนถูกโจมตีแม้ไม่มี trigger enemyDeclareAttack (ฮึบ / ไปคุยกับรากมะม่วง)
+     ไม่รวม อย่าให้มีครั้งที่ 2 — ใบนั้นขัดได้เฉพาะตอนคู่ต่อสู้ใช้ React */
   function reactAnyWindowHand(st, owner) {
     if (!st.pending || st.pending.target !== owner) return [];
     if (st.pending.blockReact) return [];
@@ -2097,11 +2098,7 @@
       if (!c || c.type !== 'Magic' || c.subtype !== 'React') return false;
       const e = fxCard(c);
       const ab0 = abilitiesOf(c.code, 'activated', c.name)[0];
-      const any = (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow)
-        || abilitiesOf(c.code, 'enemyPlayReact', c.name).length
-        || abilitiesOf(c.code, 'enemyDrawFromDeckByEffect', c.name).length
-        || abilitiesOf(c.code, 'avatarTapped', c.name).length
-        || abilitiesOf(c.code, 'oppBattlePhaseStart', c.name).length;
+      const any = (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow);
       if (!any) return false;
       if (isMagicTypeUsed(st, owner, 'React') && !ignoresReactTypeLimit(c)) return false;
       if (oncePerTurnCardBlocked(st, k, owner)) return false;
@@ -5752,11 +5749,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             return e && e.allowOppTurnMagic;
           });
         })();
-        // React ยืดหยุ่น (ฮึบ / รหัสดำ)
+        // React ยืดหยุ่น (ฮึบ / รหัสดำ / ไปคุยกับราก) — อย่าให้มีครั้งที่ 2 ไม่ใช่ใบนี้
+        // ใบขัด React เล่นผ่านหน้าต่าง negateMagic ไม่ใช่เล่นอิสระตอนถูกโจมตี
         const reactAny = c.subtype === 'React' && (() => {
           const e = fxCard(c);
           const ab0 = abilitiesOf(c.code, 'activated')[0];
-          return (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow) || abilitiesOf(c.code, 'enemyPlayReact').length
+          return (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow)
             || abilitiesOf(c.code, 'enemyDrawFromDeckByEffect').length || abilitiesOf(c.code, 'avatarTapped').length
             || abilitiesOf(c.code, 'oppBattlePhaseStart').length;
         })();
