@@ -539,13 +539,14 @@
               "count": [
                 "ownSide"
               ],
-              "until": "endOfTurn"
+              "countIncludeSelf": true,
+              "until": "permanent"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก SD06-014"
+      "note": "POWER -2 ต่อใบบนมือ+สนามฝ่ายเรา รวมใบนี้ · ตลอดไป"
     },
     {
       "name": "แผนการ : ตอกฝาโลง",

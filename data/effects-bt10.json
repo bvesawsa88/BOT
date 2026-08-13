@@ -1307,7 +1307,9 @@
               "per": 2,
               "count": [
                 "ownSide"
-              ]
+              ],
+              "countIncludeSelf": true,
+              "until": "permanent"
             }
           ]
         }

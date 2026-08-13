@@ -2017,8 +2017,12 @@
     switch (src) {
       case 'ownHand': return cnt([owner + '.hand']);
       case 'ownField': return cnt([owner + '.avatar', owner + '.construct']);
-      // มือ + สนามฝ่ายเรา (อวตาร/คอนสตรัค/เวท) — ไปเลยมอนตี้ ฯลฯ
-      case 'ownSide': return cnt([owner + '.hand', owner + '.avatar', owner + '.construct', owner + '.magic']);
+      // มือ + สนามฝ่ายเรา (อวตาร/คอนสตรัค/เวท/แลนด์) — ไปเลยมอนตี้ ฯลฯ
+      case 'ownSide': {
+        let n = cnt([owner + '.hand', owner + '.avatar', owner + '.construct', owner + '.magic']);
+        n += (st.zones.land || []).filter(k => k !== excludeK && landControllerOf(st, k, null) === owner).length;
+        return n;
+      }
       case 'oppField': return cnt([opp + '.avatar', opp + '.construct']);
       // ทุกการ์ดบนสนามทั้งสองฝั่ง (อวตาร + คอนสตรัค + เวทที่วางอยู่ + Land)
       case 'fieldAll': return cnt(['A.avatar', 'A.construct', 'A.magic', 'B.avatar', 'B.construct', 'B.magic', 'land']);
@@ -4539,17 +4543,26 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีผู้โจมตีให้ทำลาย`);
       } else if (ac.op === 'weakenAttacker') {
-        // React: ลด POWER ผู้โจมตี — amount คงที่ (กรอกในเอดิเตอร์) หรือ per × จำนวนการ์ดตามแหล่ง (JSON) ไม่นับตัวเวทสวนเอง
+        // React: ลด POWER ผู้โจมตี — amount คงที่ หรือ per × จำนวนการ์ดตามแหล่ง
+        // countIncludeSelf: นับใบเวทนี้ด้วย (แม้ลงนรกแล้ว) — ไปเลยมอนตี้
         const atk = ctx.attacker;
         if (atk && st.inst[atk]) {
           if (isImmuneOppMagicTarget(st, atk) && ownerOf(st, ctx.src) !== ownerOf(st, atk)) {
             addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกลด POWER`);
           } else {
             let amt, note = '';
+            const until = ac.until || 'endOfTurn';
             if (ac.amount != null && ac.count == null) amt = -Math.abs(ac.amount);
-            else { let n = 0; (ac.count || ['ownSide']).forEach(s => n += countSource(st, ctx.owner, s, ctx.src)); amt = -(ac.per || 1) * n; note = ` (นับ ${n} ใบ)`; }
-            st.buffs.push({ k: atk, amt: amt, until: ac.until || 'endOfTurn', from: ctx.src });
-            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} POWER ${amt}${note} → เหลือ P${effPower(st, atk)}`);
+            else {
+              let n = 0;
+              (ac.count || ['ownSide']).forEach(s => n += countSource(st, ctx.owner, s, ctx.src));
+              if (ac.countIncludeSelf) n += 1;
+              amt = -(ac.per || 1) * n;
+              note = ` (นับ ${n} ใบ${ac.countIncludeSelf ? ' รวมใบนี้' : ''})`;
+            }
+            st.buffs.push({ k: atk, amt: amt, until, from: ctx.src });
+            const untilTxt = until === 'permanent' ? ' ตลอดไป' : until === 'combat' ? ' จนจบการต่อสู้' : ' จนจบเทิร์น';
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} POWER ${amt}${note}${untilTxt} → เหลือ P${effPower(st, atk)}`);
           }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีผู้โจมตีให้ลดพลัง`);
       } else if (ac.op === 'cancelAttackByRestAlly') {

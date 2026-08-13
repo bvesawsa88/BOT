@@ -1791,7 +1791,8 @@
               "count": [
                 "ownSide"
               ],
-              "until": "endOfTurn"
+              "countIncludeSelf": true,
+              "until": "permanent"
             }
           ]
         }
@@ -13770,7 +13771,8 @@
               "count": [
                 "ownSide"
               ],
-              "until": "endOfTurn"
+              "countIncludeSelf": true,
+              "until": "permanent"
             }
           ]
         }
@@ -19715,7 +19717,8 @@
               "count": [
                 "ownSide"
               ],
-              "until": "endOfTurn"
+              "countIncludeSelf": true,
+              "until": "permanent"
             }
           ]
         }
@@ -22432,7 +22435,8 @@
               "count": [
                 "ownSide"
               ],
-              "until": "endOfTurn"
+              "countIncludeSelf": true,
+              "until": "permanent"
             }
           ]
         }
