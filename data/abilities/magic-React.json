@@ -481,8 +481,42 @@
       "codes": [
         "BT10-063"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto"
     },
     {
       "name": "ไปเลยมอนตี้",

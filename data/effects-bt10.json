@@ -660,26 +660,262 @@
     },
     {
       "code": "BT10-039",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "มาโกะ มารดาแห่งภาคีมะม่วง"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "cost": [
+            {
+              "op": "sendMagicToHell",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "excludeSelf": true
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromMagic",
+              "paidCost": true
+            }
+          ]
+        },
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "dest": "magic",
+              "distinctNames": true,
+              "multiMax": 99,
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownMagicNameIncludes",
+              "nameIncludes": "ต้นมะม่วง",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "magicPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "excludeSelf": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "มาโกะ มารดาแห่งภาคีมะม่วง",
+      "abilitiesFromMagicZone": true
     },
     {
       "code": "BT10-040",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "excludeOnly": true,
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "dest": "magic",
+              "shuffleAfter": true,
+              "thenIfExactName": "ต้นมะม่วง",
+              "thenIfFound": [
+                {
+                  "op": "deckOrHellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "มะม่วง"
+                    ],
+                    "symbol": "ต้นไม้"
+                  },
+                  "dest": "magic",
+                  "shuffleAfterIfFromDeck": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": false,
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ผู้คุมกฎแห่งภาคีมะม่วง"
     },
     {
       "code": "BT10-041",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "นักรบทองแห่งภาคีมะม่วง"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "requireOwnMagicNameIncludes": "ต้นมะม่วง",
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "ตื่น",
+                  "actions": [
+                    {
+                      "op": "untap",
+                      "target": "self"
+                    }
+                  ]
+                },
+                {
+                  "label": "POWER +2 จน Draw Phase ต่อไป",
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "nextOwnDraw",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ตื่น และ POWER +2",
+                  "actions": [
+                    {
+                      "op": "untap",
+                      "target": "self"
+                    },
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "nextOwnDraw",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": true,
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "นักรบทองแห่งภาคีมะม่วง",
+      "keywords": [
+        "โล่มนุษย์"
+      ]
     },
     {
       "code": "BT10-042",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==magicZone"
+          },
+          "protectOwnMagicNameIncludes": "ต้นมะม่วง",
+          "actions": []
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": true,
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ผู้พิทักษ์แห่งภาคีมะม่วง"
     },
     {
@@ -848,9 +1084,43 @@
     },
     {
       "code": "BT10-063",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ไปคุยกับรากมะม่วง"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ไปคุยกับรากมะม่วง",
+      "reactAnyWindow": true
     },
     {
       "code": "BT10-064",
