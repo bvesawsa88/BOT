@@ -935,8 +935,9 @@
         if (ab.requireFromAvatarZone && !wasAvatar) return;
         if (ab.ifDestroyedByOppOrNameIncludes) {
           const needle = ab.ifDestroyedByOppOrNameIncludes;
-          const byName = !!(opts.srcName && String(opts.srcName).includes(needle));
-          if (!opts.byOpp && !byName) return;
+          const srcHas = !!(opts.srcName && String(opts.srcName).includes(needle));
+          const selfHas = !!(destroyedName && String(destroyedName).includes(needle));
+          if (!opts.byOpp && !srcHas && !selfHas) return;
         }
         runActions(st, fx, ab.actions || [], { src: k, owner: side, toHellAfter: false, rng: (fx && fx._rng) || (() => 0.5) });
       });
@@ -2087,6 +2088,32 @@
     });
   }
 
+  /* React ที่เล่นนอกเทิร์นได้ตอนถูกโจมตี (ฮึบ / ไปคุยกับรากมะม่วง ฯลฯ) — รวมในหน้าต่างถาม */
+  function reactAnyWindowHand(st, owner) {
+    if (!st.pending || st.pending.target !== owner) return [];
+    if (st.pending.blockReact) return [];
+    return (st.zones[owner + '.hand'] || []).filter(k => {
+      const c = st.inst[k];
+      if (!c || c.type !== 'Magic' || c.subtype !== 'React') return false;
+      const e = fxCard(c);
+      const ab0 = abilitiesOf(c.code, 'activated', c.name)[0];
+      const any = (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow)
+        || abilitiesOf(c.code, 'enemyPlayReact', c.name).length
+        || abilitiesOf(c.code, 'enemyDrawFromDeckByEffect', c.name).length
+        || abilitiesOf(c.code, 'avatarTapped', c.name).length
+        || abilitiesOf(c.code, 'oppBattlePhaseStart', c.name).length;
+      if (!any) return false;
+      if (isMagicTypeUsed(st, owner, 'React') && !ignoresReactTypeLimit(c)) return false;
+      if (oncePerTurnCardBlocked(st, k, owner)) return false;
+      return true;
+    });
+  }
+  function attackReactOptions(st, owner) {
+    const a = counterOptions(st, owner);
+    reactAnyWindowHand(st, owner).forEach(k => { if (!a.includes(k)) a.push(k); });
+    return a;
+  }
+
   /* Avatar ที่ใช้โล่มนุษย์ได้ตอนถูกโจมตี — โชว์ในแถบโจมตี / ให้รอตอบก่อนปะทะ */
   function humanShieldOptions(st, owner) {
     if (!st.pending || st.pending.target !== owner) return [];
@@ -2142,7 +2169,17 @@
       const out = [];
       const filt = Object.assign({}, p.filter || {}, p.src ? { _srcK: p.src } : {});
       (p.zones || ['magic', 'land']).forEach(zn => {
-        if (zn === 'land') (st.zones['land'] || []).forEach(k => { if (matchFilterEx(st, k, filt)) out.push(k); });
+        if (zn === 'land') (st.zones['land'] || []).forEach(k => {
+          if (!matchFilterEx(st, k, filt)) return;
+          if (p.side === 'enemy' || p.side === 'own') {
+            const ctrl = landControllerOf(st, k, null);
+            if (!ctrl) return;
+            if (p.side === 'enemy' && ctrl === p.chooser) return;
+            if (p.side === 'own' && ctrl !== p.chooser) return;
+          }
+          if (isUntargetableByOppAbility(st, k, p.chooser)) return;
+          out.push(k);
+        });
         else ['A', 'B'].forEach(s => {
           if (p.side === 'enemy' && s === p.chooser) return;
           if (p.side === 'own' && s !== p.chooser) return;
@@ -2643,6 +2680,27 @@
     } else {
       addLog(st, opp, `รอขัดเวท: ฝ่าย ${activator} ใช้ "${magName}" — กดไม่ใช้หรือรอ 10 วิ`);
     }
+    return true;
+  }
+
+  /* เสนอหน้าต่าง React เมื่อถูกประกาศโจมตี — มีใบสวน/React ยืดหยุ่นในมือถึงถาม · รอสูงสุด 10 วิ
+     โล่มนุษย์ยังแตะ Avatar ที่กะพริบได้ระหว่างหน้าต่างนี้ */
+  function offerAttackReact(st, fx, attackerSide, atkK) {
+    const opp = other(attackerSide);
+    if (!st.pending || st.pending.target !== opp) return false;
+    if (st.pending.blockReact) return false;
+    if ((st.prompts || []).some(p => p.kind === 'react' && p.reactTrigger === 'enemyDeclareAttack' && p.chooser === opp))
+      return false;
+    const options = attackReactOptions(st, opp);
+    if (!options.length) return false;
+    const atkName = nameOf(st, atkK);
+    st.prompts.push({
+      kind: 'react', mode: 'runActions', src: null, options, chooser: opp, target: atkK,
+      actions: [], fromCounterAtk: true, reactTrigger: 'enemyDeclareAttack',
+      seconds: 10,
+      label: `ฝ่าย ${attackerSide} ประกาศโจมตีด้วย "${atkName}"`
+    });
+    addLog(st, opp, `รอ React (${options.length} ใบ): ฝ่าย ${attackerSide} ประกาศโจมตี "${atkName}" — เลือกใบ / ไม่ใช้ / รอ 10 วิ`);
     return true;
   }
 
@@ -5659,13 +5717,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (!c || c.type !== 'Magic' || !from || !from.endsWith('.hand')) break;
         const owner = from[0];
         // รอขัดเวท/React อยู่ — เล่นจากมือ = เลือกใบใน prompt (รองรับอย่าให้มีครั้งที่ 2 หลังใช้ React ไปแล้ว)
+        // ดักโจมตี: เก็บ prompt แล้วตกไปเส้นทาง counterAtk (มีค่าเซ่น / fromCounterAtk)
         {
           const pr0 = (st.prompts || [])[0];
           if (pr0 && pr0.kind === 'react' && pr0.chooser === owner
             && promptCandidates(st, pr0).includes(a.k)) {
-            const cont = applyAction(st, { type: 'chooseTarget', k: a.k, by: isPlayer ? by : owner, seed: a.seed });
-            if (cont) Object.keys(cont).forEach(key => { fx[key] = cont[key]; });
-            break;
+            if (pr0.reactTrigger === 'enemyDeclareAttack') {
+              st.prompts.shift();
+            } else {
+              const cont = applyAction(st, { type: 'chooseTarget', k: a.k, by: isPlayer ? by : owner, seed: a.seed });
+              if (cont) Object.keys(cont).forEach(key => { fx[key] = cont[key]; });
+              break;
+            }
           }
         }
         // การ์ดสวน: ถ้าถูกโจมตีอยู่ + มี effect enemyDeclareAttack → รันผลอัตโนมัติ
@@ -6050,6 +6113,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (!promptTargetOk(st, a.k)) return deny('เป้าหมายไม่ตรงเงื่อนไขเอฟเฟกต์');
         // React แบบเลือกใบ (อุบัติเหตุ / ชายจากอนาคต ฯลฯ) — แตะใบที่กะพริบ = เปิดใช้ใบนั้น
         if (p.kind === 'react') {
+          // ดักโจมตี: เก็บ prompt แล้วเล่นเป็น playMagic เพื่อให้เส้นทาง counterAtk ครบ (ค่าเซ่น / ยกเลิกโจมตี)
+          if (p.reactTrigger === 'enemyDeclareAttack') {
+            if (!promptCandidates(st, p).includes(a.k)) return deny('แตะ React ที่กะพริบเขียวในมือเพื่อเลือกใช้ (หรือกดไม่ใช้)');
+            st.prompts.shift();
+            const cont = applyAction(st, { type: 'playMagic', k: a.k, by: isPlayer ? by : p.chooser, seed: a.seed });
+            if (cont) Object.keys(cont).forEach(key => { fx[key] = cont[key]; });
+            break;
+          }
           if (!bindReactPromptCard(st, p, a.k)) return deny('ใช้ React ใบนี้ไม่ได้');
           a = Object.assign({}, a, { type: 'reactYes', k: a.k });
           // fall through intentionally — re-enter via nested apply would double post-hooks; run inline:
@@ -7287,6 +7358,15 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       case 'reactYes': {
         const p = st.prompts[0]; if (!p || p.kind !== 'react') break;
         if (isPlayer && by !== p.chooser) return deny('ไม่ใช่ React ของคุณ');
+        if (p.reactTrigger === 'enemyDeclareAttack') {
+          const pick = a.k || p.src;
+          if (!pick || (p.options && p.options.length && !p.options.includes(pick)))
+            return deny('แตะ React ที่กะพริบเขียวในมือเพื่อเลือกใช้ (หรือกดไม่ใช้)');
+          st.prompts.shift();
+          const cont = applyAction(st, { type: 'playMagic', k: pick, by: isPlayer ? by : p.chooser, seed: a.seed });
+          if (cont) Object.keys(cont).forEach(key => { fx[key] = cont[key]; });
+          break;
+        }
         // ต้องเลือกใบจาก options (แตะใบที่กะพริบ) — ปุ่มเปิดใช้เดี่ยวเลิกใช้แล้ว
         if (p.options && p.options.length) {
           const pick = a.k || p.src;
@@ -7955,13 +8035,15 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         // ไพรมอล: เสนอเซ่นแล้วตื่น หลังประกาศโจมตี (ก่อนปะทะ)
         offerWhenAttacking(st, a.atk);
-        // ฝ่ายรับสวนได้ไหม / มี prompt ค้าง (รวม whenAttacking) → อย่าปะทะทันที
+        // ถามฝ่ายรับว่าจะใช้ React ไหม (เหมือนขัดเวท) — หลัง whenAttacking เพื่อให้เซ่นก่อน
+        if (!declCtx._blockReact) offerAttackReact(st, fx, oa, a.atk);
+        // ฝ่ายรับสวนได้ไหม / มี prompt ค้าง (รวม whenAttacking / หน้าต่าง React) → อย่าปะทะทันที
         const defCanRespond = (() => {
           if ((st.prompts || []).length) return true;
           if (declCtx._blockReact) return false;
           if ((st.prompts || []).some(p => p.chooser === ot || p.kind === 'react')) return true;
           if (humanShieldOptions(st, ot).length) return true;
-          return counterOptions(st, ot).length > 0;
+          return attackReactOptions(st, ot).length > 0;
         })();
         const paNow = effPower(st, a.atk);
         const tgtText = isLife
@@ -8598,6 +8680,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           }
         }
         addLog(st, side, `🛡️ โล่มนุษย์: ${c.name} นอนลง รับการโจมตีแทน`);
+        // ใช้โล่แล้ว = ตอบหน้าต่าง React ดักโจมตีแล้ว ไม่ต้องถามซ้ำ
+        if ((st.prompts || [])[0] && st.prompts[0].kind === 'react' && st.prompts[0].reactTrigger === 'enemyDeclareAttack'
+          && st.prompts[0].chooser === side) {
+          st.prompts.shift();
+        }
         fx.snd = 'tap'; break;
       }
 

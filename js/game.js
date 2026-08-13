@@ -2231,12 +2231,18 @@
             toast(n
               ? `💚 จะขัดไหม? (${why}) — มี React ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`
               : `⏳ จะขัดไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
+          } else if (pr0.reactTrigger === 'enemyDeclareAttack') {
+            toast(n
+              ? `💚 จะใช้ React ไหม? (${why}) — มี ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`
+              : `⏳ จะตอบโต้ไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
           } else {
             toast(`💚 React ${n || 1} ใบพร้อมใช้ (${why}) — แตะใบที่กะพริบเขียว หรือกดไม่ใช้`, 4500);
           }
         } else if (pr0.magicNegate || pr0.mode === 'negateMagic') {
           const tgtN = pr0.target && st.inst[pr0.target] ? st.inst[pr0.target].name : 'เวท';
           toast(`⏳ รอฝ่าย ${pr0.chooser} ตอบว่าจะขัด "${tgtN}" ไหม (${pr0.seconds || 10} วิ)`, 3500);
+        } else if (pr0.reactTrigger === 'enemyDeclareAttack') {
+          toast(`⏳ รอฝ่าย ${pr0.chooser} ตอบว่าจะใช้ React ไหม (${pr0.seconds || 10} วิ)`, 3500);
         }
       }
       if (pr0 && (pr0.dest === 'preventLeavePick' || pr0.kind === 'preventLeaveExile')) {
@@ -2714,6 +2720,25 @@
       return;
     }
     if (pr.kind === 'react') {
+      if (pr.reactTrigger === 'enemyDeclareAttack' && st.pending && st.pending.target === 'B') {
+        const lv = getBotLevel();
+        const pend = st.pending;
+        const atkP = pend.atk ? eff(pend.atk) : 0;
+        const defP = pend.def ? eff(pend.def) : 0;
+        const lifeAtk = !!pend.life;
+        const threatened = lifeAtk || (pend.def && atkP >= defP);
+        const useReact = lv === 'hard' ? (threatened || atkP > 0)
+          : lv === 'easy' ? lifeAtk
+          : threatened;
+        const opts = (pr.options || []).slice().sort((a, b) => botCardVal(a) - botCardVal(b));
+        if (useReact && opts.length) {
+          for (const k of opts) {
+            if (botSend({ type: 'chooseTarget', k, by: 'B' })) return;
+          }
+        }
+        botSend({ type: 'reactNo', by: 'B' });
+        return;
+      }
       const pick = (pr.options && pr.options[0]) || pr.src;
       if (pick) {
         if (!botSend({ type: 'chooseTarget', k: pick, by: 'B' }))
@@ -2902,13 +2927,12 @@
   function scheduleAutoResolveAtk() {
     if (!st || !st.pending || !st.inst[st.pending.atk]) { clearAutoResolveAtk(); return; }
     const pnd = st.pending;
-    // บอทฝั่งรับ — botDefend จัดการเอง
+    // บอทฝั่งรับ — botDefend / หน้าต่าง React จัดการเอง
     if (mode === 'solo' && soloBot && pnd.target !== my) { clearAutoResolveAtk(); return; }
     const iAmDef = mode === 'solo' ? (soloBot ? pnd.target === my : true) : seat === pnd.target;
     if (!iAmDef) { clearAutoResolveAtk(); return; }
-    const atkPromptPending = (st.prompts || []).some(p =>
-      p.chooser === pnd.by || p.whenAttacking || (p.keepSrc && p.dest === 'sacrifice' && p.src === pnd.atk));
-    if (atkPromptPending) { clearAutoResolveAtk(); return; }
+    // มี prompt ค้าง (เซ่นเมื่อโจมตี / ถาม React ฝ่ายรับ) — อย่าปะทะทับ
+    if ((st.prompts || []).length) { clearAutoResolveAtk(); return; }
     const key = `${pnd.atk}|${pnd.def || pnd.life || ''}|${pnd.target}`;
     if (autoResolveAtkKey === key && autoResolveAtkT) return; // อย่ารีเซ็ตเวลาทุกรอบ render
     clearAutoResolveAtk();
@@ -2922,9 +2946,7 @@
       autoResolveAtkT = null;
       autoResolveAtkKey = null;
       if (!st || !st.pending || st.pending.atk !== atkKey || st.pending.target !== defSide) return;
-      const stillPrompt = (st.prompts || []).some(p =>
-        p.chooser === st.pending.by || p.whenAttacking || (p.keepSrc && p.dest === 'sacrifice' && p.src === st.pending.atk));
-      if (stillPrompt) return;
+      if ((st.prompts || []).length) return;
       sendAction({ type: 'resolveAttack', by: mode === 'solo' ? defSide : undefined });
     }, delay);
   }
@@ -3333,6 +3355,8 @@
       if (!mine && pr.kind === 'react' && (pr.magicNegate || pr.mode === 'negateMagic')) {
         const tgtN = pr.target && st.inst[pr.target] ? st.inst[pr.target].name : 'เวท';
         txt = `⏳ รอฝ่าย ${pr.chooser} ตอบว่าจะขัด "${tgtN}" ไหม…`;
+      } else if (!mine && pr.kind === 'react' && pr.reactTrigger === 'enemyDeclareAttack') {
+        txt = `⏳ รอฝ่าย ${pr.chooser} ตอบว่าจะใช้ React ไหม…`;
       }
       if (mine) {
         const srcN = st.inst[pr.src] ? st.inst[pr.src].name : '';
@@ -3395,6 +3419,10 @@
             txt = nOpt
               ? `💚 จะขัดไหม? ${why} — มี React ${nOpt} ใบ · แตะใบเขียว / กด「ไม่ใช้」 / รอ ${pr.seconds || 10} วิ`
               : `⏳ จะขัดไหม? ${why} — กด「ไม่ใช้」หรือรอ ${pr.seconds || 10} วิ`;
+          } else if (pr.reactTrigger === 'enemyDeclareAttack') {
+            txt = nOpt
+              ? `💚 จะใช้ React ไหม? ${why} — มี ${nOpt} ใบ · แตะใบเขียว / โล่มนุษย์ / กด「ไม่ใช้」 / รอ ${pr.seconds || 10} วิ`
+              : `⏳ จะตอบโต้ไหม? ${why} — โล่มนุษย์ / กด「ไม่ใช้」หรือรอ ${pr.seconds || 10} วิ`;
           } else {
             txt = `💚 React พร้อมใช้ ${nOpt || (pr.src ? 1 : 0)} ใบ (${why}) — แตะใบที่กะพริบเขียวเพื่อใช้ หรือกด「ไม่ใช้」`;
           }
@@ -4948,12 +4976,18 @@
       sendAction({ type: 'chooseTarget', k: d.k, by: mode === 'solo' ? prClick.chooser : undefined });
       return;
     }
-    // สวนโจมตี: แตะ React ที่กะพริบเขียวในมือ = ใช้เลย
+    // สวนโจมตี: แตะ React ที่กะพริบเขียวในมือ = ใช้เลย (ดักโจมตี + React ยืดหยุ่น)
     if (st.pending && BoTEngine.counterOptions) {
       const defSide = st.pending.target;
-      if ((mode === 'solo' || seat === defSide) && (BoTEngine.counterOptions(st, defSide) || []).includes(d.k)) {
-        sendAction({ type: 'playMagic', k: d.k, by: mode === 'solo' ? defSide : undefined });
-        return;
+      if ((mode === 'solo' || seat === defSide)) {
+        const cops = BoTEngine.counterOptions(st, defSide) || [];
+        const prAtk = (st.prompts || [])[0];
+        const fromPrompt = prAtk && prAtk.kind === 'react' && prAtk.reactTrigger === 'enemyDeclareAttack'
+          && (prAtk.options || []).includes(d.k);
+        if (cops.includes(d.k) || fromPrompt) {
+          sendAction({ type: 'playMagic', k: d.k, by: mode === 'solo' ? defSide : undefined });
+          return;
+        }
       }
     }
     // โล่มนุษย์: แตะ Avatar ที่กะพริบ = รับการโจมตีแทน
