@@ -3929,9 +3929,19 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
       } else if (ac.op === 'destroyAllEnemyAvatars') {
         const opp = other(ctx.owner);
-        const targets = (st.zones[opp + '.avatar'] || []).slice();
-        addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทำลาย Avatar ฝั่ง ${opp} ทั้งหมด (${targets.length} ใบ)`);
-        targets.forEach(t => destroyCard(st, fx, t, destroyOptsFromMagic(st, ctx.src, t)));
+        const mzAvatars = (st.zones[opp + '.magic'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
+        const targets = (st.zones[opp + '.avatar'] || []).slice().concat(mzAvatars);
+        // กันต้นมะม่วงก่อนทำลายใคร — ถ้าผู้พิทักษ์โดนก่อนในลูปเดียวกัน ต้นจะไม่ควรถูกปลดกันกลางทาง
+        const guarded = new Set(targets.filter(t => protectOwnMagicFromOpp(st, t)));
+        addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทำลาย Avatar บนสนามฝั่ง ${opp} ทั้งหมด (${targets.length} ใบ)`);
+        targets.forEach(t => {
+          const opts = destroyOptsFromMagic(st, ctx.src, t);
+          if (guarded.has(t)) {
+            addLog(st, 'S', `${nameOf(st, t)} บน Magic Zone ถูกผู้พิทักษ์กันทำลายจากความสามารถฝ่ายตรงข้าม`);
+            return;
+          }
+          destroyCard(st, fx, t, opts);
+        });
         fx.snd = 'clash';
       } else if (ac.op === 'destroy' || ac.op === 'destroyTarget') {
         let tgt = null;
