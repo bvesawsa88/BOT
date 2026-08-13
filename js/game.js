@@ -3172,6 +3172,7 @@
     const pr0 = (st.prompts || [])[0];
     if (pr0 && (mode === 'solo' || seat === pr0.chooser) && BoTEngine.promptTargetOk(st, k)) {
       classes.push(pr0.kind === 'react' ? 'react-pick' : 'targetable');
+      if (pr0.from === 'ownMagic') classes.push('pick-ok');
     }
     // สวนกลับตอนถูกโจมตี — ใบ React ในมือกะพริบเขียวด้วย
     if (st.pending && (mode === 'solo' || seat === st.pending.target) && BoTEngine.counterOptions) {
@@ -3212,6 +3213,9 @@
     // สวนกล้วยหนีภาษี ฯลฯ — เหลือกี่ End Phase (นับทุกฝ่าย)
     if (c._globalEndLeft != null && c._globalEndLeft > 0) {
       tok += `<div class="rev-badge" title="End Phase รวมทุกฝ่าย · เหลือ ${c._globalEndLeft} ครั้งจะลงนรก">⏳${c._globalEndLeft}</div>`;
+    }
+    if (cls === 'magic' && c.faceUp && !opts.forceUp && c.name) {
+      tok += `<div class="mz-name" title="${esc(c.name)}">${esc(c.name)}</div>`;
     }
     // ⚡➕➖ ปุ่มลัดลอยบนการ์ด — สนาม: โผล่ตอนชี้เมาส์ · มือที่มีสั่งใช้จากมือ: โชว์ ⚡ ตลอด · คลิกขวา = สั่งใช้
     let qa = '';
@@ -3369,6 +3373,12 @@
           : `💥 ${srcN}: แตะการ์ดบนสนามที่จะทำลาย`;
         if (pr.kind === 'pick') {
           if (pr.dest === 'coinDestroy') txt = `🪙 ${srcN}: เลือก Avatar ฝ่ายตรงข้าม แล้วทอยเหรียญ`;
+          else if (pr.from === 'ownMagic' && pr.dest === 'magicToHellCost')
+            txt = `✨ ${srcN}: ส่งการ์ดบน Magic Zone ลงนรก (${pr.got || 0}/${pr.need || 1}) — แตะใบที่กะพริบในหน้าต่าง`;
+          else if (pr.from === 'ownMagic' && pr.dest === 'avatar')
+            txt = `✨ ${srcN}: เลือกการ์ดบน Magic Zone อัญเชิญลงสนาม — แตะใบที่กะพริบในหน้าต่าง`;
+          else if (pr.from === 'ownMagic')
+            txt = `✨ ${srcN}: เลือกการ์ดบน Magic Zone — แตะใบที่กะพริบในหน้าต่าง`;
           else if (pr.dest === 'naraiSacSummon') txt = `🕉️ ${srcN}: เลือกพระนารายณ์บนสนามส่งนรก เพื่ออัญเชิญอวตาร`;
           else if (pr.dest === 'avatar' && pr.naraiReturn) txt = `🕉️ จบเทิร์น: เลือกพระนารายณ์จากนรกอัญเชิญกลับขึ้นสนาม`;
           else if (pr.dest === 'destroy') txt = `💥 ${srcN}: เลือก Avatar ศัตรูที่จะทำลาย${pr.optional ? ' (หรือข้าม — จะไม่เปลี่ยนร่างตอนจบเทิร์น)' : ''}`;
@@ -3731,6 +3741,7 @@
     }
 
     layoutMyHand();
+    layoutMagicZones();
     drawLinks();
     renderPreview();
     if (typeof mbSync === 'function') mbSync();
@@ -3870,6 +3881,39 @@
       el.style.bottom = '6px';
       el.style.margin = '0';
       el.style.zIndex = sel ? String(200 + i) : String(i + 1);
+    });
+  }
+
+  /* Magic Zone ใบเยอะ: เหลื่อมกันให้อยู่ในช่อง · ชี้เมาส์ยกขึ้นหน้า · เลือกมะม่วงใช้หน้าต่าง overlay */
+  function layoutMagicZones() {
+    ['myMagic', 'oppMagic'].forEach(layoutMagicRow);
+  }
+  function layoutMagicRow(id) {
+    const row = byId(id);
+    if (!row) return;
+    const cards = [...row.querySelectorAll(':scope > .card')];
+    const clear = () => {
+      cards.forEach(el => {
+        el.style.marginLeft = el.style.position = el.style.left = el.style.zIndex = '';
+      });
+      row.classList.remove('mz-crowded');
+    };
+    if (cards.length < 2) { clear(); return; }
+    const W = row.clientWidth;
+    if (W < 24) {
+      requestAnimationFrame(() => { if (st) layoutMagicRow(id); });
+      return;
+    }
+    const cw = cards[0].offsetWidth || 56;
+    const gap = 6;
+    const n = cards.length;
+    const natural = n * cw + (n - 1) * gap;
+    if (natural <= W + 1) { clear(); return; }
+    row.classList.add('mz-crowded');
+    const overlap = (natural - W) / (n - 1);
+    cards.forEach((el, i) => {
+      el.style.marginLeft = i === 0 ? '0px' : (-overlap) + 'px';
+      el.style.zIndex = String(i + 1);
     });
   }
 
@@ -4390,11 +4434,12 @@
     // สอดแนมเปิด (revealAllScout) = ข้อมูลเปิด → ทั้งสองฝั่งเห็นหน้าต่าง / อื่นๆ เฉพาะคนเลือก
     const iAmChooser = !!(pp && (mode === 'solo' || seat === pp.chooser));
     const openScoutBoth = !!(pp && pp.kind === 'pick' && pp.from === 'ids' && pp.revealAllScout);
-    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'deckOrHell'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
+    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'deckOrHell', 'ownMagic'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
       // สอดแนม (ids): โชว์ทุกใบที่เปิดเจอ · ใบที่เลือกได้กะพริบ · เมฟิสโต้ฯ ติดป้ายขึ้นมืออัตโนมัติ
       // นรก showAllHell: โชว์ทั้งกอง · ใบตรงเงื่อนไขกะพริบ (ไม่นะโดม / อู๊ด / มณโท)
       const showAllScout = pp.from === 'ids' && !!pp.revealAllScout;
       const showAllHell = pp.from === 'hell' && !!pp.showAllHell;
+      const showAllMagic = pp.from === 'ownMagic';
       const selectable = iAmChooser ? BoTEngine.promptCandidates(st, pp) : [];
       const autoHand = new Set((pp.autoHandIds || []).filter(k => (st.zones[pp.chooser + '.deck'] || []).includes(k)));
       // ids อาจอยู่เด็คฝ่ายตรงข้าม (สอดแนมตำรวจ) — อย่ากรองเฉพาะเด็คของ chooser
@@ -4402,14 +4447,22 @@
         ? (pp.ids || []).filter(k => !!st.inst[k])
         : showAllHell
           ? (st.zones[pp.chooser + '.hell'] || []).filter(k => k !== pp.src)
-          : selectable;
+          : showAllMagic
+            ? (st.zones[pp.chooser + '.magic'] || []).filter(k => k !== pp.src)
+            : selectable;
       const canPick = new Set(selectable);
-      const showAllPick = showAllScout || showAllHell;
+      const showAllPick = showAllScout || showAllHell || showAllMagic;
       let title;
       if (pp.dest === 'preventLeavePick')
         title = `🛡️ เนรเทศรัททาทุยจากนรก (${pp.got || 0}/${pp.need || 5}) — แตะการ์ดเพื่อเนรเทศ`;
       else if (pp.dest === 'naraiSacSummon')
         title = `🕉️ เลือกพระนารายณ์บนสนามส่งนรก — เพื่ออัญเชิญอวตาร`;
+      else if (pp.from === 'ownMagic' && pp.dest === 'magicToHellCost')
+        title = `✨ ส่งจาก Magic Zone ลงนรก (${pp.got || 0}/${pp.need || 1}) — แตะใบที่กะพริบ`;
+      else if (pp.from === 'ownMagic' && pp.dest === 'avatar')
+        title = `✨ เลือกจาก Magic Zone อัญเชิญลงสนาม — แตะใบที่กะพริบ`;
+      else if (pp.from === 'ownMagic')
+        title = `✨ เลือกการ์ดบน Magic Zone — แตะใบที่กะพริบ`;
       else if (pp.dest === 'destroy')
         title = `💥 เลือก Avatar ที่จะทำลาย`;
       else if (pp.dest === 'avatar' && pp.naraiReturn)
@@ -4458,9 +4511,11 @@
         title = `✨ สอดแนม — แตะการ์ดที่กะพริบเพื่อเลือก (ขึ้นมือ)`;
       byId('pileTitle').textContent = title;
       byId('pileHint').textContent = iAmChooser
-        ? (pp.from === 'deckOrHell'
-          ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
-          : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก'))
+        ? (pp.from === 'ownMagic'
+          ? 'โชว์ทั้ง Magic Zone เป็นใบใหญ่ · ใบที่กะพริบเลือกได้ · ไม่ต้องเลื่อนหรือคลิกใบที่ทับกันบนสนาม'
+          : (pp.from === 'deckOrHell'
+            ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
+            : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก')))
         : 'อีกฝั่งกำลังเลือก — ดูอย่างเดียว';
       byId('pileGrid').innerHTML = disp.length
         ? disp.map((k, i) => {
@@ -4481,7 +4536,7 @@
           }
           return cardHTML(k, 'magic', opts);
         }).join('')
-        : '<div class="pile-empty">ไม่มีการ์ดในนรก / ให้เลือก</div>';
+        : `<div class="pile-empty">${pp.from === 'ownMagic' ? 'ไม่มีใบบน Magic Zone' : 'ไม่มีการ์ดในนรก / ให้เลือก'}</div>`;
       ov.dataset.prompt = iAmChooser ? '1' : 'view';
       const skipBtn = byId('btnPileClose');
       if (!iAmChooser) {
@@ -5801,10 +5856,11 @@
     }
     syncOneSide();
     layoutMyHand();
+    layoutMagicZones();
     syncFieldCardScale();
   }
   window.addEventListener('resize', onResize);
-  window.addEventListener('orientationchange', () => setTimeout(() => { onResize(); if (st) layoutMyHand(); }, 120));
+  window.addEventListener('orientationchange', () => setTimeout(() => { onResize(); if (st) { layoutMyHand(); layoutMagicZones(); } }, 120));
 
   /* ── 📺 บานสนาม (หน้าต่างแยกสำหรับแชร์จอใน Discord — ไม่มีมือใครโผล่) ──
      หน้าต่างหลัก = เราเล่น เห็นมือตัวเอง (ห้ามแชร์)

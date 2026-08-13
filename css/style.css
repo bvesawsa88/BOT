@@ -265,7 +265,13 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .mz-construct .zone-cards::before,.mz-construct .zone-cards::after{content:'';flex:0 0 0;margin:auto}
 #fieldTilt .mz-avatar .card:hover,#fieldTilt .mz-magic .card:hover,
 #fieldTilt .mz-construct .card:hover{
-  transform:scale(1.35);z-index:20;transform-origin:center center}
+  transform:scale(1.35);z-index:80!important;transform-origin:center center}
+.mz-magic .zone-cards.mz-crowded{justify-content:flex-start;overflow-x:hidden}
+.mz-magic .mz-name{
+  position:absolute;left:2px;right:2px;bottom:2px;z-index:5;pointer-events:none;
+  font-size:clamp(8px,0.85vw,11px);font-weight:700;line-height:1.15;text-align:center;
+  color:#fff;background:rgba(10,10,12,.82);border-radius:4px;padding:1px 3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* LAND = วางแนวนอน (หมุน 90°) */
 #fieldTilt .mz-land .card.land{
   transform:rotate(90deg);transform-origin:center center}

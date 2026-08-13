@@ -774,9 +774,8 @@
     const z = zoneOf(st, k); if (!z) return false;
     // ริกกี้: ไม่รับผล Magic ที่เล็งตัวนี้ (เวทสั่งผู้เล่นยังได้)
     if (opts.fromOppMagic) {
-      const eImm = fxCard(c);
-      if (eImm && eImm.immuneOppMagicTarget) {
-        addLog(st, 'S', `${c.name} ไม่รับผลจาก Magic ฝ่ายตรงข้าม (เล็งตัวนี้)`);
+      if (isImmuneOppMagicTarget(st, k)) {
+        addLog(st, 'S', `${c.name} ไม่รับผลจาก Magic ฝ่ายตรงข้าม`);
         return false;
       }
     }
@@ -2061,6 +2060,9 @@
   }
 
   function isImmuneOppMagicTarget(st, k) {
+    const c = st.inst[k];
+    if (!c) return false;
+    if (c.immuneOppMagicUntil) return true; // วีรชนชีวภาพ ฯลฯ จ่าย Cost แล้วกันเวทชั่วคราว
     const e = fxId(st, k);
     return !!(e && e.immuneOppMagicTarget);
   }
@@ -2182,9 +2184,8 @@
           if (p.side === 'own' && s !== p.chooser) return;
           (st.zones[s + '.' + zn] || []).forEach(k => {
             if (!matchFilterEx(st, k, filt)) return;
-            // ริกกี้: ไม่ให้เลือกเป็นเป้า Magic ศัตรู
-            const eImm = fxId(st, k);
-            if (eImm && eImm.immuneOppMagicTarget && p.fromOppMagic) return;
+            // ริกกี้ / วีรชนชีวภาพ: ไม่ให้เลือกเป็นเป้า Magic ศัตรู
+            if (p.fromOppMagic && isImmuneOppMagicTarget(st, k)) return;
             if (isUntargetableByOppAbility(st, k, p.chooser)) return;
             out.push(k);
           });
