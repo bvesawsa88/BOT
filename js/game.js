@@ -576,7 +576,7 @@
   let vfxBusy = Promise.resolve(); // คิวแอนิเมชันไม่ให้ทับกัน
 
   /* ── สลับจอ ── */
-  const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'deckbuilder', 'gallery', 'howto'];
+  const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'decks', 'deckbuilder', 'gallery', 'howto'];
   const SS_UI = 'bot_ui_v1';
   let curScreen = 'menu';
   let persistT = null;
@@ -626,7 +626,7 @@
       if (name === 'menu') history.replaceState(null, '', location.pathname);
       else if (name === 'table' && mode === 'solo') history.replaceState(null, '', location.pathname + '#table');
       else if (name === 'room' && room) history.replaceState(null, '', '/?room=' + room);
-      else if (['lobby', 'lanHall', 'deckbuilder', 'gallery', 'howto'].includes(name))
+      else if (['lobby', 'lanHall', 'decks', 'deckbuilder', 'gallery', 'howto'].includes(name))
         history.replaceState(null, '', location.pathname + '#' + name);
     } catch (e) { }
   }
@@ -5550,7 +5550,7 @@
     if (e.target.id === 'lanChallengeModal') declineLanChallenge();
   });
   byId('mnuDeck').onclick = () => {
-    ensureTools().then(() => { showScreen('deckbuilder'); window.openDeckBuilder(); });
+    ensureTools().then(() => { showScreen('decks'); window.openDeckList(); });
   };
   byId('mnuGallery').onclick = () => {
     ensureTools().then(() => { showScreen('gallery'); window.openGallery(); });
@@ -5921,12 +5921,13 @@
       return false; // ให้ auto-join ทำงานเอง
     }
     const hash = (location.hash || '').replace(/^#/, '');
-    if (['deckbuilder', 'gallery', 'howto', 'lobby', 'lanHall'].includes(hash)) {
+    if (['decks', 'deckbuilder', 'gallery', 'howto', 'lobby', 'lanHall'].includes(hash)) {
       if (hash === 'howto') ensureHowto().then(() => showScreen('howto'));
       else if (hash === 'lanHall') openLanHall();
-      else if (hash === 'deckbuilder' || hash === 'gallery') {
+      else if (hash === 'decks' || hash === 'deckbuilder' || hash === 'gallery') {
         ensureTools().then(() => {
           showScreen(hash);
+          if (hash === 'decks') window.openDeckList();
           if (hash === 'deckbuilder') window.openDeckBuilder();
           if (hash === 'gallery') window.openGallery();
         });
@@ -5955,11 +5956,12 @@
       connect(() => wsSend({ t: 'join', room: data.room, nick: myNick(), as: 'player', uid: myUid() }));
       return true;
     }
-    if (['lobby', 'deckbuilder', 'gallery', 'howto'].includes(data.screen)) {
+    if (['lobby', 'decks', 'deckbuilder', 'gallery', 'howto'].includes(data.screen)) {
       if (data.screen === 'howto') ensureHowto().then(() => showScreen('howto'));
-      else if (data.screen === 'deckbuilder' || data.screen === 'gallery') {
+      else if (data.screen === 'decks' || data.screen === 'deckbuilder' || data.screen === 'gallery') {
         ensureTools().then(() => {
           showScreen(data.screen);
+          if (data.screen === 'decks') window.openDeckList();
           if (data.screen === 'deckbuilder') window.openDeckBuilder();
           if (data.screen === 'gallery') window.openGallery();
         });

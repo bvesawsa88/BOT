@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260811o">
+<link rel="stylesheet" href="css/style.css?v=20260813a">
 </head>
 <body>
 
@@ -33,7 +33,7 @@
   <!-- เมนูหลัก: เลือกหน้า — โหมดเล่นอยู่ในเมนูย่อยแยก -->
   <div id="menuHome" class="menu-btns">
     <button id="mnuPlay" class="btn-primary big">เล่นเกม</button>
-    <button id="mnuDeck" class="btn-dark big">จัดเด็ค (Deck Builder)</button>
+    <button id="mnuDeck" class="btn-dark big">เด็คของฉัน</button>
     <button id="mnuGallery" class="btn-dark big">ดูการ์ด / เปิดซอง</button>
     <button id="mnuHowTo" class="btn-dark big">📖 วิธีเล่น / วิธีจัดเด็ค</button>
   </div>
@@ -184,15 +184,32 @@
   <button id="btnLeaveRoom" class="link-btn">ออกจากห้อง</button>
 </div>
 
+<!-- ═══ เด็คของฉัน (ดูอย่างเดียว) ═══ -->
+<div id="decks" class="screen-page hidden">
+  <header class="db-top">
+    <div class="brand">Battle of Talingchan <span>· เด็คของฉัน</span></div>
+    <div class="spacer"></div>
+    <button id="dkNew" class="btn-primary small">จัดเด็คใหม่</button>
+    <button id="dkBack" class="btn-mini">← เมนูหลัก</button>
+  </header>
+  <div class="dk-main">
+    <aside id="dkList" class="dk-list"></aside>
+    <section class="dk-view" id="dkView">
+      <div class="dk-empty">เลือกเด็คจากรายการซ้าย เพื่อดูการ์ดในเด็ค</div>
+    </section>
+  </div>
+  <div id="dkZoom" class="hidden"></div>
+</div>
+
 <!-- ═══ Deck Builder ═══ -->
 <div id="deckbuilder" class="screen-page hidden">
   <header class="db-top">
-    <div class="brand">Battle of Talingchan <span>· Deck Builder</span></div>
+    <div class="brand">Battle of Talingchan <span>· จัดเด็ค</span></div>
     <div class="spacer"></div>
     <div id="dbCount" class="room-info"></div>
     <button id="dbFiltersBtn" class="btn-mini only-mobile">ฟิลเตอร์</button>
     <button id="dbDeckBtn" class="btn-mini only-mobile">เด็ค 0/50</button>
-    <button id="dbBack" class="btn-mini">← เมนูหลัก</button>
+    <button id="dbBack" class="btn-mini">← เด็คของฉัน</button>
   </header>
   <div class="db-main">
     <aside class="db-side">
@@ -237,6 +254,7 @@
       <div class="db-deck-body">
         <div id="dbChecks"></div>
         <div id="dbCurve" class="db-curve"></div>
+        <div id="dbComp" class="db-comp"></div>
         <div id="dbColors"></div>
         <div class="db-sec gold">MAIN DECK · <span id="dbMainCount">0</span>/50</div>
         <div id="dbMainList"></div>
@@ -353,7 +371,7 @@
         </div>
         <div class="hw-note">
           <b>ก่อนเล่นครั้งแรก:</b> ถ้ายังไม่ได้จัดเด็ค ระบบจะใช้เด็คตัวอย่าง <b>SD01 Starter</b> ให้
-          อยากใช้เด็คตัวเอง ต้องไปจัดที่ Deck Builder → กด <b>บันทึก</b> → ตั้งเป็นเด็คหลักก่อน (ดูหัวข้อ 7)
+          อยากใช้เด็คตัวเอง ไปที่ <b>เด็คของฉัน</b> → จัดเด็ค → กด <b>บันทึก</b> → ตั้งเป็นเด็คหลักก่อน (ดูหัวข้อ 7)
         </div>
       </section>
 
@@ -489,7 +507,7 @@
 
         <h3>วิธีจัดและเอาไปเล่น</h3>
         <ol class="hw-ol">
-          <li>เมนูหลัก → <b>จัดเด็ค (Deck Builder)</b></li>
+          <li>เมนูหลัก → <b>เด็คของฉัน</b> → กด <b>จัดเด็คใหม่</b> หรือเลือกเด็คแล้วกด <b>จัดเด็คนี้</b></li>
           <li>ค้นหาการ์ดจากช่องซ้าย (ชื่อ / ข้อความ effect) หรือกรองด้วยประเภท · สี · COST · ซีรีส์</li>
           <li>กด <b>+</b> บนการ์ดเพื่อใส่ · <b>−</b> เพื่อเอาออก · คลิกที่การ์ดเพื่อดูรายละเอียด</li>
           <li>ดูแถบตรวจด้านขวาให้ขึ้น ✓ ครบทั้ง 3 ข้อ (50 ใบ · LIFE 5 · ไม่เกินลิมิต)</li>
@@ -994,10 +1012,10 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260811o"></script>
+<script src="js/util.js?v=20260813a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260811o"></script>
+<script src="js/game.js?v=20260813a"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

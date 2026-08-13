@@ -38,6 +38,19 @@
 .db-legend{display:flex;gap:9px;flex-wrap:wrap;font-size:10.5px;color:var(--cream2)}
 .db-dot i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px}
 .db-gem{font-size:11px;color:var(--dim)}
+.db-comp{display:flex;flex-direction:column;gap:6px;padding:2px 0 8px;border-bottom:1px solid var(--border)}
+.db-comp-label{font-size:10.5px;font-weight:700;color:var(--dim);font-family:'IBM Plex Sans Thai',sans-serif;letter-spacing:.3px}
+.db-comp-grid{display:grid;gap:4px}
+.db-comp-grid.three{grid-template-columns:repeat(3,1fr)}
+.db-comp-grid.four{grid-template-columns:repeat(4,1fr)}
+.db-stat{display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--card-ui);border:1px solid var(--border);border-radius:6px;padding:5px 2px 4px;min-width:0}
+.db-stat b{font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:700;color:var(--gold);line-height:1.1}
+.db-stat span{font-size:9.5px;color:var(--cream2);white-space:nowrap}
+.db-stat.zero{opacity:.38}
+.db-stat.zero b{color:var(--dim)}
+.db-group-h{font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:.3px;margin:8px 0 3px;padding-top:6px;border-top:1px solid var(--border)}
+.db-group-h:first-child{margin-top:0;border-top:none;padding-top:0}
+.db-row-col{width:3px;align-self:stretch;min-height:28px;border-radius:2px;flex:none}
 .db-sec{font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700}
 .db-sec.gold{color:var(--gold)}.db-sec.green{color:#7fbf8f}
 .db-row{display:flex;align-items:center;gap:7px;padding:1px 0}
@@ -51,6 +64,32 @@
 .db-saved-chip{background:var(--card-ui);color:var(--gold);border:1px solid var(--border);border-radius:12px;font-family:'Sarabun',sans-serif;font-size:11.5px;padding:3px 10px}
 .db-saved-chip:hover{border-color:var(--gold)}
 .db-msg{font-size:11px;color:var(--dim);min-height:14px}
+
+.dk-main{flex:1;display:flex;min-height:0}
+.dk-list{width:268px;flex:none;background:var(--panel);border-right:1.5px solid var(--border);overflow-y:auto;padding:10px 8px 16px;display:flex;flex-direction:column;gap:4px}
+.dk-sec{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.3px;padding:10px 8px 4px}
+.dk-sec:first-child{padding-top:2px}
+.dk-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:var(--card-ui);border:1px solid var(--border);border-radius:8px;color:var(--cream);padding:8px 10px;font-family:'Sarabun',sans-serif}
+.dk-item:hover{filter:brightness(1.18)}
+.dk-item.on{border-color:var(--gold);background:#252528}
+.dk-item-name{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;min-width:0;max-width:100%}
+.dk-item-name span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-star{color:var(--gold);font-size:11px;flex:none}
+.dk-item-meta{font-size:11px;color:var(--dim)}
+.dk-empty-mini{font-size:12px;color:var(--dim);padding:6px 10px 10px;line-height:1.45}
+.dk-view{flex:1;min-width:0;overflow-y:auto;padding:14px 18px 24px;display:flex;flex-direction:column;gap:12px}
+.dk-empty{margin:auto;color:var(--dim);font-size:14px;text-align:center;line-height:1.6}
+.dk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dk-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:22px;font-weight:700;color:var(--gold);line-height:1.2}
+.dk-sub{font-size:12.5px;color:var(--dim);margin-top:3px}
+.dk-actions{display:flex;flex-wrap:wrap;gap:6px}
+.dk-stats{display:flex;flex-direction:column;gap:8px;max-width:520px}
+.dk-group{display:flex;flex-direction:column;gap:8px}
+.dk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.dk-card{position:relative;cursor:zoom-in;border-radius:7px;transition:transform .1s}
+.dk-card:hover{transform:scale(1.05);z-index:2}
+.dk-card img{width:100%;aspect-ratio:512/716;object-fit:cover;border-radius:7px;display:block;background:var(--card-ui)}
+.dk-actions button:disabled{opacity:.45;cursor:default;filter:none}
 
 .gl-view{flex:1;display:flex;flex-direction:column;min-height:0}
 .gl-filters{flex:none;display:flex;gap:8px;align-items:center;padding:10px 14px;flex-wrap:wrap}
@@ -109,7 +148,7 @@
 .choice-opt .co-txt{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13.5px;line-height:1.55;color:var(--cream)}
 .dc-foot{flex:none;display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border)}
 .dc-foot>button{flex:1;padding:11px;font-size:14px;border-radius:9px}
-#glZoom,#dbZoom{position:fixed;inset:0;background:rgba(22,16,12,.9);display:flex;align-items:center;justify-content:center;gap:26px;z-index:200;cursor:zoom-out;padding:20px;flex-wrap:wrap}
+#glZoom,#dbZoom,#dkZoom{position:fixed;inset:0;background:rgba(22,16,12,.9);display:flex;align-items:center;justify-content:center;gap:26px;z-index:200;cursor:zoom-out;padding:20px;flex-wrap:wrap}
 #dbZoom .gl-zoom-info{cursor:default}
 .db-rar{position:absolute;top:5px;left:5px;background:rgba(22,16,12,.85);color:var(--gold);font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;pointer-events:none}
 .db-qty{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:4px 5px;background:linear-gradient(transparent,rgba(22,16,12,.92));border-radius:0 0 7px 7px;opacity:0;transition:opacity .12s}
@@ -136,7 +175,13 @@
   .db-deck.open{transform:none}
   .db-result{flex-wrap:wrap;row-gap:4px}
   .db-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
-  #glZoom,#dbZoom{overflow-y:auto;align-content:safe center}
+  .dk-main{flex-direction:column}
+  .dk-list{width:100%;max-height:34vh;border-right:none;border-bottom:1.5px solid var(--border);flex-direction:row;flex-wrap:wrap;align-items:flex-start}
+  .dk-sec{width:100%;padding:8px 4px 2px}
+  .dk-item{width:auto;min-width:140px;flex:1 1 140px}
+  .dk-view{padding:12px}
+  .dk-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+  #glZoom,#dbZoom,#dkZoom{overflow-y:auto;align-content:safe center}
   .gl-zoom-img{height:auto;width:68vw;max-width:340px}
   .gl-zoom-info{width:88vw}
 }

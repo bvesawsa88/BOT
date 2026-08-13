@@ -6,14 +6,108 @@
 
 /* ═══════════════ DECK BUILDER ═══════════════ */
   const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: '', subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} }, name: '', preview: null };
+  const DK = { sel: null };
   const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 4, USEC: 5, PR: 6, CBR: 7 };
+  const COLOR_HEX = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
+  const TYPE_ORDER = { Avatar: 0, Magic: 1, Construct: 2 };
+  const MAGIC_ORDER = { Normal: 0, React: 1, Land: 2, Modification: 3 };
+  const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'KD01', 'KD02', 'KD03', 'KD04'];
 
-  window.openDeckBuilder = function () {
+  function cardOf(code) { return (DB.db && DB.db.byCode[code]) || null; }
+  function nCards(obj) { return Object.values(obj || {}).reduce((a, b) => a + b, 0); }
+  function specCounts(spec) {
+    const types = { Avatar: 0, Magic: 0, Construct: 0 };
+    const magics = { Normal: 0, React: 0, Land: 0, Modification: 0 };
+    const colorCounts = {};
+    let gemSum = 0, cardSum = 0;
+    Object.entries((spec && spec.main) || {}).forEach(([k, n]) => {
+      const c = cardOf(k); if (!c) return;
+      cardSum += n;
+      if (types[c.type] != null) types[c.type] += n;
+      if (c.type === 'Magic') {
+        const st = c.subtype || 'อื่นๆ';
+        magics[st] = (magics[st] || 0) + n;
+      }
+      const col = c.color || 'ไร้สี';
+      colorCounts[col] = (colorCounts[col] || 0) + n;
+      gemSum += (+c.gem || 0) * n;
+    });
+    const extraMagic = Object.entries(magics).filter(([k]) => !['Normal', 'React', 'Land', 'Modification'].includes(k));
+    return { types, magics, extraMagic, colorCounts, gemSum, cardSum };
+  }
+  function htmlComp(s) {
+    const stat = (label, n) =>
+      `<div class="db-stat${n ? '' : ' zero'}"><b>${n}</b><span>${esc(label)}</span></div>`;
+    return `<div class="db-comp-label">ประเภทในเด็ค</div>
+       <div class="db-comp-grid three">
+         ${stat('Avatar', s.types.Avatar)}${stat('Magic', s.types.Magic)}${stat('Construct', s.types.Construct)}
+       </div>
+       <div class="db-comp-label">เวท · Normal / React / Land / Mod</div>
+       <div class="db-comp-grid four">
+         ${stat('Normal', s.magics.Normal)}${stat('React', s.magics.React)}${stat('Land', s.magics.Land)}${stat('Mod', s.magics.Modification || 0)}
+       </div>` + (s.extraMagic.length
+        ? `<div class="db-legend">${s.extraMagic.map(([k, n]) => `<span>${esc(k)} ${n}</span>`).join('')}</div>`
+        : '');
+  }
+  function htmlColors(s) {
+    if (!s.cardSum) return '';
+    const bars = Object.entries(s.colorCounts).map(([col, n]) =>
+      `<div style="width:${n / s.cardSum * 100}%;background:${COLOR_HEX[col] || '#8a7f72'}"></div>`).join('');
+    const legend = Object.entries(s.colorCounts).map(([col, n]) =>
+      `<span class="db-dot"><i style="background:${COLOR_HEX[col] || '#8a7f72'}"></i>${esc(col)} ${n}</span>`).join('');
+    const avg = s.gemSum / s.cardSum;
+    return `<div class="db-comp-label">สีในเด็ค</div><div class="db-colorbar">${bars}</div><div class="db-legend">${legend}</div>
+        <div class="db-gem">GEM รวมในเด็ค ${s.gemSum} · เฉลี่ย ${avg.toFixed(2)}/ใบ${avg < 1 ? ' — ค่อนข้างต่ำ ระวังจ่าย Cost ไม่ทัน' : ''}</div>`;
+  }
+  function groupOf(c) {
+    if (!c) return { order: 99, label: 'อื่นๆ' };
+    if (c.type === 'Magic') {
+      const st = c.subtype || 'อื่นๆ';
+      const short = st === 'Modification' ? 'Mod' : st;
+      return { order: 10 + (MAGIC_ORDER[st] ?? 9), label: `Magic · ${short}` };
+    }
+    return { order: TYPE_ORDER[c.type] ?? 50, label: c.type };
+  }
+  function groupedSpec(map) {
+    const grouped = {};
+    Object.entries(map || {}).forEach(([k, n]) => {
+      const g = groupOf(cardOf(k));
+      const bucket = grouped[g.order] || (grouped[g.order] = { label: g.label, items: [] });
+      bucket.items.push([k, n]);
+    });
+    const sortEntry = (a, b) => {
+      const ca = cardOf(a[0]) || {}, cb = cardOf(b[0]) || {};
+      return ((+ca.cost || 0) - (+cb.cost || 0)) || ((ca.name || '') < (cb.name || '') ? -1 : 1);
+    };
+    return Object.keys(grouped).sort((a, b) => a - b).map(ord => {
+      const g = grouped[ord];
+      g.items.sort(sortEntry);
+      g.total = g.items.reduce((s, [, n]) => s + n, 0);
+      return g;
+    });
+  }
+  function colorSummary(spec) {
+    const s = specCounts(spec);
+    return Object.entries(s.colorCounts).sort((a, b) => b[1] - a[1]).slice(0, 3)
+      .map(([col, n]) => `${col} ${n}`).join(' · ') || '—';
+  }
+
+  window.openDeckBuilder = function (opts) {
+    opts = opts || {};
     CardDB.load().then(db => {
       DB.db = db;
       byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด · Rule Book 3.2`;
       fillSelect('dbSymbol', 'Symbol — ทั้งหมด', [...new Set(db.cards.map(c => c.symbol).filter(Boolean))].sort());
       fillSelect('dbSeries', 'ซีรีส์ — ทั้งหมด', [...new Set(db.cards.map(c => c.series).filter(Boolean))].sort());
+      if (opts.empty) {
+        DB.deck = { main: {}, life: {} };
+        byId('dbName').value = '';
+        msg('');
+      } else if (opts.deck) {
+        DB.deck = { main: Object.assign({}, opts.deck.main || {}), life: Object.assign({}, opts.deck.life || {}) };
+        byId('dbName').value = opts.name || '';
+        msg(opts.note || '');
+      }
       renderDB();
     });
   };
@@ -215,39 +309,25 @@
     byId('dbCurve').innerHTML = curve.map(b =>
       `<div class="db-bar"><div class="db-bar-n">${b.n}</div><div class="db-bar-fill" style="height:${Math.min(b.n * 5, 38)}px"></div><div class="db-bar-l">${b.label}</div></div>`).join('');
 
-    // สัดส่วนสี + GEM
-    const colorHex = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
-    const colorCounts = {}; let gemSum = 0, cardSum = 0;
-    Object.entries(DB.deck.main).forEach(([k, n]) => {
-      const c = DB.db.byCode[k]; if (!c) return;
-      const col = c.color || 'ไร้สี';
-      colorCounts[col] = (colorCounts[col] || 0) + n;
-      gemSum += (+c.gem || 0) * n; cardSum += n;
-    });
-    if (cardSum) {
-      const bars = Object.entries(colorCounts).map(([col, n]) =>
-        `<div style="width:${n / cardSum * 100}%;background:${colorHex[col] || '#8a7f72'}"></div>`).join('');
-      const legend = Object.entries(colorCounts).map(([col, n]) =>
-        `<span class="db-dot"><i style="background:${colorHex[col] || '#8a7f72'}"></i>${esc(col)} ${n}</span>`).join('');
-      const avg = gemSum / cardSum;
-      byId('dbColors').innerHTML = `<div class="db-colorbar">${bars}</div><div class="db-legend">${legend}</div>
-        <div class="db-gem">GEM รวมในเด็ค ${gemSum} · เฉลี่ย ${avg.toFixed(2)}/ใบ${avg < 1 ? ' — ค่อนข้างต่ำ ระวังจ่าย Cost ไม่ทัน' : ''}</div>`;
-    } else byId('dbColors').innerHTML = '';
+    const stats = specCounts(DB.deck);
+    byId('dbComp').innerHTML = htmlComp(stats);
+    byId('dbColors').innerHTML = htmlColors(stats);
 
-    // รายการเด็ค
     const entry = (k, n) => {
-      const c = DB.db.byCode[k] || {};
+      const c = cardOf(k) || {};
       const meta = (c.cost !== '' && c.cost != null ? `C${c.cost}` : '') + (c.power !== '' && c.power != null ? `/P${c.power}` : '');
+      const col = COLOR_HEX[c.color] || '#8a7f72';
       return `<div class="db-row" data-code="${esc(k)}">
+        <i class="db-row-col" style="background:${col}"></i>
         <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="">
         <div class="db-row-name">${esc(c.name || k)}</div>
         <div class="db-row-meta">${esc(meta)}</div>
         <button class="db-pm" data-act="sub">−</button><div class="db-row-n">×${n}</div><button class="db-pm" data-act="add">+</button>
       </div>`;
     };
-    byId('dbMainList').innerHTML = Object.entries(DB.deck.main)
-      .sort((a, b) => ((+DB.db.byCode[a[0]].cost || 0) - (+DB.db.byCode[b[0]].cost || 0)) || (DB.db.byCode[a[0]].name < DB.db.byCode[b[0]].name ? -1 : 1))
-      .map(([k, n]) => entry(k, n)).join('');
+    byId('dbMainList').innerHTML = groupedSpec(DB.deck.main).map(g =>
+      `<div class="db-group-h">${esc(g.label)} · ${g.total}</div>` + g.items.map(([k, n]) => entry(k, n)).join('')
+    ).join('');
     byId('dbLifeList').innerHTML = Object.entries(DB.deck.life).map(([k, n]) => entry(k, n)).join('');
 
     // เด็คที่เซฟ
@@ -258,7 +338,7 @@
   }
 
   /* events — deck builder */
-  byId('dbBack').onclick = () => BOT.showScreen('menu');
+  byId('dbBack').onclick = () => { BOT.showScreen('decks'); window.openDeckList(); };
   // ลิ้นชักบนมือถือ: ฟิลเตอร์ซ้าย / เด็คขวา
   byId('dbFiltersBtn').onclick = () => { document.querySelector('.db-deck').classList.remove('open'); document.querySelector('.db-side').classList.toggle('open'); };
   byId('dbDeckBtn').onclick = () => { document.querySelector('.db-side').classList.remove('open'); document.querySelector('.db-deck').classList.toggle('open'); };
@@ -301,6 +381,7 @@
     CardDB.saveDecks(sv);
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }
     byId('dbName').value = name;
+    DK.sel = { kind: 'saved', id: name };
     msg(`บันทึก "${name}" แล้ว — ใช้เป็นเด็คหลักตอนเข้าห้อง/ซ้อมได้เลย`);
     renderDB();
   };
@@ -316,7 +397,7 @@
     msg(`ลบ "${b.dataset.name}" แล้ว`); renderDB();
   });
   byId('dbClearDeck').onclick = () => { DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB(); };
-  let STARTERS_DB = null;
+  let STARTERS_DB = null, startersP = null;
   function fillStarterSelect(db) {
     const sel = byId('dbFillStarter');
     if (!sel || !db) return;
@@ -330,13 +411,20 @@
     if (keys.includes(cur)) sel.value = cur;
     else if (keys.includes('SD01')) sel.value = 'SD01';
   }
-  Promise.all([
-    fetch(asset('data/starters.json')).then(r => r.json()).catch(() => null),
-    fetch(asset('data/custom-decks.json')).then(r => r.json()).catch(() => null),
-  ]).then(([starters, custom]) => {
-    STARTERS_DB = Object.assign({}, starters || {}, custom || {});
-    fillStarterSelect(STARTERS_DB);
-  });
+  function loadStarters() {
+    if (STARTERS_DB) return Promise.resolve(STARTERS_DB);
+    if (startersP) return startersP;
+    startersP = Promise.all([
+      fetch(asset('data/starters.json')).then(r => r.json()).catch(() => null),
+      fetch(asset('data/custom-decks.json')).then(r => r.json()).catch(() => null),
+    ]).then(([starters, custom]) => {
+      STARTERS_DB = Object.assign({}, starters || {}, custom || {});
+      fillStarterSelect(STARTERS_DB);
+      return STARTERS_DB;
+    });
+    return startersP;
+  }
+  loadStarters();
   byId('dbFillSD01').onclick = () => {
     const ser = (byId('dbFillStarter') && byId('dbFillStarter').value) || 'SD01';
     const preset = STARTERS_DB && STARTERS_DB[ser];
@@ -489,4 +577,194 @@
     msg(txt);
   };
   byId('deckCodeModal').addEventListener('click', e => { if (e.target.id === 'deckCodeModal') dcClose(); });
+
+  /* ═══════════════ หน้าดูเด็ค (read-only) ═══════════════ */
+  function activeDeckKey() {
+    try { return localStorage.getItem('bot_active_deck') || ''; } catch (e) { return ''; }
+  }
+  function isActiveItem(kind, id) {
+    const act = activeDeckKey();
+    if (kind === 'saved') return act === id;
+    return act === 'starter:' + id;
+  }
+  function resolveListItem(kind, id) {
+    if (kind === 'saved') {
+      const sv = CardDB.savedDecks()[id];
+      if (!sv) return null;
+      return { kind, id, name: id, spec: { main: sv.main || {}, life: sv.life || {} }, editable: true };
+    }
+    const p = STARTERS_DB && STARTERS_DB[id];
+    if (!p) return null;
+    return {
+      kind, id,
+      name: p.name || p.label || id,
+      spec: { main: Object.assign({}, p.main || {}), life: Object.assign({}, p.life || {}) },
+      editable: false
+    };
+  }
+  function itemBtn(kind, id, label, spec) {
+    const on = DK.sel && DK.sel.kind === kind && DK.sel.id === id;
+    const star = isActiveItem(kind, id) ? '<i class="dk-star" title="เด็คหลัก">★</i>' : '';
+    const m = nCards(spec && spec.main), l = nCards(spec && spec.life);
+    return `<button type="button" class="dk-item${on ? ' on' : ''}" data-kind="${esc(kind)}" data-id="${esc(id)}">
+      <div class="dk-item-name">${star}<span>${esc(label)}</span></div>
+      <div class="dk-item-meta">${m}+${l} · ${esc(colorSummary(spec || {}))}</div>
+    </button>`;
+  }
+  function htmlCardGrid(map) {
+    return groupedSpec(map).map(g =>
+      `<div class="dk-group">
+        <div class="db-group-h">${esc(g.label)} · ${g.total}</div>
+        <div class="dk-grid">${g.items.map(([k, n]) => {
+          const c = cardOf(k) || {};
+          return `<div class="dk-card" data-code="${esc(k)}" title="${esc(c.name || k)} ×${n}">
+            <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="">
+            <div class="db-badge">×${n}</div>
+          </div>`;
+        }).join('')}</div>
+      </div>`
+    ).join('');
+  }
+  function renderDeckView() {
+    const it = DK.sel && resolveListItem(DK.sel.kind, DK.sel.id);
+    if (!it) {
+      byId('dkView').innerHTML = '<div class="dk-empty">เลือกเด็คจากรายการซ้าย เพื่อดูการ์ดในเด็ค</div>';
+      return;
+    }
+    const stats = specCounts(it.spec);
+    const m = nCards(it.spec.main), l = nCards(it.spec.life);
+    const active = isActiveItem(it.kind, it.id);
+    const delBtn = it.editable ? `<button type="button" class="btn-dark small" data-dk="del">ลบเด็ค</button>` : '';
+    const useLabel = active ? '★ เด็คหลักอยู่แล้ว' : 'ใช้เป็นเด็คหลัก';
+    byId('dkView').innerHTML = `
+      <div class="dk-head">
+        <div>
+          <div class="dk-title">${esc(it.name)}${active ? ' ★' : ''}</div>
+          <div class="dk-sub">Main ${m}/50 · LIFE ${l}/5${it.editable ? '' : ' · เด็คตัวอย่าง'}</div>
+        </div>
+        <div class="dk-actions">
+          <button type="button" class="btn-primary small" data-dk="use"${active ? ' disabled' : ''}>${useLabel}</button>
+          <button type="button" class="btn-dark small" data-dk="edit">จัดเด็คนี้</button>
+          ${delBtn}
+        </div>
+      </div>
+      <div class="dk-stats db-comp">${htmlComp(stats)}${htmlColors(stats)}</div>
+      ${htmlCardGrid(it.spec.main)}
+      <div class="dk-group">
+        <div class="db-group-h">LIFE CARD · ${l}</div>
+        <div class="dk-grid">${Object.entries(it.spec.life).map(([k, n]) => {
+          const c = cardOf(k) || {};
+          return `<div class="dk-card" data-code="${esc(k)}" title="${esc(c.name || k)}">
+            <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="">
+            ${n > 1 ? `<div class="db-badge">×${n}</div>` : ''}
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+  }
+  function renderDeckList() {
+    if (!DB.db) return;
+    const saved = CardDB.savedDecks();
+    const savedNames = Object.keys(saved);
+    const presets = Object.keys(STARTERS_DB || {}).filter(k => !STARTER_KEYS.includes(k));
+    let html = `<div class="dk-sec">เด็คที่บันทึก</div>`;
+    if (!savedNames.length) html += `<div class="dk-empty-mini">ยังไม่มีเด็คที่บันทึก — กด «จัดเด็คใหม่» มุมบนขวา</div>`;
+    else html += savedNames.map(n => itemBtn('saved', n, n, saved[n])).join('');
+    html += `<div class="dk-sec">เด็คตัวอย่าง (Starter)</div>`;
+    html += STARTER_KEYS.map(k => {
+      const p = STARTERS_DB && STARTERS_DB[k];
+      if (!p) return '';
+      return itemBtn('preset', k, p.label || p.name || k, p);
+    }).join('');
+    if (presets.length) {
+      html += `<div class="dk-sec">เด็คพิเศษ</div>`;
+      html += presets.map(k => {
+        const p = STARTERS_DB[k];
+        return itemBtn('preset', k, (p && (p.label || p.name)) || k, p);
+      }).join('');
+    }
+    byId('dkList').innerHTML = html;
+    renderDeckView();
+  }
+  function pickDefaultSel() {
+    const act = activeDeckKey();
+    const saved = CardDB.savedDecks();
+    if (act && saved[act]) return { kind: 'saved', id: act };
+    if (act && act.indexOf('starter:') === 0) {
+      const id = act.slice(8);
+      if (STARTERS_DB && STARTERS_DB[id]) return { kind: 'preset', id };
+    }
+    const names = Object.keys(saved);
+    if (names.length) return { kind: 'saved', id: names[0] };
+    return { kind: 'preset', id: 'SD01' };
+  }
+  function goBuilder(opts) {
+    BOT.showScreen('deckbuilder');
+    window.openDeckBuilder(opts);
+  }
+  window.openDeckList = function () {
+    Promise.all([CardDB.load(), loadStarters()]).then(([db]) => {
+      DB.db = db;
+      if (!DK.sel || !resolveListItem(DK.sel.kind, DK.sel.id)) DK.sel = pickDefaultSel();
+      renderDeckList();
+    });
+  };
+  byId('dkBack').onclick = () => BOT.showScreen('menu');
+  byId('dkNew').onclick = () => goBuilder({ empty: true });
+  byId('dkList').addEventListener('click', e => {
+    const b = e.target.closest('[data-kind]'); if (!b) return;
+    DK.sel = { kind: b.dataset.kind, id: b.dataset.id };
+    renderDeckList();
+  });
+  byId('dkView').addEventListener('click', e => {
+    const act = e.target.closest('[data-dk]');
+    if (act) {
+      const it = DK.sel && resolveListItem(DK.sel.kind, DK.sel.id);
+      if (!it) return;
+      if (act.dataset.dk === 'edit') {
+        goBuilder({
+          deck: it.spec,
+          name: it.editable ? it.id : it.name,
+          note: it.editable ? `โหลด "${it.id}" แล้ว` : `คัดลอกเด็คตัวอย่างมาแล้ว — กดบันทึกถ้าจะเก็บเป็นเด็คตัวเอง`
+        });
+        return;
+      }
+      if (act.dataset.dk === 'use') {
+        let key = it.kind === 'saved' ? it.id : 'starter:' + it.id;
+        if (it.kind === 'preset' && !STARTER_KEYS.includes(it.id)) {
+          const sv = CardDB.savedDecks();
+          if (!sv[it.name]) {
+            sv[it.name] = { main: it.spec.main, life: it.spec.life };
+            CardDB.saveDecks(sv);
+          }
+          key = it.name;
+          DK.sel = { kind: 'saved', id: it.name };
+        }
+        try { localStorage.setItem('bot_active_deck', key); } catch (err) { }
+        renderDeckList();
+        return;
+      }
+      if (act.dataset.dk === 'del' && it.editable) {
+        if (!confirm('ลบเด็ค "' + it.id + '" ?')) return;
+        const sv = CardDB.savedDecks();
+        delete sv[it.id];
+        CardDB.saveDecks(sv);
+        try { if (localStorage.getItem('bot_active_deck') === it.id) localStorage.removeItem('bot_active_deck'); } catch (err) { }
+        DK.sel = pickDefaultSel();
+        renderDeckList();
+      }
+      return;
+    }
+    const card = e.target.closest('[data-code]');
+    if (!card) return;
+    const c = cardOf(card.dataset.code);
+    if (!c) return;
+    byId('dkZoom').innerHTML = `<div class="gl-zoom-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
+      <div class="gl-zoom-info">
+        <div class="gl-zoom-name">${esc(c.name)}</div>
+        <div class="gl-zoom-meta">${esc(`${c.code} · ${c.type}${c.subtype ? ' / ' + c.subtype : ''} · ${c.rarity}${c.color ? ' · ' + c.color : ''}${c.symbol ? ' · ' + c.symbol : ''}${c.cost !== '' && c.cost != null ? ' · COST ' + c.cost : ''}${c.power !== '' && c.power != null ? ' · POWER ' + c.power : ''}`)}</div>
+        <div class="gl-zoom-effect">${esc((c.effect || '—') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
+      </div>`;
+    byId('dkZoom').classList.remove('hidden');
+  });
+  byId('dkZoom').addEventListener('click', () => byId('dkZoom').classList.add('hidden'));
 })();
