@@ -2553,7 +2553,18 @@
     const donors = mine.filter(k => cardHasUnityKw(k));
     if (!donors.length) return false;
     const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
-    const life = (st.zones['A.life'] || []).find(k => st.inst[k] && !st.inst[k].faceUp);
+    const livesA = st.zones['A.life'] || [];
+    const lifeDown = livesA.find(k => st.inst[k] && !st.inst[k].faceUp);
+    const lethal = livesA.length > 0 && !lifeDown;
+    const life = lifeDown || (lethal ? livesA.find(k => st.inst[k]) : null);
+    if (lethal) {
+      const canFinish = mine.some(k => {
+        if (eff(k) <= 0) return false;
+        const canEgg = !!BoTEngine.hasKw(st, k, 'เตะไข่') || !!(st.inst[k] && st.inst[k]._allowLifeDespiteAvatars);
+        return enemies.length === 0 || canEgg;
+      });
+      if (canFinish) return false;
+    }
     const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     const oppLifeDown = (st.zones['A.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     const race = oppLifeDown <= myLifeDown;
@@ -2602,7 +2613,10 @@
     const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     const oppLifeDown = (st.zones['A.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     const race = oppLifeDown <= myLifeDown;
-    const life = (st.zones['A.life'] || []).find(k => st.inst[k] && !st.inst[k].faceUp);
+    const livesA = st.zones['A.life'] || [];
+    const lifeDown = livesA.find(k => st.inst[k] && !st.inst[k].faceUp);
+    const lethal = livesA.length > 0 && !lifeDown;
+    const life = lifeDown || (lethal ? livesA.find(k => st.inst[k]) : null);
     const plans = [];
     for (const atk of mine) {
       const ap = eff(atk);
@@ -2628,7 +2642,8 @@
       // ตี LIFE: ไม่มีศัตรู หรือมี「เตะไข่」/เอฟเฟกต์พิเศษ (ไม้เกาหลัง)
       if (life && (enemies.length === 0 || canEgg)) {
         let lifeScore = (lv === 'hard' || race) ? 120 + ap : 90 + ap;
-        if (canEgg && enemies.length) {
+        if (lethal) lifeScore = 800 + ap;
+        else if (canEgg && enemies.length) {
           // มีบล็อกเกอร์ — เตะไข่ยังแข่งกับเทรดได้ (แข่ง LIFE / ฆ่าไม่ได้)
           lifeScore = canBeatAny
             ? ((lv === 'hard' || race) ? 95 + ap : 70 + ap)
@@ -2638,7 +2653,7 @@
         plans.push({ atk, life, score: lifeScore });
       }
     }
-    if (lv === 'easy' && plans.some(p => p.life) && Math.random() < 0.25) {
+    if (lv === 'easy' && !lethal && plans.some(p => p.life) && Math.random() < 0.25) {
       if (plans.every(p => p.life)) return false;
     }
     plans.sort((a, b) => b.score - a.score);

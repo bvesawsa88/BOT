@@ -621,12 +621,13 @@
           "react": true,
           "actions": [
             {
-              "op": "destroyAttacker"
+              "op": "sendAttackerToHell"
             }
           ]
         }
       ],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "note": "ส่งลงนรก ไม่ใช่ทำลาย — คำสั่งเสีย/โดนทำลายไม่ทำงาน"
     },
     {
       "code": "BT01-040",

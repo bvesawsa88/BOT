@@ -46,6 +46,15 @@
   function landOnBoard(st) {
     return landCards(st).find(c => c.faceUp !== false) || landCards(st)[0] || null;
   }
+  function landControlledBy(st, side) {
+    return landCards(st).some(c => c && c.controller === side);
+  }
+  function pendingOwnLand(st, side) {
+    return zoneIds(st, side + '.magic').some(k => {
+      const x = st.inst[k];
+      return x && x.subtype === 'Land';
+    });
+  }
   function hasLandNamed(st, needle) {
     return landCards(st).some(c => c.faceUp !== false && nm(c, needle));
   }
@@ -195,16 +204,22 @@
     let score = 10;
 
     if (mtype === 'Land') {
+      // มีแลนด์ตัวเองแล้ว (หรือรอขัดเวทอยู่) — ห้ามวางซ้ำทับใบตัวเอง
+      if (landControlledBy(st, side) || pendingOwnLand(st, side)) {
+        if (isWantedLandCard(c, arch) && !helps) score = 80; // อัปเกรดใบผิดเป็นแลนด์เด็ค
+        else score = -999;
+        return score;
+      }
       if (isWantedLandCard(c, arch)) {
-        if (!helps) score = 120;          // ต้องวางแลนด์เด็ค
-        else if (land && nm(land, wantedLandNeedle(arch) || '')) score = -40; // มีแล้ว ไม่ทับ
-        else score = 70;                  // ทับแลนด์ที่ไม่ใช่ของเรา
+        if (!helps) score = 120;          // ว่าง / ทับแลนด์ศัตรูที่ไม่ช่วยเรา
+        else if (land && nm(land, wantedLandNeedle(arch) || '')) score = -40; // ออร่าตรงแล้ว ไม่ทับ
+        else score = 70;                  // ทับแลนด์ศัตรูที่ไม่ใช่ของเรา
       } else if (!land) {
         score = arch === ARCH.GENERIC ? 55 : 25; // ว่าง — วางได้ แต่ไม่ใช่เป้าหมาย
       } else if (helps) {
         score = -60; // มีแลนด์ดีแล้ว อย่าทับด้วยใบอื่น
       } else {
-        score = 15;
+        score = 15; // ทับแลนด์ศัตรูที่ไม่ช่วยเรา
       }
       return score;
     }
@@ -232,6 +247,18 @@
     landNeedlesOfCard(c).forEach(need => {
       if (hasLandNamed(st, need)) score += 40;
       else score -= 50;
+    });
+    abs.forEach(ab => {
+      (ab.actions || []).forEach(ac => {
+        if (!ac) return;
+        if (ac.op === 'unrevealOwnLife') {
+          const hasUp = zoneIds(st, side + '.life').some(id => st.inst[id] && st.inst[id].faceUp);
+          if (!hasUp) score = -999;
+        }
+        if ((ac.op === 'bounce' || ac.op === 'returnToHand') && ac.from !== 'own' && ac.from !== 'any' && ac.target !== 'self') {
+          if (!zoneIds(st, otherSide(side) + '.avatar').length) score = -999;
+        }
+      });
     });
     return score;
   }
@@ -302,6 +329,16 @@
         score -= 80;
       if (ab.requireOwnNameIncludes && !ownNameOnField(st, side, ab.requireOwnNameIncludes))
         score -= 80;
+      (ab.actions || []).forEach(ac => {
+        if (!ac) return;
+        if (ac.op === 'unrevealOwnLife') {
+          const hasUp = zoneIds(st, side + '.life').some(id => st.inst[id] && st.inst[id].faceUp);
+          if (!hasUp) score -= 200;
+        }
+        if ((ac.op === 'bounce' || ac.op === 'returnToHand') && ac.from !== 'own' && ac.from !== 'any' && ac.target !== 'self') {
+          if (!zoneIds(st, otherSide(side) + '.avatar').length) score -= 200;
+        }
+      });
     });
 
     return score;

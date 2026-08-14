@@ -5,7 +5,7 @@
      enemyDeclareAttack (React) · avatarSummoned (React) · lifeRevealedByAttack · destroyed ·
      milled (ธรณีสูบ) · sentToHell · ownTurnEnd · turnStart · battlePhaseStart · selfDamaged · enemyActivateAbility · chooseMode
    op: modifyPower(choose/self/all/equippedAvatar, amountPer, halveFloor) · draw · mill · scout · deckPick ·
-     hellPick · chooseDestroy · destroyTarget · destroyAttacker · destroyAllEnemyAvatars ·
+     hellPick · chooseDestroy · destroyTarget · destroyAttacker · sendAttackerToHell · destroyAllEnemyAvatars ·
      sacrifice(cost) · discard(cost) · counterSelf · untapHost · returnSelfToDeck ·
      revealOwnLife · unrevealOwnLife · revealAndActivateOwnLife
    amountPer: ownHellNameIncludesPerN (+ onlyOwnBattlePhase) · ownHellPerN · allRevealedLife · … */
@@ -413,7 +413,10 @@
       if (st.inst[arr[i]] && st.inst[arr[i]].faceUp) faceUp.push(arr[i]);
     }
     const n = Math.min(count || 1, faceUp.length);
-    if (!n) return;
+    if (!n) {
+      addLog(st, 'S', `เอฟเฟกต์: ไม่มี LIFE ที่หงายให้ฮีล ของ ${side}`);
+      return;
+    }
     const r = typeof rng === 'function' ? rng : Math.random;
     for (let i = 0; i < n; i++) {
       const j = i + Math.floor(r() * (faceUp.length - i));
@@ -766,6 +769,36 @@
       return;
     }
     destroyCard(st, fx, pend.k, (pend.opts && Object.assign({}, pend.opts, { ignorePreventLeave: true })) || { ignorePreventLeave: true });
+  }
+
+  /* ส่งลงนรกโดยไม่นับว่าถูกทำลาย — คำสั่งเสีย / โดนทำลาย / กันทำลาย ไม่ทำงาน
+     (เจ้ากล้าดียังไง ฯลฯ) · กันออกสนาม (ไพรมอล) กับ กัน Magic พาออก (น้องส้ม) ยังใช้ได้ */
+  function sendCardToHell(st, fx, k, opts) {
+    opts = opts || {};
+    const c = st.inst[k]; if (!c) return false;
+    const z = zoneOf(st, k); if (!z) return false;
+    if (opts.fromOppMagic && isImmuneOppMagicTarget(st, k)) {
+      addLog(st, 'S', `${c.name} ไม่รับผลจาก Magic ฝ่ายตรงข้าม`);
+      return false;
+    }
+    if (!opts.ignoreProtect) {
+      if (opts.fromOppMagic || opts.fromMagic) {
+        if (c.protectMagicLeave) {
+          addLog(st, 'S', `${c.name} ไม่ถูกนำออกจากสนามด้วย Magic (น้องส้ม)`);
+          return false;
+        }
+      }
+      if (!opts.ignorePreventLeave && offerPreventLeave(st, fx, k, {
+        type: 'move', to: (z === 'land' ? ((c.controller === 'A' || c.controller === 'B') ? c.controller : 'A') : z[0]) + '.hell',
+        who: z === 'land' ? ((c.controller === 'A' || c.controller === 'B') ? c.controller : 'A') : z[0],
+        k
+      })) return false;
+    }
+    const side = z === 'land'
+      ? ((c.controller === 'A' || c.controller === 'B') ? c.controller : 'A')
+      : z[0];
+    doMove(st, k, side + '.hell', null, fx);
+    return true;
   }
 
   function destroyCard(st, fx, k, opts) {
@@ -2056,7 +2089,7 @@
     if (atk && isImmuneOppMagicTarget(st, atk)) {
       const ops = [];
       abs.forEach(ab => (ab.actions || []).forEach(ac => { if (ac && ac.op) ops.push(ac.op); }));
-      const onlyAtk = ops.length > 0 && ops.every(op => op === 'destroyAttacker' || op === 'weakenAttacker');
+      const onlyAtk = ops.length > 0 && ops.every(op => op === 'destroyAttacker' || op === 'sendAttackerToHell' || op === 'weakenAttacker');
       if (onlyAtk)
         return `ใช้ "${cardName}" ไม่ได้ — "${nameOf(st, atk)}" ไม่รับผลจาก Magic ฝ่ายตรงข้าม`;
     }
@@ -2238,6 +2271,54 @@
       });
     }
     return [];
+  }
+
+  function walkEffectActions(actions, fn) {
+    (actions || []).forEach(ac => {
+      if (!ac) return;
+      fn(ac);
+      if (ac.then) walkEffectActions(Array.isArray(ac.then) ? ac.then : [ac.then], fn);
+      if (ac.actions) walkEffectActions(ac.actions, fn);
+      (ac.options || []).forEach(opt => walkEffectActions(opt && opt.actions, fn));
+    });
+  }
+
+  /** ห้ามเล่น/สั่งใช้ถ้าฮีลไม่มีไลฟ์หงาย หรือเด้งศัตรูโดยอีกฝ่ายไม่มีมอน */
+  function activatedTargetDeny(st, owner, ab) {
+    if (!ab || !owner) return null;
+    let msg = null;
+    walkEffectActions(ab.actions, ac => {
+      if (msg) return;
+      if (ac.op === 'unrevealOwnLife' || ac.op === 'unrevealMarkedLife') {
+        if (inCritical(st, owner)) { msg = 'สถานะสาหัส ฮีล LIFE ไม่ได้'; return; }
+        if ((st.zones['land'] || []).some(id => fxId(st, id) && fxId(st, id).blockLifeUnreveal)) {
+          msg = 'LIFE ไม่สามารถคว่ำกลับได้';
+          return;
+        }
+        const faceUp = (st.zones[owner + '.life'] || []).filter(id => st.inst[id] && st.inst[id].faceUp);
+        if (ac.op === 'unrevealMarkedLife') {
+          const mark = ac.mark || 'naw';
+          if (!faceUp.some(id => st.inst[id] && st.inst[id].lifeMark === mark))
+            msg = 'ไม่มี LIFE ที่หงายให้ฮีล';
+        } else if (!faceUp.length) {
+          msg = 'ไม่มี LIFE ที่หงายให้ฮีล';
+        }
+        return;
+      }
+      if (ac.optional) return;
+      const bounceEnemy = (ac.op === 'bounce' || ac.op === 'returnToHand')
+        && ac.target !== 'self' && ac.from !== 'own' && ac.from !== 'any';
+      const pickEnemyBounce = ac.op === 'pick' && ac.from === 'enemy'
+        && (ac.dest === 'bounceHand' || !ac.dest);
+      if (bounceEnemy || pickEnemyBounce) {
+        const p = {
+          kind: 'pick', from: 'enemyAvatars', src: null, chooser: owner,
+          filter: ac.filter || { type: 'Avatar' }, dest: 'bounceHand', optional: true
+        };
+        if (!promptCandidates(st, p).length) msg = 'อีกฝ่ายไม่มี Avatar บนสนาม';
+      }
+    });
+    return msg;
   }
 
   /* เอเลี่ยนทูต: จบขั้นแสดงมือ → ทำลายศัตรู P = ผลรวม Cost → ให้มือ 1 ใบ */
@@ -4540,18 +4621,31 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (st.chain && st.chain.length) { st.chain[st.chain.length - 1].negated = true; addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: 🚫 ยกเลิกความสามารถบนสุดของเชน`); }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีความสามารถบนเชนให้ยกเลิก`);
       } else if (ac.op === 'destroyAttacker') {
-        // React: ทำลายตัวที่ประกาศโจมตี (ctx.attacker) — ต้องยังอยู่ใน Avatar Zone
+        // React: ทำลายตัวที่ประกาศโจมตี (ctx.attacker) — นับว่าถูกทำลาย (คำสั่งเสียทำงาน)
         const atk = ctx.attacker;
         if (atk && st.inst[atk] && (zoneOf(st, atk) || '').endsWith('.avatar')) {
           if (isImmuneOppMagicTarget(st, atk) && ownerOf(st, ctx.src) !== ownerOf(st, atk)) {
             addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกทำลาย`);
           } else {
-            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ส่ง ${nameOf(st, atk)} ที่ประกาศโจมตีลงนรก`);
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทำลาย ${nameOf(st, atk)} ที่ประกาศโจมตี`);
             const died = destroyCard(st, fx, atk, destroyOptsFromMagic(st, ctx.src, atk));
             if (died) ctx.attackerKilled = true;
             fx.snd = 'clash';
           }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีผู้โจมตีให้ทำลาย`);
+      } else if (ac.op === 'sendAttackerToHell') {
+        // เจ้ากล้าดียังไง: ส่งลงนรก — ไม่ใช่ทำลาย (คำสั่งเสีย/โดนทำลายไม่ทำงาน)
+        const atk = ctx.attacker;
+        if (atk && st.inst[atk] && (zoneOf(st, atk) || '').endsWith('.avatar')) {
+          if (isImmuneOppMagicTarget(st, atk) && ownerOf(st, ctx.src) !== ownerOf(st, atk)) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${nameOf(st, atk)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม — ไม่ถูกลงนรก`);
+          } else {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ส่ง ${nameOf(st, atk)} ที่ประกาศโจมตีลงนรก (ไม่นับว่าถูกทำลาย)`);
+            const gone = sendCardToHell(st, fx, atk, destroyOptsFromMagic(st, ctx.src, atk));
+            if (gone || !(zoneOf(st, atk) || '').endsWith('.avatar')) ctx.attackerKilled = true;
+            fx.snd = 'clash';
+          }
+        } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีผู้โจมตีให้ส่งลงนรก`);
       } else if (ac.op === 'weakenAttacker') {
         // React: ลด POWER ผู้โจมตี — amount คงที่ หรือ per × จำนวนการ์ดตามแหล่ง
         // countIncludeSelf: นับใบเวทนี้ด้วย (แม้ลงนรกแล้ว) — ไปเลยมอนตี้
@@ -6000,6 +6094,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const n = (st.zones[opp + '.avatar'] || []).length;
           if (n < ab.requireEnemyAvatarMin)
             return deny(`ใช้ "${c.name}" ไม่ได้ — ศัตรูต้องมี Avatar ≥ ${ab.requireEnemyAvatarMin} (ตอนนี้ ${n})`);
+        }
+        {
+          const td = activatedTargetDeny(st, owner, ab);
+          if (td) return deny(`ใช้ "${c.name}" ไม่ได้ — ${td}`);
         }
         if (ab.requireAvatarCountExact != null) {
           const n = (st.zones['A.avatar'] || []).length + (st.zones['B.avatar'] || []).length;
@@ -8467,6 +8565,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (ab.requireFaceDownOwnLife) {
           const hasDown = (st.zones[owner + '.life'] || []).some(id => st.inst[id] && !st.inst[id].faceUp);
           if (!hasDown) return deny('ใช้ไม่ได้ — ไม่มี LIFE ที่คว่ำให้หงาย');
+        }
+        {
+          const td = activatedTargetDeny(st, owner, ab);
+          if (td) return deny(`ใช้ไม่ได้ — ${td}`);
         }
         if (ab.requireEnemyCostSumMax != null) {
           const opp = other(owner);

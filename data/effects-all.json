@@ -621,7 +621,7 @@
           "react": true,
           "actions": [
             {
-              "op": "destroyAttacker"
+              "op": "sendAttackerToHell"
             }
           ]
         }
@@ -17358,7 +17358,7 @@
           "react": true,
           "actions": [
             {
-              "op": "destroyAttacker"
+              "op": "sendAttackerToHell"
             }
           ]
         }
@@ -18938,7 +18938,7 @@
           "react": true,
           "actions": [
             {
-              "op": "destroyAttacker"
+              "op": "sendAttackerToHell"
             }
           ]
         }
