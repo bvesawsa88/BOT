@@ -2177,6 +2177,15 @@
     const e = fxId(st, k);
     return !!(e && e.immuneOppMagicTarget);
   }
+  /* Magic ของอีกฝ่ายเล็งไม่ได้ — bounce/เปิดหน้าต่าง ต้องเคารพธงเดียวกับ chooseDestroy */
+  function blockedByOppMagicImmune(st, chooser, k, srcK) {
+    if (!chooser || !k || chooser === ownerOf(st, k)) return false;
+    if (!isImmuneOppMagicTarget(st, k)) return false;
+    if (!srcK) return false;
+    const src = st.inst[srcK];
+    if (src && src.type && src.type !== 'Magic') return false;
+    return true;
+  }
   /* ทำลายด้วย Magic ของอีกฝ่าย — ให้ destroyCard เคารพ immuneOppMagicTarget */
   function destroyOptsFromMagic(st, srcK, targetK) {
     const src = st.inst[srcK];
@@ -2259,6 +2268,7 @@
       const out = [];
       ['A', 'B'].forEach(s => (st.zones[s + '.avatar'] || []).forEach(k => {
         if (p.side === 'own' && s !== p.chooser) return;
+        if (blockedByOppMagicImmune(st, p.chooser, k, p.src)) return;
         if (isUntargetableByOppAbility(st, k, p.chooser)) return;
         if (matchFilterEx(st, k, { type: p.ftype || 'Avatar', symbol: p.fsymbol || undefined })) out.push(k);
       }));
@@ -2297,6 +2307,7 @@
             if (!matchFilterEx(st, k, filt)) return;
             // ริกกี้ / วีรชนชีวภาพ: ไม่ให้เลือกเป็นเป้า Magic ศัตรู
             if (p.fromOppMagic && isImmuneOppMagicTarget(st, k)) return;
+            if (blockedByOppMagicImmune(st, p.chooser, k, p.src)) return;
             if (isUntargetableByOppAbility(st, k, p.chooser)) return;
             out.push(k);
           });
@@ -2330,6 +2341,7 @@
       }
       return pool.filter(k => {
         if (!matchFilterEx(st, k, p.filter)) return false;
+        if (blockedByOppMagicImmune(st, p.chooser, k, p.src)) return false;
         if (p.requireUntapped && !(st.inst[k] && !st.inst[k].tapped)) return false;
         if (p.magicMax != null && st.inst[k] && st.inst[k].type === 'Magic' && (p.magicGot || 0) >= p.magicMax) return false;
         if (p.distinctNames && (p.pickedNames || []).includes((st.inst[k] && st.inst[k].name) || '')) return false;
@@ -2358,7 +2370,7 @@
   }
 
   /** ห้ามเล่น/สั่งใช้ถ้าฮีลไม่มีไลฟ์หงาย หรือเด้งศัตรูโดยอีกฝ่ายไม่มีมอน */
-  function activatedTargetDeny(st, owner, ab) {
+  function activatedTargetDeny(st, owner, ab, srcK) {
     if (!ab || !owner) return null;
     let msg = null;
     walkEffectActions(ab.actions, ac => {
@@ -2386,10 +2398,13 @@
         && (ac.dest === 'bounceHand' || !ac.dest);
       if (bounceEnemy || pickEnemyBounce) {
         const p = {
-          kind: 'pick', from: 'enemyAvatars', src: null, chooser: owner,
+          kind: 'pick', from: 'enemyAvatars', src: srcK || null, chooser: owner,
           filter: ac.filter || { type: 'Avatar' }, dest: 'bounceHand', optional: true
         };
-        if (!promptCandidates(st, p).length) msg = 'อีกฝ่ายไม่มี Avatar บนสนาม';
+        if (!promptCandidates(st, p).length) {
+          const any = (st.zones[other(owner) + '.avatar'] || []).length;
+          msg = any ? 'เป้าหมายไม่รับผลจาก Magic ฝ่ายตรงข้าม' : 'อีกฝ่ายไม่มี Avatar บนสนาม';
+        }
       }
       // ความกล้าหาญ ฯลฯ — เลือก Avatar บนสนามฝ่ายเรา
       if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'choose') {
@@ -6199,7 +6214,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             return deny(`ใช้ "${c.name}" ไม่ได้ — ศัตรูต้องมี Avatar ≥ ${ab.requireEnemyAvatarMin} (ตอนนี้ ${n})`);
         }
         {
-          const td = activatedTargetDeny(st, owner, ab);
+          const td = activatedTargetDeny(st, owner, ab, a.k);
           if (td) return deny(`ใช้ "${c.name}" ไม่ได้ — ${td}`);
         }
         if (ab.requireAvatarCountExact != null) {
@@ -7313,6 +7328,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             syncHeimdall(st);
             fx.snd = 'flip';
           } else if (p.dest === 'bounceHand') {
+            if (blockedByOppMagicImmune(st, p.chooser, a.k, p.src))
+              return deny(`${nameOf(st, a.k)} ไม่รับผลจาก Magic ฝ่ายตรงข้าม`);
             const own = ownerOf(st, a.k);
             const handOwner = own === 'S' ? p.chooser : own;
             if ((zoneOf(st, a.k) || '').endsWith('.avatar')
@@ -8682,7 +8699,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (!hasDown) return deny('ใช้ไม่ได้ — ไม่มี LIFE ที่คว่ำให้หงาย');
         }
         {
-          const td = activatedTargetDeny(st, owner, ab);
+          const td = activatedTargetDeny(st, owner, ab, a.k);
           if (td) return deny(`ใช้ไม่ได้ — ${td}`);
         }
         if (ab.requireEnemyCostSumMax != null) {
