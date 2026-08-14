@@ -175,6 +175,7 @@
       ],
       "abilities": [
         {
+          "keyword": "เลือกปฏิบัติ",
           "trigger": {
             "on": "activated"
           },
@@ -213,7 +214,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง: กด ⚡ แล้วเลือกเทค 2 กล่อง"
     },
     {
       "name": "งี่เง่า และ งอแง",
@@ -224,37 +226,45 @@
         {
           "keyword": "เลือกปฏิบัติ",
           "trigger": {
-            "on": "chooseMode"
+            "on": "activated"
           },
-          "options": [
+          "oncePerTurn": true,
+          "actions": [
             {
-              "label": "เซ่นไหว้ Avatar ใบนี้ จั่วการ์ด 2 ใบ",
-              "actions": [
+              "op": "chooseMode",
+              "options": [
                 {
-                  "op": "sacrificeSelf"
+                  "label": "เซ่นไหว้ Avatar ใบนี้ จั่วการ์ด 2 ใบ",
+                  "actions": [
+                    {
+                      "op": "sacrificeSelf"
+                    },
+                    {
+                      "op": "draw",
+                      "count": 2
+                    }
+                  ]
                 },
                 {
-                  "op": "draw",
-                  "count": 2
-                }
-              ]
-            },
-            {
-              "label": "ได้รับ เตะไข่ จนจบเทิร์น แล้วทำลายตัวเองช่วง End Phase",
-              "actions": [
-                {
-                  "op": "grantKeyword",
-                  "keyword": "เตะไข่"
-                },
-                {
-                  "op": "destroySelfAtEndPhase"
+                  "label": "ได้รับ เตะไข่ จนจบเทิร์น แล้วทำลายตัวเองช่วง End Phase",
+                  "actions": [
+                    {
+                      "op": "grantSelfKeyword",
+                      "keyword": "เตะไข่",
+                      "until": "endOfTurn"
+                    },
+                    {
+                      "op": "destroySelfAtEndPhase"
+                    }
+                  ]
                 }
               ]
             }
           ]
         }
       ],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง: กด ⚡ แล้วเลือกเทค 2 กล่อง"
     },
     {
       "name": "จอมมังการ์ด",

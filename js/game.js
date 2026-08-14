@@ -3268,7 +3268,7 @@
       const canAtk = cls === 'avatar' && !c.tapped && c.faceUp;
       const canUnityBtn = cls === 'avatar' && canUseUnity(k);
       const canModAtt = cls === 'magic' && canAttachFromMagic(k);
-      // มีความสามารถสั่งใช้ (activated) เท่านั้นถึงโชว์ ⚡
+      // มีความสามารถสั่งใช้ (activated) เท่านั้นถึงโชว์ ⚡ — กดแล้วถ้ามีเลือกปฏิบัติจะขึ้นกล่อง 2 เทค
       const hasAct = abs0.some(ab => {
         const on = ab.trigger && ab.trigger.on;
         if (on === 'activated') return true;
@@ -3279,7 +3279,7 @@
         + (canAtk ? `<button class="qa-b qa-atk" data-qa="atk" data-k="${k}" title="โจมตี → ชี้เป้า (นอนให้อัตโนมัติ)">⚔</button>` : '')
         + (canUnityBtn ? `<button class="qa-b qa-unity" data-qa="unity" data-k="${k}" title="🤝 สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">🤝</button>` : '')
         + (canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : '')
-        + (hasAct ? `<button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้ความสามารถ (หรือคลิกขวา)">⚡</button>` : '')
+        + (hasAct ? `<button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">⚡</button>` : '')
         + `<button class="qa-b" data-qa="inc" data-k="${k}" title="POWER +1">＋</button>`
         + `<button class="qa-b" data-qa="dec" data-k="${k}" title="POWER −1">－</button>`
         + `</div>`;
@@ -3483,7 +3483,7 @@
         }
         if (pr.kind === 'chooseMode') txt = pr.guessTypes
           ? `👁 ${srcN}: ประกาศประเภทใบบนสุดเด็คฝ่ายตรงข้าม — อวตาร / เมจิก / คอนสตรัค`
-          : `⚡ ${srcN}: เลือกเทค — กดปุ่มสายฟ้าด้านล่าง`;
+          : `🎯 ${srcN}: เลือกเทคในหน้าต่าง`;
         if (pr.kind === 'guessReveal') {
           const mark = pr.hit ? '✓ ถูก' : '✗ ผิด';
           txt = `👁 สอดแนมท็อปเด็ค: 「${pr.cardName || '?'}」(${pr.realLabel || pr.realType || '?'}) · ประกาศ ${pr.declareLabel || pr.declareType || '?'} → ${mark} — กด「ดำเนินการต่อ」${pr.hit ? 'เพื่อส่งนรก/ทำผล' : ' (ไว้ที่เดิม)'}`;
@@ -3506,24 +3506,19 @@
       syncReactTimer(pr);
       const millRow = byId('milledOptionalRow');
       if (millRow) millRow.classList.toggle('hidden', !(mine && pr.kind === 'milledOptional'));
-      // เลือกเทคหลังกด ⚡ — ปุ่มสายฟ้าบนแถบ (ไม่เปิด modal บังสนาม)
+      // เลือกเทคหลังกด ⚡ — หน้าต่างกลางจอ กล่อง 2 ข้อ (แบบเลือกจน) ไม่ใช้ปุ่มสายฟ้าบนแถบ
       // ★ ทายประเภทตำรวจ (guessTypes) = ใช้ปุ่มบนแถบเท่านั้น ห้ามเปิด modal ทับ/ดันเมจิกโซน
       const modeRow = byId('chooseModeRow');
-      if (modeRow) {
-        const showModes = !!(mine && pr.kind === 'chooseMode' && pr.options && pr.options.length && !pr.guessTypes);
-        modeRow.classList.toggle('hidden', !showModes);
-        if (showModes) {
-          const own = pr.chooser;
-          modeRow.innerHTML = pr.options.map((opt, i) => {
-            const deny = BoTEngine.chooseModeOptionDeny && BoTEngine.chooseModeOptionDeny(st, pr.src, own, opt);
-            const used = deny && /ใช้ไปแล้ว/.test(deny);
-            const label = (opt && opt.label) ? opt.label : ('ข้อ ' + (i + 1));
-            const tip = deny ? deny : label;
-            return `<button type="button" class="btn-primary small${deny ? ' dim' : ''}" data-choose-mode="${i}" title="${esc(tip)}"${used ? ' disabled' : ''}>⚡ ${esc(label)}</button>`;
-          }).join('');
-          const modal = byId('choiceModal');
-          if (modal && !modal.classList.contains('hidden')) closeChoicePopup(true);
-        } else modeRow.innerHTML = '';
+      if (modeRow) { modeRow.classList.add('hidden'); modeRow.innerHTML = ''; }
+      const showChoiceBoxes = !!(mine && pr.kind === 'chooseMode' && pr.options && pr.options.length && !pr.guessTypes);
+      if (showChoiceBoxes) {
+        pb.classList.add('hidden');
+        const modal = byId('choiceModal');
+        const already = !!(choiceCtx && choiceCtx.k === pr.src && choiceCtx.fromPrompt
+          && modal && !modal.classList.contains('hidden'));
+        if (!already) openChoiceFromEffects(pr.src, pr.options, { fromPrompt: true });
+      } else if (choiceCtx && choiceCtx.fromPrompt && !(pr.kind === 'chooseMode' && !pr.guessTypes && pr.src === choiceCtx.k)) {
+        closeChoicePopup(true);
       }
       const peekRow = byId('peekTopRow');
       if (peekRow) {
@@ -3626,6 +3621,7 @@
       if (millRow) millRow.classList.add('hidden');
       const gt = byId('guessTypeRow'); if (gt) gt.classList.add('hidden');
       const cm = byId('chooseModeRow'); if (cm) { cm.classList.add('hidden'); cm.innerHTML = ''; }
+      if (choiceCtx && choiceCtx.fromPrompt) closeChoicePopup(true);
       const gr = byId('guessRevealRow'); if (gr) gr.classList.add('hidden');
     }
 
@@ -4253,14 +4249,13 @@
           ? { label: `💔 เลิกคู่กับ "${st.inst[c.pairWith].name}"`, act: { type: 'pair', k, by: mode === 'solo' ? (own) : undefined } }
           : { label: `🤝 จับคู่หู${buddyPartnerName(c.effect) ? ' → ' + buddyPartnerName(c.effect) : ''}…`, fn: () => startAnnounce(k, 'pair') }]
         : []),
-      // 🎯 เลือกปฏิบัติ / ⚡ สั่งใช้ (จาก effects JSON) — ถ้ายังไม่มีในแถวบน
+      // 🎯 เลือกปฏิบัติ / ⚡ สั่งใช้ — กด ⚡ บนการ์ดแล้วขึ้นกล่องเลือกเทค
       ...((() => {
         const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
         const abs = (e && e.abilities) || [];
         const out = [];
         const modes = abs.filter(ab => ab.trigger && ab.trigger.on === 'chooseMode' && ab.options && ab.options.length);
-        if (modes.length) out.push({ label: '🎯 เลือกปฏิบัติ…', fn: () => openChoiceFromEffects(k, modes[0].options) });
-        // สั่งใช้ย้ายไปแถวไอคอนแล้วเมื่อ hasActivated — ไม่ซ้ำรายการ
+        if (modes.length && !hasActivated) out.push({ label: '🎯 เลือกปฏิบัติ…', fn: () => openChoiceFromEffects(k, modes[0].options) });
         return out;
       })()),
       { label: '📤 ส่งไปที่อื่น…', fn: () => openMoveMenu(k) },
@@ -4381,7 +4376,7 @@
     renderChoiceOpts();
     byId('choiceModal').classList.remove('hidden');
   }
-  function openChoiceFromEffects(k, options) {
+  function openChoiceFromEffects(k, options, extra) {
     closeMenu();
     const c = st.inst[k]; if (!c) return;
     const pr0 = st && (st.prompts || [])[0];
@@ -4389,7 +4384,8 @@
     if (pr0 && pr0.kind === 'chooseMode' && pr0.guessTypes && pr0.src === k) return;
     const opts = (options || []).map(o => o.label || 'ตัวเลือก');
     if (!opts.length) { toast('ไม่พบตัวเลือก'); return; }
-    choiceCtx = { k, opts, sel: 0 };
+    const keepSel = (choiceCtx && choiceCtx.k === k && extra && extra.fromPrompt) ? choiceCtx.sel : 0;
+    choiceCtx = { k, opts, sel: keepSel || 0, fromPrompt: !!(extra && extra.fromPrompt) };
     byId('choiceCardName').textContent = c.name;
     const title = document.querySelector('#choiceModal .dc-title');
     const note = document.querySelector('#choiceModal .dc-note');

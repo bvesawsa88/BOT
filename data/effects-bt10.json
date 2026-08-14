@@ -1344,6 +1344,7 @@
       "name": "งี่เง่ากับงอแง",
       "abilities": [
         {
+          "keyword": "เลือกปฏิบัติ",
           "trigger": {
             "on": "activated"
           },
@@ -1382,7 +1383,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง: กด ⚡ แล้วเลือกเทค 2 กล่อง"
     }
   ]
 }
