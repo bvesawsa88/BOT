@@ -602,6 +602,8 @@ body.dragging .card.hand:hover{transform:none}
 /* สถานะคู่หู (Link) — กรอบเทอร์คอยส์เรืองแสง + ป้าย 🤝 */
 .card.buddy{border-color:#38d3c4!important;box-shadow:0 0 0 1.5px #38d3c4,0 0 12px rgba(56,211,196,.65)!important}
 .card.buddy .buddy-badge{position:absolute;top:2px;left:2px;font-size:12px;line-height:1;background:#0c2b28;border:1px solid #38d3c4;border-radius:6px;padding:1px 3px;z-index:4;box-shadow:0 0 6px rgba(56,211,196,.6)}
+.card.overdose{border-color:#e05a3a!important;box-shadow:0 0 0 1.5px #e05a3a,0 0 12px rgba(224,90,58,.6)!important}
+.card.overdose .od-badge{position:absolute;top:2px;left:2px;font-size:10px;font-weight:700;line-height:1;background:#3a120c;border:1px solid #e05a3a;border-radius:6px;padding:2px 4px;z-index:4;color:#ffc4b4;box-shadow:0 0 6px rgba(224,90,58,.6)}
 /* สืบทอดคำสั่ง (Inheritance Chain) — ผู้รับกรอบม่วง + ป้าย 🧬 · เป้าตอนเลือกกะพริบ */
 .card.inherited{border-color:#b98cff!important;box-shadow:0 0 0 1.5px #b98cff,0 0 12px rgba(185,140,255,.6)!important}
 .card.inherited .inh-badge{position:absolute;top:2px;right:2px;font-size:12px;line-height:1;background:#241638;border:1px solid #b98cff;border-radius:6px;padding:1px 3px;z-index:4;box-shadow:0 0 6px rgba(185,140,255,.6)}

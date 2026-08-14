@@ -556,8 +556,31 @@
       "codes": [
         "BT08-033"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "ifDestroyedHasKeyword": [
+            "โล่มนุษย์",
+            "ลูกฮึด"
+          ],
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด"
+      ],
+      "overdoseLockOwnAbilities": true,
+      "parseStatus": "auto",
+      "note": "ไลฟ์หงาย ≥3 → Overdose: ศัตรูใช้โล่มนุษย์/ลูกฮึดไม่ได้ · ฆ่าใบที่มีโล่ม/ลูกฮึด → หงายไลฟ์บนสุดศัตรู · อวตารฝ่ายเราใช้ความสามารถไม่ได้ยกเว้น Overdose"
     },
     {
       "name": "เซนเซไฮ",
@@ -859,8 +882,60 @@
       "codes": [
         "BT09-041"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownAvatarDestroyedByOpp",
+            "if": "symbol:ยักษ์"
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "bySelfAbility": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "optional": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "onlyBattlePhase": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "manual",
+      "note": "สั่งใช้จากมือเมื่อยักษ์ถูกศัตรูทำลาย (นับ extraSymbols เช่น มณโฑ) → อัญเชิญฟรี แล้วเลือกทำลายศัตรูได้ · Battle Phase ยักษ์ฝ่ายเรา +2"
     },
     {
       "name": "นกอีก๋อย",

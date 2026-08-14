@@ -240,6 +240,10 @@
 
     const e = effectOf(c);
     const abs = (e && e.abilities) || [];
+    // ไปเลยมอนตี้ / เพื่อชาติ ฯลฯ — ใช้ได้เฉพาะหน้าต่างสวนโจมตี ไม่ใช่ Main ของตัวเอง
+    if (abs.some(ab => ab.trigger && ab.trigger.on === 'enemyDeclareAttack')) return -999;
+    if (abs.some(ab => ab.react && ab.trigger && ab.trigger.on !== 'activated' && ab.trigger.on !== 'playMagic'))
+      return -999;
     if (abs.some(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'playMagic')))
       score = 30;
     if (cardIsKeyEnabler(c, arch) || cardIsFinisherLine(c, arch)) score += 40;
@@ -257,6 +261,15 @@
         }
         if ((ac.op === 'bounce' || ac.op === 'returnToHand') && ac.from !== 'own' && ac.from !== 'any' && ac.target !== 'self') {
           if (!zoneIds(st, otherSide(side) + '.avatar').length) score = -999;
+        }
+        // ความกล้าหาญ ฯลฯ — ต้องมี Avatar บนสนามฝ่ายเราให้บัฟ
+        if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'choose' && !ac.optional) {
+          const tside = ac.target.side || 'any';
+          const ownN = zoneIds(st, side + '.avatar').length;
+          const enemyN = zoneIds(st, otherSide(side) + '.avatar').length;
+          if (tside === 'own' && !ownN) score = -999;
+          else if (tside === 'enemy' && !enemyN) score = -999;
+          else if (tside === 'any' && !ownN && !enemyN) score = -999;
         }
       });
     });

@@ -362,9 +362,61 @@
     },
     {
       "code": "BT09-041",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownAvatarDestroyedByOpp",
+            "if": "symbol:ยักษ์"
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "bySelfAbility": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "optional": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "onlyBattlePhase": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "manual",
-      "name": "ท้าวเวสสุวรรณ"
+      "name": "ท้าวเวสสุวรรณ",
+      "note": "สั่งใช้จากมือเมื่อยักษ์ถูกศัตรูทำลาย (นับ extraSymbols เช่น มณโฑ) → อัญเชิญฟรี แล้วเลือกทำลายศัตรูได้ · Battle Phase ยักษ์ฝ่ายเรา +2"
     },
     {
       "code": "BT09-042",

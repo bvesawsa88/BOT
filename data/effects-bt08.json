@@ -342,9 +342,32 @@
     },
     {
       "code": "BT08-033",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "เซตาม่อน Overdose"
+      "name": "เซตาม่อน Overdose",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "ifDestroyedHasKeyword": [
+            "โล่มนุษย์",
+            "ลูกฮึด"
+          ],
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด"
+      ],
+      "overdoseLockOwnAbilities": true,
+      "parseStatus": "auto",
+      "note": "ไลฟ์หงาย ≥3 → Overdose: ศัตรูใช้โล่มนุษย์/ลูกฮึดไม่ได้ · ฆ่าใบที่มีโล่ม/ลูกฮึด → หงายไลฟ์บนสุดศัตรู · อวตารฝ่ายเราใช้ความสามารถไม่ได้ยกเว้น Overdose"
     },
     {
       "code": "BT08-034",

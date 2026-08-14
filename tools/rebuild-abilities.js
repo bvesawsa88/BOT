@@ -31,7 +31,8 @@ const META_KEYS = [
   'costZeroIfDistinctOwnNameIncludes', 'costZeroIfOwnSymbol', 'abilitiesFromMagicZone',
   'blockAllLandPlay', 'destroyAfterGlobalEndPhases', 'stayOnMagic', 'remainOnMagic',
   'allowOppTurnMagic', 'oncePerTurnCard', 'revealDeckTops',
-  'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes'
+  'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
+  'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities'
 ];
 
 function loadJson(p) {

@@ -2471,6 +2471,9 @@
       const c = st.inst[k]; if (!c || c.type !== 'Magic') continue;
       const mtype = c.subtype || 'Normal';
       if (mtype === 'React') continue;
+      const ePlay = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
+      const absPlay = (ePlay && ePlay.abilities) || [];
+      if (absPlay.some(ab => ab.trigger && ab.trigger.on === 'enemyDeclareAttack')) continue;
       if (!botMagicTypeFree(mtype)) continue;
       let score;
       if (AI) score = AI.magicPlayScore(st, 'B', k, arch, botMagicTypeFree);
@@ -3214,6 +3217,11 @@
       classes.push('paired', 'pair-' + (c.pairId || 1));
       buddy = `<div class="buddy-badge pair" title="คู่หูกับ ${esc(st.inst[c.pairWith].name)}">🤝</div>`;
     } else if (cls === 'avatar' && c.faceUp && inBuddyStatus(st, k)) { classes.push('buddy'); buddy = `<div class="buddy-badge" title="เข้าสถานะคู่หู (ตามข้อความการ์ด)">🤝</div>`; }
+    let od = '';
+    if (cls === 'avatar' && c.faceUp && BoTEngine.inOverdose && BoTEngine.inOverdose(st, k)) {
+      classes.push('overdose');
+      od = `<div class="od-badge" title="สถานะ Overdose — LIFE หงาย ≥ 3">OD</div>`;
+    }
     // สืบทอดคำสั่ง — ป้าย 🧬 บนผู้รับ + ไฮไลต์เป้าตอนเลือกผู้รับ
     let inh = '';
     if (c.inheritedFrom && c.inheritedFrom.length) { classes.push('inherited'); inh = `<div class="inh-badge" title="รับสืบทอด: ${esc(c.inheritedFrom.join(', '))}">🧬</div>`; }
@@ -3270,7 +3278,7 @@
         + `<button class="qa-b" data-qa="dec" data-k="${k}" title="POWER −1">－</button>`
         + `</div>`;
     }
-    return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${inh}${tok}${order}${scoutBadge}${qa}</div>`;
+    return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${od}${inh}${tok}${order}${scoutBadge}${qa}</div>`;
   }
   const zoneHTML = (z, cls) => (st.zones[z] || []).map(k => cardHTML(k, cls)).join('');
   const topHTML = id => { const a = st.zones[id] || []; return a.length ? `<div class="pile-top" data-cid="${a[a.length - 1]}" style="background-image:url('${esc(st.inst[a[a.length - 1]].img)}')"></div>` : ''; };
@@ -3385,7 +3393,7 @@
         if (pr.kind === 'chooseBuff') txt = `✨ ${srcN}: เลือก Avatar เป้าหมาย (POWER ${pr.amt > 0 ? '+' : ''}${pr.amt}) — แตะการ์ดที่กะพริบ`;
         if (pr.kind === 'chooseDestroy') txt = pr.ignoreProtect
           ? `💥 ${srcN}: ผู้ชนะเลือกทำลาย Avatar ใดก็ได้ (กันเวทไม่ช่วย) — แตะเป้า`
-          : `💥 ${srcN}: แตะการ์ดบนสนามที่จะทำลาย`;
+          : `💥 ${srcN}: แตะการ์ดบนสนามที่จะทำลาย${pr.optional ? ' (หรือข้าม)' : ''}`;
         if (pr.kind === 'pick') {
           if (pr.dest === 'coinDestroy') txt = `🪙 ${srcN}: เลือก Avatar ฝ่ายตรงข้าม แล้วทอยเหรียญ`;
           else if (pr.from === 'ownMagic' && pr.dest === 'magicToHellCost')
@@ -3451,6 +3459,10 @@
             txt = nOpt
               ? `💚 จะใช้ React ไหม? ${why} — มี ${nOpt} ใบ · แตะใบเขียว / โล่มนุษย์ / กด「ไม่ใช้」 / รอ ${pr.seconds || 10} วิ`
               : `⏳ จะตอบโต้ไหม? ${why} — โล่มนุษย์ / กด「ไม่ใช้」หรือรอ ${pr.seconds || 10} วิ`;
+          } else if (pr.avatarHandAbility) {
+            txt = nOpt
+              ? `⚡ สั่งใช้จากมือ (${why}) — มี ${nOpt} ใบ · แตะใบที่กะพริบเขียว หรือกด「ไม่ใช้」`
+              : `⚡ สั่งใช้จากมือ (${why}) — กด「ไม่ใช้」`;
           } else {
             txt = `💚 React พร้อมใช้ ${nOpt || (pr.src ? 1 : 0)} ใบ (${why}) — แตะใบที่กะพริบเขียวเพื่อใช้ หรือกด「ไม่ใช้」`;
           }
