@@ -452,8 +452,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD06-014"
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
     },
     {
       "code": "KD01-019",

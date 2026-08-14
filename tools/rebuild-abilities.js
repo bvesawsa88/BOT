@@ -30,9 +30,11 @@ const META_KEYS = [
   'cannotBeAttackTargetIfOwnSymbolOther', 'hostSymbolReplace', 'reattachOnHostDestroy', 'reactAnyWindow',
   'costZeroIfDistinctOwnNameIncludes', 'costZeroIfOwnSymbol', 'abilitiesFromMagicZone',
   'blockAllLandPlay', 'destroyAfterGlobalEndPhases', 'stayOnMagic', 'remainOnMagic',
-  'allowOppTurnMagic', 'oncePerTurnCard', 'revealDeckTops',
+  'allowOppTurnMagic', 'oncePerTurnCard', 'ignoreReactOncePerTurnLimit', 'revealDeckTops',
   'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
-  'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities'
+  'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities',
+  'uniqueAttachedNames', 'attachOnly', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
+  'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'instantWinIf'
 ];
 
 function loadJson(p) {
@@ -95,7 +97,7 @@ function pickMeta(e) {
 function loadAllEffectsByCode() {
   const dir = path.join(ROOT, 'data');
   const byCode = {};
-  fs.readdirSync(dir).filter(f => /^effects-.+\.json$/.test(f)).forEach(f => {
+  fs.readdirSync(dir).filter(f => /^effects-.+\.json$/.test(f) && f !== 'effects-all.json').forEach(f => {
     const j = loadJson(path.join(dir, f));
     (j.cards || []).forEach(c => {
       if (!c || !c.code) return;

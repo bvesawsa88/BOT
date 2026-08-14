@@ -1,7 +1,7 @@
 /* BoT — ฐานข้อมูลการ์ดกลาง (data/cards.json + banlist) · แชร์ให้ game / deck builder / gallery */
 (function (root) {
   'use strict';
-  // ★ เปิดทุกชุดแล้ว (รวม BT11 · 1,742 ใบ จาก bottcg.com) — โหมดแมนนวล 100% ไม่ต้องรอแปลงเอฟเฟกต์
+  // ★ เปิดทุกชุดแล้ว (รวม BT11 · 1,745 ใบ จาก bottcg.com) — โหมดแมนนวล 100% ไม่ต้องรอแปลงเอฟเฟกต์
   // ถ้าจะจำกัดชุดอีกครั้ง ใส่รายชื่อซีรีส์ลงใน Set นี้ (Set ว่าง = เปิดหมด)
   const ALLOWED_SERIES = new Set();
   root.ALLOWED_SERIES = ALLOWED_SERIES;

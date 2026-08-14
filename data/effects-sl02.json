@@ -65,7 +65,8 @@
         }
       ],
       "parseStatus": "auto",
-      "oncePerTurnCard": true
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
     },
     {
       "code": "SL02-002",

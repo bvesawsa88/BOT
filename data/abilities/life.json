@@ -1164,15 +1164,18 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
+              "op": "hellPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand",
               "schedule": "nextOwnMainPhase"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Main ถัดไป: นำ Modification ในนรก 1 ใบกลับขึ้นมือ"
     },
     {
       "name": "เฮ้ย นางพญา ตาย !",

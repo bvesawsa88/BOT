@@ -69,13 +69,33 @@
     {
       "code": "BT11-004",
       "name": "มือปืนนคร บ่าวจุ้ย",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ เมื่อจบการต่อสู้ที่ Avatar ใบนี้โจมตี เนรเทศ \"อาวุธพระนคร\" ที่ Avatar ใบนี้สวมใส่ 1 ใบ และนำ \"อาวุ"
+      "uniqueOnField": true,
+      "uniqueAttachedNames": true,
+      "abilities": [
+        {
+          "trigger": {
+            "on": "afterAttackCombat"
+          },
+          "oncePerTurn": true,
+          "optional": true,
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "actions": [
+            {
+              "op": "exileAttachedThenAttachFromDark",
+              "attachedNameIncludes": "อาวุธนคร",
+              "darkNameIncludes": "อาวุธนคร",
+              "thenUntap": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จบการต่อสู้ที่โจมตี: เนรเทศอาวุธนครที่สวม แล้วสวมใบชื่อต่างจากมิติมืด แล้วตื่น (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้ · สนามได้ 1 ใบ"
     },
     {
       "code": "BT11-005",
       "name": "มือปืนนคร ชานน",
+      "uniqueAttachedNames": true,
       "abilities": [
         {
           "keyword": "จุติ",
@@ -83,16 +103,29 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "อาวุธนคร"
+                ]
+              },
+              "dest": "dark",
+              "shuffleAfter": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ ถ้าบน Construct Zone เรามี นครทิเนนทอล : เนรเทศ \"อาวุธนคร\" 1 ใบ จากใน Deck ไปไว้ที่ มิติมืด จาก"
+      "parseStatus": "auto",
+      "note": "จุติถ้ามีนครทิเนนทอล: เนรเทศอาวุธนครจากเด็คลงมิติมืดแล้วสับ · สวมอาวุธนครชื่อซ้ำไม่ได้"
     },
     {
       "code": "BT11-006",
       "name": "มือปืนนคร นายหัว",
+      "uniqueAttachedNames": true,
       "abilities": [
         {
           "keyword": "จุติ",
@@ -102,6 +135,37 @@
           },
           "actions": [
             {
+              "op": "deckOrHellPick",
+              "filter": {
+                "type": "Construct",
+                "nameIncludes": [
+                  "นครทิเนนทอล"
+                ]
+              },
+              "dest": "buildConstructFree",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "cost": [
+            {
+              "op": "exileHand",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธนคร"
+                ]
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
               "op": "draw",
               "count": 2,
               "player": "owner"
@@ -109,7 +173,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "จุติ: ก่อสร้างนครทิเนนทอลจากเด็ค/นรก · สั่งใช้เนรเทศอาวุธนครจากมือแล้วจั่ว 2 (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้"
     },
     {
       "code": "BT11-007",
@@ -291,6 +356,7 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พระถังซัมจั๋ง",
           "actions": [
             {
               "op": "modifyPower",
@@ -298,16 +364,15 @@
               "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "protectAllyNameIncludes": "พระถังซัมจั๋ง",
+      "note": "มีพระถังซัมจั๋ง: POWER +2 · กันเล็ง/กันความสามารถใส่พระถังซัมจั๋ง"
     },
     {
       "code": "BT11-014",
@@ -558,9 +623,35 @@
     {
       "code": "BT11-025",
       "name": "ซัวเจ๋ง",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากนรก ถ้าใน Avatar Zone เรา มี พระถังซัมจั๋ง , ซุนหงอคง หรือ ตือโป๊ยก่าย รวมกันได้ 2 ใบ ขึ้นไป ทิ้งการ์ดบนมือ 1"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "fromHell": true,
+          "requireOwnNameIncludesAnyMin": {
+            "names": [
+              "พระถังซัมจั๋ง",
+              "ซุนหงอคง",
+              "ตือโป๊ยก่าย"
+            ],
+            "min": 2
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จากนรก: ถ้ามีพระถังซัมจั๋ง/ซุนหงอคง/ตือโป๊ยก่าย รวม ≥2 ชื่อ ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "code": "BT11-026",
@@ -736,9 +827,37 @@
     {
       "code": "BT11-035",
       "name": "ตือโป๊ยก่าย",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง อัตโนมัติ เมื่อเราใช้ Magic Card : พระถังซัมจั๋ง , ซุนหงอคง , ตือโป๊ยก่าย และ ซัวเจ๋ง ทุกใบบน Avatar Zone "
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownPlayMagic"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "nextOwnDraw",
+              "layer": 4,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "พระถังซัมจั๋ง",
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง เมื่อใช้ Magic: ไซอิ๋วทั้ง 4 POWER +1 จน Draw Phase ถัดไปของเรา"
     },
     {
       "code": "BT11-036",
@@ -984,12 +1103,58 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnNamesAll": [
+            "ซุนหงอคง",
+            "ตือโป๊ยก่าย",
+            "ซัวเจ๋ง"
+          ],
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "พระไตรปิฎก"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ ทิ้งการ์ด Avatar 1 ใบ : อัญเชิญ ซุนหงอคง, ตือโป๊ยก่าย หรือ ซัวเจ๋ง 1 ใบ จาก Deck ลงบน Avatar Zo"
+      "parseStatus": "auto",
+      "note": "จุติ ทิ้ง Avatar → อัญเชิญศิษย์จากเด็ค · สั่งใช้ถ้ามีศิษย์ครบ 3 ชื่อ → หาพระไตรปิฎกจากเด็ค/นรก"
     },
     {
       "code": "BT11-048",
@@ -1081,10 +1246,23 @@
       "name": "พระไตรปิฎก",
       "abilities": [
         {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "requireOwnNameIncludes": "พระถังซัมจั๋ง",
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==magicZone"
           },
           "actions": [
             {
@@ -1096,13 +1274,34 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "พระถังซัมจั๋ง",
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "instantWinIf": {
+        "when": "ownDrawPhase",
+        "ownMagicNameIncludesMin": {
+          "nameIncludes": "พระไตรปิฎก",
+          "min": 3
+        },
+        "ownNamesAll": [
+          "พระถังซัมจั๋ง",
+          "ซุนหงอคง",
+          "ตือโป๊ยก่าย",
+          "ซัวเจ๋ง"
+        ]
+      },
+      "note": "ใช้ได้เมื่อมีพระถังซัมจั๋ง: จั่ว 1 ค้าง Magic Zone · ไซอิ๋ว +1 · Draw Phase มี 3 ใบ + ศิษย์ครบ = ชนะ"
     },
     {
       "code": "BT11-057",
@@ -1194,17 +1393,15 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "duration": "combat",
               "target": {
-                "select": "equippedAvatar"
+                "select": "self"
               }
             }
           ]
@@ -1213,7 +1410,9 @@
       "attachOnly": {
         "nameIncludes": "มือปืนนคร"
       },
-      "parseStatus": "auto"
+      "suppressVictimDestroyed": true,
+      "parseStatus": "auto",
+      "note": "สวมได้แค่มือปืนนคร · โจมตี POWER+1 จนจบการต่อสู้ · ฆ่าจากการต่อสู้แล้วคำสั่งเสียของเหยื่อไม่ทำงาน"
     },
     {
       "code": "BT11-066",
@@ -1221,18 +1420,26 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "duration": "combat",
               "target": {
-                "select": "equippedAvatar"
+                "select": "self"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
             }
           ]
         }
@@ -1240,7 +1447,8 @@
       "attachOnly": {
         "nameIncludes": "มือปืนนคร"
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "สวมได้แค่มือปืนนคร · โจมตี POWER+2 จนจบการต่อสู้ · ฆ่าจากการต่อสู้แล้วทำความเสียหาย LIFE 1 ครั้ง"
     },
     {
       "code": "BT11-067",
@@ -1249,7 +1457,9 @@
       "attachOnly": {
         "nameIncludes": "มือปืนนคร"
       },
-      "parseStatus": "partial"
+      "hostBlockReactUntilCombatEnd": true,
+      "parseStatus": "auto",
+      "note": "สวมได้แค่มือปืนนคร · โจมตีแล้วอีกฝ่ายใช้ React ไม่ได้จนกว่าจะจบการต่อสู้"
     },
     {
       "code": "BT11-068",
@@ -1402,28 +1612,78 @@
       "name": "นครทิเนนทอล",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activated"
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เทค 1 สอดแนมอาวุธนคร",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "tinentol-scout",
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "อาวุธนคร"
+                        ]
+                      },
+                      "dest": "dark",
+                      "restTo": "bottom",
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "label": "เทค 2 สวมจากมิติมืด",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "tinentol-attach",
+                  "countsAsModification": true,
+                  "requireOwnNameIncludes": "มือปืนนคร",
+                  "actions": [
+                    {
+                      "op": "darkPick",
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "อาวุธนคร"
+                        ]
+                      },
+                      "dest": "pickAttachHost",
+                      "hostFilter": {
+                        "nameIncludes": [
+                          "มือปืนนคร"
+                        ]
+                      },
+                      "thenBuffHost": {
+                        "amount": 2,
+                        "duration": "endOfTurn"
+                      },
+                      "countsAsModification": true
+                    }
+                  ]
+                }
+              ]
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone"
+          },
+          "immuneAbilityDestroy": true,
+          "actions": []
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เทค 1 สอดแนม 5 เนรเทศอาวุธนคร · เทค 2 สวมอาวุธนครจากมิติมืดแล้วนับเป็น Modification +2 · ถูกทำลายได้จากการถูกโจมตีเท่านั้น"
     },
     {
       "code": "BT11-073",
@@ -1449,15 +1709,18 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
+              "op": "hellPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand",
               "schedule": "nextOwnMainPhase"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Main ถัดไป: นำ Modification ในนรก 1 ใบกลับขึ้นมือ"
     }
   ]
 }

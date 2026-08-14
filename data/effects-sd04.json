@@ -151,7 +151,7 @@
       "code": "SD04-004",
       "name": "รถถัง \"Tank Ranger\"",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้",
       "cannotAttackUnlessAttached": true,
       "uniqueAttachedNames": true

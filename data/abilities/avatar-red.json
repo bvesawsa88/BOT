@@ -564,7 +564,8 @@
     {
       "name": "ซาบะริว นักกวาดล้างมือเก๋า",
       "codes": [
-        "BT08-011"
+        "BT08-011",
+        "PRMO-124"
       ],
       "abilities": [],
       "parseStatus": "manual"
@@ -638,6 +639,7 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พระถังซัมจั๋ง",
           "actions": [
             {
               "op": "modifyPower",
@@ -645,16 +647,15 @@
               "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "protectAllyNameIncludes": "พระถังซัมจั๋ง",
+      "parseStatus": "auto",
+      "note": "มีพระถังซัมจั๋ง: POWER +2 · กันเล็ง/กันความสามารถใส่พระถังซัมจั๋ง"
     },
     {
       "name": "ซุนฮูหยิน เจ้าหญิงขุนพลแห่งง่อก๊ก",
@@ -2238,12 +2239,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "อาวุธนคร"
+                ]
+              },
+              "dest": "dark",
+              "shuffleAfter": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ ถ้าบน Construct Zone เรามี นครทิเนนทอล : เนรเทศ \"อาวุธนคร\" 1 ใบ จากใน Deck ไปไว้ที่ มิติมืด จาก"
+      "uniqueAttachedNames": true,
+      "parseStatus": "auto",
+      "note": "จุติถ้ามีนครทิเนนทอล: เนรเทศอาวุธนครจากเด็คลงมิติมืดแล้วสับ · สวมอาวุธนครชื่อซ้ำไม่ได้"
     },
     {
       "name": "มือปืนนคร นายหัว",
@@ -2259,6 +2273,37 @@
           },
           "actions": [
             {
+              "op": "deckOrHellPick",
+              "filter": {
+                "type": "Construct",
+                "nameIncludes": [
+                  "นครทิเนนทอล"
+                ]
+              },
+              "dest": "buildConstructFree",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "cost": [
+            {
+              "op": "exileHand",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธนคร"
+                ]
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
               "op": "draw",
               "count": 2,
               "player": "owner"
@@ -2266,16 +2311,37 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "uniqueAttachedNames": true,
+      "parseStatus": "auto",
+      "note": "จุติ: ก่อสร้างนครทิเนนทอลจากเด็ค/นรก · สั่งใช้เนรเทศอาวุธนครจากมือแล้วจั่ว 2 (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้"
     },
     {
       "name": "มือปืนนคร บ่าวจุ้ย",
       "codes": [
         "BT11-004"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ เมื่อจบการต่อสู้ที่ Avatar ใบนี้โจมตี เนรเทศ \"อาวุธพระนคร\" ที่ Avatar ใบนี้สวมใส่ 1 ใบ และนำ \"อาวุ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "afterAttackCombat"
+          },
+          "oncePerTurn": true,
+          "optional": true,
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "actions": [
+            {
+              "op": "exileAttachedThenAttachFromDark",
+              "attachedNameIncludes": "อาวุธนคร",
+              "darkNameIncludes": "อาวุธนคร",
+              "thenUntap": true
+            }
+          ]
+        }
+      ],
+      "uniqueOnField": true,
+      "uniqueAttachedNames": true,
+      "parseStatus": "auto",
+      "note": "จบการต่อสู้ที่โจมตี: เนรเทศอาวุธนครที่สวม แล้วสวมใบชื่อต่างจากมิติมืด แล้วตื่น (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้ · สนามได้ 1 ใบ"
     },
     {
       "name": "เมย์ แวมไพร์โกธิค",

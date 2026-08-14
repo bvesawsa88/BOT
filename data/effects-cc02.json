@@ -469,8 +469,10 @@
       "code": "CC02-060",
       "name": "มวยทะเลลลลลล",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น"
+      "parseStatus": "auto",
+      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก",
+      "destroyAfterGlobalEndPhases": 4,
+      "attackLimitPerTurn": 1
     },
     {
       "code": "CC02-050",

@@ -354,20 +354,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {

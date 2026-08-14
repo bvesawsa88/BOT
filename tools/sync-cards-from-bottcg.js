@@ -99,11 +99,11 @@ function toLocalCard(c) {
 }
 
 async function findCardsChunkUrl(html) {
-  const scripts = [...new Set([...html.matchAll(/\/_next\/static\/chunks\/[^"'?]+\.js/g)].map(m => m[0]))];
+  const scripts = [...new Set([...html.matchAll(/\/_next\/static\/(?:immutable\/)?chunks\/[^"'?]+\.js/g)].map(m => m[0]))];
   for (const s of scripts) {
     const url = BASE + s;
     const js = await (await fetch(url)).text();
-    if (js.includes('let r=[{name:') && js.includes('print:"SD01-001"')) {
+    if ((js.includes('let r=[{name:') || js.includes('let r=[{')) && js.includes('print:"SD01-001"')) {
       return { url, js };
     }
   }

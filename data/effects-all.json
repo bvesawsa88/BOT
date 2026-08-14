@@ -626,7 +626,8 @@
           ]
         }
       ],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "note": "ส่งลงนรก ไม่ใช่ทำลาย — คำสั่งเสีย/โดนทำลายไม่ทำงาน"
     },
     {
       "code": "BT01-040",
@@ -634,20 +635,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -813,8 +811,10 @@
       "code": "BT01-049",
       "name": "มวยทะเลลลลลล",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น"
+      "parseStatus": "auto",
+      "destroyAfterGlobalEndPhases": 4,
+      "attackLimitPerTurn": 1,
+      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "BT01-050",
@@ -1797,8 +1797,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD06-014"
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
     },
     {
       "code": "BT02-055",
@@ -4415,13 +4415,20 @@
       "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
       "abilities": [],
       "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "เครื่องจักร"
+      },
       "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
     },
     {
       "code": "BT04-054",
       "name": "ของขวัญจากโอตะ",
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "ไอดอล"
+      }
     },
     {
       "code": "BT04-055",
@@ -5841,7 +5848,8 @@
         }
       ],
       "parseStatus": "auto",
-      "oncePerTurnCard": true
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
     },
     {
       "code": "BT05-059",
@@ -5951,7 +5959,10 @@
       "code": "BT05-063",
       "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "symbol": "หุ่นยนต์"
+      }
     },
     {
       "code": "BT05-064",
@@ -5999,6 +6010,9 @@
         }
       ],
       "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "อัศวินโต๊ะกลม"
+      },
       "note": "+1 และกันโล่มนุษย์ตอนโจมตี · ธรณีสูบจากนรกมาสวมยัง partial"
     },
     {
@@ -6016,7 +6030,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "hostBlockReactUntilCombatEnd": true
     },
     {
       "code": "BT05-066",
@@ -7721,13 +7736,13 @@
           ]
         }
       ],
+      "parseStatus": "auto",
       "overdoseIfOwnFaceUpLifeMin": 3,
       "overdoseSuppressEnemyKeywords": [
         "โล่มนุษย์",
         "ลูกฮึด"
       ],
       "overdoseLockOwnAbilities": true,
-      "parseStatus": "auto",
       "note": "ไลฟ์หงาย ≥3 → Overdose: ศัตรูใช้โล่มนุษย์/ลูกฮึดไม่ได้ · ฆ่าใบที่มีโล่ม/ลูกฮึด → หงายไลฟ์บนสุดศัตรู · อวตารฝ่ายเราใช้ความสามารถไม่ได้ยกเว้น Overdose"
     },
     {
@@ -7931,8 +7946,22 @@
     {
       "code": "BT08-057",
       "name": "แหม่อ้ายก็~~~",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อฝ่ายตรงข้ามประกาศโจมตี: ยกเลิกการโจมตีนั้น"
     },
     {
       "code": "BT08-058",
@@ -8527,7 +8556,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้จากมือเมื่อยักษ์ถูกศัตรูทำลาย (นับ extraSymbols เช่น มณโฑ) → อัญเชิญฟรี แล้วเลือกทำลายศัตรูได้ · Battle Phase ยักษ์ฝ่ายเรา +2"
     },
     {
@@ -8708,7 +8737,10 @@
       "code": "BT09-065",
       "name": "กระสอบ",
       "abilities": [],
-      "parseStatus": "manual"
+      "parseStatus": "auto",
+      "destroyAfterGlobalEndPhases": 4,
+      "hostCannotAttack": true,
+      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "BT09-066",
@@ -10151,9 +10183,28 @@
     {
       "code": "BT11-004",
       "name": "มือปืนนคร บ่าวจุ้ย",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ เมื่อจบการต่อสู้ที่ Avatar ใบนี้โจมตี เนรเทศ \"อาวุธพระนคร\" ที่ Avatar ใบนี้สวมใส่ 1 ใบ และนำ \"อาวุ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "afterAttackCombat"
+          },
+          "oncePerTurn": true,
+          "optional": true,
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "actions": [
+            {
+              "op": "exileAttachedThenAttachFromDark",
+              "attachedNameIncludes": "อาวุธนคร",
+              "darkNameIncludes": "อาวุธนคร",
+              "thenUntap": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "uniqueOnField": true,
+      "uniqueAttachedNames": true,
+      "note": "จบการต่อสู้ที่โจมตี: เนรเทศอาวุธนครที่สวม แล้วสวมใบชื่อต่างจากมิติมืด แล้วตื่น (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้ · สนามได้ 1 ใบ"
     },
     {
       "code": "BT11-005",
@@ -10165,12 +10216,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "อาวุธนคร"
+                ]
+              },
+              "dest": "dark",
+              "shuffleAfter": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ ถ้าบน Construct Zone เรามี นครทิเนนทอล : เนรเทศ \"อาวุธนคร\" 1 ใบ จากใน Deck ไปไว้ที่ มิติมืด จาก"
+      "parseStatus": "auto",
+      "uniqueAttachedNames": true,
+      "note": "จุติถ้ามีนครทิเนนทอล: เนรเทศอาวุธนครจากเด็คลงมิติมืดแล้วสับ · สวมอาวุธนครชื่อซ้ำไม่ได้"
     },
     {
       "code": "BT11-006",
@@ -10184,6 +10248,37 @@
           },
           "actions": [
             {
+              "op": "deckOrHellPick",
+              "filter": {
+                "type": "Construct",
+                "nameIncludes": [
+                  "นครทิเนนทอล"
+                ]
+              },
+              "dest": "buildConstructFree",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
+          "cost": [
+            {
+              "op": "exileHand",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธนคร"
+                ]
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
               "op": "draw",
               "count": 2,
               "player": "owner"
@@ -10191,7 +10286,9 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "uniqueAttachedNames": true,
+      "note": "จุติ: ก่อสร้างนครทิเนนทอลจากเด็ค/นรก · สั่งใช้เนรเทศอาวุธนครจากมือแล้วจั่ว 2 (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้"
     },
     {
       "code": "BT11-007",
@@ -10373,6 +10470,7 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พระถังซัมจั๋ง",
           "actions": [
             {
               "op": "modifyPower",
@@ -10380,16 +10478,15 @@
               "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "protectAllyNameIncludes": "พระถังซัมจั๋ง",
+      "note": "มีพระถังซัมจั๋ง: POWER +2 · กันเล็ง/กันความสามารถใส่พระถังซัมจั๋ง"
     },
     {
       "code": "BT11-014",
@@ -10640,9 +10737,35 @@
     {
       "code": "BT11-025",
       "name": "ซัวเจ๋ง",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากนรก ถ้าใน Avatar Zone เรา มี พระถังซัมจั๋ง , ซุนหงอคง หรือ ตือโป๊ยก่าย รวมกันได้ 2 ใบ ขึ้นไป ทิ้งการ์ดบนมือ 1"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "fromHell": true,
+          "requireOwnNameIncludesAnyMin": {
+            "names": [
+              "พระถังซัมจั๋ง",
+              "ซุนหงอคง",
+              "ตือโป๊ยก่าย"
+            ],
+            "min": 2
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จากนรก: ถ้ามีพระถังซัมจั๋ง/ซุนหงอคง/ตือโป๊ยก่าย รวม ≥2 ชื่อ ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "code": "BT11-026",
@@ -10818,9 +10941,37 @@
     {
       "code": "BT11-035",
       "name": "ตือโป๊ยก่าย",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง อัตโนมัติ เมื่อเราใช้ Magic Card : พระถังซัมจั๋ง , ซุนหงอคง , ตือโป๊ยก่าย และ ซัวเจ๋ง ทุกใบบน Avatar Zone "
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownPlayMagic"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "nextOwnDraw",
+              "layer": 4,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "พระถังซัมจั๋ง",
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง เมื่อใช้ Magic: ไซอิ๋วทั้ง 4 POWER +1 จน Draw Phase ถัดไปของเรา"
     },
     {
       "code": "BT11-036",
@@ -11066,12 +11217,58 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnNamesAll": [
+            "ซุนหงอคง",
+            "ตือโป๊ยก่าย",
+            "ซัวเจ๋ง"
+          ],
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "พระไตรปิฎก"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ ทิ้งการ์ด Avatar 1 ใบ : อัญเชิญ ซุนหงอคง, ตือโป๊ยก่าย หรือ ซัวเจ๋ง 1 ใบ จาก Deck ลงบน Avatar Zo"
+      "parseStatus": "auto",
+      "note": "จุติ ทิ้ง Avatar → อัญเชิญศิษย์จากเด็ค · สั่งใช้ถ้ามีศิษย์ครบ 3 ชื่อ → หาพระไตรปิฎกจากเด็ค/นรก"
     },
     {
       "code": "BT11-048",
@@ -11163,10 +11360,23 @@
       "name": "พระไตรปิฎก",
       "abilities": [
         {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "requireOwnNameIncludes": "พระถังซัมจั๋ง",
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==magicZone"
           },
           "actions": [
             {
@@ -11178,13 +11388,34 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "พระถังซัมจั๋ง",
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "instantWinIf": {
+        "when": "ownDrawPhase",
+        "ownMagicNameIncludesMin": {
+          "nameIncludes": "พระไตรปิฎก",
+          "min": 3
+        },
+        "ownNamesAll": [
+          "พระถังซัมจั๋ง",
+          "ซุนหงอคง",
+          "ตือโป๊ยก่าย",
+          "ซัวเจ๋ง"
+        ]
+      },
+      "note": "ใช้ได้เมื่อมีพระถังซัมจั๋ง: จั่ว 1 ค้าง Magic Zone · ไซอิ๋ว +1 · Draw Phase มี 3 ใบ + ศิษย์ครบ = ชนะ"
     },
     {
       "code": "BT11-057",
@@ -11276,23 +11507,26 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "duration": "combat",
               "target": {
-                "select": "equippedAvatar"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "มือปืนนคร"
+      },
+      "suppressVictimDestroyed": true,
+      "note": "สวมได้แค่มือปืนนคร · โจมตี POWER+1 จนจบการต่อสู้ · ฆ่าจากการต่อสู้แล้วคำสั่งเสียของเหยื่อไม่ทำงาน"
     },
     {
       "code": "BT11-066",
@@ -11300,29 +11534,46 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "duration": "combat",
               "target": {
-                "select": "equippedAvatar"
+                "select": "self"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "มือปืนนคร"
+      },
+      "note": "สวมได้แค่มือปืนนคร · โจมตี POWER+2 จนจบการต่อสู้ · ฆ่าจากการต่อสู้แล้วทำความเสียหาย LIFE 1 ครั้ง"
     },
     {
       "code": "BT11-067",
       "name": "อาวุธนคร ดินสอ 5H",
       "abilities": [],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "มือปืนนคร"
+      },
+      "hostBlockReactUntilCombatEnd": true,
+      "note": "สวมได้แค่มือปืนนคร · โจมตีแล้วอีกฝ่ายใช้ React ไม่ได้จนกว่าจะจบการต่อสู้"
     },
     {
       "code": "BT11-068",
@@ -11475,28 +11726,78 @@
       "name": "นครทิเนนทอล",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activated"
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เทค 1 สอดแนมอาวุธนคร",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "tinentol-scout",
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "อาวุธนคร"
+                        ]
+                      },
+                      "dest": "dark",
+                      "restTo": "bottom",
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "label": "เทค 2 สวมจากมิติมืด",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "tinentol-attach",
+                  "countsAsModification": true,
+                  "requireOwnNameIncludes": "มือปืนนคร",
+                  "actions": [
+                    {
+                      "op": "darkPick",
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "อาวุธนคร"
+                        ]
+                      },
+                      "dest": "pickAttachHost",
+                      "hostFilter": {
+                        "nameIncludes": [
+                          "มือปืนนคร"
+                        ]
+                      },
+                      "thenBuffHost": {
+                        "amount": 2,
+                        "duration": "endOfTurn"
+                      },
+                      "countsAsModification": true
+                    }
+                  ]
+                }
+              ]
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone"
+          },
+          "immuneAbilityDestroy": true,
+          "actions": []
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เทค 1 สอดแนม 5 เนรเทศอาวุธนคร · เทค 2 สวมอาวุธนครจากมิติมืดแล้วนับเป็น Modification +2 · ถูกทำลายได้จากการถูกโจมตีเท่านั้น"
     },
     {
       "code": "BT11-073",
@@ -11522,15 +11823,18 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
+              "op": "hellPick",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "dest": "hand",
               "schedule": "nextOwnMainPhase"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Main ถัดไป: นำ Modification ในนรก 1 ใบกลับขึ้นมือ"
     },
     {
       "code": "CC01-001",
@@ -13315,8 +13619,10 @@
       "code": "CC02-060",
       "name": "มวยทะเลลลลลล",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น"
+      "parseStatus": "auto",
+      "destroyAfterGlobalEndPhases": 4,
+      "attackLimitPerTurn": 1,
+      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "CC02-061",
@@ -13968,8 +14274,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD06-014"
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
     },
     {
       "code": "KD01-019",
@@ -14566,7 +14872,8 @@
         }
       ],
       "parseStatus": "auto",
-      "oncePerTurnCard": true
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
     },
     {
       "code": "KD02-018",
@@ -14633,6 +14940,9 @@
             "from": "self"
           }
         ]
+      },
+      "attachOnly": {
+        "symbol": "นรก"
       },
       "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)"
     },
@@ -15379,7 +15689,10 @@
       "code": "KD03-019",
       "name": "ของขวัญจากโอตะ",
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "ไอดอล"
+      }
     },
     {
       "code": "KD03-020",
@@ -15912,13 +16225,20 @@
       "code": "KD04-014",
       "name": "อาวุธนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
+      }
     },
     {
       "code": "KD04-015",
       "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
       "abilities": [],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "symbol": "หุ่นยนต์"
+      }
     },
     {
       "code": "KD04-016",
@@ -17177,20 +17497,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -17303,6 +17620,9 @@
             "from": "self"
           }
         ]
+      },
+      "attachOnly": {
+        "symbol": "นรก"
       },
       "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)"
     },
@@ -17419,8 +17739,10 @@
       "code": "ODY1-083",
       "name": "มวยทะเลลลลลล",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น"
+      "parseStatus": "auto",
+      "destroyAfterGlobalEndPhases": 4,
+      "attackLimitPerTurn": 1,
+      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "ODY1-084",
@@ -17438,7 +17760,8 @@
           ]
         }
       ],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "note": "ส่งลงนรก ไม่ใช่ทำลาย — คำสั่งเสีย/โดนทำลายไม่ทำงาน"
     },
     {
       "code": "ODY1-085",
@@ -18302,20 +18625,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -18379,7 +18699,8 @@
       "code": "PRMO-038",
       "name": "รถถัง \"Tank Ranger\"",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
+      "uniqueAttachedNames": true,
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
     },
     {
@@ -19018,7 +19339,8 @@
           ]
         }
       ],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "note": "ส่งลงนรก ไม่ใช่ทำลาย — คำสั่งเสีย/โดนทำลายไม่ทำงาน"
     },
     {
       "code": "PRMO-069",
@@ -19455,7 +19777,8 @@
         }
       ],
       "parseStatus": "auto",
-      "oncePerTurnCard": true
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
     },
     {
       "code": "PRMO-101",
@@ -19818,6 +20141,24 @@
       "parseStatus": "manual"
     },
     {
+      "code": "PRMO-123",
+      "name": "ราชาหิมะ บิง",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "PRMO-124",
+      "name": "ซาบะริว นักกวาดล้างมือเก๋า",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
+      "code": "PRMO-125",
+      "name": "ยอดมนุษย์หัวยางลบ",
+      "abilities": [],
+      "parseStatus": "manual"
+    },
+    {
       "code": "PRMO-129",
       "name": "ปลอกคอซื่อสัตย์",
       "abilities": [],
@@ -19854,8 +20195,22 @@
     {
       "code": "PRMO-133",
       "name": "แหม่อ้ายก็~~~",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อฝ่ายตรงข้ามประกาศโจมตี: ยกเลิกการโจมตีนั้น"
     },
     {
       "code": "PRMO-134",
@@ -19914,8 +20269,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD06-014"
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
     },
     {
       "code": "SD01-001",
@@ -21109,6 +21464,9 @@
           }
         ]
       },
+      "attachOnly": {
+        "symbol": "นรก"
+      },
       "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ + ยังไม่ใช้ Mod → ใช้จากนรกได้"
     },
     {
@@ -21413,7 +21771,8 @@
       "code": "SD04-004",
       "name": "รถถัง \"Tank Ranger\"",
       "abilities": [],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
+      "uniqueAttachedNames": true,
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
     },
     {
@@ -22106,6 +22465,9 @@
         }
       ],
       "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "บึงทมิฬ People"
+      },
       "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
     },
     {
@@ -22138,7 +22500,10 @@
           "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "บึงทมิฬ People"
+      }
     },
     {
       "code": "SD05-019",
@@ -22632,8 +22997,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "แมปจาก SD06-014"
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
     },
     {
       "code": "SD06-015",
@@ -22682,6 +23047,9 @@
       "keywords": [
         "ลูกฮึด"
       ],
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
       "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
     },
     {
@@ -22701,6 +23069,9 @@
         }
       ],
       "parseStatus": "auto",
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
       "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ"
     },
     {
@@ -23223,20 +23594,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -23261,7 +23629,10 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": "ขุนพล"
+      }
     },
     {
       "code": "SD07-019",
@@ -23837,7 +24208,10 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": {
+        "symbol": "รัททาทุย"
+      }
     },
     {
       "code": "SD08-017",
@@ -24459,7 +24833,8 @@
         }
       ],
       "parseStatus": "auto",
-      "oncePerTurnCard": true
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
     },
     {
       "code": "SL02-008",

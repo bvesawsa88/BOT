@@ -634,20 +634,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย",
       "name": "หมอมาแล้วววว"
     },
@@ -813,9 +810,11 @@
     {
       "code": "BT01-049",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "จำกัดโจมตี 1 ตัว/ฝ่าย/เทิร์น + อยู่ 4 เทิร์น",
-      "name": "มวยทะเลลลลลล"
+      "parseStatus": "auto",
+      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก",
+      "name": "มวยทะเลลลลลล",
+      "attackLimitPerTurn": 1,
+      "destroyAfterGlobalEndPhases": 4
     },
     {
       "code": "BT01-050",

@@ -28,6 +28,7 @@
           ]
         }
       ],
+      "hostBlockReactUntilCombatEnd": true,
       "parseStatus": "auto"
     },
     {
@@ -36,7 +37,10 @@
         "BT09-065"
       ],
       "abilities": [],
-      "parseStatus": "manual"
+      "destroyAfterGlobalEndPhases": 4,
+      "hostCannotAttack": true,
+      "parseStatus": "auto",
+      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "name": "กองถ่ายฤาษี",
@@ -134,6 +138,9 @@
         "KD03-019"
       ],
       "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "ไอดอล"
+      },
       "parseStatus": "auto"
     },
     {
@@ -168,6 +175,9 @@
           ]
         }
       ],
+      "attachOnly": {
+        "nameIncludes": "ขุนพล"
+      },
       "parseStatus": "auto"
     },
     {
@@ -197,6 +207,9 @@
           ]
         }
       ],
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
       "parseStatus": "auto",
       "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ"
     },
@@ -271,6 +284,9 @@
           ]
         }
       ],
+      "attachOnly": {
+        "nameIncludes": "อัศวินโต๊ะกลม"
+      },
       "parseStatus": "auto",
       "note": "+1 และกันโล่มนุษย์ตอนโจมตี · ธรณีสูบจากนรกมาสวมยัง partial"
     },
@@ -340,6 +356,9 @@
           "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
         }
       ],
+      "attachOnly": {
+        "nameIncludes": "บึงทมิฬ People"
+      },
       "parseStatus": "auto"
     },
     {
@@ -489,6 +508,9 @@
           ]
         }
       ],
+      "attachOnly": {
+        "symbol": "รัททาทุย"
+      },
       "parseStatus": "auto"
     },
     {
@@ -644,6 +666,9 @@
           ]
         }
       ],
+      "attachOnly": {
+        "nameIncludes": "บึงทมิฬ People"
+      },
       "parseStatus": "auto",
       "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
     },
@@ -739,6 +764,9 @@
       "keywords": [
         "ลูกฮึด"
       ],
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
       "parseStatus": "auto",
       "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
     },
@@ -897,6 +925,9 @@
           }
         ]
       },
+      "attachOnly": {
+        "symbol": "นรก"
+      },
       "parseStatus": "verified",
       "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ + ยังไม่ใช้ Mod → ใช้จากนรกได้"
     },
@@ -949,6 +980,9 @@
           }
         ]
       },
+      "attachOnly": {
+        "symbol": "นรก"
+      },
       "parseStatus": "verified",
       "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)"
     },
@@ -974,7 +1008,12 @@
         "BT11-067"
       ],
       "abilities": [],
-      "parseStatus": "partial"
+      "attachOnly": {
+        "nameIncludes": "มือปืนนคร"
+      },
+      "hostBlockReactUntilCombatEnd": true,
+      "parseStatus": "auto",
+      "note": "สวมได้แค่มือปืนนคร · โจมตีแล้วอีกฝ่ายใช้ React ไม่ได้จนกว่าจะจบการต่อสู้"
     },
     {
       "name": "อาวุธนคร ปืนพกงูเห่า",
@@ -984,23 +1023,26 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "duration": "combat",
               "target": {
-                "select": "equippedAvatar"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "attachOnly": {
+        "nameIncludes": "มือปืนนคร"
+      },
+      "suppressVictimDestroyed": true,
+      "parseStatus": "auto",
+      "note": "สวมได้แค่มือปืนนคร · โจมตี POWER+1 จนจบการต่อสู้ · ฆ่าจากการต่อสู้แล้วคำสั่งเสียของเหยื่อไม่ทำงาน"
     },
     {
       "name": "อาวุธนคร ลูกซองจุ้ย",
@@ -1010,23 +1052,35 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "duration": "combat",
               "target": {
-                "select": "equippedAvatar"
+                "select": "self"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "attachOnly": {
+        "nameIncludes": "มือปืนนคร"
+      },
+      "parseStatus": "auto",
+      "note": "สวมได้แค่มือปืนนคร · โจมตี POWER+2 จนจบการต่อสู้ · ฆ่าจากการต่อสู้แล้วทำความเสียหาย LIFE 1 ครั้ง"
     },
     {
       "name": "อาวุธนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
@@ -1034,6 +1088,10 @@
         "KD04-014"
       ],
       "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
+      },
       "parseStatus": "auto"
     },
     {
@@ -1042,6 +1100,10 @@
         "BT04-053"
       ],
       "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "เครื่องจักร"
+      },
       "parseStatus": "auto",
       "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
     },
@@ -1082,6 +1144,9 @@
         "KD04-015"
       ],
       "abilities": [],
+      "attachOnly": {
+        "symbol": "หุ่นยนต์"
+      },
       "parseStatus": "auto"
     }
   ]

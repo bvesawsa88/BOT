@@ -934,7 +934,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "note": "สั่งใช้จากมือเมื่อยักษ์ถูกศัตรูทำลาย (นับ extraSymbols เช่น มณโฑ) → อัญเชิญฟรี แล้วเลือกทำลายศัตรูได้ · Battle Phase ยักษ์ฝ่ายเรา +2"
     },
     {
@@ -1371,12 +1371,58 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
+              },
+              "dest": "avatar",
+              "shuffleAfter": true,
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnNamesAll": [
+            "ซุนหงอคง",
+            "ตือโป๊ยก่าย",
+            "ซัวเจ๋ง"
+          ],
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "พระไตรปิฎก"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ ทิ้งการ์ด Avatar 1 ใบ : อัญเชิญ ซุนหงอคง, ตือโป๊ยก่าย หรือ ซัวเจ๋ง 1 ใบ จาก Deck ลงบน Avatar Zo"
+      "parseStatus": "auto",
+      "note": "จุติ ทิ้ง Avatar → อัญเชิญศิษย์จากเด็ค · สั่งใช้ถ้ามีศิษย์ครบ 3 ชื่อ → หาพระไตรปิฎกจากเด็ค/นรก"
     },
     {
       "name": "พลทหาร",
@@ -2094,7 +2140,8 @@
         "SD04-004"
       ],
       "abilities": [],
-      "parseStatus": "manual",
+      "uniqueAttachedNames": true,
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
     },
     {

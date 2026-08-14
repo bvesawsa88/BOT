@@ -1100,10 +1100,23 @@
       ],
       "abilities": [
         {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "requireOwnNameIncludes": "พระถังซัมจั๋ง",
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==magicZone"
           },
           "actions": [
             {
@@ -1115,13 +1128,34 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "พระถังซัมจั๋ง",
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "stayOnMagic": true,
+      "instantWinIf": {
+        "when": "ownDrawPhase",
+        "ownMagicNameIncludesMin": {
+          "nameIncludes": "พระไตรปิฎก",
+          "min": 3
+        },
+        "ownNamesAll": [
+          "พระถังซัมจั๋ง",
+          "ซุนหงอคง",
+          "ตือโป๊ยก่าย",
+          "ซัวเจ๋ง"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "ใช้ได้เมื่อมีพระถังซัมจั๋ง: จั่ว 1 ค้าง Magic Zone · ไซอิ๋ว +1 · Draw Phase มี 3 ใบ + ศิษย์ครบ = ชนะ"
     },
     {
       "name": "พลังแห่งการตีพ่อตีแม่",

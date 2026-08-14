@@ -779,11 +779,12 @@ const SD07 = {
   'SD07-017': {
     code: 'SD07-017', name: 'หมอมาแล้วววว',
     abilities: [{
-      trigger: { on: 'activated' },
+      trigger: { on: 'avatarWouldBeDestroyed' },
       react: true,
-      actions: [{ op: 'grantCombatImmune', filter: { type: 'Avatar' } }]
+      actions: [{ op: 'preventDestroy' }]
     }],
-    parseStatus: 'manual'
+    parseStatus: 'manual',
+    note: 'เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย'
   }
 };
 

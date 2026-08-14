@@ -85,28 +85,78 @@
       ],
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activated"
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เทค 1 สอดแนมอาวุธนคร",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "tinentol-scout",
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "อาวุธนคร"
+                        ]
+                      },
+                      "dest": "dark",
+                      "restTo": "bottom",
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "label": "เทค 2 สวมจากมิติมืด",
+                  "oncePerTurn": true,
+                  "oncePerTurnTag": "tinentol-attach",
+                  "countsAsModification": true,
+                  "requireOwnNameIncludes": "มือปืนนคร",
+                  "actions": [
+                    {
+                      "op": "darkPick",
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "อาวุธนคร"
+                        ]
+                      },
+                      "dest": "pickAttachHost",
+                      "hostFilter": {
+                        "nameIncludes": [
+                          "มือปืนนคร"
+                        ]
+                      },
+                      "thenBuffHost": {
+                        "amount": 2,
+                        "duration": "endOfTurn"
+                      },
+                      "countsAsModification": true
+                    }
+                  ]
+                }
+              ]
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone"
+          },
+          "immuneAbilityDestroy": true,
+          "actions": []
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เทค 1 สอดแนม 5 เนรเทศอาวุธนคร · เทค 2 สวมอาวุธนครจากมิติมืดแล้วนับเป็น Modification +2 · ถูกทำลายได้จากการถูกโจมตีเท่านั้น"
     },
     {
       "name": "รูปปั้นพระอิศวร",

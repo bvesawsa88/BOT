@@ -2235,6 +2235,10 @@
             toast(n
               ? `💚 จะใช้ React ไหม? (${why}) — มี ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`
               : `⏳ จะตอบโต้ไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
+          } else if (pr0.reactTrigger === 'avatarWouldBeDestroyed') {
+            toast(n
+              ? `💚 ${why} — มีหมอมาแล้วววว ${n} ใบ · แตะใบเขียวเพื่อกันทำลาย หรือกดไม่ใช้`
+              : `⏳ ${why} — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
           } else {
             toast(`💚 React ${n || 1} ใบพร้อมใช้ (${why}) — แตะใบที่กะพริบเขียว หรือกดไม่ใช้`, 4500);
           }
@@ -2243,6 +2247,8 @@
           toast(`⏳ รอฝ่าย ${pr0.chooser} ตอบว่าจะขัด "${tgtN}" ไหม (${pr0.seconds || 10} วิ)`, 3500);
         } else if (pr0.reactTrigger === 'enemyDeclareAttack') {
           toast(`⏳ รอฝ่าย ${pr0.chooser} ตอบว่าจะใช้ React ไหม (${pr0.seconds || 10} วิ)`, 3500);
+        } else if (pr0.reactTrigger === 'avatarWouldBeDestroyed') {
+          toast(`⏳ รอฝ่าย ${pr0.chooser} ตอบว่าจะกันทำลายไหม (${pr0.seconds || 10} วิ)`, 3500);
         }
       }
       if (pr0 && (pr0.dest === 'preventLeavePick' || pr0.kind === 'preventLeaveExile')) {
@@ -3387,6 +3393,8 @@
         txt = `⏳ รอฝ่าย ${pr.chooser} ตอบว่าจะขัด "${tgtN}" ไหม…`;
       } else if (!mine && pr.kind === 'react' && pr.reactTrigger === 'enemyDeclareAttack') {
         txt = `⏳ รอฝ่าย ${pr.chooser} ตอบว่าจะใช้ React ไหม…`;
+      } else if (!mine && pr.kind === 'react' && pr.reactTrigger === 'avatarWouldBeDestroyed') {
+        txt = `⏳ รอฝ่าย ${pr.chooser} ตอบว่าจะกันทำลายไหม…`;
       }
       if (mine) {
         const srcN = st.inst[pr.src] ? st.inst[pr.src].name : '';
@@ -3420,6 +3428,8 @@
           else if (pr.dest === 'preventLeavePick') txt = `🛡️ เนรเทศรัททาทุยจากนรก (${pr.got || 0}/${pr.need || 5}) — แตะการ์ดในหน้าต่าง · ข้าม = ออกสนาม`;
           else if (pr.from === 'deckOrHell') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คหรือนรก`;
           else if (pr.from === 'hell') txt = `✨ ${srcN}: เลือกการ์ดจากนรก`;
+          else if (pr.from === 'dark') txt = `🌀 ${srcN}: เลือกอาวุธนครจากมิติมืด — แตะใบที่กะพริบในหน้าต่าง`;
+          else if (pr.from === 'ownHand') txt = `✋ ${srcN}: เลือกการ์ดจากมือ — แตะใบที่กะพริบในหน้าต่าง`;
           else txt = `✨ ${srcN}: เลือกการ์ดจากหน้าต่างที่เปิดอยู่`;
         }
         if (pr.kind === 'rps') txt = `✊ ${srcN}: เป่ายิ้งฉุบ! เลือกภายใน ${pr.seconds || 10} วินาที`;
@@ -3459,6 +3469,10 @@
             txt = nOpt
               ? `💚 จะใช้ React ไหม? ${why} — มี ${nOpt} ใบ · แตะใบเขียว / โล่มนุษย์ / กด「ไม่ใช้」 / รอ ${pr.seconds || 10} วิ`
               : `⏳ จะตอบโต้ไหม? ${why} — โล่มนุษย์ / กด「ไม่ใช้」หรือรอ ${pr.seconds || 10} วิ`;
+          } else if (pr.reactTrigger === 'avatarWouldBeDestroyed') {
+            txt = nOpt
+              ? `💚 ${why} — มี ${nOpt} ใบ · แตะใบเขียวเพื่อกันทำลาย หรือกด「ไม่ใช้」`
+              : `⏳ ${why} — กด「ไม่ใช้」หรือรอ ${pr.seconds || 10} วิ`;
           } else if (pr.avatarHandAbility) {
             txt = nOpt
               ? `⚡ สั่งใช้จากมือ (${why}) — มี ${nOpt} ใบ · แตะใบที่กะพริบเขียว หรือกด「ไม่ใช้」`
@@ -3469,7 +3483,7 @@
         }
         if (pr.kind === 'chooseMode') txt = pr.guessTypes
           ? `👁 ${srcN}: ประกาศประเภทใบบนสุดเด็คฝ่ายตรงข้าม — อวตาร / เมจิก / คอนสตรัค`
-          : `🎯 ${srcN}: เลือกปฏิบัติ — จากนรก หรือจากเด็ค`;
+          : `⚡ ${srcN}: เลือกเทค — กดปุ่มสายฟ้าด้านล่าง`;
         if (pr.kind === 'guessReveal') {
           const mark = pr.hit ? '✓ ถูก' : '✗ ผิด';
           txt = `👁 สอดแนมท็อปเด็ค: 「${pr.cardName || '?'}」(${pr.realLabel || pr.realType || '?'}) · ประกาศ ${pr.declareLabel || pr.declareType || '?'} → ${mark} — กด「ดำเนินการต่อ」${pr.hit ? 'เพื่อส่งนรก/ทำผล' : ' (ไว้ที่เดิม)'}`;
@@ -3487,18 +3501,29 @@
       byId('btnReactYes').classList.add('hidden'); // เลิกถามใช่/ไม่ — แตะใบที่กะพริบแทน
       byId('btnReactNo').classList.toggle('hidden', !(mine && pr.kind === 'react'));
       if (mine && pr.kind === 'react') {
-        byId('btnReactNo').textContent = 'ไม่ใช้';
+        byId('btnReactNo').textContent = pr.reactTrigger === 'avatarWouldBeDestroyed' ? 'ไม่ใช้ — ถูกทำลาย' : 'ไม่ใช้';
       }
       syncReactTimer(pr);
       const millRow = byId('milledOptionalRow');
       if (millRow) millRow.classList.toggle('hidden', !(mine && pr.kind === 'milledOptional'));
-      // เลือกมันสำหรับพวกจน ฯลฯ — เปิด modal เลือก นรก/เด็ค อัตโนมัติ
+      // เลือกเทคหลังกด ⚡ — ปุ่มสายฟ้าบนแถบ (ไม่เปิด modal บังสนาม)
       // ★ ทายประเภทตำรวจ (guessTypes) = ใช้ปุ่มบนแถบเท่านั้น ห้ามเปิด modal ทับ/ดันเมจิกโซน
-      if (mine && pr.kind === 'chooseMode' && pr.options && pr.options.length && !pr.guessTypes) {
-        const modal = byId('choiceModal');
-        if (modal && modal.classList.contains('hidden')) {
-          openChoiceFromEffects(pr.src, pr.options);
-        }
+      const modeRow = byId('chooseModeRow');
+      if (modeRow) {
+        const showModes = !!(mine && pr.kind === 'chooseMode' && pr.options && pr.options.length && !pr.guessTypes);
+        modeRow.classList.toggle('hidden', !showModes);
+        if (showModes) {
+          const own = pr.chooser;
+          modeRow.innerHTML = pr.options.map((opt, i) => {
+            const deny = BoTEngine.chooseModeOptionDeny && BoTEngine.chooseModeOptionDeny(st, pr.src, own, opt);
+            const used = deny && /ใช้ไปแล้ว/.test(deny);
+            const label = (opt && opt.label) ? opt.label : ('ข้อ ' + (i + 1));
+            const tip = deny ? deny : label;
+            return `<button type="button" class="btn-primary small${deny ? ' dim' : ''}" data-choose-mode="${i}" title="${esc(tip)}"${used ? ' disabled' : ''}>⚡ ${esc(label)}</button>`;
+          }).join('');
+          const modal = byId('choiceModal');
+          if (modal && !modal.classList.contains('hidden')) closeChoicePopup(true);
+        } else modeRow.innerHTML = '';
       }
       const peekRow = byId('peekTopRow');
       if (peekRow) {
@@ -3600,6 +3625,7 @@
       const millRow = byId('milledOptionalRow');
       if (millRow) millRow.classList.add('hidden');
       const gt = byId('guessTypeRow'); if (gt) gt.classList.add('hidden');
+      const cm = byId('chooseModeRow'); if (cm) { cm.classList.add('hidden'); cm.innerHTML = ''; }
       const gr = byId('guessRevealRow'); if (gr) gr.classList.add('hidden');
     }
 
@@ -4368,7 +4394,7 @@
     const title = document.querySelector('#choiceModal .dc-title');
     const note = document.querySelector('#choiceModal .dc-note');
     if (title) title.textContent = '🎯 เลือกปฏิบัติ';
-    if (note) note.innerHTML = 'เลือกจาก <b>นรก</b> หรือ <b>เด็ค</b> แล้วกดยืนยัน — ระบบจะเปิดการ์ดที่เลือกได้ให้แตะต่อ';
+    if (note) note.innerHTML = 'เลือกเทคแล้วกดยืนยัน · <b>ยกเลิก</b>ได้ก่อนเลือกข้อ · ถ้าเลือกแล้วใช้ไม่ได้หรือข้ามเป้า จะนับว่าใช้ไปแล้วในเทิร์นนี้';
     renderChoiceOpts();
     byId('choiceModal').classList.remove('hidden');
   }
@@ -4381,13 +4407,23 @@
       </label>`).join('');
   }
   function closeChoicePopup(force) {
-    // ทายประเภท / เลือกปฏิบัติบังคับ — ห้ามปิดทิ้ง ไม่งั้นเด็ค/เกมค้าง
+    // ทายประเภท — ห้ามปิดทิ้ง ไม่งั้นเด็ค/เกมค้าง
     const pr0 = st && (st.prompts || [])[0];
-    if (!force && pr0 && pr0.kind === 'chooseMode' && pr0.optional === false && choiceCtx && choiceCtx.k === pr0.src) {
-      toast(pr0.guessTypes
-        ? 'ต้องประกาศประเภทท็อปเด็คก่อน — กด อวตาร / เมจิก / คอนสตรัค บนแถบด้านล่างได้'
-        : 'ต้องเลือกปฏิบัติให้ครบก่อน');
+    if (!force && pr0 && pr0.kind === 'chooseMode' && pr0.guessTypes && choiceCtx && choiceCtx.k === pr0.src) {
+      toast('ต้องประกาศประเภทท็อปเด็คก่อน — กด อวตาร / เมจิก / คอนสตรัค บนแถบด้านล่างได้');
       byId('choiceModal').classList.remove('hidden');
+      return;
+    }
+    if (!force && pr0 && pr0.kind === 'chooseMode' && pr0.optional === false && choiceCtx && choiceCtx.k === pr0.src) {
+      toast('ต้องเลือกปฏิบัติให้ครบก่อน');
+      byId('choiceModal').classList.remove('hidden');
+      return;
+    }
+    // ยกเลิกหน้าต่างเลือกเทค — ยังไม่นับว่าใช้ (นับเมื่อเลือกข้อแล้ว แม้ใช้ไม่ได้หรือข้ามเป้า)
+    if (!force && pr0 && pr0.kind === 'chooseMode' && !pr0.guessTypes && choiceCtx && choiceCtx.k === pr0.src) {
+      byId('choiceModal').classList.add('hidden');
+      choiceCtx = null;
+      sendAction({ type: 'skipPrompt', by: mode === 'solo' ? pr0.chooser : undefined });
       return;
     }
     byId('choiceModal').classList.add('hidden');
@@ -4461,12 +4497,14 @@
     // สอดแนมเปิด (revealAllScout) = ข้อมูลเปิด → ทั้งสองฝั่งเห็นหน้าต่าง / อื่นๆ เฉพาะคนเลือก
     const iAmChooser = !!(pp && (mode === 'solo' || seat === pp.chooser));
     const openScoutBoth = !!(pp && pp.kind === 'pick' && pp.from === 'ids' && pp.revealAllScout);
-    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'deckOrHell', 'ownMagic'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
+    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'deckOrHell', 'ownMagic', 'dark', 'ownHand'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
       // สอดแนม (ids): โชว์ทุกใบที่เปิดเจอ · ใบที่เลือกได้กะพริบ · เมฟิสโต้ฯ ติดป้ายขึ้นมืออัตโนมัติ
       // นรก showAllHell: โชว์ทั้งกอง · ใบตรงเงื่อนไขกะพริบ (ไม่นะโดม / อู๊ด / มณโท)
       const showAllScout = pp.from === 'ids' && !!pp.revealAllScout;
       const showAllHell = pp.from === 'hell' && !!pp.showAllHell;
       const showAllMagic = pp.from === 'ownMagic';
+      const showAllDark = pp.from === 'dark';
+      const showAllHand = pp.from === 'ownHand';
       const selectable = iAmChooser ? BoTEngine.promptCandidates(st, pp) : [];
       const autoHand = new Set((pp.autoHandIds || []).filter(k => (st.zones[pp.chooser + '.deck'] || []).includes(k)));
       // ids อาจอยู่เด็คฝ่ายตรงข้าม (สอดแนมตำรวจ) — อย่ากรองเฉพาะเด็คของ chooser
@@ -4476,9 +4514,13 @@
           ? (st.zones[pp.chooser + '.hell'] || []).filter(k => k !== pp.src)
           : showAllMagic
             ? (st.zones[pp.chooser + '.magic'] || []).filter(k => k !== pp.src)
-            : selectable;
+            : showAllDark
+              ? (st.zones[pp.chooser + '.dark'] || []).filter(k => k !== pp.src)
+              : showAllHand
+                ? (st.zones[pp.chooser + '.hand'] || []).filter(k => !(pp.excludeIds || []).includes(k))
+                : selectable;
       const canPick = new Set(selectable);
-      const showAllPick = showAllScout || showAllHell || showAllMagic;
+      const showAllPick = showAllScout || showAllHell || showAllMagic || showAllDark || showAllHand;
       let title;
       if (pp.dest === 'preventLeavePick')
         title = `🛡️ เนรเทศรัททาทุยจากนรก (${pp.got || 0}/${pp.need || 5}) — แตะการ์ดเพื่อเนรเทศ`;
@@ -4501,6 +4543,18 @@
           : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
       else if (pp.dest === 'avatar')
         title = `✨ เลือกการ์ดอัญเชิญลงสนาม`;
+      else if (pp.from === 'dark' && (pp.dest === 'pickAttachHost' || pp.dest === 'attachTo' || pp.dest === 'attachSelf'))
+        title = iAmChooser
+          ? `🌀 มิติมืด ${disp.length} ใบ — แตะอาวุธนครที่กะพริบเพื่อสวม (${selectable.length})`
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 มิติมืดของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (pp.from === 'dark')
+        title = iAmChooser
+          ? `🌀 เลือกการ์ดจากมิติมืด — แตะใบที่กะพริบ (${selectable.length})`
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 มิติมืดของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (pp.from === 'ownHand')
+        title = `✋ เลือกการ์ดจากมือ — แตะใบที่กะพริบ`;
       else if (pp.dest === 'dark')
         title = `🌀 เลือกเป้าเนรเทศมิติมืด`;
       else if (pp.dest === 'scoutAllHandThenExile')
@@ -4542,7 +4596,9 @@
           ? 'โชว์ทั้ง Magic Zone เป็นใบใหญ่ · ใบที่กะพริบเลือกได้ · ไม่ต้องเลื่อนหรือคลิกใบที่ทับกันบนสนาม'
           : (pp.from === 'deckOrHell'
             ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
-            : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก')))
+            : (pp.from === 'dark'
+              ? 'โชว์ทั้งมิติมืด · แตะใบที่กะพริบเพื่อเลือกอาวุธนครมาสวม'
+              : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก'))))
         : 'อีกฝั่งกำลังเลือก — ดูอย่างเดียว';
       byId('pileGrid').innerHTML = disp.length
         ? disp.map((k, i) => {
@@ -4563,7 +4619,7 @@
           }
           return cardHTML(k, 'magic', opts);
         }).join('')
-        : `<div class="pile-empty">${pp.from === 'ownMagic' ? 'ไม่มีใบบน Magic Zone' : 'ไม่มีการ์ดในนรก / ให้เลือก'}</div>`;
+        : `<div class="pile-empty">${pp.from === 'ownMagic' ? 'ไม่มีใบบน Magic Zone' : (pp.from === 'dark' ? 'ไม่มีใบบนมิติมืด' : (pp.from === 'ownHand' ? 'ไม่มีใบในมือ' : 'ไม่มีการ์ดในนรก / ให้เลือก'))}</div>`;
       ov.dataset.prompt = iAmChooser ? '1' : 'view';
       const skipBtn = byId('btnPileClose');
       if (!iAmChooser) {
@@ -5208,6 +5264,23 @@
       by: promptBy()
     });
     closeChoicePopup(true);
+  });
+  const chooseModeRowEl = byId('chooseModeRow');
+  if (chooseModeRowEl) chooseModeRowEl.addEventListener('click', e => {
+    const btn = e.target.closest('[data-choose-mode]');
+    if (!btn || btn.disabled || !st) return;
+    const pr = (st.prompts || [])[0];
+    if (!pr || pr.kind !== 'chooseMode' || pr.guessTypes) return;
+    const idx = +btn.getAttribute('data-choose-mode');
+    if (!pr.options || !pr.options[idx]) return;
+    const opt = pr.options[idx];
+    sendAction({
+      type: 'chooseMode',
+      k: pr.src,
+      opt: idx,
+      label: opt.label || undefined,
+      by: promptBy()
+    });
   });
   const hosPick = where => {
     const pr = st && (st.prompts || [])[0];

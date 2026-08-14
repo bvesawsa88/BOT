@@ -569,9 +569,23 @@
     },
     {
       "code": "BT08-057",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "แหม่อ้ายก็~~~"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "แหม่อ้ายก็~~~",
+      "note": "เมื่อฝ่ายตรงข้ามประกาศโจมตี: ยกเลิกการโจมตีนั้น"
     },
     {
       "code": "BT08-058",

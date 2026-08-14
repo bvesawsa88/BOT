@@ -428,9 +428,35 @@
       "codes": [
         "BT11-025"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากนรก ถ้าใน Avatar Zone เรา มี พระถังซัมจั๋ง , ซุนหงอคง หรือ ตือโป๊ยก่าย รวมกันได้ 2 ใบ ขึ้นไป ทิ้งการ์ดบนมือ 1"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "fromHell": true,
+          "requireOwnNameIncludesAnyMin": {
+            "names": [
+              "พระถังซัมจั๋ง",
+              "ซุนหงอคง",
+              "ตือโป๊ยก่าย"
+            ],
+            "min": 2
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จากนรก: ถ้ามีพระถังซัมจั๋ง/ซุนหงอคง/ตือโป๊ยก่าย รวม ≥2 ชื่อ ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "name": "ซุส เทพเจ้าสูงสุดแห่งโอลิมปัส",
@@ -2035,7 +2061,8 @@
     {
       "name": "ราชาหิมะ บิง",
       "codes": [
-        "BT07-018"
+        "BT07-018",
+        "PRMO-123"
       ],
       "abilities": [],
       "parseStatus": "manual"

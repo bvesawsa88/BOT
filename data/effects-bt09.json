@@ -414,7 +414,7 @@
           ]
         }
       ],
-      "parseStatus": "manual",
+      "parseStatus": "auto",
       "name": "ท้าวเวสสุวรรณ",
       "note": "สั่งใช้จากมือเมื่อยักษ์ถูกศัตรูทำลาย (นับ extraSymbols เช่น มณโฑ) → อัญเชิญฟรี แล้วเลือกทำลายศัตรูได้ · Battle Phase ยักษ์ฝ่ายเรา +2"
     },
@@ -595,8 +595,11 @@
     {
       "code": "BT09-065",
       "abilities": [],
-      "parseStatus": "manual",
-      "name": "กระสอบ"
+      "parseStatus": "auto",
+      "name": "กระสอบ",
+      "hostCannotAttack": true,
+      "destroyAfterGlobalEndPhases": 4,
+      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "BT09-066",

@@ -563,9 +563,37 @@
       "codes": [
         "BT11-035"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง อัตโนมัติ เมื่อเราใช้ Magic Card : พระถังซัมจั๋ง , ซุนหงอคง , ตือโป๊ยก่าย และ ซัวเจ๋ง ทุกใบบน Avatar Zone "
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownPlayMagic"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "nextOwnDraw",
+              "layer": 4,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "พระถังซัมจั๋ง",
+                  "ซุนหงอคง",
+                  "ตือโป๊ยก่าย",
+                  "ซัวเจ๋ง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง เมื่อใช้ Magic: ไซอิ๋วทั้ง 4 POWER +1 จน Draw Phase ถัดไปของเรา"
     },
     {
       "name": "ตุตันคาเมน ฟาโรห์ทองคำ",
@@ -1622,7 +1650,8 @@
     {
       "name": "ยอดมนุษย์หัวยางลบ",
       "codes": [
-        "BT10-030"
+        "BT10-030",
+        "PRMO-125"
       ],
       "abilities": [],
       "parseStatus": "manual"

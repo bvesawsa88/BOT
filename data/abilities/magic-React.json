@@ -289,7 +289,8 @@
           ]
         }
       ],
-      "parseStatus": "verified"
+      "parseStatus": "verified",
+      "note": "ส่งลงนรก ไม่ใช่ทำลาย — คำสั่งเสีย/โดนทำลายไม่ทำงาน"
     },
     {
       "name": "โจมตีตัวฉันให้โดนถ้าหากเธอทำได้",
@@ -545,8 +546,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "POWER -2 ต่อใบบนมือ+สนามฝ่ายเรา รวมใบนี้ · ตลอดไป"
+      "parseStatus": "verified",
+      "note": "ซ้ำ BT02-054 — SD06 พิมพ์ subtype ผิดในฐานเดิม แก้เป็น React ผ่านเอฟเฟกต์"
     },
     {
       "name": "แผนการ : ตอกฝาโลง",
@@ -1053,20 +1054,17 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "actions": [
             {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar"
-              }
+              "op": "preventDestroy"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -1106,8 +1104,22 @@
         "BT08-057",
         "PRMO-133"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อฝ่ายตรงข้ามประกาศโจมตี: ยกเลิกการโจมตีนั้น"
     },
     {
       "name": "ให้ข้าวฉันถ้าคุณเป็นคนดี",
@@ -1140,6 +1152,7 @@
         }
       ],
       "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true,
       "parseStatus": "auto"
     },
     {
