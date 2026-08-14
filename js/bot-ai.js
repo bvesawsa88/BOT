@@ -276,6 +276,25 @@
       if (hasLandNamed(st, LAND.FOREST)) score += 35;
       else score -= 25;
     }
+    if (/พิเภก/.test(nameOf(c))) {
+      const hellYakP3 = zoneIds(st, side + '.hell').some(id => {
+        const x = st.inst[id];
+        return x && x.symbol === 'ยักษ์' && +x.power === 3;
+      });
+      score += hellYakP3 ? 45 : -90;
+    }
+    if (/มณโฑ/.test(nameOf(c))) {
+      const fieldYak = zoneIds(st, side + '.avatar').some(id => {
+        const x = st.inst[id];
+        return x && (x.symbol === 'ยักษ์' || /มณโฑ/.test(nameOf(x)));
+      });
+      const hellYak = zoneIds(st, side + '.hell').some(id => {
+        const x = st.inst[id];
+        return x && x.symbol === 'ยักษ์';
+      });
+      if (fieldYak && hellYak) score += 50;
+      else score -= 80;
+    }
 
     const e = effectOf(c);
     (e && e.abilities || []).forEach(ab => {

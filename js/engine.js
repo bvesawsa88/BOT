@@ -2484,9 +2484,10 @@
   }
 
   /* จ่ายค่า + รันผลสั่งใช้ (หลังคู่ต่อสู้กดไม่ใช้เชาว์ปัญญาลิง) */
-  function payCostAndRunActivated(st, fx, owner, srcK, costList, actions, rng) {
+  function payCostAndRunActivated(st, fx, owner, srcK, costList, actions, rng, onceTag) {
     costList = costList || [];
     actions = actions || [];
+    const actCtx = { src: srcK, owner, rng, onceTag: onceTag || null };
     if (costList.length) {
       const costOp = costList[0];
       if (costOp.op === 'discard') {
@@ -2513,7 +2514,7 @@
         st.inst[srcK].costDelta = (st.inst[srcK].costDelta || 0) - minus;
         const after = effCost(st, srcK);
         addLog(st, owner, `จ่ายค่า: ${nameOf(st, srcK)} Cost −${minus} (${before} → ${after})`);
-        runActions(st, fx, actions, { src: srcK, owner, rng });
+        runActions(st, fx, actions, actCtx);
       } else if (costOp.op === 'returnHandToDeck') {
         st.prompts.push({ kind: 'chooseDiscard', src: srcK, chooser: owner, filter: costOp.filter, actions, toDeck: true, effectDiscard: true });
       } else if (costOp.op === 'sacrifice') {
@@ -2549,7 +2550,7 @@
         addLog(st, owner, `เนรเทศ "${costOp.nameIncludes}" ชื่อไม่ซ้ำ ${costOp.count || 3} จากนรก`);
       } else if (costOp.op === 'exileSelf') {
         doMove(st, srcK, owner + '.dark', null, fx);
-        runActions(st, fx, actions, { src: srcK, owner, rng });
+        runActions(st, fx, actions, actCtx);
       } else if (costOp.op === 'exileDeckTop') {
         const d = st.zones[owner + '.deck'] || [];
         if (!d.length) addLog(st, 'S', `เด็คว่าง — เนรเทศใบบนสุดไม่ได้`);
@@ -2557,17 +2558,17 @@
           const top = d[d.length - 1];
           doMove(st, top, owner + '.dark', null, fx);
           addLog(st, owner, `เนรเทศใบบนสุดของเด็ค (${nameOf(st, top)}) ลงมิติมืด`);
-          runActions(st, fx, actions, { src: srcK, owner, rng });
+          runActions(st, fx, actions, actCtx);
         }
       } else if (costOp.op === 'mill') {
         const n = costOp.count || 1;
         const who = costOp.who === 'opp' ? other(owner) : owner;
         mill(st, fx, who, n, rng, 0, srcK);
         addLog(st, owner, `จ่ายค่า: ธรณีสูบ ${n} ใบ`);
-        runActions(st, fx, actions, { src: srcK, owner, rng });
-      } else runActions(st, fx, actions, { src: srcK, owner, rng });
+        runActions(st, fx, actions, actCtx);
+      } else runActions(st, fx, actions, actCtx);
     } else {
-      runActions(st, fx, actions, { src: srcK, owner, rng });
+      runActions(st, fx, actions, actCtx);
     }
   }
 
@@ -4072,7 +4073,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
       } else if (ac.op === 'sacrifice' && !ctx._asCost) {
         // เซ่นไหว้เป็นผลของเอฟเฟกต์ (อ๊บ / พระพรหม) — then = ผลหลังเซ่น
-        const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || { type: 'Avatar' }, dest: 'sacrificeOnly', optional: false, then: ac.then || null };
+        const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || { type: 'Avatar' }, dest: 'sacrificeOnly', optional: false, then: ac.then || null, includeSelf: !!ac.includeSelf };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือก Avatar เซ่นไหว้`); }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ให้เซ่นไหว้`);
       } else if (ac.op === 'revealOwnLife') revealOwnLife(st, ctx.owner, ac.count || 1);
@@ -4467,14 +4468,17 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         let filter = Object.assign({}, ac.filter || {});
         if (ctx.sacrificed) {
           if (filter.sameSymbolAs === 'sacrificed') { filter.symbol = ctx.sacrificed.symbol; delete filter.sameSymbolAs; }
+          if (filter.samePowerAs === 'sacrificed') { filter.power = ctx.sacrificed.power; delete filter.samePowerAs; }
           if (filter.nameNot === 'sacrificed') { filter.nameNotEquals = ctx.sacrificed.name; delete filter.nameNot; }
         }
         const p = {
-          kind: 'pick', from: 'hell', src: ctx.src, chooser: ctx.owner, filter, dest: ac.dest || 'hand', optional: true, paidCost: !!ac.paidCost,
+          kind: 'pick', from: 'hell', src: ctx.src, chooser: ctx.owner, filter, dest: ac.dest || 'hand',
+          optional: ac.optional != null ? !!ac.optional : true, paidCost: !!ac.paidCost,
           summonTapped: !!ac.summonTapped, summonUntappedIfLandNameIncludes: ac.summonUntappedIfLandNameIncludes || null,
           scheduleDestroyAfterOppTurn: !!ac.scheduleDestroyAfterOppTurn, multiMax: ac.multiMax || null, multiMin: ac.multiMin || null, multiGot: 0,
           distinctNames: !!ac.distinctNames, pickedNames: [],
-          showAllHell: !!ac.showAll, grantSummoned: ac.grantSummoned || null, then: ac.then || null
+          showAllHell: !!ac.showAll, grantSummoned: ac.grantSummoned || null, then: ac.then || null,
+          shuffleAfter: !!ac.shuffleAfter, onceTag: ctx.onceTag || null
         };
         const hell = (st.zones[ctx.owner + '.hell'] || []).filter(x => x !== ctx.src);
         const cands = promptCandidates(st, p);
@@ -4484,7 +4488,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           st.prompts.push(p); prompted = true;
           if (cands.length) addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เปิดนรก — เลือกได้ ${cands.length}/${hell.length} ใบ`);
           else addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เปิดนรก (${hell.length} ใบ) — ไม่มีใบตรงเงื่อนไข (ข้ามได้)`);
-        } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในนรก`);
+        } else {
+          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในนรก`);
+          if (ac.optional === false) {
+            ctx._abortActions = true;
+            if (ctx.onceTag) unclaimOncePerTurn(st, ctx.src, ctx.onceTag);
+          }
+        }
       } else if (ac.op === 'summon') {
         // อัญเชิญการ์ดตรงเงื่อนไขจากเด็ค/นรก ลงสนาม (เลือกเป้าผ่าน prompt)
         const p = { kind: 'pick', from: ac.from === 'hell' ? 'hell' : 'deckAll', src: ctx.src, chooser: ctx.owner, filter: ac.filter, dest: 'avatar', shuffleAfter: ac.from !== 'hell', optional: true };
@@ -6356,7 +6366,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             fx.snd = 'place';
           } else if (p.dest === 'sacrificeOnly') {
             const sacC = st.inst[a.k];
-            const sacInfo = sacC ? { symbol: sacC.symbol, name: sacC.name, k: a.k } : null;
+            const sacInfo = sacC ? { symbol: sacC.symbol, name: sacC.name, power: +sacC.power || 0, k: a.k } : null;
             addLog(st, p.chooser, `เซ่นไหว้ ${nameOf(st, a.k)}`);
             destroyCard(st, fx, a.k);
             fx.snd = 'clash';
@@ -6979,6 +6989,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               addLog(st, p.chooser, 'สับเด็ค');
             }
             if (p.then && p.then.length) runActions(st, fx, p.then, { src: p.src, owner: p.chooser, rng });
+            p._skipPickTail = true;
             fx.snd = 'draw';
           } else if (p.dest === 'attachSelf') {
             // มีมมิจัง: เอาจากเด็คมาสวมใส่ตัวเอง (src) — วางไว้ Magic Zone ให้เห็นบนจอ
@@ -8462,6 +8473,19 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const sum = (st.zones[opp + '.avatar'] || []).reduce((n, id) => n + effCost(st, id), 0);
           if (sum > ab.requireEnemyCostSumMax) return deny(`ใช้ไม่ได้ — Cost รวมศัตรู ${sum} > ${ab.requireEnemyCostSumMax}`);
         }
+        {
+          const hp = (ab.actions || []).find(x => x && x.op === 'hellPick' && x.optional === false);
+          if (hp) {
+            const cap = hellPickCapacity(st, owner, hp.magicMax != null ? hp.magicMax : null, hp.filter || {});
+            if (cap < 1) return deny('ใช้ไม่ได้ — ในนรกไม่มีใบตรงเงื่อนไขให้คืนเด็ค');
+          }
+          const sac = (ab.actions || []).find(x => x && x.op === 'sacrifice');
+          if (sac) {
+            const filt = Object.assign({}, sac.filter || {}, { _srcK: a.k });
+            const p = { kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner, filter: filt, dest: 'sacrificeOnly', optional: false, includeSelf: !!sac.includeSelf };
+            if (!promptCandidates(st, p).length) return deny('ใช้ไม่ได้ — ไม่มี Avatar ให้เซ่นไหว้');
+          }
+        }
         if (ab.requireOwn) {
           const ro = ab.requireOwn;
           const ok = (st.zones[owner + '.avatar'] || []).some(id => {
@@ -8526,7 +8550,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           fx.snd = 'tap';
           break;
         }
-        payCostAndRunActivated(st, fx, owner, a.k, costList, ab.actions || [], rng);
+        payCostAndRunActivated(st, fx, owner, a.k, costList, ab.actions || [], rng, ab.oncePerTurn ? 'activated' : null);
         fx.snd = fx.snd || 'place';
         break;
       }

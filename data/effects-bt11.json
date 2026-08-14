@@ -884,9 +884,35 @@
     {
       "code": "BT11-043",
       "name": "พิเภก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ นำ Avatar {Symbol ยักษ์} POWER 3 จำนวน 1 ใบ จากในนรก กลับเข้า Deck จากนั้นสับ Deck : จั่วการ์ด 1 ใ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "power": 3
+              },
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": false,
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้: เลือก Avatar ยักษ์ POWER 3 จากนรกกลับเด็ค แล้วสับ → จั่ว 1"
     },
     {
       "code": "BT11-044",

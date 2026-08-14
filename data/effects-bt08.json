@@ -372,9 +372,54 @@
     },
     {
       "code": "BT08-038",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "มณโฑ ราชินีเหล่ายักษ์"
+      "name": "มณโฑ ราชินีเหล่ายักษ์",
+      "extraSymbols": [
+        "ยักษ์"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "sacrifice",
+              "includeSelf": true,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbol": "ยักษ์",
+                    "samePowerAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": false,
+                  "optional": false,
+                  "then": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "summoned"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "นับเป็นยักษ์ · เทิร์นละครั้ง เซ่นยักษ์ 1 → ชุบยักษ์จากนรก P เท่ากัน คนละชื่อ แล้ว +2 จนจบเทิร์น"
     },
     {
       "code": "BT08-039",

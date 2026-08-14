@@ -7734,8 +7734,53 @@
     {
       "code": "BT08-038",
       "name": "มณโฑ ราชินีเหล่ายักษ์",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "sacrifice",
+              "includeSelf": true,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbol": "ยักษ์",
+                    "samePowerAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": false,
+                  "optional": false,
+                  "then": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "summoned"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "extraSymbols": [
+        "ยักษ์"
+      ],
+      "note": "นับเป็นยักษ์ · เทิร์นละครั้ง เซ่นยักษ์ 1 → ชุบยักษ์จากนรก P เท่ากัน คนละชื่อ แล้ว +2 จนจบเทิร์น"
     },
     {
       "code": "BT08-039",
@@ -10846,9 +10891,35 @@
     {
       "code": "BT11-043",
       "name": "พิเภก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ นำ Avatar {Symbol ยักษ์} POWER 3 จำนวน 1 ใบ จากในนรก กลับเข้า Deck จากนั้นสับ Deck : จั่วการ์ด 1 ใ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "power": 3
+              },
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": false,
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้: เลือก Avatar ยักษ์ POWER 3 จากนรกกลับเด็ค แล้วสับ → จั่ว 1"
     },
     {
       "code": "BT11-044",
@@ -13194,8 +13265,53 @@
     {
       "code": "FPRO-001",
       "name": "มณโฑ ราชินีเหล่ายักษ์",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "sacrifice",
+              "includeSelf": true,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbol": "ยักษ์",
+                    "samePowerAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": false,
+                  "optional": false,
+                  "then": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "summoned"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "extraSymbols": [
+        "ยักษ์"
+      ],
+      "note": "นับเป็นยักษ์ · เทิร์นละครั้ง เซ่นยักษ์ 1 → ชุบยักษ์จากนรก P เท่ากัน คนละชื่อ แล้ว +2 จนจบเทิร์น"
     },
     {
       "code": "FPRO-002",
