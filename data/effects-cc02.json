@@ -233,8 +233,60 @@
     {
       "code": "CC02-048",
       "name": "ปืนจักรวุทธ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "oncePerTurn": true,
+          "oncePerTurnTag": "battleDestroy",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            },
+            {
+              "op": "hostNoUntapExceptSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "oncePerTurn": true,
+          "requireAttached": true,
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            },
+            {
+              "op": "returnToHand",
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "hostMustAttack": true,
+      "note": "+4 เฉพาะตอนประกาศโจมตีจนจบการต่อสู้ · ต้องโจมตีถ้าทำได้ · ฆ่าศัตรูแล้วตื่น 1 ครั้ง/เทิร์น แล้วห้ามตื่นยกเว้นสั่งใช้ Main ของใบนี้"
     },
     {
       "code": "CC02-057",

@@ -186,9 +186,9 @@ function parseEffect(card) {
     }
   }
 
-  // Avatar จุติ POWER +/-N choose
+  // Avatar จุติ POWER +/-N choose — อย่าหยิบ POWER จากบรรทัดต่อเนื่อง
   if (/จุติ/.test(text)) {
-    const m = text.match(/POWER\s*([+-]\d+)/i);
+    const m = text.split(/ต่อเนื่อง/)[0].match(/POWER\s*([+-]\d+)/i);
     if (m) {
       abilities.push({
         keyword: 'จุติ',
@@ -216,9 +216,10 @@ function parseEffect(card) {
     }
   }
 
-  // อัตโนมัติ เมื่อโจมตี POWER +N
+  // อัตโนมัติ เมื่อโจมตี POWER +N — อย่าหยิบ POWER จากบรรทัดต่อเนื่อง
   if (/อัตโนมัติ|อัติโนมัติ/.test(text) && /โจมตี/.test(text)) {
-    const m = text.match(/POWER\s*\+(\d+)/i);
+    const autoText = (text.match(/(?:อัตโนมัติ|อัติโนมัติ)[\s\S]*?(?=ต่อเนื่อง|$)/) || [text])[0];
+    const m = autoText.match(/POWER\s*\+(\d+)/i);
     if (m) {
       abilities.push({
         keyword: 'อัตโนมัติ',
@@ -228,12 +229,14 @@ function parseEffect(card) {
     }
   }
 
-  // ต่อเนื่อง POWER +N symbol own
+  // ต่อเนื่อง POWER +N — กรองชื่อในเครื่องหมายคำพูด หรือ symbol
   if (/ต่อเนื่อง/.test(text) && /POWER\s*\+(\d+)/i.test(text)) {
     const m = text.match(/POWER\s*\+(\d+)/i);
+    const named = text.match(/ต่อเนื่อง[\s\S]{0,80}?Avatar\s*[“"']([^“"']+)[”"']/);
     const sym = text.match(/\{[Ss]ymbol\s*[:：]?\s*([^}]+)\}/) || text.match(/Avatar\s*\{[^}]*symbol\s*([^}]+)\}/i);
     const target = { select: 'all', type: 'Avatar', side: 'own', zone: 'avatarZone' };
-    if (sym) target.symbol = (sym[1] || '').trim();
+    if (named) target.nameIncludes = [named[1].trim()];
+    else if (sym) target.symbol = (sym[1] || '').trim();
     abilities.push({
       keyword: 'ต่อเนื่อง',
       trigger: { on: 'static', if: 'self.zone==avatarZone' },

@@ -1843,9 +1843,42 @@
       "codes": [
         "BT11-053"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เลือก \"หน่วยรบ XVI\" ที่อยู่ในสภาพตื่น 2 ใบ บน Avatar Zone เรา และเปลี่ยนเป็น สภาพนอน : ทำลาย Avatar ฝ่ายตรงข้าม 1 ใบ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
+              },
+              "requireUntapped": true,
+              "multiExact": 2,
+              "optional": false,
+              "then": [
+                {
+                  "op": "chooseDestroy",
+                  "side": "enemy",
+                  "zones": [
+                    "avatar"
+                  ],
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "พักหน่วยรบ XVI ที่ตื่น 2 ใบ : ทำลาย Avatar ศัตรู 1 ใบ"
     },
     {
       "name": "โอเปอเรชั่น : สเกาท์",
@@ -1854,17 +1887,28 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "bottom"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "สอดแนม 3 ใบ อัญเชิญ จุติ \"หน่วยรบ XVI\" 1 ใบ จากที่สอดแนม ลงบน Avatar Zone เรา การ์ดที่เหลือเรียงไว้ล"
+      "parseStatus": "verified",
+      "note": "สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI 1 ใบ ที่เหลือใต้เด็ค"
     },
     {
       "name": "ไอ นีด เมดิก",

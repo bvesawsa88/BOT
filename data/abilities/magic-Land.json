@@ -791,27 +791,50 @@
       ],
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
+              "duration": "combat",
+              "ifAttackerNameIncludes": "หน่วยรบ XVI",
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "any",
-                "zone": "avatarZone"
+                "select": "attacker"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
+              },
+              "dest": "deckBottom",
+              "optional": true
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "หน่วยรบ XVI โจมตี +1 จนจบการต่อสู้ · สั่งใช้ทิ้งมือ: หน่วยรบจากนรกใต้เด็ค"
     },
     {
       "name": "โรงเรียนเวทย์มนต์",

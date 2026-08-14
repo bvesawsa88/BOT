@@ -201,17 +201,38 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "hell"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "เทิร์นละครั้ง สั่งใช้ : สอดแนม 3 ใบ อัญเชิญ จุติ \"หน่วยรบ XVI\" ที่ไม่ใช่ จากที่ สอดแนม 1 ใบ ลง Avata"
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์",
+        "side": "own",
+        "nameIncludes": [
+          "หน่วยรบ XVI"
+        ],
+        "onlyOppTurn": true
+      },
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้: สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI (ไม่ใช่ only) ที่เหลือลงนรก · เทิร์นศัตรูหน่วยรบ XVI ได้โล่มนุษย์"
     },
     {
       "name": "โคลัมบัส นักท่องเรือ",
@@ -1596,16 +1617,23 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "excludeOnly": true,
+                "nameOrSymbol": [
+                  {
+                    "nameIncludes": [
+                      "หน่วยรบ XVI"
+                    ]
+                  },
+                  {
+                    "symbol": "ทหาร"
+                  }
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
             }
           ]
         },
@@ -1625,13 +1653,17 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "จุติ: สอดแนม 3 เอาหน่วยรบ XVI หรือเวททหารขึ้นมือ (ไม่ใช่ only) · ต่อเนื่อง +1 เฉพาะหน่วยรบ XVI"
     },
     {
       "name": "มีมมิจัง ไอดอลหน้าใหม่",
@@ -2594,13 +2626,17 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restTo": "hell"
             }
           ]
         },
@@ -2620,13 +2656,17 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "โจมตี: สอดแนม 3 อัญเชิญหน่วยรบ XVI (ไม่จุติ) ที่เหลือลงนรก · สนามเต็มยังโชว์สอดแนม แต่ลงนรกไม่ขึ้นมือ · ต่อเนื่อง +1 เฉพาะหน่วยรบ XVI"
     },
     {
       "name": "เอเลี่ยนทูตดาวอังคาร",
@@ -2903,16 +2943,13 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
+              "op": "hellPick",
+              "filter": {
+                "type": "Magic",
+                "symbol": "ทหาร"
+              },
+              "dest": "hand",
+              "optional": true
             }
           ]
         },
@@ -2932,13 +2969,17 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "จุติ: เวททหารจากนรกขึ้นมือ · ต่อเนื่อง +1 เฉพาะหน่วยรบ XVI"
     },
     {
       "name": "ฮิฟีสตัส เทพโอลิมปัสแห่งการช่าง",

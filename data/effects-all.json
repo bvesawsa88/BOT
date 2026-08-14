@@ -10508,16 +10508,23 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "excludeOnly": true,
+                "nameOrSymbol": [
+                  {
+                    "nameIncludes": [
+                      "หน่วยรบ XVI"
+                    ]
+                  },
+                  {
+                    "symbol": "ทหาร"
+                  }
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
             }
           ]
         },
@@ -10537,13 +10544,17 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "จุติ: สอดแนม 3 เอาหน่วยรบ XVI หรือเวททหารขึ้นมือ (ไม่ใช่ only) · ต่อเนื่อง +1 เฉพาะหน่วยรบ XVI"
     },
     {
       "code": "BT11-015",
@@ -10557,16 +10568,13 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
+              "op": "hellPick",
+              "filter": {
+                "type": "Magic",
+                "symbol": "ทหาร"
+              },
+              "dest": "hand",
+              "optional": true
             }
           ]
         },
@@ -10586,30 +10594,55 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "จุติ: เวททหารจากนรกขึ้นมือ · ต่อเนื่อง +1 เฉพาะหน่วยรบ XVI"
     },
     {
       "code": "BT11-016",
       "name": "คาร์ร่า หน่วยรบ XVI",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "hell"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "เทิร์นละครั้ง สั่งใช้ : สอดแนม 3 ใบ อัญเชิญ จุติ \"หน่วยรบ XVI\" ที่ไม่ใช่ จากที่ สอดแนม 1 ใบ ลง Avata"
+      "parseStatus": "verified",
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์",
+        "side": "own",
+        "nameIncludes": [
+          "หน่วยรบ XVI"
+        ],
+        "onlyOppTurn": true
+      },
+      "note": "เทิร์นละครั้ง สั่งใช้: สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI (ไม่ใช่ only) ที่เหลือลงนรก · เทิร์นศัตรูหน่วยรบ XVI ได้โล่มนุษย์"
     },
     {
       "code": "BT11-017",
@@ -10623,13 +10656,17 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restTo": "hell"
             }
           ]
         },
@@ -10649,13 +10686,17 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "โจมตี: สอดแนม 3 อัญเชิญหน่วยรบ XVI (ไม่จุติ) ที่เหลือลงนรก · สนามเต็มยังโชว์สอดแนม แต่ลงนรกไม่ขึ้นมือ · ต่อเนื่อง +1 เฉพาะหน่วยรบ XVI"
     },
     {
       "code": "BT11-018",
@@ -11311,24 +11352,68 @@
       "name": "โอเปอเรชั่น : สเกาท์",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "bottom"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "สอดแนม 3 ใบ อัญเชิญ จุติ \"หน่วยรบ XVI\" 1 ใบ จากที่สอดแนม ลงบน Avatar Zone เรา การ์ดที่เหลือเรียงไว้ล"
+      "parseStatus": "verified",
+      "note": "สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI 1 ใบ ที่เหลือใต้เด็ค"
     },
     {
       "code": "BT11-053",
       "name": "โอเปอเรชั่น : รอยัล",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เลือก \"หน่วยรบ XVI\" ที่อยู่ในสภาพตื่น 2 ใบ บน Avatar Zone เรา และเปลี่ยนเป็น สภาพนอน : ทำลาย Avatar ฝ่ายตรงข้าม 1 ใบ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
+              },
+              "requireUntapped": true,
+              "multiExact": 2,
+              "optional": false,
+              "then": [
+                {
+                  "op": "chooseDestroy",
+                  "side": "enemy",
+                  "zones": [
+                    "avatar"
+                  ],
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "พักหน่วยรบ XVI ที่ตื่น 2 ใบ : ทำลาย Avatar ศัตรู 1 ใบ"
     },
     {
       "code": "BT11-054",
@@ -11707,27 +11792,50 @@
       "name": "โรงเรียนฝึกหน่วยรบ",
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
+              "duration": "combat",
+              "ifAttackerNameIncludes": "หน่วยรบ XVI",
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "any",
-                "zone": "avatarZone"
+                "select": "attacker"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
+              },
+              "dest": "deckBottom",
+              "optional": true
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "หน่วยรบ XVI โจมตี +1 จนจบการต่อสู้ · สั่งใช้ทิ้งมือ: หน่วยรบจากนรกใต้เด็ค"
     },
     {
       "code": "BT11-072",
@@ -13428,8 +13536,60 @@
     {
       "code": "CC02-048",
       "name": "ปืนจักรวุทธ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "oncePerTurn": true,
+          "oncePerTurnTag": "battleDestroy",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            },
+            {
+              "op": "hostNoUntapExceptSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "oncePerTurn": true,
+          "requireAttached": true,
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            },
+            {
+              "op": "returnToHand",
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "hostMustAttack": true,
+      "note": "+4 เฉพาะตอนประกาศโจมตีจนจบการต่อสู้ · ต้องโจมตีถ้าทำได้ · ฆ่าศัตรูแล้วตื่น 1 ครั้ง/เทิร์น แล้วห้ามตื่นยกเว้นสั่งใช้ Main ของใบนี้"
     },
     {
       "code": "CC02-049",

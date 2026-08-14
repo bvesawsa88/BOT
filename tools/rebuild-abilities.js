@@ -34,7 +34,7 @@ const META_KEYS = [
   'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
   'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities',
   'uniqueAttachedNames', 'attachOnly', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
-  'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'instantWinIf'
+  'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf'
 ];
 
 function loadJson(p) {
