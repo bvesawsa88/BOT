@@ -352,6 +352,28 @@
     const e = resolveEffect(code, nameHint);
     return ((e && e.abilities) || []).filter(ab => ab.trigger && ab.trigger.on === on);
   };
+  /* reprint บางใบติดป้าย Normal ผิด (SD05-020 / CC02-061 ชายจากอนาคต, SD06-014 ไปเลยมอนตี้)
+     ยึด trigger/ชื่อ — ไม่ยึด subtype ที่พิมพ์ */
+  const REACT_TRIGGER_ONS = [
+    'enemyPlayMagic', 'enemyPlayReact', 'enemyDeclareAttack',
+    'avatarSummoned', 'avatarWouldBeDestroyed', 'enemyActivateAbility'
+  ];
+  function cardCountsAsReact(c) {
+    if (!c || c.type !== 'Magic') return false;
+    if ((c.subtype || '') === 'React') return true;
+    const name = c.name || '';
+    if (/ชายจากอนาคต/.test(name)) return true;
+    if (REACT_TRIGGER_ONS.some(on => abilitiesOf(c.code, on, name).length)) return true;
+    const e = fxCard(c);
+    if (e && e.reactAnyWindow) return true;
+    return !!(e && (e.abilities || []).some(ab => ab && (ab.react || ab.keyword === 'React' || ab.countsAsReact)));
+  }
+  function magicSubtype(c) {
+    if (!c) return '';
+    if (c.type !== 'Magic') return c.subtype || '';
+    if (cardCountsAsReact(c)) return 'React';
+    return c.subtype || 'Normal';
+  }
   const abilitiesOf_AUTO = (code, on) => abilitiesOf(code, on);
   // ความสามารถของการ์ด k ตาม trigger on — รวม "ความสามารถที่สืบทอดมา" (Inheritance Chain: inst[k].granted)
   // ความสามารถของการ์ด k ตาม trigger on (รวม granted)
@@ -1131,7 +1153,7 @@
           // React จากมือ หรือที่วาง Magic Zone — รวบรวมให้เลือกใบ
           const sc = st.inst[srcK];
           const sz = zoneOf(st, srcK) || '';
-          if (sc && sc.type === 'Magic' && sc.subtype === 'React' && (sz.endsWith('.hand') || sz.endsWith('.magic'))) {
+          if (sc && sc.type === 'Magic' && magicSubtype(sc) === 'React' && (sz.endsWith('.hand') || sz.endsWith('.magic'))) {
             if (isMagicTypeUsed(st, side, 'React')) {
               addLog(st, 'S', `React "${nameOf(st, srcK)}": ใช้เวทประเภท React ไปแล้วในเทิร์นนี้ — ข้าม`);
               return;
@@ -1148,7 +1170,7 @@
       // มือ: เฉพาะ React (รัททาท่วม ฯลฯ) — ห้ามรัน Construct ในมือ (บ่อหมักต้องอยู่โซนก่อสร้าง)
       (st.zones[side + '.hand'] || []).slice().forEach(srcK => {
         const sc = st.inst[srcK];
-        if (!sc || sc.type !== 'Magic' || sc.subtype !== 'React') return;
+        if (!sc || sc.type !== 'Magic' || magicSubtype(sc) !== 'React') return;
         fireOwnDestroyed(srcK);
       });
       if (reactDestroyOpts.length) {
@@ -1512,7 +1534,10 @@
     const c = st.inst[k]; if (!c) return false;
     if (!f) return true;
     if (f.type && c.type !== f.type) return false;
-    if (f.subtype && c.subtype !== f.subtype) return false;
+    if (f.subtype) {
+      const sub = c.type === 'Magic' ? magicSubtype(c) : (c.subtype || '');
+      if (sub !== f.subtype) return false;
+    }
     // symbol รวม curse override + extraSymbols
     const syms = cardSymbols(st, k);
     if (f.symbol && !syms.includes(f.symbol)) return false;
@@ -2415,7 +2440,7 @@
     if (st.pending.blockReact) return [];
     return (st.zones[owner + '.hand'] || []).filter(k => {
       const c = st.inst[k];
-      if (!c || c.type !== 'Magic' || c.subtype !== 'React') return false;
+      if (!c || c.type !== 'Magic' || magicSubtype(c) !== 'React') return false;
       const e = fxCard(c);
       const ab0 = abilitiesOf(c.code, 'activated', c.name)[0];
       const any = (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow);
@@ -2817,7 +2842,7 @@
     const out = [];
     const consider = (m, allowFacedown) => {
       const mc = st.inst[m]; if (!mc) return;
-      if (mc.type !== 'Magic' || mc.subtype !== 'React') return;
+      if (mc.type !== 'Magic' || magicSubtype(mc) !== 'React') return;
       if (!abilitiesOf(mc.code, triggerOn, mc.name).length) return;
       if (reactUsed && !ignoresReactTypeLimit(mc)) return;
       if (oncePerTurnCardBlocked(st, m, owner)) return;
@@ -3018,13 +3043,10 @@
     return isOncePerTurnCardSpent(st, owner, c.name || c.code);
   }
 
-  /* นับเป็น React สำหรับ อย่าให้มีครั้งที่ 2 — รวมใบสวนที่ป้าย subtype ผิด (ไปเลยมอนตี้ ฯลฯ) */
+  /* นับเป็น React สำหรับ อย่าให้มีครั้งที่ 2 — รวมใบสวนที่ป้าย subtype ผิด (ไปเลยมอนตี้ / ชายจากอนาคต ฯลฯ) */
   function magicCountsAsReact(st, k) {
     const c = st.inst[k]; if (!c) return false;
-    if ((c.subtype || '') === 'React') return true;
-    if (abilitiesOf(c.code, 'enemyDeclareAttack', c.name).length) return true;
-    if (abilitiesOf(c.code, 'avatarWouldBeDestroyed', c.name).length) return true;
-    if (abilitiesOf(c.code, 'avatarSummoned', c.name).length) return true;
+    if (cardCountsAsReact(c)) return true;
     const pend = st._pendingMagic;
     if (pend && pend.src === k && pend.fromCounterAtk) return true;
     return false;
@@ -3047,7 +3069,7 @@
     );
     if (hasPlayMagic) return true;
     if (onlyReactNegate) return targetIsReact;
-    if (c.subtype === 'React') {
+    if (magicSubtype(c) === 'React') {
       const act = abilitiesOf(c.code, 'activated', name)[0];
       if (act && (act.actions || []).some(ac => ac.op === 'negate')) return targetIsReact;
       if (/ยกเลิก/.test(c.effect || '')) return targetIsReact;
@@ -3066,7 +3088,7 @@
       if (!canNegateMagicCard(st, m, magicK)) return;
       if (oncePerTurnCardBlocked(st, m, opp)) return;
       const c = st.inst[m];
-      const sub = c.subtype || 'Normal';
+      const sub = magicSubtype(c);
       const ignoreLim = ignoresReactTypeLimit(c);
       if (!ignoreLim && st.strict && st.magicUsed && st.magicUsed[opp] && st.magicUsed[opp][sub]) return;
       if (!ignoreLim && sub === 'React' && isMagicTypeUsed(st, opp, 'React')) return;
@@ -3159,8 +3181,8 @@
             addLog(st, pend.owner, `การ์ดสวน "${nameOf(st, pend.src)}": เลือก Avatar เซ่นไหว้`);
             fx.snd = 'place';
             // ยังไม่ลงนรก — รอเลือกเซ่น + reactCleanup
-            if (!isMagicTypeUsed(st, pend.owner, (st.inst[pend.src] && st.inst[pend.src].subtype) || 'React')) {
-              markMagicTypeUsed(st, pend.owner, (st.inst[pend.src] && st.inst[pend.src].subtype) || 'React');
+            if (!isMagicTypeUsed(st, pend.owner, magicSubtype(st.inst[pend.src]) || 'React')) {
+              markMagicTypeUsed(st, pend.owner, magicSubtype(st.inst[pend.src]) || 'React');
             }
             return;
           }
@@ -3189,8 +3211,8 @@
         destroyCard(st, fx, pend.target);
       }
       // นับประเภทแล้วตอนเปิดใช้ — ไม่ mark ซ้ำ (ยกเว้นยังไม่เคยนับ)
-      if (!isMagicTypeUsed(st, pend.owner, (st.inst[pend.src] && st.inst[pend.src].subtype) || 'React')) {
-        markMagicTypeUsed(st, pend.owner, (st.inst[pend.src] && st.inst[pend.src].subtype) || 'React');
+      if (!isMagicTypeUsed(st, pend.owner, magicSubtype(st.inst[pend.src]) || 'React')) {
+        markMagicTypeUsed(st, pend.owner, magicSubtype(st.inst[pend.src]) || 'React');
       }
       if (zoneOf(st, pend.src)) doMove(st, pend.src, pend.owner + '.hell', null, fx);
       fx.snd = 'clash';
@@ -5494,7 +5516,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         addLog(st, opp, `React พร้อมใช้ (${options.length} ใบ): มี Avatar อัญเชิญ — แตะใบที่กะพริบเขียว หรือกดไม่ใช้`);
       } else if (isMagicTypeUsed(st, opp, 'React') && (st.zones[opp + '.hand'] || []).some(m => {
         const mc = st.inst[m];
-        return mc && mc.type === 'Magic' && mc.subtype === 'React' && abilitiesOf(mc.code, 'avatarSummoned').length;
+        return mc && mc.type === 'Magic' && magicSubtype(mc) === 'React' && abilitiesOf(mc.code, 'avatarSummoned').length;
       })) {
         addLog(st, 'S', `React ดักอัญเชิญ: ฝ่าย ${opp} ใช้เวทประเภท React ไปแล้วในเทิร์นนี้ — ข้าม`);
       }
@@ -5929,7 +5951,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     let n = 0; const inst = {}, zones = { land: [] };
     const mk = (c, faceUp) => {
       const k = 'i' + (++n);
-      inst[k] = { id: k, code: c.code, name: c.name, type: c.type, subtype: c.subtype || '', symbol: c.symbol || '', color: c.color || '', gemColor: c.gemColor || '', cost: c.cost, gem: c.gem, power: c.power, effect: c.effect || '—', img: c.imageUrl || '', faceUp: faceUp !== false, tapped: false, counters: 0, attachedTo: null };
+      inst[k] = { id: k, code: c.code, name: c.name, type: c.type, subtype: magicSubtype(c) || c.subtype || '', symbol: c.symbol || '', color: c.color || '', gemColor: c.gemColor || '', cost: c.cost, gem: c.gem, power: c.power, effect: c.effect || '—', img: c.imageUrl || '', faceUp: faceUp !== false, tapped: false, counters: 0, attachedTo: null };
       return k;
     };
     ['A', 'B'].forEach(p => {
@@ -6325,7 +6347,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         })();
         // React ยืดหยุ่น (ฮึบ / รหัสดำ / ไปคุยกับราก) — อย่าให้มีครั้งที่ 2 ไม่ใช่ใบนี้
         // ใบขัด React เล่นผ่านหน้าต่าง negateMagic ไม่ใช่เล่นอิสระตอนถูกโจมตี
-        const reactAny = c.subtype === 'React' && (() => {
+        const reactAny = magicSubtype(c) === 'React' && (() => {
           const e = fxCard(c);
           const ab0 = abilitiesOf(c.code, 'activated')[0];
           return (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow)
@@ -6353,7 +6375,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         // กติกา: Magic ใช้ได้ประเภทละ 1 ครั้ง/เทิร์น (แม้เทิร์นอีกฝ่าย) · React บังคับเสมอ
         // อย่าให้มีครั้งที่ 2: ใช้เป็นครั้งที่ 2 ได้ แต่ถ้าใช้เป็นใบแรกกินโควต้า (บล็อก React อื่น)
-        const mtype = (counterAtk && atkAbs.length) ? 'React' : (c.subtype || 'Normal');
+        const mtype = (counterAtk && atkAbs.length) ? 'React' : magicSubtype(c);
         const enforceType = mtype === 'React' || !!strict;
         if (enforceType) {
           const typeDeny = claimMagicTypeOrDeny(st, owner, c, mtype, { allowWeaponExtra: true });
@@ -6365,7 +6387,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const eOnce = fxCard(c);
           if (eOnce && eOnce.oncePerTurnCard) markOncePerTurnCard(st, owner, c.name || c.code);
         }
-        if (counterAtk || c.subtype === 'React') {
+        if (counterAtk || magicSubtype(c) === 'React') {
           if (counterAtk) {
             const atkId = st.pending.atk;
             const defId = st.pending.def || null;
@@ -6438,6 +6460,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             } else if (abilitiesOf(c.code, 'enemyPlayReact', c.name).length
               || /อย่าให้มีครั้งที่/.test(c.name || '')) {
               return deny(`ใช้ "${c.name}" ได้เมื่อฝ่ายตรงข้ามใช้ React`);
+            } else if (abilitiesOf(c.code, 'enemyPlayMagic', c.name).length
+              || /ชายจากอนาคต/.test(c.name || '')) {
+              return deny(`ใช้ "${c.name}" ได้เมื่อฝ่ายตรงข้ามใช้ Magic`);
+            } else if (abilitiesOf(c.code, 'avatarSummoned', c.name).length) {
+              return deny(`ใช้ "${c.name}" ได้เมื่อมี Avatar อัญเชิญลงสนาม`);
             } else {
               doMove(st, a.k, owner + '.magic', null, fx); c.faceUp = true;
               addLog(st, owner, `ใช้เวท ${c.name} — อ่านผลจากการ์ดแล้วจัดการกันเอง`);
@@ -6730,7 +6757,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               fx.snd = 'place';
               break;
             }
-            const mtype = m.subtype || 'React';
+            const mtype = magicSubtype(m) || 'React';
             const enforceType = mtype === 'React' || !!st.strict;
             if (enforceType) {
               const typeDeny = claimMagicTypeOrDeny(st, p.chooser, m, mtype);
@@ -8084,7 +8111,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         // ประเภทละ 1 ครั้ง/เทิร์น — React นับเสมอ (แม้โต๊ะเสรี) · ประเภทอื่นนับในโหมดกติกา
         // นับทันทีที่เปิดใช้ (แม้ถูกชายจากอนาคตยกเลิกภายหลัง ก็ห้ามใช้ครั้งที่ 2)
         // อย่าให้มีครั้งที่ 2: ใช้เป็นครั้งที่ 2 ได้ แต่ถ้าใช้เป็นใบแรกกินโควต้า
-        const mtype = m.subtype || 'React';
+        const mtype = magicSubtype(m) || 'React';
         const enforceType = mtype === 'React' || !!st.strict;
         if (enforceType) {
           const typeDeny = claimMagicTypeOrDeny(st, p.chooser, m, mtype);
