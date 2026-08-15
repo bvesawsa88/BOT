@@ -5,6 +5,14 @@
   --mb-h:54px; /* ความสูงแถบปุ่มล่างจอ (มือถือ) */
   --cream:#f4f4f6; --cream2:#bcbcc4; --dim:#86868f; --green:#414f47;
   --cs:1; /* card scale — จอใหญ่ขยายผ่าน media query ด้านล่าง */
+  --skin-card-back:url('../assets/card-back.png');
+  --skin-life-back:url('../assets/life-card-back.png');
+  --skin-mat-my:url('../assets/mat-b.png');
+  --skin-mat-opp:url('../assets/mat-a.png');
+  --skin-card-back-my:var(--skin-card-back);
+  --skin-card-back-opp:var(--skin-card-back);
+  --skin-life-back-my:var(--skin-life-back);
+  --skin-life-back-opp:var(--skin-life-back);
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;font-family:'Sarabun',sans-serif;color:var(--cream);background:#111113;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
@@ -51,8 +59,9 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .menu-group-label{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:var(--dim);letter-spacing:1px;text-align:center;margin-bottom:2px}
 .menu-play .menu-back{margin-top:6px;align-self:center}
 .menu-matchup{display:flex;flex-direction:column;gap:6px;width:100%;margin-bottom:4px}
-#menuSoloSetup,#menuRealSetup,#menuPlayModes{display:flex;flex-direction:column;gap:10px;width:100%;align-items:stretch}
-#menuSoloSetup.hidden,#menuRealSetup.hidden,#menuPlayModes.hidden{display:none}
+#menuSoloSetup,#menuRealSetup,#menuPlayModes,#menuBotSetup{display:flex;flex-direction:column;gap:10px;width:100%;align-items:stretch}
+#menuSoloSetup.hidden,#menuRealSetup.hidden,#menuPlayModes.hidden,#menuBotSetup.hidden{display:none}
+.menu-play{max-height:min(68vh,640px);overflow-y:auto;padding-bottom:4px;scrollbar-width:thin}
 .menu-deck-lab{font-size:12px;font-weight:700;color:var(--accent,#7dd3fc);letter-spacing:.5px}
 .menu-bot-hint{font-size:12px;line-height:1.45;color:var(--dim,#94a3b8);margin:2px 0 8px;padding:8px 10px;border-left:3px solid var(--accent,#7dd3fc);background:rgba(125,211,252,.06);border-radius:0 8px 8px 0}
 .menu-vs{text-align:center;font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;color:var(--dim);letter-spacing:2px;opacity:.8}
@@ -188,7 +197,7 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
   --pile-card-w:calc(var(--field-card-w) * 1.15);
   --pile-card-h:calc(var(--field-card-h) * 1.15)}
 /* ── สนาม: เสื่อ + โซนแบน (สัดส่วนความสูงคุมด้วย --u จาก JS) ── */
-#fieldStage{position:relative;flex:1 1 0;min-height:0;width:100%;display:flex;align-items:stretch;justify-content:center;z-index:1;overflow:hidden}
+#fieldStage{position:relative;flex:1 1 0;min-height:0;width:100%;display:flex;align-items:stretch;justify-content:center;z-index:0;isolation:isolate;overflow:hidden}
 #fieldTilt{position:relative;flex:1 1 0;min-height:0;width:min(100%,1180px);margin:0 auto;display:flex;flex-direction:column}
 #fieldTilt .mat{flex:1 1 0}/* สนามฝั่งละ 3 ส่วน เท่ากัน */
 @media (prefers-reduced-motion:reduce){
@@ -200,8 +209,9 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
    พิกัดทุกช่องวัดจากรูปจริง (row/column profile + ตรวจด้วยกรอบทับภาพ) */
 .mat{position:relative;flex:1 1 0;min-height:0;width:100%;z-index:1}
 .mat-in{position:absolute;inset:0}
-.mat-in::before{content:'';position:absolute;inset:0;background:url('../assets/mat-b.png') center/100% 100% no-repeat;z-index:0;pointer-events:none}
-.mat-opp .mat-in::before{background-image:url('../assets/mat-a.png')}
+.mat-in::before{content:'';position:absolute;inset:0;background-image:var(--skin-mat-my);background-position:center;background-size:100% 100%;background-repeat:no-repeat;z-index:0;pointer-events:none}
+.mat-opp .mat-in::before{background-image:var(--skin-mat-opp)}
+.mat-opp.mat-skin-flip .mat-in::before{transform:rotate(180deg)}
 /* ฝั่งตรงข้าม = ผังกลับหัว (Construct/Land อยู่ล่างสุด ชนกลางสนาม) */
 .mat-opp .mz-construct{left:60.9%;top:67.8%;width:26%;height:25.7%}
 .mat-opp .mz-land{left:41%;top:75.5%;width:17.2%;height:18%}
@@ -228,8 +238,9 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 /* เด็คคว่ำ = กองเด็ค/นรก ~1.5 ส่วน (กว้างกว่าการ์ดสนามเล็กน้อย) */
 .mz-deck.has::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:var(--pile-card-w, var(--field-card-w));height:var(--pile-card-h, var(--field-card-h));
-  background:#141414 url('../assets/card-back.png') center/100% 100% no-repeat;
+  background-color:#141414;background-image:var(--skin-card-back-my);background-position:center;background-size:100% 100%;background-repeat:no-repeat;
   border:1.5px solid #000;border-radius:5px;box-shadow:2px 2px 0 rgba(0,0,0,.55),4px 4px 0 rgba(0,0,0,.35);z-index:1;pointer-events:none}
+.mat-opp .mz-deck.has::after{background-image:var(--skin-card-back-opp)}
 .mz-deck.revealed.has::after{display:none}
 .mz-deck.revealed .pile-top{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:var(--pile-card-w, var(--field-card-w));height:var(--pile-card-h, var(--field-card-h));border:1.5px solid #000;border-radius:5px;
@@ -334,7 +345,8 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .land-zone .zone-cards{justify-content:center}
 
 .piles-col .deck-pile,.piles-col .pile{width:58px;height:81px;flex:none;border-radius:5px;position:relative}
-.deck-pile{background:#141414 url('../assets/card-back.png') center/100% 100% no-repeat;border:1.5px solid #000}
+.deck-pile{background-color:#141414;background-image:var(--skin-card-back-my);background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:1.5px solid #000}
+.mat-opp .deck-pile{background-image:var(--skin-card-back-opp)}
 .deck-pile:hover{filter:brightness(1.2)}
 .pile{border:1.5px dashed rgba(240,220,190,.3);display:flex;align-items:center;justify-content:center}
 .dark-pile{border-color:rgba(150,140,200,.35)}
@@ -404,7 +416,8 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .card{position:relative;flex:none;cursor:grab;transition:transform .15s}
 .card .face{width:100%;height:100%;border-radius:5px;background-size:cover;background-position:center;box-shadow:0 2px 8px rgba(0,0,0,.55)}
 /* หลังการ์ด = โลโก้ BATTLE OF TALINGCHAN (assets/card-back.png · 510×717 พอดีสัดส่วนการ์ด) */
-.card .back{width:100%;height:100%;border-radius:5px;background:#141414 url('../assets/card-back.png') center/100% 100% no-repeat;border:1.5px solid #000}
+.card .back{width:100%;height:100%;border-radius:5px;background-color:#141414;background-image:var(--skin-card-back-my);background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:1.5px solid #000}
+.mat-opp .card .back{background-image:var(--skin-card-back-opp)}
 .card.tapped{transform:rotate(90deg) scale(.86)}
 .card .ctr{position:absolute;top:2px;right:2px;background:var(--gold);color:#26201b;font-weight:700;font-size:11px;border-radius:10px;padding:1px 6px;box-shadow:0 1px 3px rgba(0,0,0,.6)}
 .card.avatar{width:calc(84px*var(--cs));height:calc(117px*var(--cs))}
@@ -418,9 +431,10 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
   width:var(--hand-card-w)!important;height:var(--hand-card-h)!important;
   aspect-ratio:512/716;margin:0;border-radius:6px;box-sizing:border-box;
   box-shadow:0 2px 8px rgba(0,0,0,.5);flex:none;max-width:none;max-height:none}
-/* ★ แถวมือล่าง = 1.5 ส่วน */
-.hand-row.my-hand{flex:none;height:var(--hand-row-my, calc(var(--u) * 1.5));padding:2px 8px;overflow-x:auto;overflow-y:hidden;
-  align-items:center;justify-content:flex-start;gap:8px;position:relative;z-index:40;isolation:isolate;
+/* ★ แถวมือล่าง = 1.5 ส่วน · ชั้นเหนือสนามเสมอ (overflow visible ให้ใบที่ยกขึ้นไม่โดนเสื่อบัง) */
+.hand-row.my-hand{flex:0 0 var(--hand-row-my, calc(var(--u) * 1.5));height:var(--hand-row-my, calc(var(--u) * 1.5));
+  min-height:var(--hand-row-my, calc(var(--u) * 1.5));padding:2px 8px;overflow:visible;
+  align-items:center;justify-content:flex-start;gap:8px;position:relative;z-index:80;isolation:isolate;
   align-self:stretch;width:100%;box-sizing:border-box;scrollbar-width:thin}
 .card.hand{transition:transform .14s ease-out,width .14s ease-out,height .14s ease-out,left .14s ease-out}
 .card.hand:hover{transform:translateY(-10px) scale(1.06);z-index:50}
@@ -429,7 +443,7 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .card.hand .fb-name{font-size:10px}
 .card.hand .fb-pow{font-size:11px}
 /* มือถือ: JS วางตำแหน่งเต็มความกว้าง · ใบที่เลือกขยายชัด (ไม่ใช่แค่เลื่อนขึ้น) */
-.hand-row.my-hand.hand-spread{position:relative;overflow:visible;gap:0}
+.hand-row.my-hand.hand-spread{position:relative;overflow:visible!important;gap:0}
 .hand-row.my-hand.hand-spread .card.hand{margin:0;transform:none}
 .hand-row.my-hand.hand-spread .card.hand.sel{
   transform:translateY(-28px) scale(1.42)!important;transform-origin:bottom center;
@@ -468,10 +482,11 @@ body.dragging .card.hand:hover{transform:none}
 .card.hand .gem{position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:var(--gold);color:#26201b;font-size:10.5px;font-weight:700;border-radius:9px;padding:1px 8px}
 /* หลังการ์ดของมือที่มองไม่เห็น (ฝั่งตรงข้าม/มุมมองผู้ชม) = โลโก้เดียวกับหลังการ์ดจริง */
 .card.oppback{width:32px;height:45px;border-radius:4px;margin-left:-8px;
-  background:#141414 url('../assets/card-back.png') center/100% 100% no-repeat;border:1.5px solid #000}
+  background-color:#141414;background-image:var(--skin-card-back-opp);background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:1.5px solid #000}
 .card.life{width:calc(44px*var(--cs));height:calc(62px*var(--cs));cursor:pointer}
 /* หลัง LIFE Card = รูป LIFE CARD / โอ้ไม่! โดนตีบ้าน! */
-.card.life .back{background:#141414 url('../assets/life-card-back.png') center/100% 100% no-repeat;border:1.5px solid #000}
+.card.life .back{background-color:#141414;background-image:var(--skin-life-back-my);background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:1.5px solid #000}
+.mat-opp .card.life .back{background-image:var(--skin-life-back-opp)}
 .card.avatar.drop-ok{outline:2px solid var(--gold);outline-offset:1px}
 @keyframes dealIn{from{transform:translate(var(--deal-x,120px),var(--deal-y,-50px)) rotate(14deg) scale(.45);opacity:0}to{transform:none;opacity:1}}
 @keyframes dealLand{from{transform:rotate(90deg) translateY(-10px) scale(1.06);opacity:.35}to{transform:rotate(90deg);opacity:1}}
@@ -936,7 +951,7 @@ body.dragging .card .qa{display:none!important}
   .end-turn-fab{display:none}
   /* เว้นที่ให้แถบล่าง + มือเรียงยาวไม่ซ้อน */
   #main{padding-bottom:var(--mb-h)}
-  .hand-row.my-hand{gap:4px;padding:2px 6px;position:relative;z-index:50;isolation:isolate}
+  .hand-row.my-hand{gap:4px;padding:2px 6px;position:relative;z-index:80;isolation:isolate;overflow:visible}
   .card.hand,.hand-row .card.hand,#oppHandRow .card.hand{margin:0;aspect-ratio:512/716}
   .card.hand:hover,.card.hand.sel{transform:translateY(-6px) scale(1.04)}
   .mat{z-index:1;isolation:isolate}
@@ -986,7 +1001,7 @@ body.dragging .card .qa{display:none!important}
     border-radius:14px 0 0 0;border-left:2px solid var(--red);transform:translateX(105%)}
   #previewPane.open{transform:translateX(0)}
   #previewPane .pv-img{max-height:44vh}
-  .hand-row.my-hand{gap:4px;padding:2px 4px;overflow-x:auto;position:relative;z-index:50;isolation:isolate}
+  .hand-row.my-hand{gap:4px;padding:2px 4px;overflow:visible;position:relative;z-index:80;isolation:isolate}
   .card.hand,.hand-row .card.hand,#oppHandRow .card.hand{margin:0;aspect-ratio:512/716}
   .card.hand:hover,.card.hand.sel{transform:translateY(-6px) scale(1.04)}
   .mat{z-index:1;isolation:isolate}
@@ -1035,7 +1050,7 @@ body.dragging .card .qa{display:none!important}
 
   /* 2) สนาม — เลเยอร์ต่ำกว่ามือเสมอ · สัดส่วน 8 ส่วนจาก JS */
   #board{padding:0;gap:0;justify-content:flex-start;overflow:hidden;--board-tilt:0deg;--board-persp:none}
-  #fieldStage{flex:1 1 0;min-height:0}
+  #fieldStage{flex:1 1 0;min-height:0;z-index:0;isolation:isolate;overflow:hidden}
   #fieldTilt{width:100%;transform:none}
   #oppHandRow{padding:1px 4px;overflow:hidden;justify-content:center;align-items:center;position:relative;z-index:2}
   #oppHandRow .card,#oppHandRow .card.oppback,#oppHandRow .card.hand{
@@ -1067,11 +1082,11 @@ body.dragging .card .qa{display:none!important}
   .phase-slot.wait{opacity:.45;pointer-events:none}
   @keyframes psPulseAbs{0%,100%{filter:brightness(1);transform:translateY(-50%)}40%{filter:brightness(1.35);transform:translateY(-50%)}}
 
-  /* ปุ่มจบเทิร์นลอยเหนือมือ — เป้าหมายนิ้วโป้ง */
+  /* ปุ่มจบเทิร์นลอยเหนือมือ — ไม่ทับแถวการ์ด (ความสูงมือจาก --hand-row-my) */
   .end-turn-fab:not(.hidden){display:flex;align-items:center;justify-content:center;gap:6px;
     position:fixed;right:max(10px,env(safe-area-inset-right));
-    bottom:calc(132px + 10px + env(safe-area-inset-bottom,0px));
-    z-index:135;min-width:118px;min-height:48px;padding:10px 16px;border-radius:999px;
+    bottom:calc(var(--hand-row-my, 150px) + 10px + env(safe-area-inset-bottom,0px));
+    z-index:60;min-width:118px;min-height:48px;padding:10px 16px;border-radius:999px;
     font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:700;
     color:#1a1814;background:linear-gradient(180deg,#f0d78a,#c9a14a);
     border:2px solid #8a6a28;box-shadow:0 6px 18px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.12) inset;
@@ -1082,9 +1097,9 @@ body.dragging .card .qa{display:none!important}
   .end-turn-fab.flash{animation:endFabFlash .45s ease}
   @keyframes endFabFlash{0%,100%{transform:scale(1)}40%{transform:scale(1.08);filter:brightness(1.25)}}
 
-  /* 3) มือล่าง = ชั้นบนสุด · ความสูงจาก --u (1 ส่วน) */
-  .hand-row.my-hand{gap:0;padding:4px 2px 8px;flex:none;
-    position:relative;z-index:50;isolation:isolate;
+  /* 3) มือล่าง = ชั้นบนสุด · ไม่ให้เสื่อ/ป้ายโซนบัง · ความสูงจาก --u (1.5 ส่วน) */
+  .hand-row.my-hand{gap:0;padding:4px 2px 8px;flex:0 0 var(--hand-row-my, calc(var(--u) * 1.5));
+    position:relative;z-index:80;isolation:isolate;overflow:visible!important;
     background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.72) 100%)}
   .card.hand,.hand-row .card.hand,#oppHandRow .card.hand{margin:0 -16px;border-radius:6px;aspect-ratio:512/716;
     box-shadow:0 4px 12px rgba(0,0,0,.55);position:relative;z-index:1}
@@ -1174,7 +1189,8 @@ body.stream-win #roomInfo{opacity:.8}
 .vfx-flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .38s ease}
 .vfx-flip.is-up{transform:rotateY(180deg)}
 .vfx-card .vfx-face,.vfx-card .vfx-back{position:absolute;inset:0;border-radius:inherit;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#141414 center/100% 100% no-repeat}
-.vfx-card .vfx-back{background-image:url('../assets/card-back.png')}
+.vfx-card .vfx-back{background-image:var(--skin-card-back-my)}
+.vfx-card.vfx-opp .vfx-back{background-image:var(--skin-card-back-opp)}
 .vfx-card .vfx-face{transform:rotateY(180deg)}
 .vfx-card.vfx-draw{outline:2px solid #3dcf7a;box-shadow:0 0 16px rgba(61,207,122,.45),0 10px 26px rgba(0,0,0,.55)}
 .vfx-card.vfx-mill{outline:2px solid #7ec8ff;box-shadow:0 0 18px rgba(80,170,255,.55),0 10px 26px rgba(0,0,0,.55)}
@@ -1227,6 +1243,37 @@ body.stream-win #roomInfo{opacity:.8}
 .lan-drop-msg{font-size:12.5px;color:var(--dim);min-height:1.2em;margin-bottom:14px}
 .lan-drop-actions{display:flex;gap:8px}
 .lan-drop-actions>button{flex:1;padding:12px 10px;font-size:14px;border-radius:9px;min-height:44px}
+
+/* ── สกินโต๊ะ (ก่อนเริ่มเกม) ── */
+.skin-setup{display:flex;flex-direction:column;gap:6px;width:100%;margin:4px 0 8px}
+.skin-pack-row{display:flex;gap:8px}
+.skin-pack-btn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:8px 6px;border:2px solid var(--border);border-radius:10px;background:var(--card-ui);color:var(--cream2);
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer}
+.skin-pack-btn:hover{filter:brightness(1.15)}
+.skin-pack-btn.on{border-color:var(--gold);color:var(--cream);box-shadow:0 0 0 1px var(--gold)}
+.skin-pack-btn img,.skin-pack-thumb{width:40px;height:56px;object-fit:cover;border-radius:4px;border:1.5px solid #000;background:#141414}
+.skin-pack-btn.skin-pack-more{justify-content:center;min-height:78px}
+.skin-setup .skin-note{font-size:11.5px;color:var(--dim);line-height:1.4;margin:0}
+#skinModal{position:fixed;inset:0;z-index:540;background:rgba(8,8,10,.88);display:flex;align-items:center;justify-content:center;padding:16px}
+#skinModal.hidden{display:none!important}
+.skin-modal-card{width:100%;max-width:420px;max-height:min(88vh,640px);overflow:auto;background:var(--card-ui);
+  border:2px solid var(--border);border-radius:14px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:12px}
+.skin-slots{display:flex;flex-direction:column;gap:12px}
+.skin-slot{display:flex;flex-direction:column;gap:6px}
+.skin-slot-h{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:700;color:var(--gold)}
+.skin-slot-row{display:flex;gap:8px;flex-wrap:wrap}
+.skin-chip{flex:1;min-width:88px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:8px 6px;border:2px solid var(--border);border-radius:10px;background:var(--panel);color:var(--cream2);
+  font-size:11.5px;font-weight:700;cursor:pointer}
+.skin-chip.on{border-color:var(--gold);color:var(--cream)}
+.skin-chip img{width:48px;height:68px;object-fit:cover;border-radius:4px;border:1.5px solid #000}
+.skin-chip.skin-chip-mat img{width:88px;height:32px}
+.skin-chip.locked{opacity:.45;cursor:not-allowed}
+.skin-import-hint{font-size:12px;color:var(--dim);line-height:1.45}
+.skin-modal-card .dc-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:19px;font-weight:700;color:var(--cream)}
+.skin-modal-card .dc-sub{font-size:12.5px;color:var(--dim);margin-top:2px}
+.skin-modal-card .dc-x{background:none;border:none;color:var(--dim);font-size:18px;line-height:1;padding:2px 6px;cursor:pointer}
 
 /* โครงหน้าเครื่องมือ (สไตล์เต็มโหลดตอนเปิด) */
 .screen-page{position:fixed;inset:0;display:flex;flex-direction:column;background:#1e1610}

@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260813b">
+<link rel="stylesheet" href="css/style.css?v=20260815d">
 </head>
 <body>
 
@@ -74,6 +74,7 @@
         </select>
       </div>
       <button type="button" id="btnBotPickDeck" class="link-btn">ใช้เด็คที่บอทเล่นเก่งสุด →</button>
+      <div data-skin-mount></div>
       <button id="btnBotStart" class="btn-primary big">เริ่มเล่นกับบอท</button>
       <button id="mnuBotBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
@@ -92,6 +93,7 @@
           <option value="starter:SD01">SD01 Starter (50+5)</option>
         </select>
       </div>
+      <div data-skin-mount></div>
       <button id="btnSoloStart" class="btn-primary big">เริ่มซ้อม</button>
       <button id="mnuSoloBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
@@ -103,6 +105,7 @@
       <select id="selRealDeck" class="menu-deck-select" title="เด็คสำหรับโหมดการ์ดจริง">
         <option value="starter:SD01">SD01 Starter (50+5)</option>
       </select>
+      <div data-skin-mount></div>
       <button id="btnRealStart" class="btn-primary big">เริ่มโหมดการ์ดจริง</button>
       <button id="mnuRealBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
@@ -123,6 +126,7 @@
       <select id="selLanDeck" class="menu-deck-select" title="เด็คสำหรับแมตช์ LAN">
         <option value="starter:SD01">SD01 Starter (50+5)</option>
       </select>
+      <div data-skin-mount></div>
       <div id="lanHallStatus" class="lan-hall-status">กำลังเชื่อมล็อบบี้…</div>
     </div>
     <div class="panel lan-hall-list-panel">
@@ -173,6 +177,7 @@
     <div class="panel me-panel">
       <div class="player-name" id="rmMyName">คุณ</div>
       <select id="selDeck"><option value="starter:SD01">SD01 Starter (50+5)</option></select>
+      <div data-skin-mount></div>
       <button id="btnReady" class="btn-dark big">กดเมื่อพร้อม</button>
     </div>
     <div class="panel opp-panel"><div id="rmOppBody" class="opp-waiting">รอผู้เล่นอีกคน…</div></div>
@@ -210,13 +215,18 @@
     <button id="dbDeckBtn" class="btn-mini only-mobile">เด็ค 0/50</button>
     <button id="dbBack" class="btn-mini">← เด็คของฉัน</button>
   </header>
-  <div class="db-main">
-    <aside class="db-side">
+  <aside class="db-side">
+    <div class="db-filter-row">
       <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect…" autocomplete="off">
-      <div class="db-label">ประเภท</div><div id="dbTypeChips" class="chip-row"></div>
-      <div class="db-label">สี</div><div id="dbColorChips" class="chip-row"></div>
-      <div class="db-label">COST</div><div id="dbCostChips" class="chip-row"></div>
-      <div class="db-label">SYMBOL / ซีรีส์ / ชนิด Magic</div>
+      <span class="db-label">ประเภท</span>
+      <div id="dbTypeChips" class="chip-row"></div>
+      <span class="db-label">สี</span>
+      <div id="dbColorChips" class="chip-row"></div>
+      <button id="dbClear" class="btn-dark small">ล้างฟิลเตอร์</button>
+    </div>
+    <div class="db-filter-row">
+      <span class="db-label">COST</span>
+      <div id="dbCostChips" class="chip-row"></div>
       <select id="dbSymbol"></select>
       <select id="dbSeries"></select>
       <select id="dbSubtype">
@@ -224,9 +234,9 @@
         <option value="Normal">Normal</option><option value="React">React</option>
         <option value="Modification">Modification</option><option value="Land">Land</option>
       </select>
-      <button id="dbClear" class="btn-dark small">ล้างฟิลเตอร์</button>
-      <div class="db-pv" id="dbPv"></div>
-    </aside>
+    </div>
+  </aside>
+  <div class="db-main">
     <section class="db-grid-wrap">
       <div class="db-result">
         <span id="dbResult"></span>
@@ -280,7 +290,6 @@
           <button id="dbClearDeck" class="btn-dark small">ล้างเด็ค</button>
         </div>
         <div class="row-2"><button id="dbExport" class="btn-dark small">Export โค้ด</button><button id="dbImport" class="btn-dark small">Import โค้ด</button></div>
-        <div id="dbSaved" class="db-saved"></div>
         <div id="dbMsg" class="db-msg"></div>
       </div>
     </aside>
@@ -507,7 +516,7 @@
         <h3>วิธีจัดและเอาไปเล่น</h3>
         <ol class="hw-ol">
           <li>เมนูหลัก → <b>เด็คของฉัน</b> → กด <b>จัดเด็คใหม่</b> หรือเลือกเด็คแล้วกด <b>จัดเด็คนี้</b></li>
-          <li>ค้นหาการ์ดจากช่องซ้าย (ชื่อ / ข้อความ effect) หรือกรองด้วยประเภท · สี · COST · ซีรีส์</li>
+          <li>ค้นหาการ์ดจากแถบฟิลเตอร์ด้านบน (ชื่อ / ข้อความ effect) หรือกรองด้วยประเภท · สี · COST · ซีรีส์</li>
           <li>กด <b>+</b> บนการ์ดเพื่อใส่ · <b>−</b> เพื่อเอาออก · คลิกที่การ์ดเพื่อดูรายละเอียด</li>
           <li>ดูแถบตรวจด้านขวาให้ขึ้น ✓ ครบทั้ง 3 ข้อ (50 ใบ · LIFE 5 · ไม่เกินลิมิต)</li>
           <li>ตั้งชื่อเด็คแล้วกด <b>บันทึก</b> — ระบบตั้งให้เป็นเด็คหลักทันที</li>
@@ -784,6 +793,22 @@
   </div>
 </div>
 
+<!-- modal สกินโต๊ะ -->
+<div id="skinModal" class="hidden">
+  <div class="skin-modal-card">
+    <div class="dc-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div>
+        <div class="dc-title">สกินโต๊ะ</div>
+        <div class="dc-sub">เลือกชุดทั้งโต๊ะ หรือปรับทีละช่อง · นำเข้าไฟล์ได้ตอนล็อกอิน</div>
+      </div>
+      <button type="button" id="skinModalClose" class="dc-x">✕</button>
+    </div>
+    <div id="skinSlots" class="skin-slots"></div>
+    <p class="skin-import-hint">TINNY เป็นชุดสปอนตัวอย่าง · ธรรมดาคือชุดทางการ Battle of Talingchan</p>
+    <button type="button" id="skinModalDone" class="btn-primary big">ใช้สกินนี้</button>
+  </div>
+</div>
+
 <!-- modal เข้าสู่ระบบ / สมัคร -->
 <div id="authModal" class="hidden">
   <div class="dc-modal" style="max-width:380px">
@@ -1013,6 +1038,7 @@
 </div>
 
 <script src="js/util.js?v=20260815e"></script>
+<script src="js/skins.js?v=20260815d"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
 <script src="js/game.js?v=20260815f"></script>

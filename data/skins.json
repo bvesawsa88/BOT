@@ -1,0 +1,26 @@
+{
+  "defaultPack": "tinny",
+  "fallbackPack": "tinny",
+  "packs": [
+    {
+      "id": "tinny",
+      "name": "TINNY",
+      "label": "สปอน · TINNY Cafe",
+      "tier": "free",
+      "cardBack": "assets/skins/tinny/card-back.png",
+      "lifeBack": "assets/skins/tinny/life-back.png",
+      "playmat": "assets/skins/tinny/playmat.png",
+      "playmatOpp": "assets/skins/tinny/playmat-opp.png"
+    },
+    {
+      "id": "official",
+      "name": "ธรรมดา",
+      "label": "ทางการ Battle of Talingchan",
+      "tier": "free",
+      "cardBack": "assets/card-back.png",
+      "lifeBack": "assets/life-card-back.png",
+      "playmat": "assets/mat-b.png",
+      "playmatOpp": "assets/mat-a.png"
+    }
+  ]
+}

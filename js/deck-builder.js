@@ -38,12 +38,8 @@
   function htmlComp(s) {
     const stat = (label, n) =>
       `<div class="db-stat${n ? '' : ' zero'}"><b>${n}</b><span>${esc(label)}</span></div>`;
-    return `<div class="db-comp-label">ประเภทในเด็ค</div>
-       <div class="db-comp-grid three">
+    return `<div class="db-comp-grid seven">
          ${stat('Avatar', s.types.Avatar)}${stat('Magic', s.types.Magic)}${stat('Construct', s.types.Construct)}
-       </div>
-       <div class="db-comp-label">เวท · Normal / React / Land / Mod</div>
-       <div class="db-comp-grid four">
          ${stat('Normal', s.magics.Normal)}${stat('React', s.magics.React)}${stat('Land', s.magics.Land)}${stat('Mod', s.magics.Modification || 0)}
        </div>` + (s.extraMagic.length
         ? `<div class="db-legend">${s.extraMagic.map(([k, n]) => `<span>${esc(k)} ${n}</span>`).join('')}</div>`
@@ -184,14 +180,7 @@
     renderDB();
   }
   function msg(t) { byId('dbMsg').textContent = t; }
-  function setPreviewDB(code) {
-    DB.preview = code;
-    const c = DB.db.byCode[code];
-    if (!c) { byId('dbPv').innerHTML = ''; return; }
-    const meta = `${c.name} — ${c.type}${c.subtype ? ' · ' + c.subtype : ''}${c.cost !== '' && c.cost != null ? ` · COST ${c.cost}` : ''}${c.power !== '' && c.power != null ? ` · POWER ${c.power}` : ''}`;
-    byId('dbPv').innerHTML = `<div class="pv-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
-      <div class="db-pv-text">${esc(meta)}\n${esc(c.effect || '')}</div>`;
-  }
+  function setPreviewDB(code) { DB.preview = code; }
 
   function filteredCards() {
     const q = DB.q.trim().toLowerCase();
@@ -315,26 +304,16 @@
 
     const entry = (k, n) => {
       const c = cardOf(k) || {};
-      const meta = (c.cost !== '' && c.cost != null ? `C${c.cost}` : '') + (c.power !== '' && c.power != null ? `/P${c.power}` : '');
-      const col = COLOR_HEX[c.color] || '#8a7f72';
-      return `<div class="db-row" data-code="${esc(k)}">
-        <i class="db-row-col" style="background:${col}"></i>
+      return `<div class="db-deck-card" data-code="${esc(k)}" title="${esc(c.name || k)}">
         <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="">
-        <div class="db-row-name">${esc(c.name || k)}</div>
-        <div class="db-row-meta">${esc(meta)}</div>
-        <button class="db-pm" data-act="sub">−</button><div class="db-row-n">×${n}</div><button class="db-pm" data-act="add">+</button>
+        ${n > 1 ? `<span class="db-deck-n">×${n}</span>` : ''}
+        <div class="db-qty"><button class="db-pm" data-act="sub">−</button><span>×${n}</span><button class="db-pm" data-act="add">+</button></div>
       </div>`;
     };
     byId('dbMainList').innerHTML = groupedSpec(DB.deck.main).map(g =>
-      `<div class="db-group-h">${esc(g.label)} · ${g.total}</div>` + g.items.map(([k, n]) => entry(k, n)).join('')
+      `<div class="db-group-h">${esc(g.label)} · ${g.total}</div><div class="db-deck-cards">` + g.items.map(([k, n]) => entry(k, n)).join('') + `</div>`
     ).join('');
-    byId('dbLifeList').innerHTML = Object.entries(DB.deck.life).map(([k, n]) => entry(k, n)).join('');
-
-    // เด็คที่เซฟ
-    const saved = Object.keys(CardDB.savedDecks());
-    byId('dbSaved').innerHTML = saved.length
-      ? `<span class="db-hint">เด็คที่เซฟ:</span> ` + saved.map(n => `<button class="db-saved-chip" data-name="${esc(n)}" title="คลิก = โหลด · คลิกขวา = ลบ">${esc(n)}</button>`).join('')
-      : '';
+    byId('dbLifeList').innerHTML = `<div class="db-deck-cards">` + Object.entries(DB.deck.life).map(([k, n]) => entry(k, n)).join('') + `</div>`;
   }
 
   /* events — deck builder */
@@ -370,7 +349,8 @@
     byId(id).addEventListener('click', e => {
       const row = e.target.closest('[data-code]'); if (!row) return;
       const act = e.target.closest('[data-act]');
-      if (act) { (act.dataset.act === 'add' ? addCode : subCode)(row.dataset.code); }
+      if (act) { (act.dataset.act === 'add' ? addCode : subCode)(row.dataset.code); return; }
+      openCardModal(row.dataset.code);
     });
     byId(id).addEventListener('pointerover', e => { const row = e.target.closest('[data-code]'); if (row) setPreviewDB(row.dataset.code); });
   });
@@ -385,17 +365,6 @@
     msg(`บันทึก "${name}" แล้ว — ใช้เป็นเด็คหลักตอนเข้าห้อง/ซ้อมได้เลย`);
     renderDB();
   };
-  byId('dbSaved').addEventListener('click', e => {
-    const b = e.target.closest('.db-saved-chip'); if (!b) return;
-    const sv = CardDB.savedDecks(), name = b.dataset.name;
-    if (sv[name]) { DB.deck = { main: { ...sv[name].main }, life: { ...sv[name].life } }; byId('dbName').value = name; msg(`โหลด "${name}" แล้ว`); renderDB(); }
-  });
-  byId('dbSaved').addEventListener('contextmenu', e => {
-    const b = e.target.closest('.db-saved-chip'); if (!b) return;
-    e.preventDefault();
-    const sv = CardDB.savedDecks(); delete sv[b.dataset.name]; CardDB.saveDecks(sv);
-    msg(`ลบ "${b.dataset.name}" แล้ว`); renderDB();
-  });
   byId('dbClearDeck').onclick = () => { DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB(); };
   let STARTERS_DB = null, startersP = null;
   function fillStarterSelect(db) {
