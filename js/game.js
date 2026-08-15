@@ -2818,7 +2818,7 @@
     const AI = botAI();
     const arch = botArch();
 
-    if (pr.kind === 'chooseDestroy' || dest === 'destroy' || (dest === 'hell' && from === 'enemyAvatars')
+    if (dest === 'retargetAttack' || pr.kind === 'chooseDestroy' || dest === 'destroy' || (dest === 'hell' && from === 'enemyAvatars')
       || from === 'enemyAvatars' || (pr.side === 'enemy' && pr.kind !== 'chooseBuff')) {
       const enemies = cands.filter(enemySide).sort((a, b) => botThreatScore(b) - botThreatScore(a) || eff(b) - eff(a));
       if (enemies[0]) return enemies[0];
@@ -3606,6 +3606,7 @@
             txt = `🔗 ${srcN}: แตะ Avatar ที่จะสวมใส่ให้${pr.optional ? ' (หรือข้าม)' : ''}`;
           else if (pr.from === 'ownAvatars') txt = `✨ ${srcN}: แตะ Avatar บนสนามฝั่งเรา`;
           else if (pr.dest === 'preventLeavePick') txt = `🛡️ เนรเทศรัททาทุยจากนรก (${pr.got || 0}/${pr.need || 5}) — แตะการ์ดในหน้าต่าง · ข้าม = ออกสนาม`;
+          else if (pr.dest === 'retargetAttack') txt = `⚔️ เสียเตะไข่ — เลือกเป้าหมายโจมตีใหม่ (แตะ Avatar / Construct ศัตรูที่กะพริบ)`;
           else if (pr.from === 'deckOrHell') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คหรือนรก`;
           else if (pr.from === 'hell') txt = `✨ ${srcN}: เลือกการ์ดจากนรก`;
           else if (pr.from === 'dark') txt = `🌀 ${srcN}: เลือกอาวุธนครจากมิติมืด — แตะใบที่กะพริบในหน้าต่าง`;
@@ -4701,6 +4702,8 @@
       let title;
       if (pp.dest === 'preventLeavePick')
         title = `🛡️ เนรเทศรัททาทุยจากนรก (${pp.got || 0}/${pp.need || 5}) — แตะการ์ดเพื่อเนรเทศ`;
+      else if (pp.dest === 'retargetAttack')
+        title = `⚔️ เสียเตะไข่ — เลือกเป้าโจมตีใหม่`;
       else if (pp.dest === 'naraiSacSummon')
         title = `🕉️ เลือกพระนารายณ์บนสนามส่งนรก — เพื่ออัญเชิญอวตาร`;
       else if (pp.from === 'ownMagic' && pp.dest === 'magicToHellCost')

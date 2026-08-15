@@ -1857,6 +1857,87 @@
       return !!(e && e.protectAllyNameIncludes && nameMatches(c, e.protectAllyNameIncludes));
     });
   }
+  /* ห้ามเล็งเป็นเป้าโจมตีไหม (โทมาโทจัง / ศาลพระภูมิ / ผู้โดยสาร ฯลฯ) */
+  function cannotSelectAttackTarget(st, defId, atkId) {
+    const T = st.inst[defId]; if (!T) return 'ไม่มีเป้าหมาย';
+    const defZ = zoneOf(st, defId) || '';
+    if (!defZ.endsWith('.avatar') && !defZ.endsWith('.construct'))
+      return 'เป้าหมายโจมตีต้องเป็น Avatar หรือ Construct ฝ่ายตรงข้าม';
+    const ot = ownerOf(st, defId);
+    const oa = atkId ? ownerOf(st, atkId) : null;
+    if (oa && (ot === oa || ot === 'S' || oa === 'S')) return 'ต้องเลือกฝ่ายตรงข้าม';
+    const eDef = fxCard(T);
+    const cond = eDef && eDef.cannotBeAttackTargetIf;
+    if (cond) {
+      const hasAttach = !cond.selfAttachedNameIncludes || hasAttachedNameIncludes(st, defId, cond.selfAttachedNameIncludes);
+      const hasAlly = !cond.allyNameIncludes || (st.zones[ot + '.avatar'] || []).some(id => id !== defId && nameMatches(st.inst[id], cond.allyNameIncludes));
+      if (hasAttach && hasAlly) return `"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`;
+    }
+    if (eDef && eDef.cannotBeAttackTargetIfOwnSymbolOther) {
+      const sym = eDef.cannotBeAttackTargetIfOwnSymbolOther;
+      const hasOther = (st.zones[ot + '.avatar'] || []).some(id => id !== defId && cardSymbols(st, id).includes(sym));
+      if (hasOther) return `"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้ (มี ${sym} ใบอื่น)`;
+    }
+    if (eDef && eDef.cannotBeAttackTargetIfOwnNameIncludes) {
+      const hasPlane = (st.zones[ot + '.avatar'] || []).some(id => nameMatches(st.inst[id], eDef.cannotBeAttackTargetIfOwnNameIncludes));
+      if (hasPlane) return `"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้ (มี ${eDef.cannotBeAttackTargetIfOwnNameIncludes})`;
+    }
+    if (allyProtectsName(st, defId))
+      return `"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`;
+    return null;
+  }
+  function lifeAttackStillLegal(st, atkId) {
+    const A = st.inst[atkId]; if (!A) return false;
+    const oa = ownerOf(st, atkId);
+    const ot = other(oa);
+    const enemyAv = (st.zones[ot + '.avatar'] || []).filter(id => st.inst[id]).length;
+    const canEgg = hasKw(st, atkId, 'เตะไข่') || !!A._allowLifeDespiteAvatars;
+    if (enemyAv > 0 && !canEgg) return false;
+    return true;
+  }
+  function legalAttackRetargetIds(st, atkId) {
+    const oa = ownerOf(st, atkId);
+    const ot = other(oa);
+    const out = [];
+    (st.zones[ot + '.avatar'] || []).concat(st.zones[ot + '.construct'] || []).forEach(id => {
+      if (!cannotSelectAttackTarget(st, id, atkId)) out.push(id);
+    });
+    return out;
+  }
+  /* มะเฟืองฯ เสียเตะไข่กลางการโจมตี (แลนด์ถูกทำลาย) → ต้องเลือกเป้าใหม่ */
+  function offerAttackRetargetIfNeeded(st, fx) {
+    if (!st.pending || st.over) return;
+    if ((st.prompts || []).some(p => p.dest === 'retargetAttack')) return;
+    if (!st.pending.life) return;
+    const atk = st.pending.atk;
+    if (!st.inst[atk] || !(zoneOf(st, atk) || '').endsWith('.avatar')) return;
+    if (lifeAttackStillLegal(st, atk)) return;
+    const cands = legalAttackRetargetIds(st, atk);
+    if (!cands.length) {
+      addLog(st, 'S', `การโจมตี LIFE ของ ${nameOf(st, atk)} เป็นโมฆะ — เสียเตะไข่และไม่มีเป้าใหม่`);
+      st.pending = null;
+      clearCombatBuffs(st);
+      return;
+    }
+    st.prompts = st.prompts || [];
+    st.prompts.push({
+      kind: 'pick', from: 'ids', ids: cands, src: atk,
+      chooser: st.pending.by, dest: 'retargetAttack',
+      optional: false, allowAnyZone: true
+    });
+    addLog(st, st.pending.by, `${nameOf(st, atk)} เสียเตะไข่ — เลือกเป้าหมายโจมตีใหม่`);
+  }
+  function noteDroppedUnityAuras(st) {
+    (st.buffs || []).forEach(b => {
+      if (!b || !b.unity || !b.from) return;
+      const gz = zoneOf(st, b.from) || '';
+      const lost = gz.endsWith('.avatar') && !hasKw(st, b.from, 'สามัคคี');
+      if (lost && !b._unityDropped) {
+        b._unityDropped = true;
+        addLog(st, 'S', `🤝 ${nameOf(st, b.from)} ไม่มีสามัคคีแล้ว — ไม่เสริม POWER ให้ ${nameOf(st, b.k)}`);
+      } else if (!lost) delete b._unityDropped;
+    });
+  }
   function hostCannotAttackName(st, hostK) {
     for (const id in st.inst) {
       const m = st.inst[id];
@@ -2556,6 +2637,10 @@
     (st.buffs || []).forEach(b => {
       if (b.k !== k || b.lockPrinted || !b.amt) return;
       if (hasAntidote && b.amt < 0) return;
+      if (b.unity && b.from) {
+        const gz = zoneOf(st, b.from) || '';
+        if (gz.endsWith('.avatar') && !hasKw(st, b.from, 'สามัคคี')) return;
+      }
       const who = b.fromName || (b.from && nameOf(st, b.from)) || 'เอฟเฟกต์';
       add(b.amt, `${who} (${untilLbl(b.until)})`);
       p += b.amt;
@@ -8274,6 +8359,26 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               st.pending = null;
             } else addLog(st, p.chooser, `นอน ${nameOf(st, a.k)} แต่ไม่มีการโจมตีค้าง`);
             fx.snd = 'tap';
+          } else if (p.dest === 'retargetAttack') {
+            if (!st.pending || (p.src && st.pending.atk !== p.src)) {
+              addLog(st, p.chooser, 'ไม่มีการโจมตีที่ต้องเลือกเป้าใหม่');
+            } else {
+              const badTgt = cannotSelectAttackTarget(st, a.k, st.pending.atk);
+              if (badTgt) {
+                st.prompts.unshift(p);
+                return deny(badTgt);
+              }
+              const isCon = (zoneOf(st, a.k) || '').endsWith('.construct');
+              st.pending.def = a.k;
+              st.pending.life = null;
+              st.pending.kind = isCon ? 'construct' : 'battle';
+              addLog(st, p.chooser, `${nameOf(st, st.pending.atk)} เปลี่ยนเป้าโจมตีเป็น ${nameOf(st, a.k)} (เสียเตะไข่)`);
+              if (!isCon) {
+                const ot = ownerOf(st, a.k);
+                abil(st, a.k, 'whenAttacked').forEach(ab => runActions(st, fx, ab.actions || [], { src: a.k, owner: ot, rng: rng }));
+              }
+            }
+            fx.snd = 'tap';
           } else if (p.dest === 'swapCombat') {
             if (st.inst[a.k]) {
               st.inst[a.k]._swapCombat = true;
@@ -9282,32 +9387,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             break;
           }
         }
-        // โทมาโทจัง: ห้ามเลือกเป็นเป้าโจมตี
+        // โทมาโทจัง / ศาลพระภูมิ / ผู้โดยสาร ฯลฯ: ห้ามเลือกเป็นเป้าโจมตี
         if (!isLife && a.def) {
-          const defZ0 = zoneOf(st, a.def) || '';
-          if (!defZ0.endsWith('.avatar') && !defZ0.endsWith('.construct'))
-            return deny('เป้าหมายโจมตีต้องเป็น Avatar หรือ Construct ฝ่ายตรงข้าม');
-          const eDef = fxCard(T);
-          const cond = eDef && eDef.cannotBeAttackTargetIf;
-          if (cond) {
-            const defOwn = ot;
-            const hasAttach = !cond.selfAttachedNameIncludes || hasAttachedNameIncludes(st, a.def, cond.selfAttachedNameIncludes);
-            const hasAlly = !cond.allyNameIncludes || (st.zones[defOwn + '.avatar'] || []).some(id => id !== a.def && nameMatches(st.inst[id], cond.allyNameIncludes));
-            if (hasAttach && hasAlly) return deny(`"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`);
-          }
-          // ศาลพระภูมิ: มีผีใบอื่นบนสนาม → ห้ามเล็งศาล
-          if (eDef && eDef.cannotBeAttackTargetIfOwnSymbolOther) {
-            const sym = eDef.cannotBeAttackTargetIfOwnSymbolOther;
-            const hasOther = (st.zones[ot + '.avatar'] || []).some(id => id !== a.def && cardSymbols(st, id).includes(sym));
-            if (hasOther) return deny(`"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้ (มี ${sym} ใบอื่น)`);
-          }
-          // ผู้โดยสาร Super Air: มีเครื่องบิน → ห้ามเล็งผู้โดยสาร
-          if (eDef && eDef.cannotBeAttackTargetIfOwnNameIncludes) {
-            const hasPlane = (st.zones[ot + '.avatar'] || []).some(id => nameMatches(st.inst[id], eDef.cannotBeAttackTargetIfOwnNameIncludes));
-            if (hasPlane) return deny(`"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้ (มี ${eDef.cannotBeAttackTargetIfOwnNameIncludes})`);
-          }
-          if (allyProtectsName(st, a.def))
-            return deny(`"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`);
+          const badTgt = cannotSelectAttackTarget(st, a.def, a.atk);
+          if (badTgt) return deny(badTgt);
         }
         A.tapped = true;
         st.attacksThisTurn = st.attacksThisTurn || { A: 0, B: 0 };
@@ -9429,6 +9512,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (isPlayer && by !== st.pending.target) return deny('ฝ่ายที่ถูกโจมตีเป็นคนกดปะทะ');
         // ไพรมอล ฯลฯ: ต้องตอบเซ่นเมื่อโจมตีก่อนปะทะ — ห้ามกดปะทะแล้วค่อยถามหลังทำลาย
         if ((st.prompts || []).length) return deny('ตอบเอฟเฟกต์ที่ค้างก่อนปะทะ (เช่น เซ่นไหว้เมื่อโจมตี)');
+        offerAttackRetargetIfNeeded(st, fx);
+        if ((st.prompts || []).some(p => p.dest === 'retargetAttack'))
+          return deny('เสียเตะไข่ — เลือกเป้าหมายโจมตีใหม่ก่อนปะทะ');
+        if (!st.pending) break;
         const pnd = st.pending; st.pending = null;
         // THE END: โจมตี Avatar ศัตรูทุกใบพร้อมกัน
         if (st.inst[pnd.atk] && st.inst[pnd.atk].attackAllEnemyUntilEOT && !pnd.life) {
@@ -10013,7 +10100,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           runActions(st, fx, ab.actions || [], { src: a.to, owner: side, rng, unityGiver: a.k });
         });
         const add = effPower(st, a.k);
-        st.buffs.push({ k: a.to, amt: add, until: 'endOfTurn', from: a.k });
+        st.buffs.push({ k: a.to, amt: add, until: 'endOfTurn', from: a.k, unity: true });
         addLog(st, side, `🤝 สามัคคี: ${c.name} นอนลง → เสริม POWER +${add} ให้ ${tgt.name} (ถึงจบเทิร์น)`);
         fx.announce = { src: a.k, tgt: a.to, srcName: c.name, tgtName: tgt.name, by: side, kind: 'unity', pa: add, pd: effPower(st, a.to) };
         fx.snd = 'tap'; break;
@@ -10554,6 +10641,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     }
     // ทรายดูด: หลังทุก action (ลง Land / ลด POWER ฯลฯ) กวาด Avatar P0
     sweepDestroyPowerZero(st, fx);
+    noteDroppedUnityAuras(st);
+    offerAttackRetargetIfNeeded(st, fx);
 
     // เด็คว่าง (เห็นพื้น) = แพ้ทันที — กันกรณีย้ายใบออกเด็คนอก take/mill/doMove
     if (!st.over) checkAllDecksEmptyLoss(st, fx);
