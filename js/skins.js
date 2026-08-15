@@ -8,22 +8,22 @@
   const SLOT_SIZE = { cardBack: [510, 717], lifeBack: [510, 717], playmat: [1069, 330] };
 
   let catalog = {
-    defaultPack: 'tinny',
-    fallbackPack: 'tinny',
+    defaultPack: 'official',
+    fallbackPack: 'official',
     packs: [
-      {
-        id: 'tinny', name: 'TINNY', label: 'สปอน · TINNY Cafe', tier: 'free',
-        cardBack: 'assets/skins/tinny/card-back.png',
-        lifeBack: 'assets/skins/tinny/life-back.png',
-        playmat: 'assets/skins/tinny/playmat.png',
-        playmatOpp: 'assets/skins/tinny/playmat-opp.png'
-      },
       {
         id: 'official', name: 'ธรรมดา', label: 'ทางการ Battle of Talingchan', tier: 'free',
         cardBack: 'assets/card-back.png',
         lifeBack: 'assets/life-card-back.png',
         playmat: 'assets/mat-b.png',
         playmatOpp: 'assets/mat-a.png'
+      },
+      {
+        id: 'tinny', name: 'TINNY', label: 'สปอน · TINNY Cafe', tier: 'free',
+        cardBack: 'assets/skins/tinny/card-back.png',
+        lifeBack: 'assets/skins/tinny/life-back.png',
+        playmat: 'assets/skins/tinny/playmat.png',
+        playmatOpp: 'assets/skins/tinny/playmat-opp.png'
       }
     ]
   };
@@ -43,11 +43,15 @@
   function packs() { return catalog.packs || []; }
   function packById(id) { return packs().find(p => p.id === id) || null; }
   function fallbackPack() {
-    return packById(catalog.fallbackPack) || packById('tinny') || packs()[0] || null;
+    return packById(catalog.fallbackPack) || packById('official') || packs()[0] || null;
   }
   function defaultSel() {
-    const id = catalog.defaultPack || 'tinny';
+    const id = catalog.defaultPack || 'official';
     return { cardBack: id, lifeBack: id, playmat: id };
+  }
+  function officialId() {
+    const d = fallbackPack();
+    return d ? d.id : 'official';
   }
   function readSel() {
     try {
@@ -119,9 +123,7 @@
   function applyLocal() {
     const sel = readSel();
     setSideVars('my', sel, true);
-    const fb = fallbackPack();
-    const oppSel = fb ? { cardBack: fb.id, lifeBack: fb.id, playmat: fb.id } : sel;
-    setSideVars('opp', oppSel, false);
+    setSideVars('opp', sel, true);
     syncMounts();
     return sel;
   }
@@ -129,26 +131,24 @@
     const mine = mySel || readSel();
     setSideVars('my', mine, true);
     if (oppSel && (oppSel.cardBack || oppSel.lifeBack || oppSel.playmat)) {
-      const d = fallbackPack();
-      const oid = d ? d.id : 'tinny';
+      const oid = officialId();
       setSideVars('opp', {
         cardBack: oppSel.cardBack || oid,
         lifeBack: oppSel.lifeBack || oid,
         playmat: oppSel.playmat || oid
       }, false);
     } else {
-      const d = fallbackPack();
-      const oid = d ? d.id : 'tinny';
-      setSideVars('opp', { cardBack: oid, lifeBack: oid, playmat: oid }, false);
+      setSideVars('opp', mine, true);
     }
     syncMounts();
   }
   function exportIds() {
     const sel = readSel();
+    const oid = catalog.fallbackPack || 'official';
     return {
-      cardBack: sel.cardBack === 'custom' ? (catalog.fallbackPack || 'tinny') : sel.cardBack,
-      lifeBack: sel.lifeBack === 'custom' ? (catalog.fallbackPack || 'tinny') : sel.lifeBack,
-      playmat: sel.playmat === 'custom' ? (catalog.fallbackPack || 'tinny') : sel.playmat
+      cardBack: sel.cardBack === 'custom' ? oid : sel.cardBack,
+      lifeBack: sel.lifeBack === 'custom' ? oid : sel.lifeBack,
+      playmat: sel.playmat === 'custom' ? oid : sel.playmat
     };
   }
   function setPack(id) {

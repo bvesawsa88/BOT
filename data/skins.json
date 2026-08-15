@@ -1,17 +1,7 @@
 {
-  "defaultPack": "tinny",
-  "fallbackPack": "tinny",
+  "defaultPack": "official",
+  "fallbackPack": "official",
   "packs": [
-    {
-      "id": "tinny",
-      "name": "TINNY",
-      "label": "สปอน · TINNY Cafe",
-      "tier": "free",
-      "cardBack": "assets/skins/tinny/card-back.png",
-      "lifeBack": "assets/skins/tinny/life-back.png",
-      "playmat": "assets/skins/tinny/playmat.png",
-      "playmatOpp": "assets/skins/tinny/playmat-opp.png"
-    },
     {
       "id": "official",
       "name": "ธรรมดา",
@@ -21,6 +11,16 @@
       "lifeBack": "assets/life-card-back.png",
       "playmat": "assets/mat-b.png",
       "playmatOpp": "assets/mat-a.png"
+    },
+    {
+      "id": "tinny",
+      "name": "TINNY",
+      "label": "สปอน · TINNY Cafe",
+      "tier": "free",
+      "cardBack": "assets/skins/tinny/card-back.png",
+      "lifeBack": "assets/skins/tinny/life-back.png",
+      "playmat": "assets/skins/tinny/playmat.png",
+      "playmatOpp": "assets/skins/tinny/playmat-opp.png"
     }
   ]
 }
