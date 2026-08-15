@@ -6280,6 +6280,21 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     }
   }
 
+  function isPenguinHutCard(c) {
+    return !!(c && (c.code === 'BT11-024' || (c.name || '').includes('เพนกวิ้น ฮัท')));
+  }
+  function penguinHutReadyInHand(st, side) {
+    if (!st || !side) return null;
+    if (st.oncePerGame && st.oncePerGame[side + ':BT11-024']) return null;
+    if (isNameLockedThisTurn(st, side, 'เพนกวิ้น ฮัท')) return null;
+    return (st.zones[side + '.hand'] || []).find(id => isPenguinHutCard(st.inst[id])) || null;
+  }
+  function mergeFx(dst, src) {
+    if (!src) return;
+    ['snd', 'over', 'drawn', 'drawnList', 'critical', 'toast'].forEach(k => {
+      if (src[k] != null) dst[k] = src[k];
+    });
+  }
   /* อ้อนวอนสำเร็จ / เพนกวิ้น ฮัท: ยกเลิกท่าปิดเกม แล้วจบเทิร์นฝ่ายโจมตี */
   function finishLethalBegGranted(st, fx, pl, rng, via) {
     st.pendingLethal = null;
@@ -6290,14 +6305,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     else
       addLog(st, 'S', `🙏 ฝ่าย ${pl.by} ยอมให้อ้อนวอน — ยกเลิกท่าปิดเกม แล้วจบเทิร์นฝ่าย ${pl.by}`);
     fx.snd = 'tap';
-    const cont = applyAction(st, { type: 'endTurn', by: pl.by }, rng);
-    if (cont) {
-      if (cont.snd) fx.snd = cont.snd;
-      if (cont.over) fx.over = cont.over;
-      if (cont.drawn) fx.drawn = cont.drawn;
-      if (cont.deny) fx.deny = cont.deny;
-      if (cont.critical) fx.critical = cont.critical;
-    }
+    st.scout = null;
+    const cont = applyAction(st, { type: 'endTurn', by: pl.by, _forceFromEffect: true });
+    mergeFx(fx, cont);
+    // อย่าคัดลอก deny — ท่าปิดเกมถูกยกเลิกแล้ว การบังคับจบเทิร์นต้องสำเร็จ
+    if (cont && cont.deny) addLog(st, 'S', `จบเทิร์นฝ่าย ${pl.by} ไม่ครบ: ${cont.deny}`);
   }
 
   function resolveCombat(st, fx, atkId, defId, lifeId) {
@@ -9434,19 +9446,23 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const fdown = lives.filter(k => st.inst[k] && !st.inst[k].faceUp);
           if (lives.length > 0 && fdown.length === 0) {
             A.tapped = true;
-            // โหมดบอท: ไม่ถามอ้อนวอนขอเทิร์น — จบเกมทันที
-            if (st.skipLethalPlead) {
-              addLog(st, 'S', `⚠️ ${A.name} ท่าปิดเกมใส่ฝ่าย ${ot} (สาหัส) — โหมดบอทไม่ถามอ้อนวอน จบเกม`);
-              declareBuffs(st, a.atk);
-              declareEffects(st, fx, a.atk, null, rng);
-              resolveCombat(st, fx, a.atk, null, a.life);
-              fx.snd = 'clash';
-              break;
+            // เพนกวิ้น ฮัทในมือฝ่ายสาหัส — ทำงานทันที ไม่ถามอ้อนวอน
+            const hatK = penguinHutReadyInHand(st, ot);
+            if (hatK) {
+              st.pendingLethal = { atk: a.atk, life: a.life, by: oa, target: ot, phase: 'plead' };
+              addLog(st, 'S', `⚠️ ${A.name} ท่าปิดเกมใส่ฝ่าย ${ot} — เพนกวิ้น ฮัทในมือทำงานทันที`);
+              const cont = applyAction(st, { type: 'activateAbility', k: hatK, by: ot });
+              if (!cont || !cont.deny) {
+                mergeFx(fx, cont);
+                break;
+              }
+              st.pendingLethal = null;
             }
-            st.pendingLethal = { atk: a.atk, life: a.life, by: oa, target: ot, phase: 'plead' };
-            addLog(st, 'S', `⚠️ ${A.name} ประกาศท่าปิดเกมใส่ฝ่าย ${ot} (สถานะสาหัส) — ถามฝั่ง ${ot}: จะอ้อนวอนขออีกเทิร์นนึงไหม?`);
-            fx.lethalAsk = { by: oa, target: ot, atk: a.atk };
-            fx.snd = 'tap';
+            addLog(st, 'S', `⚠️ ${A.name} ท่าปิดเกมใส่ฝ่าย ${ot} (สาหัส) — จบเกม`);
+            declareBuffs(st, a.atk);
+            declareEffects(st, fx, a.atk, null, rng);
+            resolveCombat(st, fx, a.atk, null, a.life);
+            fx.snd = 'clash';
             break;
           }
         }
@@ -10435,17 +10451,24 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         // resume = หลังเลือกอัญเชิญนารายกลับ (นรสิง) แล้วค่อยจบเทิร์นต่อ
         const resuming = !!(a._resume && st._endTurnResume);
         if (!resuming) {
-          if (st._endTurnResume) return deny('เลือกร่างพระนารายณ์จากนรกก่อน — แล้วระบบจะจบเทิร์นให้เอง');
-          if (strict && isPlayer && by !== st.active) return deny('โหมดกติกา: จบเทิร์นได้เฉพาะผู้เล่นที่ถือเทิร์น');
-          if (st.scout) return deny('กำลังสอดแนมอยู่ — เลือกไว้บนกอง/ใต้กองให้เสร็จก่อนจบเทิร์น');
-          if (st.pendingLethal) return deny('มีท่าปิดเกมค้างอยู่ — รอฝั่งที่โดนตีตอบก่อน');
-          if ((st.prompts || []).length) return deny('ยังมีเอฟเฟกต์ค้างเลือกอยู่ — จัดการให้จบก่อนจบเทิร์น');
-          {
-            const must = hostMustAttackPendingName(st, st.active);
-            if (must) return deny(`"${must}" สวมปืนจักรวุทธ ต้องโจมตีถ้าทำได้ — จบเทิร์นไม่ได้`);
+          const forceEnd = !!a._forceFromEffect;
+          if (!forceEnd) {
+            if (st._endTurnResume) return deny('เลือกร่างพระนารายณ์จากนรกก่อน — แล้วระบบจะจบเทิร์นให้เอง');
+            if (strict && isPlayer && by !== st.active) return deny('โหมดกติกา: จบเทิร์นได้เฉพาะผู้เล่นที่ถือเทิร์น');
+            if (st.scout) return deny('กำลังสอดแนมอยู่ — เลือกไว้บนกอง/ใต้กองให้เสร็จก่อนจบเทิร์น');
+            if (st.pendingLethal) return deny('มีท่าปิดเกมค้างอยู่ — รอฝั่งที่โดนตีตอบก่อน');
+            if ((st.prompts || []).length) return deny('ยังมีเอฟเฟกต์ค้างเลือกอยู่ — จัดการให้จบก่อนจบเทิร์น');
+            {
+              const must = hostMustAttackPendingName(st, st.active);
+              if (must) return deny(`"${must}" สวมปืนจักรวุทธ ต้องโจมตีถ้าทำได้ — จบเทิร์นไม่ได้`);
+            }
+            // กติกา: มือเกิน 7 ใบ ต้องทิ้งให้เหลือ 7 ก่อนจบเทิร์น
+            if (strict) { const h = (st.zones[st.active + '.hand'] || []).length; if (h > 7) return deny(`มือเกิน 7 ใบ (มี ${h} ใบ) — ต้องทิ้งให้เหลือ 7 ก่อนจบเทิร์น (ลากการ์ดในมือลงนรก หรือเลือกแล้วกดทิ้ง)`); }
+          } else {
+            st.scout = null;
+            st._endTurnResume = null;
+            st.prompts = [];
           }
-          // กติกา: มือเกิน 7 ใบ ต้องทิ้งให้เหลือ 7 ก่อนจบเทิร์น
-          if (strict) { const h = (st.zones[st.active + '.hand'] || []).length; if (h > 7) return deny(`มือเกิน 7 ใบ (มี ${h} ใบ) — ต้องทิ้งให้เหลือ 7 ก่อนจบเทิร์น (ลากการ์ดในมือลงนรก หรือเลือกแล้วกดทิ้ง)`); }
           enterPhase('End');
         }
         const ending = resuming ? st._endTurnResume.ending : st.active;

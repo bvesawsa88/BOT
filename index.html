@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260815d">
+<link rel="stylesheet" href="css/style.css?v=20260816a">
 </head>
 <body>
 
@@ -479,11 +479,8 @@
         <ol class="hw-ol">
           <li>โจมตีหงาย LIFE ทีละใบ จนหงายครบทั้ง 5 ใบ → ฝ่ายนั้นเข้า <b>สถานะสาหัส</b> (ยังไม่แพ้)</li>
           <li>ขณะสาหัส <b>ฮีล LIFE ไม่ได้</b> (คว่ำกลับไม่ได้)</li>
-          <li>ต้องโจมตีเข้า LIFE Zone ของฝ่ายสาหัสอีก <b>1 ครั้ง</b> จึงจะชนะ</li>
-          <li>ตอนประกาศท่าปิดเกม จะถามฝั่งสาหัส: <b>จะอ้อนวอนขออีกเทิร์นนึงไหม?</b></li>
-          <li>กด <b>ใช่</b> → บังคับให้ฝ่ายโจมตีตอบว่ายอมไหม · ถ้ายอม = ยกเลิกโจมตีแล้วจบเทิร์นฝ่ายโจมตี · ไม่ยอม = จบเกม</li>
-          <li>กด <b>ไม่</b> → จบเกมทันที</li>
-          <li><b>เพนกวิ้น ฮัท</b> (สั่งใช้จากมือ + เนรเทศ): ยกเลิกท่าปิดเกมแล้วจบเทิร์นฝ่ายโจมตีทันที — <b>ไม่ต้องรออีกฝ่ายยอม</b> (เกมละ 1 ครั้ง)</li>
+          <li>ต้องโจมตีเข้า LIFE Zone ของฝ่ายสาหัสอีก <b>1 ครั้ง</b> จึงจะชนะ (จบเกมทันที — ไม่มีแถบอ้อนวอน)</li>
+          <li><b>เพนกวิ้น ฮัท</b> ถ้าอยู่ในมือตอนโดนท่าปิดเกม จะ<b>ทำงานเองทันที</b>: เนรเทศใบนี้ ยกเลิกโจมตี แล้วจบเทิร์นฝ่ายโจมตี (เกมละ 1 ครั้ง)</li>
         </ol>
         <p class="hw-dim">อยากจบเกมด้วยวิธีอื่น (ยอมแพ้ / ตกลงเสมอ) กดปุ่ม <b>จบเกม</b> บนแถบบนได้เลย</p>
       </section>
@@ -690,13 +687,6 @@
         <button id="btnReactYes" class="btn-primary small hidden">เปิดใช้!</button>
         <button id="btnReactNo" class="btn-dark small hidden">ไม่ใช้</button>
         <button id="btnPromptSkip" class="btn-dark small hidden">ข้าม/ยกเลิก</button>
-      </div>
-      <!-- ⚠️ ท่าปิดเกม: อ้อนวอนขอเทิร์น / อีกฝ่ายยอมไหม (state.pendingLethal) -->
-      <div id="lethalBar" class="attack-bar lethal-bar hidden">
-        <span id="lethalText"></span>
-        <button id="btnLethalPenguin" class="btn-gold small hidden">🐧 เพนกวิ้น ฮัท</button>
-        <button id="btnLethalCounter" class="btn-gold small hidden">ใช่ — ขอเทิร์นนึง</button>
-        <button id="btnLethalAccept" class="btn-primary small hidden">ไม่ — จบเกม</button>
       </div>
       <div id="mullBar" class="sel-bar hidden">
         <span id="mullText"></span>
@@ -1037,11 +1027,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260815i"></script>
+<script src="js/util.js?v=20260816a"></script>
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260815i"></script>
+<script src="js/game.js?v=20260816a"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

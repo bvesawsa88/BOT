@@ -1174,15 +1174,6 @@ body.stream-win #roomInfo{opacity:.8}
 #table.one-side .mat-my{flex:0 1 auto;width:100%;height:var(--matH,100%);min-height:0;margin:auto 0}
 #table.one-side{--board-tilt:0deg}
 
-/* ⚠️ แถบท่าปิดเกม — เด่นกว่าแถบอื่นเพราะเป็นจุดตัดสินเกม (กะพริบเรียกสายตา) */
-.lethal-bar{border-color:#e0483c;background:rgba(176,51,40,.42);animation:lethalPulse 1.1s ease-in-out infinite}
-.lethal-bar span{color:#ffe3df;font-weight:700}
-@keyframes lethalPulse{
-  0%,100%{box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 1px rgba(224,72,60,.35)}
-  50%{box-shadow:0 6px 30px rgba(0,0,0,.6),0 0 0 5px rgba(224,72,60,.30)}
-}
-@media (prefers-reduced-motion:reduce){.lethal-bar{animation:none}}
-
 /* ── VFX: จั่วลากเปิด / ธรณีสูบทีละใบ / สอดแนมหน้าต่าง / โจมตีวิ่งชน ── */
 #vfxLayer{position:fixed;inset:0;z-index:220;pointer-events:none;overflow:hidden}
 .vfx-card{position:fixed;z-index:221;border-radius:7px;box-shadow:0 10px 26px rgba(0,0,0,.6);will-change:transform,opacity;border:1.5px solid #000;perspective:900px}

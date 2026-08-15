@@ -3527,48 +3527,6 @@
       byId('btnChainPass').classList.toggle('hidden', !mineChain);
     } else cb.classList.add('hidden');
 
-    // ⚠️ แถบท่าปิดเกม — อ้อนวอนขอเทิร์น / รอฝ่ายโจมตียอม
-    const lb = byId('lethalBar'), pl = st.pendingLethal;
-    if (pl) {
-      lb.classList.remove('hidden');
-      const phase = pl.phase || 'plead';
-      const atkN = st.inst[pl.atk] ? st.inst[pl.atk].name : '?';
-      const answerSeat = phase === 'grant' ? pl.by : pl.target;
-      const mineLethal = mode === 'solo' ? (soloBot ? answerSeat === my : true) : seat === answerSeat;
-      const btnYes = byId('btnLethalCounter'), btnNo = byId('btnLethalAccept'), btnPen = byId('btnLethalPenguin');
-      if (phase === 'grant') {
-        byId('lethalText').textContent = mineLethal
-          ? `🙏 ฝ่าย ${pl.target} อ้อนวอนขออีกเทิร์น (โดน "${atkN}") — จะยอมไหม?`
-          : `🙏 ฝ่าย ${pl.target} อ้อนวอนแล้ว — รอฝ่าย ${pl.by} ตอบว่าจะยอมไหม…`;
-        if (btnYes) btnYes.textContent = 'ยอม — ให้เทิร์น';
-        if (btnNo) btnNo.textContent = 'ไม่ยอม — จบเกม';
-      } else {
-        byId('lethalText').textContent = mineLethal
-          ? `⚠️ ท่าปิดเกม! "${atkN}" จ่อฝั่งคุณ (สาหัส) — จะอ้อนวอนขออีกเทิร์นนึงไหม?`
-          : `⚠️ ท่าปิดเกมใส่ฝั่ง ${pl.target} — รอตอบว่าจะอ้อนวอนขออีกเทิร์นไหม…`;
-        if (btnYes) btnYes.textContent = 'ใช่ — ขอเทิร์นนึง';
-        if (btnNo) btnNo.textContent = 'ไม่ — จบเกม';
-      }
-      if (btnYes) btnYes.classList.toggle('hidden', !mineLethal);
-      if (btnNo) btnNo.classList.toggle('hidden', !mineLethal);
-      // เพนกวิ้น ฮัท: ตอน plead ของฝ่ายสาหัส — ไม่ต้องรออีกฝ่ายยอม
-      let hatK = null;
-      if (phase === 'plead' && mineLethal) {
-        const side = pl.target;
-        const used = st.oncePerGame && st.oncePerGame[side + ':BT11-024'];
-        if (!used) {
-          hatK = (st.zones[side + '.hand'] || []).find(id => {
-            const c = st.inst[id];
-            return c && (c.code === 'BT11-024' || (c.name || '').includes('เพนกวิ้น ฮัท'));
-          }) || null;
-        }
-      }
-      if (btnPen) {
-        btnPen.classList.toggle('hidden', !hatK);
-        btnPen.dataset.k = hatK || '';
-      }
-    } else lb.classList.add('hidden');
-
     // แถบ prompt เอฟเฟกต์ (เลือกเป้า / ทิ้งจ่ายค่า / React)
     const pr = (st.prompts || [])[0];
     const pb = byId('promptBar');
@@ -5408,21 +5366,6 @@
   byId('btnChainPass').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainPass', by: mode === 'solo' ? st.chainPri : undefined }); };
   byId('btnChainNegate').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainNegate', by: mode === 'solo' ? st.chainPri : undefined }); };
   const promptBy = () => { const p = st && (st.prompts || [])[0]; return (p && mode === 'solo') ? p.chooser : undefined; };
-  /* ⚠️ ท่าปิดเกม — plead = ฝ่ายสาหัส · grant = ฝ่ายโจมตี */
-  const lethalAnswer = ok => {
-    const pl = st && st.pendingLethal; if (!pl) return;
-    const who = (pl.phase === 'grant') ? pl.by : pl.target;
-    sendAction({ type: 'lethalAnswer', ok, p: who, by: who });
-  };
-  byId('btnLethalCounter').onclick = () => lethalAnswer(true);
-  byId('btnLethalAccept').onclick = () => lethalAnswer(false);
-  if (byId('btnLethalPenguin')) byId('btnLethalPenguin').onclick = () => {
-    const b = byId('btnLethalPenguin');
-    const k = b && b.dataset.k;
-    const pl = st && st.pendingLethal;
-    if (!k || !pl) return;
-    sendAction({ type: 'activateAbility', k, by: pl.target });
-  };
   byId('btnReactYes').onclick = () => { if (st && (st.prompts || [])[0]) sendAction({ type: 'reactYes', by: promptBy() }); };
   byId('btnReactNo').onclick = () => { if (st && (st.prompts || [])[0]) sendAction({ type: 'reactNo', by: promptBy() }); };
   byId('btnPromptSkip').onclick = () => { if (st && (st.prompts || [])[0]) sendAction({ type: 'skipPrompt', by: promptBy() }); };
