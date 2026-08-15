@@ -1568,7 +1568,11 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "reattachOnHostDestroy": true,
+      "stackPowerOnReattach": true,
+      "reattachEnemyIfNoOwn": true,
+      "parseStatus": "auto",
+      "note": "POWER +1 · โฮสต์ออกสนามแล้วสวมใบอื่น (สนามเราว่าง → เราเลือกสวมฝั่งตรงข้าม) · ทุกครั้งที่เปลี่ยนโฮสต์ +1 เพิ่ม"
     },
     {
       "code": "BT11-069",

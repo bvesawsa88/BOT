@@ -2647,7 +2647,7 @@
     if (lv === 'easy' && Math.random() < 0.55) return false;
     const mine = (st.zones['B.avatar'] || []).filter(k => {
       const c = st.inst[k];
-      return c && c.type === 'Avatar' && c.faceUp !== false && !c.tapped;
+      return c && c.type === 'Avatar' && c.faceUp !== false && !c.tapped && !c.cannotChangeStateUntilEOT;
     });
     if (mine.length < 2) return false;
     const donors = mine.filter(k => cardHasUnityKw(k));
@@ -3430,7 +3430,7 @@
       classes.push('hell-act');
       qa = `<div class="qa qa-hand"><button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้จากนรก (หรือคลิกขวา)">⚡</button></div>`;
     } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
-      const canAtk = cls === 'avatar' && !c.tapped && c.faceUp;
+      const canAtk = cls === 'avatar' && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT;
       const canUnityBtn = cls === 'avatar' && canUseUnity(k);
       const canModAtt = cls === 'magic' && canAttachFromMagic(k);
       // มีความสามารถสั่งใช้ (activated) เท่านั้นถึงโชว์ ⚡ — กดแล้วถ้ามีเลือกปฏิบัติจะขึ้นกล่อง 2 เทค
@@ -4314,7 +4314,7 @@
   function canUseUnity(k) {
     if (!canControl(k)) return false;
     const c = st.inst[k];
-    if (!c || c.tapped || !c.faceUp) return false;
+    if (!c || c.tapped || !c.faceUp || c.cannotChangeStateUntilEOT) return false;
     return (BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && cardHasUnityKw(k);
   }
   function canAttachFromMagic(k) {
@@ -4371,7 +4371,7 @@
       }));
     const quick = [
       // ⚔️ โจมตี — เฉพาะการ์ดบนสนามที่ตื่นอยู่ (กดแล้วชี้เป้า → นอนให้เอง)
-      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp
+      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT
         ? [{ icon: '⚔️', title: 'โจมตี → ชี้เป้า (นอนให้อัตโนมัติ)', fn: () => startAnnounce(k, 'attack') }] : []),
       ...(hasActivated
         ? [{ icon: '⚡', title: 'สั่งใช้ความสามารถ (คลิกขวาก็ได้)', act: { type: 'activateAbility', k, by: mode === 'solo' ? own : undefined } }]
@@ -4391,13 +4391,13 @@
       ...(canUseUnity(k)
         ? [{ label: '🤝 สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)', fn: () => startAnnounce(k, 'unity') }] : []),
       // 🗡️ แทงหลัง — นอนแล้วยก POWER+1 ให้ผู้โจมตี
-      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')
+      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT && BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')
         ? [{ label: '🗡️ แทงหลัง — นอนแล้วเสริมผู้โจมตี…', fn: () => startAnnounce(k, 'backstab') }] : []),
       // 🛡️ โล่มนุษย์ — ตอนถูกประกาศโจมตี
       ...((() => {
         const pnd = st.pending;
         const kz0 = BoTEngine.zoneOf(st, k) || '';
-        if (!pnd || !kz0.endsWith('.avatar') || c.tapped || !c.faceUp) return [];
+        if (!pnd || !kz0.endsWith('.avatar') || c.tapped || !c.faceUp || c.cannotChangeStateUntilEOT) return [];
         const side = BoTEngine.ownerOf(st, k);
         if (side !== pnd.target) return [];
         const hasShield = BoTEngine.hasKw
@@ -5179,7 +5179,7 @@
           return sendAction({ type: 'unity', k: d.k, to: tk });
         }
         // โจมตีได้เฉพาะ Avatar บนสนามที่ตื่น — ห้ามตัวนอน / เมจิก / มือ
-        const atkOk = dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar') && !dc.tapped && dc.faceUp !== false;
+        const atkOk = dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar') && !dc.tapped && dc.faceUp !== false && !dc.cannotChangeStateUntilEOT;
         if (atkOk && tz && tz.endsWith('.life')) {
           return sendAction({ type: 'declareAttack', atk: d.k, life: tk });
         }

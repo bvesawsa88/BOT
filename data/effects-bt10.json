@@ -1124,9 +1124,28 @@
     },
     {
       "code": "BT10-064",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "วิชานินจา ผนึกเงา"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOnlyNameIncludes": "นินจา",
+          "actions": [
+            {
+              "op": "grantCannotChangeState",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "reactAnyWindow": true,
+      "name": "วิชานินจา ผนึกเงา",
+      "note": "ใช้ได้เมื่อ Avatar Zone มีแค่นินจา: เลือก Avatar ศัตรู 1 ใบ ห้ามเปลี่ยนสภาพจนจบเทิร์น"
     },
     {
       "code": "BT10-065",

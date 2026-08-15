@@ -823,6 +823,7 @@
           "trigger": {
             "on": "activated"
           },
+          "oncePerTurn": true,
           "cost": [
             {
               "op": "discard",
@@ -837,14 +838,15 @@
                 "type": "Avatar",
                 "costMax": 3
               },
-              "dest": "hand"
+              "dest": "hand",
+              "lockSummonAndAbility": true
             }
-          ],
-          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "name": "โรงบาล"
+      "parseStatus": "auto",
+      "name": "โรงบาล",
+      "note": "เทิร์นละครั้ง ทิ้งมือ 1: Avatar Cost≤3 จากนรกขึ้นมือ — ใบนั้นและชื่อเดียวกันอัญเชิญ/ใช้ความสามารถไม่ได้จนจบเทิร์น"
     },
     {
       "code": "BT01-051",

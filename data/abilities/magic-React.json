@@ -915,8 +915,27 @@
       "codes": [
         "BT10-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOnlyNameIncludes": "นินจา",
+          "actions": [
+            {
+              "op": "grantCannotChangeState",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto",
+      "note": "ใช้ได้เมื่อ Avatar Zone มีแค่นินจา: เลือก Avatar ศัตรู 1 ใบ ห้ามเปลี่ยนสภาพจนจบเทิร์น"
     },
     {
       "name": "วิชานินจา รุกรับพลิกผัน",
@@ -1030,18 +1049,13 @@
           "react": true,
           "actions": [
             {
-              "op": "bounce",
-              "from": "own",
-              "filter": {
-                "type": "Avatar"
-              },
-              "optional": false
+              "op": "bounceAttackTarget"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
+      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
     },
     {
       "name": "หมอมาแล้วววว",

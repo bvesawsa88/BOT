@@ -824,6 +824,7 @@
           "trigger": {
             "on": "activated"
           },
+          "oncePerTurn": true,
           "cost": [
             {
               "op": "discard",
@@ -838,13 +839,14 @@
                 "type": "Avatar",
                 "costMax": 3
               },
-              "dest": "hand"
+              "dest": "hand",
+              "lockSummonAndAbility": true
             }
-          ],
-          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง ทิ้งมือ 1: Avatar Cost≤3 จากนรกขึ้นมือ — ใบนั้นและชื่อเดียวกันอัญเชิญ/ใช้ความสามารถไม่ได้จนจบเทิร์น"
     },
     {
       "code": "BT01-051",
@@ -6036,8 +6038,37 @@
     {
       "code": "BT05-066",
       "name": "มนุษย์ดัดแปลง",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "optional": false,
+              "thenAttachSrc": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "hostSymbolReplace": "เครื่องจักร",
+      "destroyHostOnLeave": true,
+      "note": "ทิ้งมือ 1 แล้วอัญเชิญ Avatar Cost≤3 จากนรก แล้วสวมตัวเอง · โฮสต์เป็นเครื่องจักร · ใบนี้หลุดสนามแล้วโฮสต์ลงนรก"
     },
     {
       "code": "BT05-067",
@@ -9982,8 +10013,27 @@
     {
       "code": "BT10-064",
       "name": "วิชานินจา ผนึกเงา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "requireOnlyNameIncludes": "นินจา",
+          "actions": [
+            {
+              "op": "grantCannotChangeState",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "reactAnyWindow": true,
+      "note": "ใช้ได้เมื่อ Avatar Zone มีแค่นินจา: เลือก Avatar ศัตรู 1 ใบ ห้ามเปลี่ยนสภาพจนจบเทิร์น"
     },
     {
       "code": "BT10-065",
@@ -11690,7 +11740,11 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "reattachOnHostDestroy": true,
+      "stackPowerOnReattach": true,
+      "reattachEnemyIfNoOwn": true,
+      "note": "POWER +1 · โฮสต์ออกสนามแล้วสวมใบอื่น (สนามเราว่าง → เราเลือกสวมฝั่งตรงข้าม) · ทุกครั้งที่เปลี่ยนโฮสต์ +1 เพิ่ม"
     },
     {
       "code": "BT11-069",
@@ -12797,6 +12851,7 @@
           "trigger": {
             "on": "activated"
           },
+          "oncePerTurn": true,
           "cost": [
             {
               "op": "discard",
@@ -12811,13 +12866,14 @@
                 "type": "Avatar",
                 "costMax": 3
               },
-              "dest": "hand"
+              "dest": "hand",
+              "lockSummonAndAbility": true
             }
-          ],
-          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง ทิ้งมือ 1: Avatar Cost≤3 จากนรกขึ้นมือ — ใบนั้นและชื่อเดียวกันอัญเชิญ/ใช้ความสามารถไม่ได้จนจบเทิร์น"
     },
     {
       "code": "CC01-060",
@@ -17686,6 +17742,7 @@
           "trigger": {
             "on": "activated"
           },
+          "oncePerTurn": true,
           "cost": [
             {
               "op": "discard",
@@ -17700,13 +17757,14 @@
                 "type": "Avatar",
                 "costMax": 3
               },
-              "dest": "hand"
+              "dest": "hand",
+              "lockSummonAndAbility": true
             }
-          ],
-          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง ทิ้งมือ 1: Avatar Cost≤3 จากนรกขึ้นมือ — ใบนั้นและชื่อเดียวกันอัญเชิญ/ใช้ความสามารถไม่ได้จนจบเทิร์น"
     },
     {
       "code": "ODY1-075",
@@ -19087,6 +19145,7 @@
           "trigger": {
             "on": "activated"
           },
+          "oncePerTurn": true,
           "cost": [
             {
               "op": "discard",
@@ -19101,13 +19160,14 @@
                 "type": "Avatar",
                 "costMax": 3
               },
-              "dest": "hand"
+              "dest": "hand",
+              "lockSummonAndAbility": true
             }
-          ],
-          "note": "ข้อจำกัดห้ามอัญเชิญใบที่ขึ้นมือ = ผู้เล่นคุมเอง"
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง ทิ้งมือ 1: Avatar Cost≤3 จากนรกขึ้นมือ — ใบนั้นและชื่อเดียวกันอัญเชิญ/ใช้ความสามารถไม่ได้จนจบเทิร์น"
     },
     {
       "code": "PRMO-051",
@@ -20166,18 +20226,13 @@
           "react": true,
           "actions": [
             {
-              "op": "bounce",
-              "from": "own",
-              "filter": {
-                "type": "Avatar"
-              },
-              "optional": false
+              "op": "bounceAttackTarget"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
+      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
     },
     {
       "code": "PRMO-111",
@@ -23743,18 +23798,13 @@
           "react": true,
           "actions": [
             {
-              "op": "bounce",
-              "from": "own",
-              "filter": {
-                "type": "Avatar"
-              },
-              "optional": false
+              "op": "bounceAttackTarget"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
+      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
     },
     {
       "code": "SD07-017",

@@ -1541,9 +1541,38 @@
     },
     {
       "code": "BT05-066",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "มนุษย์ดัดแปลง"
+      "name": "มนุษย์ดัดแปลง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "optional": false,
+              "thenAttachSrc": true
+            }
+          ]
+        }
+      ],
+      "hostSymbolReplace": "เครื่องจักร",
+      "destroyHostOnLeave": true,
+      "parseStatus": "auto",
+      "note": "ทิ้งมือ 1 แล้วอัญเชิญ Avatar Cost≤3 จากนรก แล้วสวมตัวเอง · โฮสต์เป็นเครื่องจักร · ใบนี้หลุดสนามแล้วโฮสต์ลงนรก"
     },
     {
       "code": "BT05-067",

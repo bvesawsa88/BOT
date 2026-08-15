@@ -28,12 +28,14 @@ const META_KEYS = [
   'extraSymbols', 'destroyHostIfPower0', 'powerAsGemForSymbol',
   'gemAsCostForNameIncludes', 'revealOppDeckTopIfOwnNameIncludes', 'cannotBeAttackTargetIf',
   'cannotBeAttackTargetIfOwnSymbolOther', 'hostSymbolReplace', 'reattachOnHostDestroy', 'reactAnyWindow',
+  'destroyHostOnLeave',
   'costZeroIfDistinctOwnNameIncludes', 'costZeroIfOwnSymbol', 'abilitiesFromMagicZone',
   'blockAllLandPlay', 'destroyAfterGlobalEndPhases', 'stayOnMagic', 'remainOnMagic',
   'allowOppTurnMagic', 'oncePerTurnCard', 'ignoreReactOncePerTurnLimit', 'revealDeckTops',
   'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
   'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities',
   'uniqueAttachedNames', 'attachOnly', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
+  'stackPowerOnReattach', 'reattachEnemyIfNoOwn',
   'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf'
 ];
 

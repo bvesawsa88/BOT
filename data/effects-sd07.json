@@ -335,18 +335,13 @@
           "react": true,
           "actions": [
             {
-              "op": "bounce",
-              "from": "own",
-              "filter": {
-                "type": "Avatar"
-              },
-              "optional": false
+              "op": "bounceAttackTarget"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)"
+      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
     },
     {
       "code": "SD07-017",
