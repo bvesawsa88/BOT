@@ -371,7 +371,7 @@
     const drawerOpen = !byId('logPane').classList.contains('hidden');
     const pvOpen = byId('previewPane').classList.contains('open');
     if (fab) {
-      const show = onTable && portrait && st && !st.over && !drawerOpen && !pvOpen;
+      const show = onTable && portrait && st && !st.over && !drawerOpen && !pvOpen && !mullP;
       fab.classList.toggle('hidden', !show);
       fab.classList.toggle('wait', !ok);
       fab.disabled = !ok;
@@ -1181,12 +1181,12 @@
       lanIsHost = false;
       netKind = 'lan';
       mode = 'online';
-      lanSend({ t: 'hello', nick: myNick() || 'ผู้เล่น B', uid: myUid() });
+      lanSend({ t: 'hello', nick: myNick() || 'ผู้เล่น B', uid: myUid(), skins: mySkinPayload() });
       if (st) lanSend({ t: 'sync' });
       onLanPeerRestored();
       if (myReady) {
         const d = selectedDeck();
-        lanSend({ t: 'ready', ready: true, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+        lanSend({ t: 'ready', ready: true, deck: d ? d.spec : null, deckName: d ? d.name : '', skins: mySkinPayload() });
       }
     }).catch(err => {
       lanReconnecting = false;
@@ -1200,6 +1200,13 @@
 
   function lanSend(msg) {
     return !!(lanSession && lanSession.send && lanSession.send(msg));
+  }
+  function mySkinPayload() {
+    return window.BotSkins ? BotSkins.exportIds() : null;
+  }
+  function rememberSkins(who, skins) {
+    if (!roomSt || !roomSt[who] || !skins) return;
+    roomSt[who].skins = skins;
   }
   function lanBroadcastRoom() {
     if (!lanIsHost || !roomSt) return;
@@ -1299,6 +1306,7 @@
         const keepNick = (roomSt && roomSt.B && roomSt.B.nick) || '';
         roomSt.B.online = true;
         roomSt.B.nick = (m.nick || keepNick || 'ผู้เล่น B').slice(0, 24);
+        if (m.skins) rememberSkins('B', m.skins);
         if (!st) {
           roomSt.B.ready = false;
           roomSt.B.deckName = '';
@@ -1316,6 +1324,7 @@
       if (m.t === 'ready') {
         roomSt.B.ready = !!m.ready;
         roomSt.B.deckName = m.deckName || roomSt.B.deckName || '';
+        if (m.skins) rememberSkins('B', m.skins);
         if (m.ready && m.deck) lanDecks.B = m.deck;
         if (!m.ready) lanDecks.B = null;
         lanBroadcastRoom();
@@ -1672,12 +1681,13 @@
       roomSt.A.ready = true;
       roomSt.A.deckName = deck.name || '';
       roomSt.A.nick = myNick() || lanHallNick() || roomSt.A.nick;
+      rememberSkins('A', mySkinPayload());
       lanDecks.A = deck.spec;
       lanBroadcastRoom();
       renderRoom();
       maybeLanAutoStart();
     } else {
-      lanSend({ t: 'ready', ready: true, deck: deck.spec, deckName: deck.name || '' });
+      lanSend({ t: 'ready', ready: true, deck: deck.spec, deckName: deck.name || '', skins: mySkinPayload() });
       renderRoom();
     }
   }
@@ -1730,6 +1740,7 @@
       lanDeckNames = { A: '', B: '' };
       const hostNick = (lanAutoMatch ? lanHallNick() : myNick()) || 'โฮสต์';
       roomSt = lanEmptyRoom(hostNick);
+      rememberSkins('A', mySkinPayload());
       history.replaceState(null, '', '?lan=' + room);
       fillDeckSelect();
       if (lanMatchDeckKey) {
@@ -1783,7 +1794,7 @@
       myReady = false;
       history.replaceState(null, '', '?lan=' + room);
       const guestNick = (lanAutoMatch ? lanHallNick() : myNick()) || 'ผู้เล่น B';
-      lanSend({ t: 'hello', nick: guestNick, uid: myUid() });
+      lanSend({ t: 'hello', nick: guestNick, uid: myUid(), skins: mySkinPayload() });
       fillDeckSelect();
       if (lanMatchDeckKey) {
         try {
@@ -2283,6 +2294,62 @@
     const AI = botAI();
     return AI ? AI.detectArchetype(st, 'B') : 'generic';
   }
+  function botLifeInfo(side) {
+    const lives = st.zones[side + '.life'] || [];
+    const down = lives.filter(k => st.inst[k] && !st.inst[k].faceUp);
+    return {
+      n: lives.length,
+      down: down.length,
+      critical: lives.length > 0 && down.length === 0,
+      target: down[0] || lives.find(k => st.inst[k]) || null,
+    };
+  }
+  function botHasEgg(k) {
+    return !!BoTEngine.hasKw(st, k, 'เตะไข่') || !!(st.inst[k] && st.inst[k]._allowLifeDespiteAvatars);
+  }
+  function botThreatScore(k) {
+    const c = st.inst[k]; if (!c) return 0;
+    let s = eff(k) * 5;
+    if (botHasEgg(k)) s += 45;
+    if (cardHasUnityKw(k)) s += 10;
+    if (BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'ลูกฮึด')) s += 18;
+    if (BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'โล่มนุษย์')) s += 8;
+    if (BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')) s += 12;
+    return s;
+  }
+  function botSkipCombatReact(k) {
+    const c = st.inst[k];
+    return !!(c && /อย่าให้มีครั้งที่/.test(c.name || ''));
+  }
+  function botRankCombatReacts(opts) {
+    const AI = botAI();
+    return (opts || []).slice().filter(k => !botSkipCombatReact(k)).sort((a, b) => {
+      const sa = AI && AI.reactStopScore ? AI.reactStopScore(st.inst[a]) : 0;
+      const sb = AI && AI.reactStopScore ? AI.reactStopScore(st.inst[b]) : 0;
+      if (sb !== sa) return sb - sa;
+      return botCardVal(a) - botCardVal(b);
+    });
+  }
+  function botShouldCombatReact(pend) {
+    const lv = getBotLevel();
+    if (!pend) return false;
+    const atkP = pend.atk ? eff(pend.atk) : 0;
+    const defP = pend.def ? eff(pend.def) : 0;
+    const lifeAtk = !!pend.life;
+    const myL = botLifeInfo('B');
+    if (lifeAtk && atkP <= 0) return false;
+    if (lv === 'easy') return !!(lifeAtk && myL.critical);
+    if (lifeAtk) {
+      if (myL.critical || myL.down <= 1) return true;
+      return lv === 'hard' ? myL.down <= 3 : myL.down <= 2;
+    }
+    if (!pend.def) return false;
+    if (atkP < defP) return false;
+    const lost = botThreatScore(pend.def);
+    const atkTh = botThreatScore(pend.atk);
+    if (lv === 'hard') return lost >= 22 || atkTh >= 48 || atkP >= defP;
+    return lost >= 32 || atkP > defP;
+  }
   function botKey(a) {
     try { return JSON.stringify(a); } catch (e) { return String(a && a.type); }
   }
@@ -2394,6 +2461,14 @@
     if (enemies.length && enemies.every(e => eff(e) < p)) s += 15;
     const AI = botAI();
     if (AI) s += AI.summonSynergyBonus(st, 'B', k, botArch());
+    const myL = botLifeInfo('B');
+    const oppN = (st.zones['A.avatar'] || []).length;
+    const myN = (st.zones['B.avatar'] || []).length;
+    if (c.type === 'Avatar') {
+      if (myN <= 1 && oppN >= 2) s += 16 + Math.max(0, 5 - cost) * 3;
+      if (myL.critical && (st.zones['A.avatar'] || []).some(id => botHasEgg(id)))
+        s += 22 + Math.max(0, 6 - cost) * 4;
+    }
     return s;
   }
   function botTrySummon() {
@@ -2537,6 +2612,13 @@
       if (botTryAttach()) return true;
     }
     const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
+    // แลนด์เป้าหมายยังไม่อยู่บนสนาม — วางก่อนลงอย่างอื่น
+    if (AI && lv !== 'easy' && AI.wantedLandNeedle) {
+      const need = AI.wantedLandNeedle(arch);
+      if (need && !AI.hasLandNamed(st, need)) {
+        if (botTryPlayMagic()) return true;
+      }
+    }
     // ถ้าพร้อมเปิดเทค/เรียกจากนรก — แทรก activate ขึ้นก่อน
     if (AI && lv !== 'easy' && AI.shouldActivateBeforeSummon(st, 'B', arch)) {
       if (botTryActivate()) return true;
@@ -2616,48 +2698,85 @@
   }
   function botTryAttack() {
     const lv = getBotLevel();
-    const mine = (st.zones['B.avatar'] || []).filter(k => st.inst[k] && !st.inst[k].tapped && st.inst[k].type === 'Avatar');
+    const mine = (st.zones['B.avatar'] || []).filter(k => {
+      const c = st.inst[k];
+      return c && !c.tapped && c.faceUp !== false && c.type === 'Avatar' && eff(k) > 0;
+    });
     const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
     const enemyCons = (st.zones['A.construct'] || []).slice();
-    const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
-    const oppLifeDown = (st.zones['A.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
-    const race = oppLifeDown <= myLifeDown;
-    const livesA = st.zones['A.life'] || [];
-    const lifeDown = livesA.find(k => st.inst[k] && !st.inst[k].faceUp);
-    const lethal = livesA.length > 0 && !lifeDown;
-    const life = lifeDown || (lethal ? livesA.find(k => st.inst[k]) : null);
+    const myL = botLifeInfo('B');
+    const oppL = botLifeInfo('A');
+    const racing = oppL.down <= myL.down;
+    const lethal = oppL.critical && oppL.n > 0;
+    const life = oppL.target;
+    if (!mine.length) return false;
+
+    const sortedAtk = mine.slice().sort((a, b) => eff(a) - eff(b) || botThreatScore(a) - botThreatScore(b));
+    const sortedEn = enemies.slice().sort((a, b) => botThreatScore(b) - botThreatScore(a));
+    const used = new Set();
+    const assigned = new Map();
+    for (const e of sortedEn) {
+      const killer = sortedAtk.find(a => {
+        if (used.has(a)) return false;
+        const ap = eff(a), dp = eff(e);
+        if (ap > dp) return true;
+        if (lv !== 'easy' && ap === dp && botThreatScore(e) >= botThreatScore(a) - 5) return true;
+        return false;
+      });
+      if (killer) { used.add(killer); assigned.set(e, killer); }
+    }
+    const leftover = mine.filter(a => !used.has(a));
+    const cleared = assigned.size === enemies.length;
+    const faceNow = enemies.length === 0 ? mine : mine.filter(botHasEgg);
+    const canLethalNow = lethal && faceNow.length > 0;
+
     const plans = [];
     for (const atk of mine) {
       const ap = eff(atk);
-      if (ap <= 0) continue;
-      const canEgg = !!BoTEngine.hasKw(st, atk, 'เตะไข่') || !!(st.inst[atk] && st.inst[atk]._allowLifeDespiteAvatars);
-      let canBeatAny = false;
+      const egg = botHasEgg(atk);
+      const myTh = botThreatScore(atk);
       for (const e of enemies) {
         const dp = eff(e);
+        const th = botThreatScore(e);
+        const isAssigned = assigned.get(e) === atk;
         if (ap > dp) {
-          canBeatAny = true;
-          plans.push({ atk, def: e, score: 100 + dp * 3 - ap * 0.2 });
-        } else if (lv !== 'easy' && ap === dp && (mine.length > 1 || enemies.length === 1))
-          plans.push({ atk, def: e, score: 40 + dp - ap });
-        else if (lv === 'hard' && ap + 1 >= dp && mine.length >= 2 && enemies.length >= 2)
-          plans.push({ atk, def: e, score: 25 + dp });
+          let score = 70 + th - ap * 0.2;
+          if (isAssigned) score += 28;
+          if (cleared && leftover.length && !egg) score += 32;
+          if (egg && (lethal || (racing && oppL.down <= 2))) score -= 60;
+          if (myL.critical && mine.length <= 2 && !lethal && !(th > myTh + 15 || botHasEgg(e)))
+            score -= 70;
+          plans.push({ atk, def: e, score });
+        } else if (ap === dp && lv !== 'easy') {
+          let score = th - myTh + 8;
+          if (th > myTh + 8) score += 35;
+          if (mine.length > enemies.length + 1) score += 12;
+          if (myL.critical) score -= 55;
+          if (egg && (lethal || racing)) score -= 80;
+          if (score > 15) plans.push({ atk, def: e, score });
+        } else if (lv === 'hard' && ap + 1 >= dp && mine.length >= 3 && enemies.length >= 2 && th > myTh + 20) {
+          plans.push({ atk, def: e, score: 18 + th - myTh });
+        }
       }
       if (lv !== 'easy') {
         for (const e of enemyCons) {
           const dp = eff(e);
-          if (ap > dp) plans.push({ atk, def: e, score: 55 + dp });
+          if (ap > dp) {
+            let score = 42 + dp;
+            if (egg && (lethal || racing)) score -= 40;
+            plans.push({ atk, def: e, score });
+          }
         }
       }
-      // ตี LIFE: ไม่มีศัตรู หรือมี「เตะไข่」/เอฟเฟกต์พิเศษ (ไม้เกาหลัง)
-      if (life && (enemies.length === 0 || canEgg)) {
-        let lifeScore = (lv === 'hard' || race) ? 120 + ap : 90 + ap;
-        if (lethal) lifeScore = 800 + ap;
-        else if (canEgg && enemies.length) {
-          // มีบล็อกเกอร์ — เตะไข่ยังแข่งกับเทรดได้ (แข่ง LIFE / ฆ่าไม่ได้)
-          lifeScore = canBeatAny
-            ? ((lv === 'hard' || race) ? 95 + ap : 70 + ap)
-            : (130 + ap + (race ? 20 : 0));
-          if (oppLifeDown <= 2) lifeScore += 35;
+      if (life && (enemies.length === 0 || egg) && ap > 0) {
+        let lifeScore = 88 + Math.min(ap, 10);
+        if (lethal) lifeScore = 2500 + ap;
+        else {
+          if (racing) lifeScore += 45;
+          if (oppL.down <= 2) lifeScore += 55;
+          if (oppL.down <= 1) lifeScore += 90;
+          if (cleared && leftover.length > 1 && !egg) lifeScore -= 12;
+          if (lv === 'hard') lifeScore += 8;
         }
         plans.push({ atk, life, score: lifeScore });
       }
@@ -2665,8 +2784,10 @@
     if (lv === 'easy' && !lethal && plans.some(p => p.life) && Math.random() < 0.25) {
       if (plans.every(p => p.life)) return false;
     }
+    if (!plans.length) return false;
     plans.sort((a, b) => b.score - a.score);
-    for (const p of plans) {
+    const ordered = canLethalNow ? plans.filter(p => p.life).concat(plans.filter(p => !p.life)) : plans;
+    for (const p of ordered) {
       if (p.life) {
         if (botSend({ type: 'declareAttack', atk: p.atk, life: p.life, by: 'B' })) return true;
       } else if (botSend({ type: 'declareAttack', atk: p.atk, def: p.def, by: 'B' })) return true;
@@ -2684,7 +2805,7 @@
 
     if (pr.kind === 'chooseDestroy' || dest === 'destroy' || (dest === 'hell' && from === 'enemyAvatars')
       || from === 'enemyAvatars' || (pr.side === 'enemy' && pr.kind !== 'chooseBuff')) {
-      const enemies = cands.filter(enemySide).sort((a, b) => eff(b) - eff(a) || botCardVal(b) - botCardVal(a));
+      const enemies = cands.filter(enemySide).sort((a, b) => botThreatScore(b) - botThreatScore(a) || eff(b) - eff(a));
       if (enemies[0]) return enemies[0];
     }
     if (pr.kind === 'chooseDiscard' || dest === 'discard' || dest === 'giveHandNegate' || dest === 'giveToOpp' || from === 'ownHand') {
@@ -2711,8 +2832,25 @@
       })[0];
     }
     if (pr.kind === 'chooseBuff') {
-      if (pr.amt >= 0) return cands.filter(ownSide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
-      return cands.filter(enemySide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
+      if (pr.amt >= 0) {
+        const own = cands.filter(ownSide);
+        const amt = +pr.amt || 0;
+        const oppAv = (st.zones['A.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
+        own.sort((a, b) => {
+          const gain = k => {
+            const p = eff(k);
+            let g = p + amt;
+            oppAv.forEach(e => {
+              if (p <= eff(e) && p + amt > eff(e)) g += 55 + botThreatScore(e);
+            });
+            if (botHasEgg(k) || !oppAv.length) g += 22;
+            return g;
+          };
+          return gain(b) - gain(a);
+        });
+        return own[0] || cands[0];
+      }
+      return cands.filter(enemySide).sort((a, b) => botThreatScore(b) - botThreatScore(a))[0] || cands[0];
     }
     const en = cands.filter(enemySide).sort((a, b) => eff(b) - eff(a));
     if (en[0]) return en[0];
@@ -2744,22 +2882,34 @@
       return;
     }
     if (pr.kind === 'react') {
-      if (pr.reactTrigger === 'enemyDeclareAttack' && st.pending && st.pending.target === 'B') {
+      if (pr.mode === 'negateMagic' || pr.magicNegate) {
+        const opts = (pr.options || []).slice();
+        if (!opts.length) { botSend({ type: 'reactNo', by: 'B' }); return; }
+        const tgt = pr.target && st.inst[pr.target];
+        const AI = botAI();
+        let threat = AI && AI.magicNegateThreat ? AI.magicNegateThreat(tgt) : 40;
+        if (tgt && tgt.subtype === 'React') threat += 20;
         const lv = getBotLevel();
-        const pend = st.pending;
-        const atkP = pend.atk ? eff(pend.atk) : 0;
-        const defP = pend.def ? eff(pend.def) : 0;
-        const lifeAtk = !!pend.life;
-        const threatened = lifeAtk || (pend.def && atkP >= defP);
-        const useReact = lv === 'hard' ? (threatened || atkP > 0)
-          : lv === 'easy' ? lifeAtk
-          : threatened;
-        const opts = (pr.options || []).slice().sort((a, b) => botCardVal(a) - botCardVal(b));
-        if (useReact && opts.length) {
+        const need = lv === 'easy' ? 90 : lv === 'hard' ? 32 : 48;
+        if (threat < need) { botSend({ type: 'reactNo', by: 'B' }); return; }
+        const tgtReact = !!(tgt && tgt.subtype === 'React');
+        opts.sort((a, b) => {
+          const na = /อย่าให้มีครั้งที่/.test((st.inst[a] && st.inst[a].name) || '');
+          const nb = /อย่าให้มีครั้งที่/.test((st.inst[b] && st.inst[b].name) || '');
+          if (tgtReact && na !== nb) return na ? -1 : 1;
+          if (!tgtReact && na !== nb) return na ? 1 : -1;
+          return botCardVal(a) - botCardVal(b);
+        });
+        for (const k of opts) {
+          if (botSend({ type: 'chooseTarget', k, by: 'B' })) return;
+        }
+        botSend({ type: 'reactNo', by: 'B' });
+        return;
+      }
+      if (pr.reactTrigger === 'enemyDeclareAttack' && st.pending && st.pending.target === 'B') {
+        const opts = botRankCombatReacts(pr.options || []);
+        if (botShouldCombatReact(st.pending) && opts.length) {
           for (const k of opts) {
-            const rc = st.inst[k];
-            // อย่าให้มีครั้งที่ 2 ขัดได้เฉพาะ React — อย่าใช้สวนโจมตี
-            if (rc && /อย่าให้มีครั้งที่/.test(rc.name || '')) continue;
             if (botSend({ type: 'chooseTarget', k, by: 'B' })) return;
           }
         }
@@ -2927,22 +3077,33 @@
     if ((st.prompts || []).some(p => p.chooser === pend.by)) return true;
     const atkP = pend.atk ? eff(pend.atk) : 0;
     const defP = pend.def ? eff(pend.def) : 0;
-    const lifeAtk = !!pend.life;
-    const threatened = lifeAtk || (pend.def && atkP >= defP);
-    const opts = (BoTEngine.counterOptions && BoTEngine.counterOptions(st, 'B')) || [];
-    const useReact = lv === 'hard' ? (threatened || atkP > 0)
-      : lv === 'easy' ? lifeAtk
-      : threatened;
-    if (opts.length && useReact) {
-      const sorted = opts.slice().sort((a, b) => botCardVal(a) - botCardVal(b));
-      for (const k of sorted) {
+    const opts = botRankCombatReacts(
+      (BoTEngine.attackReactOptions && BoTEngine.attackReactOptions(st, 'B'))
+      || (BoTEngine.counterOptions && BoTEngine.counterOptions(st, 'B'))
+      || []
+    );
+    if (opts.length && botShouldCombatReact(pend)) {
+      for (const k of opts) {
         if (botSend({ type: 'playMagic', k, by: 'B' })) return true;
       }
     }
     const shields = (BoTEngine.humanShieldOptions && BoTEngine.humanShieldOptions(st, 'B')) || [];
+    const threatened = !!pend.life || (pend.def && atkP >= defP);
     if (lv !== 'easy' && shields.length && threatened && pend.def) {
-      const sh = shields.slice().sort((a, b) => eff(a) - eff(b))[0];
-      if (botSend({ type: 'humanShield', k: sh, by: 'B' })) return true;
+      const weAlreadyWin = atkP < defP;
+      if (!weAlreadyWin) {
+        const defVal = botThreatScore(pend.def);
+        const ranked = shields.slice().map(k => {
+          const p = eff(k);
+          const wins = p > atkP;
+          const s = wins ? 100 + p : (18 - botThreatScore(k));
+          return { k, s, wins };
+        }).sort((a, b) => b.s - a.s);
+        const best = ranked[0];
+        if (best && (best.wins || (defVal >= 40 && botThreatScore(best.k) < defVal - 8))) {
+          if (botSend({ type: 'humanShield', k: best.k, by: 'B' })) return true;
+        }
+      }
     }
     return botSend({ type: 'resolveAttack', by: 'B' });
   }
@@ -3086,6 +3247,10 @@
     applyPerspective();
     pileView = null; byId('pileView').classList.add('hidden');
     byId('btnInvite').classList.toggle('hidden', mode !== 'online');
+    if (window.BotSkins) {
+      const oppSkins = (mode === 'online' && roomSt && roomSt[opp]) ? roomSt[opp].skins : null;
+      BotSkins.applyMatch(null, oppSkins);
+    }
     if (!STREAM) applyOneSide();   // ⬍ ตั้งสนามฝั่งเดียว/สองฝั่งตามโหมด ก่อนวัดขนาดใน onResize
     if (!gameStart) gameStart = Date.now();
     if (mode === 'solo' && !STREAM) reportTable(realMode ? 'real' : 'solo');   // 📊
@@ -3821,6 +3986,8 @@
     bd.style.setProperty('--u', u.toFixed(2) + 'px');
     bd.style.setProperty('--hand-row-opp', rowOpp.toFixed(2) + 'px');
     bd.style.setProperty('--hand-row-my', rowMy.toFixed(2) + 'px');
+    /* ปุ่มจบเทิร์นลอยอยู่นอก #board — ต้องได้ความสูงมือด้วย */
+    table.style.setProperty('--hand-row-my', rowMy.toFixed(2) + 'px');
     const myCardH = rowMy * 0.94;
     const oppCardH = rowOpp * 0.92;
     const fieldH = u * 0.78;
@@ -3869,7 +4036,7 @@
         el.style.width = el.style.height = el.style.margin = el.style.marginLeft = el.style.marginRight = '';
       });
       row.classList.remove('hand-spread');
-      row.style.overflowX = '';
+      row.style.overflow = row.style.overflowX = row.style.overflowY = '';
     };
     if (seat === 'S' || !cards.length) { clearInline(); return; }
     const narrow = window.matchMedia('(max-width:1100px), (max-width:920px)').matches
@@ -3912,15 +4079,14 @@
         const minPeek = Math.max(30, Math.round(cw * 0.36));
         if (step < minPeek) {
           step = minPeek;
-          row.style.overflowX = (cw + (n - 1) * step > W + 2) ? 'auto' : 'hidden';
-        } else {
-          row.style.overflowX = 'hidden';
         }
       }
     }
-    if (n <= 1 || (n > 1 && n * cw + (n - 1) * gapIdeal <= W)) {
-      row.style.overflowX = 'hidden';
-    }
+    /* visible ทั้งสองแกน — ถ้าแกน X เป็น hidden/auto เบราว์เซอร์จะบังคับ Y เป็น auto
+       ทำให้ใบที่ยกขึ้นโดนตัดแล้วดูเหมือนเสื่อบังมือ */
+    row.style.overflow = 'visible';
+    row.style.overflowX = 'visible';
+    row.style.overflowY = 'visible';
     cards.forEach((el, i) => {
       const sel = el.classList.contains('sel');
       el.style.position = 'absolute';
@@ -5568,6 +5734,7 @@
     byId('btnLogin').classList.toggle('hidden', on);
     byId('userChip').classList.toggle('hidden', !on);
     if (on) { byId('userName').textContent = username; try { localStorage.setItem('bot_user', username); } catch (e) { } if (byId('inpNick') && !byId('inpNick').value) byId('inpNick').value = username; }
+    if (window.BotSkins) BotSkins.setLoggedIn(on);
   }
   async function checkAuth() {
     const t = authToken(); if (!t) return setAuthUI(null);
@@ -5597,6 +5764,10 @@
   }
   byId('btnLogin').onclick = () => openAuth('login');
   byId('btnLogout').onclick = () => { try { localStorage.removeItem('bot_auth_token'); localStorage.removeItem('bot_user'); } catch (e) { } setAuthUI(null); toast('ออกจากระบบแล้ว'); };
+  if (window.BotSkins) {
+    BotSkins.setOnNeedLogin(() => { toast('ล็อกอินก่อนจึงนำเข้าสกินได้'); openAuth('login'); });
+    BotSkins.setLoggedIn(!!authToken());
+  }
   byId('tabLogin').onclick = () => { authMode = 'login'; setAuthTab(); };
   byId('tabRegister').onclick = () => { authMode = 'register'; setAuthTab(); };
   byId('authSubmit').onclick = submitAuth;
@@ -5868,14 +6039,15 @@
         roomSt.A.ready = myReady;
         roomSt.A.deckName = d ? d.name : '';
         roomSt.A.nick = myNick() || roomSt.A.nick;
+        if (myReady) rememberSkins('A', mySkinPayload());
         lanDecks.A = myReady && d ? d.spec : null;
         lanBroadcastRoom();
         renderRoom();
       } else {
-        lanSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+        lanSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '', skins: mySkinPayload() });
       }
     } else {
-      wsSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '' });
+      wsSend({ t: 'ready', ready: myReady, deck: d ? d.spec : null, deckName: d ? d.name : '', skins: mySkinPayload() });
     }
   };
   byId('btnStart').onclick = () => {

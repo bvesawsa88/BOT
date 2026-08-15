@@ -1,5 +1,6 @@
 /* BotAI — กลยุทธ์บอทตามแมคคานิคเด็ค (ใช้คู่กับ heuristic ใน game.js)
-   โฟกัส: เงื่อนไขแลนด์ · ลำดับเทค · อาร์คไทป์อีสาน / ป่าพงไพร · คะแนน synergy */
+   โฟกัส: เงื่อนไขแลนด์ · ลำดับเทค · อาร์คไทป์อีสาน / ป่าพงไพร · คะแนน synergy
+   + โจมตี/เตะไข่ตามจังหวะ LIFE · สวน React เมื่อถูกคุกคาม · ขัดเวทตามความคุ้ม */
 (function (root) {
   'use strict';
 
@@ -161,6 +162,89 @@
     return false;
   }
 
+  function collectOps(c) {
+    const e = effectOf(c);
+    const ops = [];
+    ((e && e.abilities) || []).forEach(ab => {
+      (ab.actions || []).forEach(ac => {
+        if (ac && ac.op) ops.push(ac.op);
+        (ac.options || []).forEach(opt => {
+          ((opt && opt.actions) || []).forEach(a2 => { if (a2 && a2.op) ops.push(a2.op); });
+        });
+      });
+    });
+    return ops;
+  }
+
+  /** คะแนนผลของเวท/สั่งใช้ — จั่ว เสิร์ช ทำลาย เด้ง ตามบอร์ดจริง */
+  function effectOpsBonus(st, side, c) {
+    if (!c) return 0;
+    const ops = collectOps(c);
+    const enemyN = zoneIds(st, otherSide(side) + '.avatar').length;
+    const ownN = zoneIds(st, side + '.avatar').length;
+    let b = 0;
+    const seen = Object.create(null);
+    ops.forEach(op => {
+      if (!op || seen[op]) return;
+      seen[op] = 1;
+      if (op === 'draw' || op === 'drawThenDiscard') b += 16;
+      else if (op === 'scout' || op === 'deckPick' || op === 'deckPickMulti') b += 22;
+      else if (op === 'hellPick' || op === 'returnFromHell' || op === 'summonFromHell') b += 26;
+      else if (op === 'chooseDestroy' || op === 'destroy' || op === 'destroyTarget' || op === 'destroyAllEnemyAvatars')
+        b += enemyN ? 40 : -35;
+      else if (op === 'bounce' || op === 'returnToHand') b += enemyN ? 34 : -18;
+      else if (op === 'mill') b += 8;
+      else if (op === 'modifyPower') b += ownN ? 14 : 4;
+      else if (op === 'grantKeyword') b += 18;
+      else if (op === 'untap') b += 14;
+      else if (op === 'tap') b += enemyN ? 16 : 0;
+      else if (op === 'cancelAttack' || op === 'destroyAttacker' || op === 'sendAttackerToHell') b += 8;
+    });
+    return b;
+  }
+
+  /** React ใบนี้หยุด/ลดการโจมตีได้แค่ไหน (สูง = ควรใช้เมื่อถูกคุกคาม) */
+  function reactStopScore(c) {
+    if (!c) return 0;
+    const n = nameOf(c);
+    if (/อย่าให้มีครั้งที่/.test(n)) return -800; // ขัดเวท ไม่ใช่สวนโจมตี
+    const ops = collectOps(c);
+    let s = 8;
+    ops.forEach(op => {
+      if (op === 'cancelAttack' || op === 'destroyAttacker' || op === 'sendAttackerToHell') s += 90;
+      else if (op === 'bounce' || op === 'returnToHand') s += 70;
+      else if (op === 'negate') s += 50;
+      else if (op === 'destroyAllEnemyAvatars' || op === 'chooseDestroy') s += 55;
+      else if (op === 'weakenAttacker' || op === 'swapCostPowerCombat' || op === 'modifyPower') s += 45;
+      else if (op === 'preventDestroy' || op === 'grantCombatImmuneAllOwn') s += 60;
+      else if (op === 'grantKeyword') s += 20;
+      else if (op === 'draw' || op === 'scout') s += 14;
+      else if (/sacrifice/.test(op)) s -= 22;
+    });
+    return s;
+  }
+
+  /** เวทฝั่งตรงข้ามคุ้มขัดไหม */
+  function magicNegateThreat(c) {
+    if (!c) return 0;
+    let s = 18;
+    if (c.subtype === 'Land') s += 36;
+    if (c.subtype === 'React') s += 58;
+    if (c.subtype === 'Modification') s += 22;
+    const ops = collectOps(c);
+    ops.forEach(op => {
+      if (/destroy|chooseDestroy|destroyAll/.test(op)) s += 48;
+      if (/bounce|returnToHand/.test(op)) s += 36;
+      if (/cancelAttack|negate|destroyAttacker/.test(op)) s += 55;
+      if (/draw|scout|hellPick|deckPick/.test(op)) s += 22;
+      if (op === 'modifyPower') s += 16;
+      if (op === 'grantKeyword') s += 18;
+    });
+    if (cardIsKeyEnabler(c, ARCH.ISAN) || cardIsKeyEnabler(c, ARCH.FOREST) || cardIsFinisherLine(c, ARCH.ISAN)
+      || cardIsFinisherLine(c, ARCH.FOREST)) s += 45;
+    return s;
+  }
+
   /** คะแนนอัญเชิญตาม synergy */
   function summonSynergyBonus(st, side, k, arch) {
     const c = st.inst[k]; if (!c) return 0;
@@ -273,6 +357,7 @@
         }
       });
     });
+    if (score > -900) score += effectOpsBonus(st, side, c);
     return score;
   }
 
@@ -354,6 +439,7 @@
       });
     });
 
+    if (score > -150) score += effectOpsBonus(st, side, c);
     return score;
   }
 
@@ -367,7 +453,7 @@
       return ['magic', 'summon', 'activate', 'attach', 'summon', 'activate'];
     if (lv === 'hard')
       return ['magic', 'activate', 'summon', 'attach', 'magic', 'summon', 'activate'];
-    return ['attach', 'magic', 'activate', 'summon', 'magic', 'summon', 'attach'];
+    return ['magic', 'attach', 'activate', 'summon', 'magic', 'summon', 'attach'];
   }
 
   /**
@@ -475,5 +561,8 @@
     ownNameOnField,
     wantedLandNeedle,
     modGrantsKickEgg,
+    effectOpsBonus,
+    reactStopScore,
+    magicNegateThreat,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
