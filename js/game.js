@@ -1819,12 +1819,27 @@
 
   /* ── ห้องรอ ── */
   const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'KD01', 'KD02', 'KD03', 'KD04'];
+  const HARD_BOT_DECK_KEY = 'ป่าพงไพร';
+  function hardBotDeckVal() { return 'starter:' + HARD_BOT_DECK_KEY; }
+  function presetDeckKeys() {
+    return Object.keys(STARTERS || {}).filter(k => STARTER_KEYS.indexOf(k) < 0);
+  }
   function starterOptionHtml(prefix) {
-    return STARTER_KEYS.map(k => {
+    const starters = STARTER_KEYS.map(k => {
       const s = STARTERS && STARTERS[k];
       const label = (s && s.label) || (k + ' Starter');
       return `<option value="starter:${k}">${prefix ? esc(prefix) : ''}${esc(label)}</option>`;
     }).join('');
+    const presets = presetDeckKeys();
+    const extra = presets.length
+      ? `<option disabled>── เด็คพิเศษ ──</option>` +
+        presets.map(k => {
+          const s = STARTERS[k];
+          const label = (s && (s.label || s.name)) || k;
+          return `<option value="starter:${esc(k)}">${prefix ? esc(prefix) : ''}${esc(label)}</option>`;
+        }).join('')
+      : '';
+    return starters + extra;
   }
   function fillDeckSelect() {
     const sel = byId('selDeck');
@@ -1909,31 +1924,21 @@
       const d = starterDeck(k);
       if (d) rows.push(scoreDeckForBot('starter:' + k, d));
     });
+    presetDeckKeys().forEach(k => {
+      const d = starterDeck(k);
+      if (d) rows.push(scoreDeckForBot('starter:' + k, d));
+    });
     return rows.filter(r => r.score >= 0).sort((a, b) => b.score - a.score);
   }
-  function updateBotDeckHint() {
-    const hint = byId('botDeckHint');
-    if (!hint) return;
-    ensurePlayReady().then(() => CardDB.load()).then(db => {
-      soloCards = db.cards || db.all;
-      const ranked = rankDecksForBot();
-      if (!ranked.length) { hint.hidden = true; return; }
-      const savedOnly = ranked.filter(r => r.key.indexOf('starter:') !== 0);
-      const bestSaved = savedOnly[0];
-      const bestAll = ranked[0];
-      let html = '';
-      if (bestSaved) {
-        html += `จากเด็คที่คุณจัด — บอทเล่นได้ดีสุด: <b>${esc(bestSaved.name)}</b> (${esc(bestSaved.why)})`;
-        if (savedOnly[1]) html += `<br>รองลงมา: ${esc(savedOnly[1].name)}`;
-      }
-      if (bestAll && (!bestSaved || bestAll.key !== bestSaved.key)) {
-        html += (html ? '<br>' : '') + `Starter ที่เหมาะบอท: <b>${esc(bestAll.name)}</b>`;
-      }
-      hint.innerHTML = html || '';
-      hint.hidden = !html;
-    }).catch(() => { hint.hidden = true; });
-  }
+  function updateBotDeckHint() { }
   function applyBestBotDeck() {
+    const botBot = byId('selBotDeckBot');
+    if (getBotLevel() === 'hard' && STARTERS && STARTERS[HARD_BOT_DECK_KEY] && botBot) {
+      botBot.value = hardBotDeckVal();
+      try { localStorage.setItem('bot_opp_deck', hardBotDeckVal()); } catch (e) { }
+      toast('🤖 ตั้งเด็คบอทเป็น「ป่าพงไพร (บอทยาก)」แล้ว', 2800);
+      return;
+    }
     ensurePlayReady().then(() => CardDB.load()).then(db => {
       soloCards = db.cards || db.all;
       const ranked = rankDecksForBot();
@@ -1976,11 +1981,13 @@
       botYou.innerHTML = opts;
       botBot.innerHTML = opts;
       botYou.value = ok(act) ? act : 'starter:SD01';
-      botBot.value = ok(opp) ? opp : 'starter:SD01';
       const lvEl = byId('selBotLevel');
       if (lvEl) {
         try { lvEl.value = localStorage.getItem('bot_level') || 'normal'; } catch (e) { lvEl.value = 'normal'; }
       }
+      const hardDefault = STARTERS && STARTERS[HARD_BOT_DECK_KEY] && hardBotDeckVal();
+      if (getBotLevel() === 'hard' && hardDefault) botBot.value = hardDefault;
+      else botBot.value = ok(opp) ? opp : (hardDefault || 'starter:SD01');
       updateBotDeckHint();
     }
     if (real) {
@@ -2426,6 +2433,8 @@
         if (AI.isWantedLandCard(st.inst[o], arch)) keep += 80;
         if (AI.cardIsKeyEnabler(st.inst[o], arch)) keep += 50;
         if (st.inst[o].subtype === 'React') keep += 25;
+        if (/มะขาม/.test((st.inst[o].name || '')) && AI.hasLandNamed(st, AI.LAND.FOREST)
+          && (st.zones['B.avatar'] || []).length >= 2) keep += 90;
       }
       if (ok) usable.push({ k: o, g: info.g, keep });
     }
@@ -2632,7 +2641,7 @@
     if (lv === 'hard' && botTryActivate()) return true;
     return false;
   }
-  /** สามัคคี — นอนผู้ให้ เสริม POWER ให้ผู้รับก่อนโจมตี */
+  /** สามัคคี — นอนผู้ให้ที่เล็กที่สุด ให้ผู้รับชนะเป้าแค่ +1–2 อย่าบวกเกินจำเป็น */
   function botTryUnity() {
     const lv = getBotLevel();
     if (lv === 'easy' && Math.random() < 0.55) return false;
@@ -2644,50 +2653,41 @@
     const donors = mine.filter(k => cardHasUnityKw(k));
     if (!donors.length) return false;
     const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
-    const livesA = st.zones['A.life'] || [];
-    const lifeDown = livesA.find(k => st.inst[k] && !st.inst[k].faceUp);
-    const lethal = livesA.length > 0 && !lifeDown;
-    const life = lifeDown || (lethal ? livesA.find(k => st.inst[k]) : null);
-    if (lethal) {
+    const enemyCons = lv === 'easy' ? [] : (st.zones['A.construct'] || []).slice();
+    const oppL = botLifeInfo('A');
+    if (oppL.critical && oppL.n > 0) {
       const canFinish = mine.some(k => {
         if (eff(k) <= 0) return false;
-        const canEgg = !!BoTEngine.hasKw(st, k, 'เตะไข่') || !!(st.inst[k] && st.inst[k]._allowLifeDespiteAvatars);
-        return enemies.length === 0 || canEgg;
+        return enemies.length === 0 || botHasEgg(k);
       });
       if (canFinish) return false;
     }
-    const myLifeDown = (st.zones['B.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
-    const oppLifeDown = (st.zones['A.life'] || []).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
-    const race = oppLifeDown <= myLifeDown;
+    const defs = enemies.concat(enemyCons);
+    if (!defs.length) return false;
     const pairs = [];
-    for (const giver of donors) {
-      for (const recv of mine) {
-        if (giver === recv) continue;
-        const gp = eff(giver);
-        const rp = eff(recv);
-        const boosted = rp + gp;
-        let score = boosted * 2 - gp * 0.5;
-        // ผู้รับควรเป็นตัวโจมตีหลัก (พลังสูงกว่าผู้ให้ หรือมีเตะไข่)
-        if (rp >= gp) score += 20;
-        else score -= 15;
-        const canEgg = !!BoTEngine.hasKw(st, recv, 'เตะไข่');
-        if (canEgg && life) {
-          score += 50 + (race ? 25 : 0);
-          if (enemies.length) score += 30; // ทะลุบล็อกเกอร์ไปตี LIFE
+    for (const recv of mine) {
+      const rp = eff(recv);
+      for (const e of defs) {
+        const dp = eff(e);
+        if (rp > dp) continue;
+        const cands = donors.filter(g => g !== recv).slice().sort((a, b) => eff(a) - eff(b) || botThreatScore(a) - botThreatScore(b));
+        let best = null;
+        for (const giver of cands) {
+          const gp = eff(giver);
+          const boosted = rp + gp;
+          const over = boosted - dp;
+          if (over < 1) continue;
+          let score = 80 + botThreatScore(e) - Math.abs(over - 1.5) * 18;
+          if (over <= 2) score += 45;
+          else if (over <= 4) score += 8;
+          else score -= 20 + (over - 4) * 8;
+          if (mine.filter(k => k !== giver).length < 1) score -= 100;
+          if (enemyCons.includes(e)) score -= 15;
+          if (!best || over < best.over || (over === best.over && gp < best.gp))
+            best = { giver, recv, score, over, gp };
+          if (over <= 2) break;
         }
-        let enablesKill = false;
-        for (const e of enemies) {
-          const dp = eff(e);
-          if (rp <= dp && boosted > dp) { enablesKill = true; score += 80 + dp * 2; break; }
-          if (boosted > dp) score += 8;
-        }
-        if (!enablesKill && !canEgg && enemies.length && boosted <= Math.max(...enemies.map(eff), 0))
-          score -= 40;
-        // อย่าสามัคคีถ้าเหลือผู้รับตัวเดียวแล้วยังตีอะไรไม่ได้
-        const leftoverAtk = mine.filter(k => k !== giver).length;
-        if (leftoverAtk < 1) score -= 100;
-        if (lv === 'hard') score += 10;
-        if (score > 30) pairs.push({ giver, recv, score });
+        if (best && best.score > 25) pairs.push(best);
       }
     }
     pairs.sort((a, b) => b.score - a.score);
@@ -5937,7 +5937,7 @@
       st.skipLethalPlead = true;
       botFailKeys = new Set();
       botFailTurn = -1;
-      const lvLabel = botLevel === 'easy' ? 'ง่าย' : botLevel === 'hard' ? 'โหด' : 'ปานกลาง';
+      const lvLabel = botLevel === 'easy' ? 'ง่าย' : botLevel === 'hard' ? 'ยาก' : 'ปานกลาง';
       toast(`🤖 คุณ: ${you.name} · บอท(${lvLabel}): ${botD.name}`);
       gameStart = Date.now(); selMap = {};
       startTable();
@@ -5955,7 +5955,16 @@
   const btnBotPick = byId('btnBotPickDeck');
   if (btnBotPick) btnBotPick.onclick = () => applyBestBotDeck();
   const selBotLv = byId('selBotLevel');
-  if (selBotLv) selBotLv.onchange = () => setBotLevel(selBotLv.value);
+  if (selBotLv) selBotLv.onchange = () => {
+    setBotLevel(selBotLv.value);
+    if (getBotLevel() === 'hard') {
+      const botBot = byId('selBotDeckBot');
+      if (botBot && STARTERS && STARTERS[HARD_BOT_DECK_KEY]) {
+        botBot.value = hardBotDeckVal();
+        try { localStorage.setItem('bot_opp_deck', hardBotDeckVal()); } catch (e) { }
+      }
+    }
+  };
   byId('mnuSolo').onclick = () => {
     // ซ้อมคนเดียว → ค่อยโชว์เลือกเด็ค A vs B
     byId('menuPlayModes').classList.add('hidden');

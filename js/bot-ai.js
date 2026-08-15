@@ -264,7 +264,11 @@
       if (arch === ARCH.FOREST && /ภูติผลไม้/.test(nameOf(c))) {
         if (hasLandNamed(st, LAND.FOREST)) bonus += 45;
         else bonus -= 15;
-        if (/มะขาม/.test(nameOf(c)) && !hasLandNamed(st, LAND.FOREST)) bonus += 50; // เสิร์ชป่า
+        if (/มะขาม/.test(nameOf(c))) {
+          if (!hasLandNamed(st, LAND.FOREST)) bonus += 50; // เสิร์ชป่า
+          else if (zoneIds(st, side + '.avatar').length >= 2)
+            bonus -= 280; // มีแลนด์+บอร์ดแล้ว — เก็บมะขามไว้ตอนแลนด์หาย
+        }
       }
     }
     // กันบอร์ดเต็มด้วยใบไร้ synergy ถ้ายังไม่มี enabler
@@ -389,10 +393,9 @@
         }
       }
       if (arch === ARCH.FOREST && nm(c, LAND.FOREST)) {
-        score += 70;
         const hellHasFruit = zoneIds(st, side + '.hell').some(id => /ภูติผลไม้/.test(nameOf(st.inst[id])));
-        if (hellHasFruit) score += 50;
-        else score -= 20;
+        if (!hellHasFruit) return -999; // อย่าเนรเทศเด็ค ถ้าไม่มีภูติในนรก
+        score += 120;
       }
     }
 
@@ -435,6 +438,20 @@
         }
         if ((ac.op === 'bounce' || ac.op === 'returnToHand') && ac.from !== 'own' && ac.from !== 'any' && ac.target !== 'self') {
           if (!zoneIds(st, otherSide(side) + '.avatar').length) score -= 200;
+        }
+        if (ac.op === 'hellPick' || ac.op === 'summonFromHell' || ac.op === 'returnFromHell') {
+          const hell = zoneIds(st, side + '.hell');
+          const filter = ac.filter || {};
+          const needles = filter.nameIncludes
+            ? (Array.isArray(filter.nameIncludes) ? filter.nameIncludes : [filter.nameIncludes])
+            : [];
+          const has = hell.some(id => {
+            const x = st.inst[id]; if (!x) return false;
+            if (filter.type && x.type !== filter.type) return false;
+            if (needles.length && !needles.some(n => nm(x, n))) return false;
+            return true;
+          });
+          if (!has) score = -999;
         }
       });
     });
