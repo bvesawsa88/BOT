@@ -2337,9 +2337,22 @@
       return botCardVal(a) - botCardVal(b);
     });
   }
+  function botTankWipeWorth(pend) {
+    const tanks = (st.zones['B.avatar'] || []).filter(k => /รถถัง/.test((st.inst[k] && st.inst[k].name) || ''));
+    if (!tanks.length) return false;
+    const has = (st.zones['B.hand'] || []).some(k => /เพื่อชาติ/.test((st.inst[k] && st.inst[k].name) || ''));
+    if (!has) return false;
+    const enemyN = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar').length;
+    if (enemyN >= 2) return true;
+    if (pend && pend.life && enemyN >= 1) return true;
+    if (pend && pend.def && tanks.includes(pend.def) && pend.atk && eff(pend.atk) >= eff(pend.def)) return true;
+    if (pend && pend.atk && botThreatScore(pend.atk) >= 50 && enemyN >= 1) return true;
+    return false;
+  }
   function botShouldCombatReact(pend) {
     const lv = getBotLevel();
     if (!pend) return false;
+    if (lv !== 'easy' && botTankWipeWorth(pend)) return true;
     const atkP = pend.atk ? eff(pend.atk) : 0;
     const defP = pend.def ? eff(pend.def) : 0;
     const lifeAtk = !!pend.life;
@@ -2406,6 +2419,7 @@
     if (AI) {
       if (AI.isWantedLandCard(c, arch)) v += 40;
       if (AI.cardIsKeyEnabler(c, arch)) v += 30;
+      if (AI.comboHoldScore) v += AI.comboHoldScore(st, 'B', c);
     }
     return v;
   }
@@ -2433,6 +2447,7 @@
         if (AI.isWantedLandCard(st.inst[o], arch)) keep += 80;
         if (AI.cardIsKeyEnabler(st.inst[o], arch)) keep += 50;
         if (st.inst[o].subtype === 'React') keep += 25;
+        if (AI.comboHoldScore) keep += AI.comboHoldScore(st, 'B', st.inst[o]);
         if (/มะขาม/.test((st.inst[o].name || '')) && AI.hasLandNamed(st, AI.LAND.FOREST)
           && (st.zones['B.avatar'] || []).length >= 2) keep += 90;
       }

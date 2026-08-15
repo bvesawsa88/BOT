@@ -221,7 +221,46 @@
       else if (op === 'draw' || op === 'scout') s += 14;
       else if (/sacrifice/.test(op)) s -= 22;
     });
+    if (/เพื่อชาติ/.test(n)) s += 50; // กวาดบอร์ดด้วยรถถัง — เก็บไว้ใช้คู่
     return s;
+  }
+
+  function nameHasTank(c) {
+    return !!(c && /รถถัง/.test(nameOf(c)));
+  }
+
+  function ownTankCount(st, side) {
+    const bags = [
+      ...zoneIds(st, side + '.avatar'),
+      ...zoneIds(st, side + '.hand'),
+    ];
+    return bags.filter(k => nameHasTank(st.inst[k])).length;
+  }
+
+  /** React ที่ต้องมีรถถัง (เพื่อชาติ เซ่นรถถังแล้วกวาดบอร์ด ฯลฯ) */
+  function holdsForTankCombo(c) {
+    if (!c) return false;
+    if (/เพื่อชาติ/.test(nameOf(c))) return true;
+    const e = effectOf(c);
+    let hit = false;
+    ((e && e.abilities) || []).forEach(ab => {
+      if (ab.requireOwnNameIncludes && /รถถัง/.test(String(ab.requireOwnNameIncludes))) hit = true;
+      (ab.cost || []).forEach(ac => {
+        const n = ac && ac.filter && ac.filter.nameIncludes;
+        const arr = Array.isArray(n) ? n : n ? [n] : [];
+        if (arr.some(x => /รถถัง/.test(String(x)))) hit = true;
+      });
+    });
+    return hit;
+  }
+
+  /** คะแนนเก็บใบคอมโบรถถัง — อย่าจ่าย GEM / ทิ้งมือ */
+  function comboHoldScore(st, side, c) {
+    if (!holdsForTankCombo(c)) return 0;
+    const tanks = ownTankCount(st, side);
+    if (tanks > 0) return 90;
+    if (zoneIds(st, side + '.deck').some(k => nameHasTank(st.inst[k]))) return 55;
+    return 25;
   }
 
   /** เวทฝั่งตรงข้ามคุ้มขัดไหม */
@@ -277,6 +316,8 @@
       if (!hasEnabler && zoneIds(st, side + '.hand').some(id => cardIsKeyEnabler(st.inst[id], arch)))
         bonus -= 12;
     }
+    if (nameHasTank(c) && zoneIds(st, side + '.hand').some(id => holdsForTankCombo(st.inst[id])))
+      bonus += 28;
     return bonus;
   }
 
@@ -541,6 +582,8 @@
     if (c.type === 'Avatar' && canPlay) s += 25 + Math.max(0, 6 - (+c.cost || 0)) * 3;
     if (c.type === 'Avatar' && !canPlay && (+c.cost || 0) >= 6) s -= 30;
     if (c.subtype === 'React') s += 12;
+    if (holdsForTankCombo(c)) s += 40;
+    if (nameHasTank(c)) s += 18;
     if (c.subtype === 'Modification' && !zoneIds(st, side + '.hand').some(id => st.inst[id] && st.inst[id].type === 'Avatar'))
       s -= 20;
     return s;
@@ -581,5 +624,9 @@
     effectOpsBonus,
     reactStopScore,
     magicNegateThreat,
+    holdsForTankCombo,
+    comboHoldScore,
+    ownTankCount,
+    nameHasTank,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
