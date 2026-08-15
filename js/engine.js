@@ -376,6 +376,10 @@
     if (cardCountsAsReact(c)) return 'React';
     return c.subtype || 'Normal';
   }
+  function isLandMagic(c) {
+    if (!c || c.type !== 'Magic') return false;
+    return (c.subtype || '') === 'Land' || magicSubtype(c) === 'Land';
+  }
   const abilitiesOf_AUTO = (code, on) => abilitiesOf(code, on);
   // ความสามารถของการ์ด k ตาม trigger on — รวม "ความสามารถที่สืบทอดมา" (Inheritance Chain: inst[k].granted)
   // ความสามารถของการ์ด k ตาม trigger on (รวม granted)
@@ -406,6 +410,29 @@
   function zLabel(z) { return z === 'land' ? 'Land Magic' : (Z_LABEL[(z || '').split('.')[1]] || z); }
   function zoneOf(st, k) { for (const z in st.zones) if (st.zones[z].includes(k)) return z; return null; }
   function ownerOf(st, k) { const z = zoneOf(st, k); return !z || z === 'land' ? 'S' : z[0]; }
+  /* เจ้าของตัวการ์ด (คนที่เด็คใบนี้ออกมา) — ไม่เปลี่ยนตอนยึด/สวมฝั่งตรงข้าม */
+  function cardOwnerOf(st, k) {
+    const c = st.inst[k];
+    if (!c) return null;
+    if (c.cardOwner === 'A' || c.cardOwner === 'B') return c.cardOwner;
+    if (c.modOwner === 'A' || c.modOwner === 'B') return c.modOwner;
+    return null;
+  }
+  function ensureCardOwner(st, k, fromZ) {
+    const c = st.inst[k];
+    if (!c || c.cardOwner === 'A' || c.cardOwner === 'B') return;
+    const z = fromZ || zoneOf(st, k);
+    if (z === 'land') {
+      if (c.controller === 'A' || c.controller === 'B') c.cardOwner = c.controller;
+      return;
+    }
+    if (z && (z[0] === 'A' || z[0] === 'B') && z.indexOf('.') >= 0) c.cardOwner = z[0];
+  }
+  function hellZoneOf(st, k, fallback) {
+    const own = cardOwnerOf(st, k);
+    if (own && st.zones[own + '.hell']) return own + '.hell';
+    return fallback;
+  }
   /* สีเจมตอนจ่าย Cost: gemColor บนการ์ด · ว่าง = ใช้สีการ์ด · ไร้สี/ขาว/ใส = wild ลงได้ทุกสี */
   function gemColorOf(c) {
     if (!c) return 'ขาว';
@@ -423,6 +450,7 @@
   function equipOnto(st, modK, hostK) {
     const mod = st.inst[modK], host = st.inst[hostK];
     if (!mod || !host) return false;
+    ensureCardOwner(st, modK);
     const he = fxCard(host);
     if (he && he.uniqueAttachedNames) {
       for (const id in st.inst) {
@@ -439,10 +467,14 @@
       if (!hostOwn) return false;
     }
     if (!mod.modOwner) {
-      const mz0 = zoneOf(st, modK);
-      if (mz0 && (mz0[0] === 'A' || mz0[0] === 'B')) mod.modOwner = mz0[0];
-      else mod.modOwner = hostOwn;
+      if (mod.cardOwner === 'A' || mod.cardOwner === 'B') mod.modOwner = mod.cardOwner;
+      else {
+        const mz0 = zoneOf(st, modK);
+        if (mz0 && (mz0[0] === 'A' || mz0[0] === 'B')) mod.modOwner = mz0[0];
+        else mod.modOwner = hostOwn;
+      }
     }
+    if (!mod.cardOwner) mod.cardOwner = mod.modOwner;
     const from = zoneOf(st, modK);
     const magicZ = hostOwn + '.magic';
     if (from !== magicZ) {
@@ -592,6 +624,12 @@
 
   function doMove(st, k, to, pos, fx) {
     const from = zoneOf(st, k); if (!from || !st.zones[to]) return;
+    if (to === 'land' && from !== 'land' && !isLandMagic(st.inst[k])) return;
+    ensureCardOwner(st, k, from);
+    if (typeof to === 'string' && to.endsWith('.hell')) {
+      const hz = hellZoneOf(st, k, to);
+      if (hz && st.zones[hz]) to = hz;
+    }
     const leaveHost = (from.endsWith('.magic') && !to.endsWith('.magic') && st.inst[k] && st.inst[k].attachedTo) || null;
     const leaveHostFx = leaveHost && fxCard(st.inst[k]);
     st.zones[from] = st.zones[from].filter(x => x !== k);
@@ -603,7 +641,6 @@
       delete st.inst[k].cannotAttack; delete st.inst[k].curse;
       delete st.inst[k].grantedKeywords; delete st.inst[k].draculaRevive;
       delete st.inst[k].cannotChangeStateUntilEOT;
-      delete st.inst[k].modOwner;
       delete st.inst[k].equipHostChanges;
       if (/\.(hand|deck)$/.test(to)) delete st.inst[k].granted;
       if (st.buffs) st.buffs = st.buffs.filter(b => b.k !== k);
@@ -650,13 +687,20 @@
           }
         }
         m.attachedTo = null;
-        const modZ = zoneOf(st, id);
-        if (modZ) st.zones[modZ] = st.zones[modZ].filter(x => x !== id);
-        const hellOwner = (m.modOwner === 'A' || m.modOwner === 'B') ? m.modOwner : hostOwner;
-        const modHell = hellOwner + '.hell';
-        if (!st.zones[modHell].includes(id)) st.zones[modHell].push(id);
-        addLog(st, 'S', `${m.name} (สวมใส่) ตกนรกตาม ${st.inst[k].name}`);
-        fireSentToHell(st, fx || {}, id, hellOwner);
+        ensureCardOwner(st, id);
+        const hz = hellZoneOf(st, id, (cardOwnerOf(st, id) || hostOwner) + '.hell');
+        if (zoneOf(st, id) && hz && st.zones[hz] && zoneOf(st, id) !== hz) {
+          addLog(st, 'S', `${m.name} (สวมใส่) ตกนรกเจ้าของ`);
+          doMove(st, id, hz, null, fx);
+        } else {
+          const modZ = zoneOf(st, id);
+          if (modZ) st.zones[modZ] = st.zones[modZ].filter(x => x !== id);
+          const hellOwner = (hz && hz[0]) || hostOwner;
+          const modHell = hellOwner + '.hell';
+          if (!st.zones[modHell].includes(id)) st.zones[modHell].push(id);
+          addLog(st, 'S', `${m.name} (สวมใส่) ตกนรกเจ้าของ`);
+          fireSentToHell(st, fx || {}, id, hellOwner);
+        }
       });
     }
     // รัททาทุย นินจา ฯลฯ: Avatar ฝ่ายเราออกจากสนาม → เสนอสั่งใช้จากมือ
@@ -681,7 +725,7 @@
     }
     if (from.endsWith('.hand')) delete st.inst[k].revealed; // ออกจากมือแล้ว = เลิกสถานะ "เปิดให้ดู"
     if (to.endsWith('.hell') && from[1] === '.'[0]) { /* noop */ }
-    if (to.endsWith('.hell')) fireSentToHell(st, fx || {}, k, from === 'land' ? to[0] : from[0]);
+    if (to.endsWith('.hell')) fireSentToHell(st, fx || {}, k, (cardOwnerOf(st, k) || (from === 'land' ? to[0] : from[0])));
     // Token: ออกจาก Avatar Zone → ย้ายไป Zone ปลายทางก่อน (trigger ทำงาน) แล้วนำออกจากเกม (ไม่ใช่นรก/มิติมืด)
     if (st.inst[k] && st.inst[k].isToken && !to.endsWith('.avatar')) {
       st.zones[to] = st.zones[to].filter(x => x !== k);
@@ -703,6 +747,7 @@
       symbol: spec.symbol || '', color: spec.color || '', gemColor: '', cost: 0, gem: 0,
       power: spec.power || 0, effect: spec.effect || 'Token', img: '', faceUp: true, tapped: false,
       counters: 0, attachedTo: null, isToken: true,
+      cardOwner: (owner === 'A' || owner === 'B') ? owner : undefined,
     };
     return id;
   }
@@ -1690,6 +1735,10 @@
     if (f.subtype) {
       const sub = c.type === 'Magic' ? magicSubtype(c) : (c.subtype || '');
       if (sub !== f.subtype) return false;
+    }
+    if (f.subtypes && f.subtypes.length) {
+      const sub = c.type === 'Magic' ? magicSubtype(c) : ((c.subtype || '') || 'Normal');
+      if (!f.subtypes.includes(sub)) return false;
     }
     // symbol รวม curse override + extraSymbols
     const syms = cardSymbols(st, k);
@@ -3659,6 +3708,9 @@
           // ถูกบล็อกหลังถามขัดเวท (ไม่น่าเกิด) — คืนลงนรกแทน
           doMove(st, pend.src, pend.owner + '.hell', null, fx);
           addLog(st, 'S', `วาง Land ไม่ได้ — ถูกบล็อกการใช้ Land`);
+        } else if (!isLandMagic(c)) {
+          doMove(st, pend.src, pend.owner + '.hell', null, fx);
+          addLog(st, 'S', `วาง Land ไม่ได้ — ไม่ใช่ Magic ชนิด Land`);
         } else {
           // แลนด์เดิมเคลียร์ตอนใช้แล้ว — เคลียร์ซ้ำกันพลาด
           clearLandZoneFor(st, fx, pend.src);
@@ -4758,7 +4810,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         };
         if (promptCandidates(st, p).length) {
           st.prompts.push(p); prompted = true;
-          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือก Magic/Modification จากนรกฝ่ายตรงข้ามขึ้นมือ`);
+          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือก Magic ปกติ/Modification จากนรกฝ่ายตรงข้ามขึ้นมือ`);
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในนรกฝ่ายตรงข้าม`);
       } else if (ac.op === 'naraiFormSummon') {
         const cands = (st.zones[ctx.owner + '.avatar'] || []).filter(id => nameMatches(st.inst[id], ac.sacrificeNameIncludes || 'พระนารายณ์'));
@@ -5320,7 +5372,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const kept = [];
           ids.forEach(id => {
             const e = fxId(st, id);
-            if (e && e.placeLandWhenScoutedByKapom) {
+            if (e && e.placeLandWhenScoutedByKapom && isLandMagic(st.inst[id])) {
               clearLandZoneFor(st, fx, id);
               doMove(st, id, 'land', null, fx);
               st.inst[id].faceUp = true;
@@ -6462,9 +6514,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       return out;
     };
     let n = 0; const inst = {}, zones = { land: [] };
-    const mk = (c, faceUp) => {
+    const mk = (c, faceUp, owner) => {
       const k = 'i' + (++n);
       inst[k] = { id: k, code: c.code, name: c.name, type: c.type, subtype: magicSubtype(c) || c.subtype || '', symbol: c.symbol || '', color: c.color || '', gemColor: c.gemColor || '', cost: c.cost, gem: c.gem, power: c.power, effect: c.effect || '—', img: c.imageUrl || '', faceUp: faceUp !== false, tapped: false, counters: 0, attachedTo: null };
+      if (owner === 'A' || owner === 'B') inst[k].cardOwner = owner;
       return k;
     };
     ['A', 'B'].forEach(p => {
@@ -6474,14 +6527,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       let lifeCards = spec ? expand(spec.life) : [];
       if (!mainCards.length) mainCards = [...mainSD, ...mainSD];
       if (!lifeCards.length) lifeCards = lifeSD;
-      const deck = mainCards.map(c => mk(c, false));
+      const deck = mainCards.map(c => mk(c, false, p));
       // opts.noShuffle = โหมดซ้อมมือ (เรียงตามเด็ค ไม่สับ) · ปกติสับทั้งเด็คและ LIFE (Rule Book)
       if (!opts.noShuffle) {
         for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
         for (let i = lifeCards.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [lifeCards[i], lifeCards[j]] = [lifeCards[j], lifeCards[i]]; }
       }
       zones[p + '.deck'] = deck;
-      lifeCards.forEach(c => zones[p + '.life'].push(mk(c, false)));
+      lifeCards.forEach(c => zones[p + '.life'].push(mk(c, false, p)));
       for (let i = 0; i < 5 && zones[p + '.deck'].length; i++) {
         const hid = zones[p + '.deck'].pop();
         if (inst[hid]) inst[hid].faceUp = true;
@@ -6629,7 +6682,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           }
         }
         if (to === 'land') {
-          if (c.subtype === 'Land' && landPlayBlocked(st) && !(st.zones['land'] || []).includes(a.k))
+          if (!isLandMagic(c))
+            return deny(`วางช่อง Land ได้เฉพาะ Magic ชนิด Land`);
+          if (landPlayBlocked(st) && !(st.zones['land'] || []).includes(a.k))
             return deny(`ใช้ Land ไม่ได้ — "${landPlayBlockName(st)}" บล็อกการใช้ Land ของทุกฝ่าย`);
           clearLandZoneFor(st, fx, a.k);
           if (from[0] === 'A' || from[0] === 'B') c.controller = from[0];
@@ -7656,7 +7711,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               addLog(st, p.chooser, `เลือก Land จากเด็คเล่น`);
             }
           } else if (p.dest === 'playLandFromDeck') {
-            if (landPlayBlocked(st)) {
+            if (!isLandMagic(st.inst[a.k])) {
+              addLog(st, 'S', `เล่น Land ไม่ได้ — ไม่ใช่ Magic ชนิด Land`);
+            } else if (landPlayBlocked(st)) {
               addLog(st, 'S', `เล่น Land ไม่ได้ — "${landPlayBlockName(st)}" บล็อกการใช้ Land`);
             } else {
               clearLandZoneFor(st, fx, a.k);
@@ -8517,6 +8574,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             }
             fx.snd = 'draw';
           } else if (p.dest === 'exileThenReturnEnd') {
+            const fled = !!(st.pending && st.pending.def === a.k);
             doMove(st, a.k, p.chooser + '.dark', null, fx);
             addLog(st, p.chooser, `เนรเทศ ${nameOf(st, a.k)} ลงมิติมืด — จะกลับสนามช่วง End Phase`);
             st.scheduled.push({
@@ -8524,6 +8582,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               op: 'runActions', src: a.k,
               actions: [{ op: 'summonSelfFromDark', noJuti: true }]
             });
+            if (fled) {
+              addLog(st, 'S', `การโจมตียกเลิก — ${nameOf(st, a.k)} หนีเข้ามิติมืด`);
+              st.pending = null;
+              clearCombatBuffs(st);
+            }
             fx.snd = 'tap';
           } else if (p.dest === 'handOrSummon') {
             p._handOrSummonCard = a.k;

@@ -142,6 +142,41 @@
     return !!(c && c.subtype === 'Land' && nm(c, need));
   }
 
+  /** ใบ POWER 0 แต่ GEM สูง — เก็บไว้จ่าย Cost (วีรชนชีวภาพ ฯลฯ) อย่าลงสนาม */
+  function isGemBattery(c) {
+    if (!c || c.type !== 'Avatar') return false;
+    if ((+c.power || 0) > 0) return false;
+    if ((+c.gem || 0) < 3) return false;
+    const e = effectOf(c);
+    if (e && e.keywords && e.keywords.length) return false;
+    const abs = (e && e.abilities) || [];
+    const hasFieldAb = abs.some(ab => {
+      const on = ab && ab.trigger && ab.trigger.on;
+      return on && on !== 'paidAsCost';
+    });
+    if (hasFieldAb) return false;
+    return true;
+  }
+
+  /** จ่ายเป็น Cost แล้วมีผลพิเศษเข้ากับใบที่กำลังอัญเชิญ (วีรชน → สีเขียว) */
+  function paidAsCostMatches(payC, summonC) {
+    if (!payC || !summonC) return false;
+    const e = effectOf(payC);
+    return ((e && e.abilities) || []).some(ab => {
+      if (!(ab && ab.trigger && ab.trigger.on === 'paidAsCost')) return false;
+      const iff = String((ab.trigger && ab.trigger.if) || '');
+      if (/summonColor:/.test(iff)) {
+        const col = iff.replace(/^.*summonColor:/, '').split(/\s/)[0];
+        return !!(col && summonC.color && summonC.color === col);
+      }
+      if (/summonSymbol:/.test(iff)) {
+        const sym = iff.replace(/^.*summonSymbol:/, '').split(/\s/)[0];
+        return !!(sym && summonC.symbol && summonC.symbol === sym);
+      }
+      return true;
+    });
+  }
+
   function cardIsKeyEnabler(c, arch) {
     if (!c) return false;
     const n = nameOf(c);
@@ -318,6 +353,7 @@
     }
     if (nameHasTank(c) && zoneIds(st, side + '.hand').some(id => holdsForTankCombo(st.inst[id])))
       bonus += 28;
+    if (isGemBattery(c)) bonus -= 160;
     return bonus;
   }
 
@@ -495,6 +531,11 @@
           if (!has) score = -999;
         }
       });
+      if (score > -150) {
+        const Eng = eng();
+        if (Eng && Eng.activatedTargetDeny && Eng.activatedTargetDeny(st, side, ab, k))
+          score = -999;
+      }
     });
 
     if (score > -150) score += effectOpsBonus(st, side, c);
@@ -581,6 +622,7 @@
     if (cardIsKeyEnabler(c, arch)) s += 40;
     if (c.type === 'Avatar' && canPlay) s += 25 + Math.max(0, 6 - (+c.cost || 0)) * 3;
     if (c.type === 'Avatar' && !canPlay && (+c.cost || 0) >= 6) s -= 30;
+    if (isGemBattery(c)) s += 8;
     if (c.subtype === 'React') s += 12;
     if (holdsForTankCombo(c)) s += 40;
     if (nameHasTank(c)) s += 18;
@@ -608,6 +650,8 @@
     landHelpsArchetype,
     isWantedLandCard,
     cardIsKeyEnabler,
+    isGemBattery,
+    paidAsCostMatches,
     landNeedlesOfCard,
     summonSynergyBonus,
     magicPlayScore,

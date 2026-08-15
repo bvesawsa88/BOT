@@ -9043,7 +9043,11 @@
                     {
                       "op": "oppHellPick",
                       "filter": {
-                        "type": "Magic"
+                        "type": "Magic",
+                        "subtypes": [
+                          "Normal",
+                          "Modification"
+                        ]
                       },
                       "optional": true,
                       "thenDiscard": 1
@@ -10040,6 +10044,7 @@
       "name": "วิชานินจา รุกรับพลิกผัน",
       "abilities": [
         {
+          "keyword": "React",
           "trigger": {
             "on": "activated"
           },
@@ -10086,7 +10091,9 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "reactAnyWindow": true,
+      "note": "React เมื่อถูกโจมตีได้: เลือกนินจาฝ่ายเรา เตะไข่จนจบเทิร์น หรือเนรเทศหนีแล้วคืนช่วง End Phase (ถ้าเนรเทศตัวที่ถูกโจมตี การโจมตีสลาย)"
     },
     {
       "code": "BT10-066",

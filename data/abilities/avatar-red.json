@@ -175,7 +175,11 @@
                     {
                       "op": "oppHellPick",
                       "filter": {
-                        "type": "Magic"
+                        "type": "Magic",
+                        "subtypes": [
+                          "Normal",
+                          "Modification"
+                        ]
                       },
                       "optional": true,
                       "thenDiscard": 1

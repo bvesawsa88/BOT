@@ -177,6 +177,7 @@ function patchEngine(src) {
             }
             fx.snd = 'draw';
           } else if (p.dest === 'exileThenReturnEnd') {
+            const fled = !!(st.pending && st.pending.def === a.k);
             doMove(st, a.k, p.chooser + '.dark', null, fx);
             addLog(st, p.chooser, \`เนรเทศ \${nameOf(st, a.k)} ลงมิติมืด — จะกลับสนามช่วง End Phase\`);
             st.scheduled.push({
@@ -184,6 +185,11 @@ function patchEngine(src) {
               op: 'runActions', src: a.k,
               actions: [{ op: 'summonSelfFromDark', noJuti: true }]
             });
+            if (fled) {
+              addLog(st, 'S', \`การโจมตียกเลิก — \${nameOf(st, a.k)} หนีเข้ามิติมืด\`);
+              st.pending = null;
+              clearCombatBuffs(st);
+            }
             fx.snd = 'tap';
           } else if (p.dest === 'handOrSummon') {`;
   if (!s.includes("p.dest === 'ninjaBounceSummon'")) {
@@ -429,7 +435,7 @@ const GOEMON_GRANT = [{
   trigger: { on: 'lifeRevealedByAttack' },
   actions: [{
     op: 'oppHellPick',
-    filter: { type: 'Magic' },
+    filter: { type: 'Magic', subtypes: ['Normal', 'Modification'] },
     optional: true,
     thenDiscard: 1
   }]
@@ -535,8 +541,10 @@ const effects = {
     code: 'BT10-065',
     name: 'วิชานินจา รุกรับพลิกผัน',
     parseStatus: 'manual',
+    reactAnyWindow: true,
     abilities: [
       {
+        keyword: 'React',
         trigger: { on: 'activated' },
         requireOnlyNameIncludes: 'นินจา',
         actions: [{

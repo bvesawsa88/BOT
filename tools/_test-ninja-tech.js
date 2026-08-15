@@ -1,4 +1,4 @@
-/* focused: เทคการ์ดเด็คนินจาสับโดด — ผนึกเงา / หนีคือยอดกลยุทธ์ / โรงบาล / หนึ่งเดียวเพื่อทุกอย่าง */
+/* focused: เทคการ์ดเด็คนินจาสับโดด — ผนึกเงา / หนีคือยอดกลยุทธ์ / โรงบาล / หนึ่งเดียวเพื่อทุกอย่าง / โกเอมอน */
 const fs = require('fs');
 const path = require('path');
 const BoT = require('../js/engine.js');
@@ -152,6 +152,36 @@ function skipNegate(st, seed) {
   ok(!st.pending, 'หนี: โจมตีสลาย');
 }
 
+/* 3b) วิชานินจา รุกรับพลิกผัน — React ตอนถูกโจมตี เนรเทศตัวที่โดนโจมตีหนีได้ */
+{
+  const st = emptyState();
+  st.active = 'B';
+  const def = put(st, 'A.avatar', 'BT05-045');
+  const atk = put(st, 'B.avatar', 'BT04-036');
+  const tech = put(st, 'A.hand', 'BT10-065');
+  let fx = BoT.applyAction(st, { type: 'declareAttack', atk, def, by: 'B', seed: 1 });
+  if (fx.deny) fail('รุกรับ declareAttack deny: ' + fx.deny);
+  const react = (st.prompts || [])[0];
+  ok(react && react.kind === 'react' && (react.options || []).includes(tech),
+    'รุกรับพลิกผัน in attack react: ' + ((react && react.options) || []).join(','));
+  fx = BoT.applyAction(st, { type: 'chooseTarget', k: tech, by: 'A', seed: 2 });
+  if (fx.deny) fail('play รุกรับ deny: ' + fx.deny);
+  skipNegate(st, 3);
+  const mode = (st.prompts || [])[0];
+  ok(mode && mode.kind === 'chooseMode', 'รุกรับ: เลือกปฏิบัติ — ' + ((mode && mode.kind) || 'no-prompt'));
+  fx = BoT.applyAction(st, { type: 'chooseMode', k: tech, opt: 1, by: 'A', seed: 10 });
+  if (fx.deny) fail('chooseMode รุกรับ deny: ' + fx.deny);
+  const pick = (st.prompts || [])[0];
+  ok(pick && pick.kind === 'pick' && pick.dest === 'exileThenReturnEnd',
+    'รุกรับ: เลือกนินจาเนรเทศ — ' + ((pick && pick.dest) || 'no-prompt'));
+  const cands = BoT.promptCandidates(st, pick);
+  ok(cands.includes(def), 'รุกรับ: เลือกตัวที่ถูกโจมตีได้');
+  fx = BoT.applyAction(st, { type: 'chooseTarget', k: def, by: 'A', seed: 11 });
+  if (fx.deny) fail('exile รุกรับ deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, def) === 'A.dark', 'รุกรับ: ตัวที่ถูกโจมตีเข้ามิติมืด (' + BoT.zoneOf(st, def) + ')');
+  ok(!st.pending, 'รุกรับ: โจมตีสลายเพราะหนี');
+}
+
 /* 4) โรงบาล — ขึ้นมือแล้วอัญเชิญชื่อนั้นไม่ได้ */
 {
   const st = emptyState();
@@ -273,6 +303,64 @@ function skipNegate(st, seed) {
   const lf = Object.values(d.life).reduce((a, b) => a + b, 0);
   ok(mn === 50, 'main 50 (ได้ ' + mn + ')');
   ok(lf === 5, 'life 5 (ได้ ' + lf + ')');
+}
+
+/* 8) มอดสวมโฮสต์ศัตรู — โฮสต์พังแล้วมอดลงนรกเจ้าของใบ */
+{
+  const st = emptyState();
+  const host = put(st, 'B.avatar', 'BT04-036');
+  const mod = put(st, 'A.magic', 'ODY1-076');
+  let fx = BoT.applyAction(st, { type: 'attach', k: mod, to: host, by: 'A', seed: 1 });
+  if (fx.deny) fail('attach ไม้เกาหลัง deny: ' + fx.deny);
+  ok(st.inst[mod].attachedTo === host, 'มอด: สวมโฮสต์ศัตรู');
+  fx = BoT.applyAction(st, { type: 'move', k: host, to: 'B.hell', by: 'B', seed: 2 });
+  if (fx.deny) fail('destroy host with mod deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, mod) === 'A.hell', 'มอด: ลงนรกเจ้าของใบ (' + BoT.zoneOf(st, mod) + ')');
+}
+
+/* 9) ยึด Avatar แล้วทำลาย — ลงนรกเจ้าของเดิม */
+{
+  const st = emptyState();
+  const av = put(st, 'A.avatar', 'BT04-036');
+  let fx = BoT.applyAction(st, { type: 'takeControl', k: av, by: 'B', seed: 1 });
+  if (fx.deny) fail('takeControl deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, av) === 'B.avatar', 'ยึด: อยู่สนามฝั่งที่ยึด');
+  fx = BoT.applyAction(st, { type: 'move', k: av, to: 'B.hell', by: 'B', seed: 2 });
+  if (fx.deny) fail('destroy stolen deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, av) === 'A.hell', 'ยึด: ลงนรกเจ้าของเดิม (' + BoT.zoneOf(st, av) + ')');
+}
+
+/* 10) โกเอมอน ตี LIFE — ขโมยจากนรกได้แค่ Magic ปกติ / Modification (ห้าม React / Land) */
+{
+  const st = emptyState();
+  st.phase = 'Battle';
+  const goe = put(st, 'A.avatar', 'BT10-004');
+  const e = BoT.effectOf('BT10-004');
+  const grantAc = ((e.abilities || []).find(ab => ab.trigger && ab.trigger.on === 'summoned') || {}).actions || [];
+  const granted = (grantAc[0] && grantAc[0].abilities) || [];
+  ok(granted.length, 'โกเอมอน: มี grant เมื่ออัญเชิญจากความสามารถตัวเอง');
+  st.inst[goe].granted = JSON.parse(JSON.stringify(granted));
+  const life = put(st, 'B.life', 'SD07-024', { faceUp: false });
+  const norm = put(st, 'B.hell', 'BT01-038');
+  const mod = put(st, 'B.hell', 'ODY1-076');
+  const react = put(st, 'B.hell', 'BT10-064');
+  const land = put(st, 'B.hell', 'ODY1-090');
+  put(st, 'A.hand', 'BT05-045');
+  let fx = BoT.applyAction(st, { type: 'declareAttack', atk: goe, life: life, by: 'A', seed: 1 });
+  if (fx.deny) fail('โกเอมอน atk LIFE deny: ' + fx.deny);
+  skipNegate(st, 2);
+  if (st.pending) {
+    fx = BoT.applyAction(st, { type: 'resolveAttack', by: 'B', seed: 20 });
+    if (fx.deny) fail('โกเอมอน resolveAttack deny: ' + fx.deny);
+  }
+  skipNegate(st, 21);
+  const pr = (st.prompts || [])[0];
+  ok(pr && pr.dest === 'oppHellToHandThenDiscard', 'โกเอมอน: เลือกจากนรกศัตรู (' + ((pr && pr.dest) || 'no-prompt') + ')');
+  const cands = BoT.promptCandidates(st, pr);
+  ok(cands.includes(norm), 'โกเอมอน: หยิบ Magic ปกติได้');
+  ok(cands.includes(mod), 'โกเอมอน: หยิบ Modification ได้');
+  ok(!cands.includes(react), 'โกเอมอน: หยิบ React ไม่ได้');
+  ok(!cands.includes(land), 'โกเอมอน: หยิบ Land ไม่ได้');
 }
 
 console.log('ALL OK');

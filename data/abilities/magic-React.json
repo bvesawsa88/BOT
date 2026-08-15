@@ -944,6 +944,7 @@
       ],
       "abilities": [
         {
+          "keyword": "React",
           "trigger": {
             "on": "activated"
           },
@@ -990,7 +991,9 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "reactAnyWindow": true,
+      "parseStatus": "auto",
+      "note": "React เมื่อถูกโจมตีได้: เลือกนินจาฝ่ายเรา เตะไข่จนจบเทิร์น หรือเนรเทศหนีแล้วคืนช่วง End Phase (ถ้าเนรเทศตัวที่ถูกโจมตี การโจมตีสลาย)"
     },
     {
       "name": "สละเพื่อนเพื่อช่วยเพื่อน",

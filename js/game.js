@@ -2416,6 +2416,7 @@
       else if (c.subtype === 'Modification') v = 22 + gem;
       else v = 18 + gem;
     }
+    if (AI && AI.isGemBattery && AI.isGemBattery(c)) v = gem * 3;
     if (AI) {
       if (AI.isWantedLandCard(c, arch)) v += 40;
       if (AI.cardIsKeyEnabler(c, arch)) v += 30;
@@ -2448,6 +2449,8 @@
         if (AI.cardIsKeyEnabler(st.inst[o], arch)) keep += 50;
         if (st.inst[o].subtype === 'React') keep += 25;
         if (AI.comboHoldScore) keep += AI.comboHoldScore(st, 'B', st.inst[o]);
+        if (AI.isGemBattery && AI.isGemBattery(st.inst[o])) keep -= 40;
+        if (AI.paidAsCostMatches && AI.paidAsCostMatches(st.inst[o], c0)) keep -= 55;
         if (/มะขาม/.test((st.inst[o].name || '')) && AI.hasLandNamed(st, AI.LAND.FOREST)
           && (st.zones['B.avatar'] || []).length >= 2) keep += 90;
       }
@@ -2481,6 +2484,7 @@
     if (free) s += 80;
     if (c.type === 'Avatar') s += 20;
     if (c.type === 'Construct') s += 8;
+    if (c.type === 'Avatar' && p <= 0 && (+c.gem || 0) >= 3) s -= 140;
     const enemies = (st.zones['A.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
     if (enemies.length && enemies.every(e => eff(e) < p)) s += 15;
     const AI = botAI();
@@ -2515,6 +2519,10 @@
       const eBot = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
       if (eBot && (eBot.noPaidSummon || eBot.noHandSummon)) continue;
       if (eBot && eBot.sacrificeSummon) continue;
+      if (c.type === 'Avatar' && (+c.power || 0) <= 0 && (+c.gem || 0) >= 3) {
+        const AI0 = botAI();
+        if (!AI0 || !AI0.isGemBattery || AI0.isGemBattery(c)) continue;
+      }
       const free = !!(BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, k));
       const cost = free ? 0 : (BoTEngine.effCost ? BoTEngine.effCost(st, k) : (+c.cost || 0));
       if (lv === 'easy' && cost > 4 && !free) continue;
@@ -4364,7 +4372,9 @@
       { label: '🌀 มิติมืด (เนรเทศ)', act: { type: 'move', k, to: ow + '.dark' } },
       { label: '⬆️ วางบนสุดของเด็ค', act: { type: 'move', k, to: ow + '.deck' } },
       { label: '⬇️ วางล่างสุดของเด็ค', act: { type: 'move', k, to: ow + '.deck', pos: 'bottom' } },
-      { label: '🗻 วางช่อง Land (กลาง)', act: { type: 'move', k, to: 'land' } },
+      ...(c.type === 'Magic' && c.subtype === 'Land'
+        ? [{ label: '🗻 วางช่อง Land (กลาง)', act: { type: 'move', k, to: 'land' } }]
+        : []),
     ];
     showMenu('ส่งไปที่อื่น…', entries, menuAnchor.x, menuAnchor.y);
   }
@@ -5255,6 +5265,13 @@
           }
           sendAction({ type: 'summon', k: d.k, to, payIds: isFree ? [] : payIds, free: isFree || undefined });
           return;
+        }
+        if (to === 'land') {
+          const dropC = st.inst[d.k];
+          if (!(dropC && dropC.type === 'Magic' && dropC.subtype === 'Land')) {
+            toast('ช่อง Land วางได้เฉพาะ Magic ชนิด Land');
+            return;
+          }
         }
         sendAction({ type: 'move', k: d.k, to });
       } else {
