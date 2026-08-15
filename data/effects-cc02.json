@@ -483,14 +483,15 @@
                 "color": "เขียว"
               },
               "costReduce": 2,
-              "paidCost": false
+              "mustPayRemain": true,
+              "paidCost": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "stayOnMagic": true,
-      "note": "สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2"
+      "note": "สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2 แล้วจ่าย GEM ที่เหลือ"
     },
     {
       "code": "CC02-041",

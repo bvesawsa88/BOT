@@ -2993,6 +2993,13 @@
       botSend({ type: 'pickSymbol', symbol, by: 'B' });
       return;
     }
+    if (pr.dest === 'payRemainSummon') {
+      const ranked = cands.slice().sort((a, b) => botCardVal(a) - botCardVal(b));
+      const pick = ranked[0];
+      if (pick) botSend({ type: 'chooseTarget', k: pick, by: 'B' });
+      else botSend({ type: 'skipPrompt', by: 'B' });
+      return;
+    }
     // โคกอีสานนูน เทค 1 ฯลฯ — คืนนรกทีละใบจนครบ (exact) / หรือข้ามเมื่อพอใจ
     if (pr.dest === 'hellMultiDeck') {
       const got = pr.multiGot || 0;
@@ -3549,7 +3556,10 @@
           ? `💥 ${srcN}: ผู้ชนะเลือกทำลาย Avatar ใดก็ได้ (กันเวทไม่ช่วย) — แตะเป้า`
           : `💥 ${srcN}: แตะการ์ดบนสนามที่จะทำลาย${pr.optional ? ' (หรือข้าม)' : ''}`;
         if (pr.kind === 'pick') {
-          if (pr.dest === 'coinDestroy') txt = `🪙 ${srcN}: เลือก Avatar ฝ่ายตรงข้าม แล้วทอยเหรียญ`;
+          if (pr.dest === 'payRemainSummon') {
+            const nm = st.inst[pr.summonK] ? st.inst[pr.summonK].name : 'Avatar';
+            txt = `💎 ${srcN || 'อัญเชิญ'}: 「${nm}」Cost เหลือ ${pr.need} (จ่ายแล้ว ${pr.got || 0}) — แตะการ์ดในมือเป็น GEM ให้ครบก่อนลงสนาม`;
+          } else if (pr.dest === 'coinDestroy') txt = `🪙 ${srcN}: เลือก Avatar ฝ่ายตรงข้าม แล้วทอยเหรียญ`;
           else if (pr.from === 'ownMagic' && pr.dest === 'magicToHellCost')
             txt = `✨ ${srcN}: ส่งการ์ดบน Magic Zone ลงนรก (${pr.got || 0}/${pr.need || 1}) — แตะใบที่กะพริบในหน้าต่าง`;
           else if (pr.from === 'ownMagic' && pr.dest === 'avatar')

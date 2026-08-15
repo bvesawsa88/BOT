@@ -114,6 +114,121 @@ function skipNegate(st) {
   ok(!!st.inst[enemy].nullifyUntilEOT, 'enemy nullified until EOT');
 }
 
+/* 4b) Hypersense: คู่แข่งอัญเชิญแล้วจุติ — ต้องเสนอ React */
+{
+  const st = emptyState();
+  put(st, 'A.avatar', 'BT09-043');
+  const hyper = put(st, 'A.hand', 'BT09-059');
+  const juti = put(st, 'B.hand', 'SD01-001', { cost: 0 });
+  st.phase = 'Main';
+  st.active = 'B';
+  const fx = apply(st, { type: 'summon', k: juti, to: 'B.avatar', by: 'B' });
+  ok(!fx.deny, 'summon juti: ' + (fx.deny || ''));
+  const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact);
+  ok(react && react.options && react.options.includes(hyper),
+    'hypersense offered on enemy juti (no accident): ' + JSON.stringify((st.prompts || []).map(p => p.kind + ':' + (p.reactTrigger || ''))));
+  apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  ok(!!st.inst[juti].nullifyUntilEOT, 'juti avatar nullified until EOT');
+}
+
+/* 4c) Hypersense: มีอุบัติเหตุในมือ — ข้ามอุบัติเหตุแล้วยังต้องเสนอ Hypersense ตอนจุติ */
+{
+  const st = emptyState();
+  put(st, 'A.avatar', 'BT09-043');
+  const hyper = put(st, 'A.hand', 'BT09-059');
+  const acc = put(st, 'A.hand', 'SD01-017');
+  const juti = put(st, 'B.hand', 'SD01-001', { cost: 0 });
+  st.phase = 'Main';
+  st.active = 'B';
+  const fx = apply(st, { type: 'summon', k: juti, to: 'B.avatar', by: 'B' });
+  ok(!fx.deny, 'summon juti with accident in hand: ' + (fx.deny || ''));
+  const accPr = (st.prompts || [])[0];
+  ok(accPr && accPr.kind === 'react' && accPr.reactTrigger === 'avatarSummoned' && (accPr.options || []).includes(acc),
+    'accident window first: ' + ((accPr && accPr.reactTrigger) || ''));
+  apply(st, { type: 'reactNo', by: 'A' });
+  const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact);
+  ok(react && react.options && react.options.includes(hyper),
+    'hypersense offered after skip accident: ' + JSON.stringify((st.prompts || []).map(p => p.kind + ':' + (p.reactTrigger || ''))));
+}
+
+/* 4d) Hypersense: สามัคคี */
+{
+  const st = emptyState();
+  put(st, 'A.avatar', 'BT09-043');
+  const hyper = put(st, 'A.hand', 'BT09-059');
+  const giver = put(st, 'B.avatar', 'SD01-003');
+  const recv = put(st, 'B.avatar', 'SD01-002');
+  st.inst[giver].grantedKeywords = [{ kw: 'สามัคคี' }];
+  st.phase = 'Main';
+  st.active = 'B';
+  let fx = apply(st, { type: 'unity', k: giver, to: recv, by: 'B' });
+  ok(!fx.deny, 'unity: ' + (fx.deny || ''));
+  const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact);
+  ok(react && react.options && react.options.includes(hyper), 'hypersense offered on unity');
+  ok(!st.inst[giver].tapped, 'unity not applied until skip/use');
+  apply(st, { type: 'reactNo', by: 'A' });
+  ok(!!st.inst[giver].tapped, 'unity applies after skip hypersense');
+  ok((st.buffs || []).some(b => b.k === recv && b.unity), 'unity buff on receiver');
+}
+
+/* 4e) Hypersense: โล่มนุษย์ — ใช้แล้วยกเลิกโล่ */
+{
+  const st = emptyState();
+  const atk = put(st, 'A.avatar', 'BT09-043');
+  const hyper = put(st, 'A.hand', 'BT09-059');
+  const def = put(st, 'B.avatar', 'SD01-002');
+  const sh = put(st, 'B.avatar', 'SD01-003');
+  st.inst[sh].grantedKeywords = [{ kw: 'โล่มนุษย์' }];
+  st.phase = 'Battle';
+  st.active = 'A';
+  apply(st, { type: 'declareAttack', atk, def, by: 'A' });
+  while ((st.prompts || [])[0] && st.prompts[0].kind === 'react' && st.prompts[0].chooser === 'B')
+    apply(st, { type: 'reactNo', by: 'B' });
+  ok(!!st.pending && st.pending.def === def, 'attack pending on def');
+  let fx = apply(st, { type: 'humanShield', k: sh, by: 'B' });
+  ok(!fx.deny, 'humanShield: ' + (fx.deny || ''));
+  const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact);
+  ok(react && react.options && react.options.includes(hyper), 'hypersense offered on human shield');
+  apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  ok(!!st.inst[sh].nullifyUntilEOT, 'shield avatar nullified');
+  ok(!st.inst[sh].tapped, 'shield cancelled — not tapped');
+  ok(st.pending && st.pending.def === def, 'attack still on original def');
+}
+
+/* 4f) Hypersense: อัตโนมัติตอนโจมตี (พระนารายณ์ POWER +2) */
+{
+  const st = emptyState();
+  const def = put(st, 'A.avatar', 'BT09-043');
+  const hyper = put(st, 'A.hand', 'BT09-059');
+  const narai = put(st, 'B.avatar', 'SD01-002');
+  st.phase = 'Battle';
+  st.active = 'B';
+  const base = BoT.effPower(st, narai);
+  apply(st, { type: 'declareAttack', atk: narai, def, by: 'B' });
+  const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact && (p.options || []).includes(hyper));
+  ok(react, 'hypersense offered on attack auto: ' + JSON.stringify((st.prompts || []).map(p => p.kind + ':' + (p.reactTrigger || '') + '@' + p.chooser)));
+  ok((st.prompts || [])[0] && (st.prompts || [])[0].abilityReact, 'hypersense is first window before combat react');
+  ok(BoT.effPower(st, narai) === base, 'auto POWER not applied before hypersense');
+  apply(st, { type: 'reactNo', by: 'A' });
+  ok(BoT.effPower(st, narai) > base, 'auto POWER applied after skip hypersense');
+}
+
+/* 4g) Hypersense: ใช้ตอนอัตโนมัติโจมตี — ยกเลิกบัฟ แต่การโจมตียังค้าง */
+{
+  const st = emptyState();
+  const def = put(st, 'A.avatar', 'BT09-043');
+  const hyper = put(st, 'A.hand', 'BT09-059');
+  const narai = put(st, 'B.avatar', 'SD01-002');
+  st.phase = 'Battle';
+  st.active = 'B';
+  const base = BoT.effPower(st, narai);
+  apply(st, { type: 'declareAttack', atk: narai, def, by: 'B' });
+  apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  ok(!!st.inst[narai].nullifyUntilEOT, 'narai nullified');
+  ok(BoT.effPower(st, narai) === base, 'auto POWER cancelled by hypersense');
+  ok(!!st.inst[narai].tapped, 'attack still declared (tapped)');
+}
+
 /* 5) Extra Skill React จากครุฑ */
 {
   const st = emptyState();
@@ -153,6 +268,46 @@ function skipNegate(st) {
   apply(st, { type: 'chooseTarget', k: story, by: 'A' });
   ok(zone(st, story) === 'A.hand', 'story to hand');
   ok(zone(st, draw) === 'A.hand', 'drew because 8 magic in hell');
+}
+
+/* 7) ใบรับสมัครพนักงานลงกา: ขวัญตา Cost 4 −2 ต้องจ่ายอีก 2 ก่อนลง */
+{
+  const st = emptyState();
+  st.turnSeq = 3;
+  const app = put(st, 'A.magic', 'CC02-044');
+  st.inst[app].magicEnteredTurnSeq = 1;
+  const khwan = put(st, 'A.hand', 'BT09-042');
+  const pay1 = put(st, 'A.hand', 'SD01-017');
+  const pay2 = put(st, 'A.hand', 'SD02-018');
+  const fx = apply(st, { type: 'activateAbility', k: app, by: 'A' });
+  ok(!fx.deny, 'activate ใบรับสมัคร: ' + (fx.deny || ''));
+  ok(zone(st, app) === 'A.hell', 'ใบรับสมัครถูกทำลาย');
+  const pick = (st.prompts || [])[0];
+  ok(pick && pick.kind === 'pick' && pick.dest === 'avatar' && (pick.options || pick.ids || []).includes(khwan),
+    'เลือกขวัญตาจากมือ: ' + ((pick && pick.dest) || ''));
+  apply(st, { type: 'chooseTarget', k: khwan, by: 'A' });
+  const pay = (st.prompts || [])[0];
+  ok(pay && pay.dest === 'payRemainSummon' && pay.need === 2 && pay.summonK === khwan,
+    'ต้องจ่าย Cost เหลือ 2: ' + JSON.stringify(pay && { dest: pay.dest, need: pay.need }));
+  ok(zone(st, khwan) === 'A.hand', 'ขวัญตายังไม่ลงจนกว่าจะจ่ายครบ');
+  apply(st, { type: 'chooseTarget', k: pay1, by: 'A' });
+  ok(zone(st, khwan) === 'A.hand', 'จ่าย 1 ใบแล้วยังไม่ลง');
+  apply(st, { type: 'chooseTarget', k: pay2, by: 'A' });
+  ok(zone(st, khwan) === 'A.avatar', 'จ่ายครบ 2 แล้วขวัญตาลงสนาม');
+  ok(zone(st, pay1) === 'A.hell' && zone(st, pay2) === 'A.hell', 'ใบจ่ายลงนรก');
+  ok((st.inst[khwan].costDelta || 0) === -2, 'Cost −2 บนสนาม');
+}
+
+/* 8) ใบรับสมัคร: GEM ไม่พอ — เลือกขวัญตาไม่ได้ */
+{
+  const st = emptyState();
+  st.turnSeq = 3;
+  const app = put(st, 'A.magic', 'CC02-044');
+  st.inst[app].magicEnteredTurnSeq = 1;
+  const khwan = put(st, 'A.hand', 'BT09-042');
+  apply(st, { type: 'activateAbility', k: app, by: 'A' });
+  const pick = (st.prompts || [])[0];
+  ok(!pick || !(pick.ids || []).includes(khwan), 'ขวัญตา Cost 4 ไม่โผล่ถ้า GEM ไม่พอจ่ายเหลือ 2');
 }
 
 console.log('all story deck tests passed');

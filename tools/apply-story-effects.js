@@ -183,7 +183,7 @@ const BY_SET = {
         }
       ],
       parseStatus: 'auto',
-      note: 'React ตอนศัตรูใช้ความสามารถ Avatar (สนามเราเป็นเรื่องราวทั้งหมด) → สูญเสียความสามารถ · Magic ในนรก ≥8 ทำลายได้'
+      note: 'React ตอนศัตรูใช้ความสามารถ Avatar ทุกแบบ (สั่งใช้/จุติ/อัตโนมัติ/สามัคคี/โล่มนุษย์/แทงหลัง) เมื่อสนามเราเป็นเรื่องราวทั้งหมด → สูญเสียความสามารถ · Magic ในนรก ≥8 ทำลายได้'
     },
     'BT09-060': {
       code: 'BT09-060',
@@ -267,13 +267,14 @@ const BY_SET = {
               op: 'handSummon',
               filter: { type: 'Avatar', color: 'เขียว' },
               costReduce: 2,
-              paidCost: false
+              mustPayRemain: true,
+              paidCost: true
             }
           ]
         }
       ],
       parseStatus: 'auto',
-      note: 'สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2'
+      note: 'สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2 แล้วจ่าย GEM ที่เหลือ'
     }
   }
 };
