@@ -1341,16 +1341,63 @@
       "codes": [
         "BT09-059"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "requireOwnNameIncludes": "เรื่องราว",
+          "requireOwnAllNameIncludes": "เรื่องราว",
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            },
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              },
+              "ifOwnHellTypeMin": {
+                "type": "Magic",
+                "min": 8
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React ตอนศัตรูใช้ความสามารถ Avatar (สนามเราเป็นเรื่องราวทั้งหมด) → สูญเสียความสามารถ · Magic ในนรก ≥8 ทำลายได้"
     },
     {
       "name": "Skill : Second Energy",
       "codes": [
         "BT09-060"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "requireFromOppCard": true,
+          "requireTargetNameIncludes": "เรื่องราว",
+          "actions": [
+            {
+              "op": "preventDestroy"
+            },
+            {
+              "op": "oppExileHellChoose",
+              "ifOwnHellTypeMin": {
+                "type": "Magic",
+                "min": 8
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อเรื่องราวเราจะถูกการ์ดศัตรูทำลาย → ไม่ออกจากสนาม · Magic ในนรก ≥8 ศัตรูเนรเทศจากนรก 1"
     }
   ]
 }

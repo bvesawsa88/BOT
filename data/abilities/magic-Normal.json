@@ -924,8 +924,51 @@
       "codes": [
         "CC02-044"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "เขียว"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "เขียว"
+              },
+              "costReduce": 2,
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "stayOnMagic": true,
+      "parseStatus": "auto",
+      "note": "สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2"
     },
     {
       "name": "ประชามติ",
@@ -2065,8 +2108,67 @@
         "BT09-056",
         "PRMO-107"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เรื่องราวจากเด็คขึ้นมือ แล้วสับ",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เรื่องราว"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfter": true,
+                      "optional": true
+                    },
+                    {
+                      "op": "drawIfOwnHellTypeMin",
+                      "hellType": "Magic",
+                      "min": 8,
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "เรื่องราวจากนรกขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เรื่องราว"
+                        ]
+                      },
+                      "dest": "hand",
+                      "optional": true
+                    },
+                    {
+                      "op": "drawIfOwnHellTypeMin",
+                      "hellType": "Magic",
+                      "min": 8,
+                      "count": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือกเด็คหรือนรกเอาเรื่องราวขึ้นมือ · ถ้านรกมี Magic ≥8 จั่ว 1"
     }
   ]
 }

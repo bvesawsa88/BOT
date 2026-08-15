@@ -8601,20 +8601,173 @@
     {
       "code": "BT09-042",
       "name": "นักท่องเรื่องราว ขวัญตา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "allowOwnBattlePhase": true,
+          "requireHandFilter": {
+            "type": "Avatar",
+            "nameIncludes": [
+              "เรื่องราว"
+            ],
+            "cost": 6
+          },
+          "actions": [
+            {
+              "op": "storyEvolve",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "cost": 6
+              },
+              "powerBonus": 0
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "exiledFromAvatar"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดงเรื่องราว Cost 6 จากมือ → เนรเทศตัวเองแล้วอัญเชิญใบที่แสดง · เนรเทศจาก Avatar Zone แล้วจั่ว 1"
     },
     {
       "code": "BT09-043",
       "name": "ขวัญตา เรื่องราว ราชาแห่งนาค",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "สั่งใช้",
+                  "trigger": {
+                    "on": "activated"
+                  },
+                  "fromAvatarZone": true,
+                  "oncePerTurn": true,
+                  "cost": [
+                    {
+                      "op": "discard",
+                      "count": 1
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Magic",
+                        "nameIncludes": [
+                          "Skill"
+                        ]
+                      },
+                      "dest": "hand",
+                      "optional": true
+                    }
+                  ]
+                },
+                {
+                  "keyword": "ต่อเนื่อง",
+                  "trigger": {
+                    "on": "static",
+                    "if": "self.zone==avatarZone"
+                  },
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amountPer": "ownHellTypePerN",
+                      "hellType": "Magic",
+                      "perN": 2,
+                      "per": 1,
+                      "layer": 3,
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → ทิ้งมือแลก Skill จากนรก + POWER+1 ต่อ Magic ในนรกทุก 2 ใบ"
     },
     {
       "code": "BT09-044",
       "name": "ขวัญตา เรื่องราว ครุฑเจ้าเวหา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "declareAttack"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Magic",
+                        "nameIncludes": [
+                          "Skill"
+                        ]
+                      },
+                      "dest": "hell",
+                      "shuffleAfter": true,
+                      "optional": true
+                    }
+                  ]
+                },
+                {
+                  "keyword": "ต่อเนื่อง",
+                  "trigger": {
+                    "on": "static",
+                    "if": "self.zone==avatarZone"
+                  },
+                  "extraReactSkillUnusedName": true,
+                  "actions": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → โจมตีแล้วส่ง Skill จากเด็คลงนรก · ใช้ React Skill ชื่อไม่ซ้ำเพิ่ม 1 ใบ"
     },
     {
       "code": "BT09-045",
@@ -8685,8 +8838,67 @@
     {
       "code": "BT09-056",
       "name": "Skill : Full Drive",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เรื่องราวจากเด็คขึ้นมือ แล้วสับ",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เรื่องราว"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfter": true,
+                      "optional": true
+                    },
+                    {
+                      "op": "drawIfOwnHellTypeMin",
+                      "hellType": "Magic",
+                      "min": 8,
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "เรื่องราวจากนรกขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เรื่องราว"
+                        ]
+                      },
+                      "dest": "hand",
+                      "optional": true
+                    },
+                    {
+                      "op": "drawIfOwnHellTypeMin",
+                      "hellType": "Magic",
+                      "min": 8,
+                      "count": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือกเด็คหรือนรกเอาเรื่องราวขึ้นมือ · ถ้านรกมี Magic ≥8 จั่ว 1"
     },
     {
       "code": "BT09-057",
@@ -8739,14 +8951,61 @@
     {
       "code": "BT09-059",
       "name": "Skill : Hypersense",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "requireOwnNameIncludes": "เรื่องราว",
+          "requireOwnAllNameIncludes": "เรื่องราว",
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            },
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              },
+              "ifOwnHellTypeMin": {
+                "type": "Magic",
+                "min": 8
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React ตอนศัตรูใช้ความสามารถ Avatar (สนามเราเป็นเรื่องราวทั้งหมด) → สูญเสียความสามารถ · Magic ในนรก ≥8 ทำลายได้"
     },
     {
       "code": "BT09-060",
       "name": "Skill : Second Energy",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "requireFromOppCard": true,
+          "requireTargetNameIncludes": "เรื่องราว",
+          "actions": [
+            {
+              "op": "preventDestroy"
+            },
+            {
+              "op": "oppExileHellChoose",
+              "ifOwnHellTypeMin": {
+                "type": "Magic",
+                "min": 8
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อเรื่องราวเราจะถูกการ์ดศัตรูทำลาย → ไม่ออกจากสนาม · Magic ในนรก ≥8 ศัตรูเนรเทศจากนรก 1"
     },
     {
       "code": "BT09-061",
@@ -11379,16 +11638,90 @@
     {
       "code": "BT11-048",
       "name": "นักท่องเรื่องราว มายา",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ แสดง Avatar \"เรื่องราว\" Cost 6 1 ใบจากบนมือ : เนรเทศ Avatar ใบนี้ และอัญเชิญ การ์ดใบที่แสดง ลงบน Avatar Zone ฝ่า"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "allowOwnBattlePhase": true,
+          "requireHandFilter": {
+            "type": "Avatar",
+            "nameIncludes": [
+              "เรื่องราว"
+            ],
+            "cost": 6
+          },
+          "actions": [
+            {
+              "op": "storyEvolve",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "cost": 6
+              },
+              "powerBonus": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดงเรื่องราว Cost 6 จากมือ → เนรเทศตัวเองแล้วอัญเชิญ · ใบที่อัญเชิญ POWER +1"
     },
     {
       "code": "BT11-049",
       "name": "มายา เรื่องราว เทพเจ้าสายฟ้า",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ ถ้า Avatar ใบนี้ถูก อัญเชิญมาด้วยความสามารถของ \"นักท่องเรื่องราว\" : จะได้รับความสามารถต่อไปนี้ {red \"อัตโนมัติ"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "ownPlayMagic"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 1,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "Skill"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true,
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic แล้ว POWER +1 เทิร์นละครั้ง"
     },
     {
       "code": "BT11-050",
@@ -12978,8 +13311,62 @@
     {
       "code": "CC02-011",
       "name": "ตุตันคาเมน ฟาโรห์ทองคำ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญ จุติ Avatar ที่ไม่ใช่ Only จากนรกใครก็ได้ กี่ใบก็ได้ Cost รวมไม่เกิน 8",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "from": "anyHell",
+                      "filter": {
+                        "type": "Avatar",
+                        "hasJuti": true,
+                        "excludeOnly": true
+                      },
+                      "dest": "avatar",
+                      "paidCost": true,
+                      "multiMax": 99,
+                      "costSumMax": 8,
+                      "optional": true,
+                      "showAll": true
+                    }
+                  ]
+                },
+                {
+                  "label": "อัญเชิญ จุติ Avatar 1 ใบ จากนรกใครก็ได้",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "from": "anyHell",
+                      "filter": {
+                        "type": "Avatar",
+                        "hasJuti": true
+                      },
+                      "dest": "avatar",
+                      "paidCost": true,
+                      "optional": true,
+                      "showAll": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "noHellSummon": true,
+      "note": "จุติเลือกปฏิบัติ · จากนรกใครก็ได้ · ใบนี้ถูกอัญเชิญจากนรกไม่ได้"
     },
     {
       "code": "CC02-012",
@@ -13575,8 +13962,51 @@
     {
       "code": "CC02-044",
       "name": "ใบรับสมัครพนักงานลงกา",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "เขียว"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "เขียว"
+              },
+              "costReduce": 2,
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "note": "สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2"
     },
     {
       "code": "CC02-045",
@@ -20180,8 +20610,67 @@
     {
       "code": "PRMO-107",
       "name": "Skill : Full Drive",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เรื่องราวจากเด็คขึ้นมือ แล้วสับ",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เรื่องราว"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfter": true,
+                      "optional": true
+                    },
+                    {
+                      "op": "drawIfOwnHellTypeMin",
+                      "hellType": "Magic",
+                      "min": 8,
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "เรื่องราวจากนรกขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เรื่องราว"
+                        ]
+                      },
+                      "dest": "hand",
+                      "optional": true
+                    },
+                    {
+                      "op": "drawIfOwnHellTypeMin",
+                      "hellType": "Magic",
+                      "min": 8,
+                      "count": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือกเด็คหรือนรกเอาเรื่องราวขึ้นมือ · ถ้านรกมี Magic ≥8 จั่ว 1"
     },
     {
       "code": "PRMO-108",

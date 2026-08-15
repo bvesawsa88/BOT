@@ -610,8 +610,62 @@
       "codes": [
         "CC02-011"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญ จุติ Avatar ที่ไม่ใช่ Only จากนรกใครก็ได้ กี่ใบก็ได้ Cost รวมไม่เกิน 8",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "from": "anyHell",
+                      "filter": {
+                        "type": "Avatar",
+                        "hasJuti": true,
+                        "excludeOnly": true
+                      },
+                      "dest": "avatar",
+                      "paidCost": true,
+                      "multiMax": 99,
+                      "costSumMax": 8,
+                      "optional": true,
+                      "showAll": true
+                    }
+                  ]
+                },
+                {
+                  "label": "อัญเชิญ จุติ Avatar 1 ใบ จากนรกใครก็ได้",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "from": "anyHell",
+                      "filter": {
+                        "type": "Avatar",
+                        "hasJuti": true
+                      },
+                      "dest": "avatar",
+                      "paidCost": true,
+                      "optional": true,
+                      "showAll": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "noHellSummon": true,
+      "parseStatus": "auto",
+      "note": "จุติเลือกปฏิบัติ · จากนรกใครก็ได้ · ใบนี้ถูกอัญเชิญจากนรกไม่ได้"
     },
     {
       "name": "เตียวเสียน จันทร์หลบโฉมสุดา",

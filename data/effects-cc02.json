@@ -446,8 +446,51 @@
     {
       "code": "CC02-044",
       "name": "ใบรับสมัครพนักงานลงกา",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "เขียว"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "เขียว"
+              },
+              "costReduce": 2,
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "note": "สอดแนม 2 เอาเขียวขึ้นมือ แล้วค้าง Magic Zone · เทิร์นถัดไปทำลายตัวเองอัญเชิญเขียว Cost−2"
     },
     {
       "code": "CC02-041",
@@ -721,8 +764,62 @@
     {
       "code": "CC02-011",
       "name": "ตุตันคาเมน ฟาโรห์ทองคำ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "auto",
+      "noHellSummon": true,
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญ จุติ Avatar ที่ไม่ใช่ Only จากนรกใครก็ได้ กี่ใบก็ได้ Cost รวมไม่เกิน 8",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "from": "anyHell",
+                      "filter": {
+                        "type": "Avatar",
+                        "hasJuti": true,
+                        "excludeOnly": true
+                      },
+                      "dest": "avatar",
+                      "paidCost": true,
+                      "multiMax": 99,
+                      "costSumMax": 8,
+                      "optional": true,
+                      "showAll": true
+                    }
+                  ]
+                },
+                {
+                  "label": "อัญเชิญ จุติ Avatar 1 ใบ จากนรกใครก็ได้",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "from": "anyHell",
+                      "filter": {
+                        "type": "Avatar",
+                        "hasJuti": true
+                      },
+                      "dest": "avatar",
+                      "paidCost": true,
+                      "optional": true,
+                      "showAll": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "จุติเลือกปฏิบัติ · จากนรกใครก็ได้ · ใบนี้ถูกอัญเชิญจากนรกไม่ได้"
     },
     {
       "code": "CC02-012",

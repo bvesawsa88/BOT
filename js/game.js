@@ -3574,6 +3574,9 @@
           else if (pr.dest === 'preventLeavePick') txt = `🛡️ เนรเทศรัททาทุยจากนรก (${pr.got || 0}/${pr.need || 5}) — แตะการ์ดในหน้าต่าง · ข้าม = ออกสนาม`;
           else if (pr.dest === 'retargetAttack') txt = `⚔️ เสียเตะไข่ — เลือกเป้าหมายโจมตีใหม่ (แตะ Avatar / Construct ศัตรูที่กะพริบ)`;
           else if (pr.from === 'deckOrHell') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คหรือนรก`;
+          else if (pr.from === 'anyHell') txt = pr.costSumMax != null
+            ? `✨ ${srcN}: อัญเชิญจากนรกใครก็ได้ Cost รวม≤${pr.costSumMax} (ตอนนี้ ${pr.costGot || 0}) — แตะใบที่กะพริบ`
+            : `✨ ${srcN}: เลือกจุติ Avatar จากนรกใครก็ได้`;
           else if (pr.from === 'hell') txt = `✨ ${srcN}: เลือกการ์ดจากนรก`;
           else if (pr.from === 'dark') txt = `🌀 ${srcN}: เลือกอาวุธนครจากมิติมืด — แตะใบที่กะพริบในหน้าต่าง`;
           else if (pr.from === 'ownHand') txt = `✋ ${srcN}: เลือกการ์ดจากมือ — แตะใบที่กะพริบในหน้าต่าง`;
@@ -4346,7 +4349,7 @@
     // มีความสามารถสั่งใช้ → แถวไอคอน ⚡ = สั่งใช้ (ไม่ใช่แค่ประกาศชี้เป้า)
     const kzMenu = BoTEngine.zoneOf(st, k) || '';
     const hasActivated = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code, c.name) || {}).abilities || [])
-      .some(ab => {
+      .concat(c.granted || []).some(ab => {
         const on = ab.trigger && ab.trigger.on;
         if (on === 'activated' && (onField || kzMenu === 'land')) return true;
         if (on === 'activatedFromHand' && kzMenu.endsWith('.hand')) return true;
@@ -4502,6 +4505,15 @@
 
   /* ── เลือกปฏิบัติ (เลือก 1 ใน N ข้อ) ── */
   let choiceCtx = null; // { k, opts, sel }
+  let choiceOpenedAt = 0;
+  const CHOICE_GHOST_MS = 500;
+  function choiceGhostClick() {
+    return Date.now() - choiceOpenedAt < CHOICE_GHOST_MS;
+  }
+  function showChoiceModal() {
+    choiceOpenedAt = Date.now();
+    byId('choiceModal').classList.remove('hidden');
+  }
   function parseChoiceOptions(effect) {
     const lines = (effect || '').replace(/\r/g, '').split('\n');
     const opts = []; let cur = null;
@@ -4524,7 +4536,7 @@
     choiceCtx = { k, opts, sel: 0 };
     byId('choiceCardName').textContent = c.name;
     renderChoiceOpts();
-    byId('choiceModal').classList.remove('hidden');
+    showChoiceModal();
   }
   function openChoiceFromEffects(k, options, extra) {
     closeMenu();
@@ -4542,7 +4554,7 @@
     if (title) title.textContent = '🎯 เลือกปฏิบัติ';
     if (note) note.innerHTML = 'เลือกเทคแล้วกดยืนยัน · <b>ยกเลิก</b>ได้ก่อนเลือกข้อ · ถ้าเลือกแล้วใช้ไม่ได้หรือข้ามเป้า จะนับว่าใช้ไปแล้วในเทิร์นนี้';
     renderChoiceOpts();
-    byId('choiceModal').classList.remove('hidden');
+    showChoiceModal();
   }
   function renderChoiceOpts() {
     if (!choiceCtx) return;
@@ -4553,6 +4565,12 @@
       </label>`).join('');
   }
   function closeChoicePopup(force) {
+    if (force && typeof force === 'object') force = false; // onclick ส่ง event มา — ไม่ใช่ force
+    // ทิ้งมือจ่ายค่าแล้ว modal เลือกเทคเด้งทับนิ้ว → click ค้างไปโดนพื้นหลัง/ยกเลิก ระบบข้ามเทค
+    if (!force && choiceGhostClick() && choiceCtx && choiceCtx.fromPrompt) {
+      byId('choiceModal').classList.remove('hidden');
+      return;
+    }
     // ทายประเภท — ห้ามปิดทิ้ง ไม่งั้นเด็ค/เกมค้าง
     const pr0 = st && (st.prompts || [])[0];
     if (!force && pr0 && pr0.kind === 'chooseMode' && pr0.guessTypes && choiceCtx && choiceCtx.k === pr0.src) {
@@ -4643,11 +4661,12 @@
     // สอดแนมเปิด (revealAllScout) = ข้อมูลเปิด → ทั้งสองฝั่งเห็นหน้าต่าง / อื่นๆ เฉพาะคนเลือก
     const iAmChooser = !!(pp && (mode === 'solo' || seat === pp.chooser));
     const openScoutBoth = !!(pp && pp.kind === 'pick' && pp.from === 'ids' && pp.revealAllScout);
-    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'deckOrHell', 'ownMagic', 'dark', 'ownHand'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
+    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'ownMagic', 'dark', 'ownHand'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
       // สอดแนม (ids): โชว์ทุกใบที่เปิดเจอ · ใบที่เลือกได้กะพริบ · เมฟิสโต้ฯ ติดป้ายขึ้นมืออัตโนมัติ
       // นรก showAllHell: โชว์ทั้งกอง · ใบตรงเงื่อนไขกะพริบ (ไม่นะโดม / อู๊ด / มณโท)
       const showAllScout = pp.from === 'ids' && !!pp.revealAllScout;
-      const showAllHell = pp.from === 'hell' && !!pp.showAllHell;
+      const showAllHell = (pp.from === 'hell' || pp.from === 'anyHell') && !!pp.showAllHell;
+      const showAnyHell = pp.from === 'anyHell';
       const showAllMagic = pp.from === 'ownMagic';
       const showAllDark = pp.from === 'dark';
       const showAllHand = pp.from === 'ownHand';
@@ -4656,7 +4675,9 @@
       // ids อาจอยู่เด็คฝ่ายตรงข้าม (สอดแนมตำรวจ) — อย่ากรองเฉพาะเด็คของ chooser
       const disp = showAllScout
         ? (pp.ids || []).filter(k => !!st.inst[k])
-        : showAllHell
+        : showAnyHell
+          ? (st.zones['A.hell'] || []).concat(st.zones['B.hell'] || []).filter(k => k !== pp.src)
+          : showAllHell
           ? (st.zones[pp.chooser + '.hell'] || []).filter(k => k !== pp.src)
           : showAllMagic
             ? (st.zones[pp.chooser + '.magic'] || []).filter(k => k !== pp.src)
@@ -4666,7 +4687,7 @@
                 ? (st.zones[pp.chooser + '.hand'] || []).filter(k => !(pp.excludeIds || []).includes(k))
                 : selectable;
       const canPick = new Set(selectable);
-      const showAllPick = showAllScout || showAllHell || showAllMagic || showAllDark || showAllHand;
+      const showAllPick = showAllScout || showAllHell || showAnyHell || showAllMagic || showAllDark || showAllHand;
       let title;
       if (pp.dest === 'preventLeavePick')
         title = `🛡️ เนรเทศรัททาทุยจากนรก (${pp.got || 0}/${pp.need || 5}) — แตะการ์ดเพื่อเนรเทศ`;
@@ -4684,6 +4705,13 @@
         title = `💥 เลือก Avatar ที่จะทำลาย`;
       else if (pp.dest === 'avatar' && pp.naraiReturn)
         title = `🕉️ จบเทิร์น — เลือกพระนารายณ์จากนรกอัญเชิญกลับขึ้นสนาม`;
+      else if (pp.from === 'anyHell')
+        title = iAmChooser
+          ? (pp.costSumMax != null
+            ? `✨ นรกใครก็ได้ — อัญเชิญจุติ Avatar Cost รวม≤${pp.costSumMax} (ตอนนี้ ${pp.costGot || 0}) — แตะใบที่กะพริบ (${selectable.length})`
+            : `✨ นรกใครก็ได้ — อัญเชิญจุติ Avatar — แตะใบที่กะพริบ (${selectable.length})`)
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 นรกทั้งสองฝั่ง — ${disp.length} ใบ (ดูอย่างเดียว)`;
       else if (pp.dest === 'avatar' && showAllHell)
         title = iAmChooser
           ? `✨ เปิดนรก ${disp.length} ใบ — อัญเชิญใบที่กะพริบ (${selectable.length})`
@@ -4742,11 +4770,13 @@
       byId('pileHint').textContent = iAmChooser
         ? (pp.from === 'ownMagic'
           ? 'โชว์ทั้ง Magic Zone เป็นใบใหญ่ · ใบที่กะพริบเลือกได้ · ไม่ต้องเลื่อนหรือคลิกใบที่ทับกันบนสนาม'
-          : (pp.from === 'deckOrHell'
+          : (pp.from === 'anyHell'
+            ? 'โชว์นรกทั้งสองฝั่ง · แตะใบที่กะพริบเพื่ออัญเชิญลง Avatar Zone ฝ่ายเรา'
+            : (pp.from === 'deckOrHell'
             ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
             : (pp.from === 'dark'
               ? 'โชว์ทั้งมิติมืด · แตะใบที่กะพริบเพื่อเลือกอาวุธนครมาสวม'
-              : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก'))))
+              : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก')))))
         : 'อีกฝั่งกำลังเลือก — ดูอย่างเดียว';
       byId('pileGrid').innerHTML = disp.length
         ? disp.map((k, i) => {
@@ -4761,6 +4791,11 @@
             opts.badge = 'ขึ้นมืออัตโนมัติ';
           } else if (showAllPick && !isPick) {
             opts.extraClass = 'scout-reveal-dim';
+            if (pp.from === 'anyHell')
+              opts.badge = (st.zones[pp.chooser + '.hell'] || []).includes(k) ? 'นรกเรา' : 'นรกศัตรู';
+          } else if (pp.from === 'anyHell') {
+            if ((st.zones[pp.chooser + '.hell'] || []).includes(k)) opts.badge = 'นรกเรา';
+            else opts.badge = 'นรกศัตรู';
           } else if (pp.from === 'deckOrHell') {
             if ((st.zones[pp.chooser + '.hell'] || []).includes(k)) opts.badge = 'นรก';
             else if ((st.zones[pp.chooser + '.deck'] || []).includes(k)) opts.badge = 'เด็ค';
@@ -5755,9 +5790,17 @@
   byId('authPass').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
   checkAuth();
   // เลือกปฏิบัติ modal
-  byId('choiceX').onclick = closeChoicePopup;
-  byId('choiceCancel').onclick = closeChoicePopup;
-  byId('choiceModal').addEventListener('click', e => { if (e.target.id === 'choiceModal') closeChoicePopup(); });
+  byId('choiceX').onclick = () => closeChoicePopup();
+  byId('choiceCancel').onclick = () => closeChoicePopup();
+  byId('choiceModal').addEventListener('click', e => {
+    if (e.target.id !== 'choiceModal') return;
+    if (choiceGhostClick() && choiceCtx && choiceCtx.fromPrompt) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    closeChoicePopup();
+  });
   byId('choiceOptions').addEventListener('click', e => {
     const l = e.target.closest('[data-opt]'); if (!l || !choiceCtx) return;
     choiceCtx.sel = +l.getAttribute('data-opt'); renderChoiceOpts();

@@ -155,16 +155,127 @@
       "codes": [
         "BT09-044"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "declareAttack"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Magic",
+                        "nameIncludes": [
+                          "Skill"
+                        ]
+                      },
+                      "dest": "hell",
+                      "shuffleAfter": true,
+                      "optional": true
+                    }
+                  ]
+                },
+                {
+                  "keyword": "ต่อเนื่อง",
+                  "trigger": {
+                    "on": "static",
+                    "if": "self.zone==avatarZone"
+                  },
+                  "extraReactSkillUnusedName": true,
+                  "actions": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → โจมตีแล้วส่ง Skill จากเด็คลงนรก · ใช้ React Skill ชื่อไม่ซ้ำเพิ่ม 1 ใบ"
     },
     {
       "name": "ขวัญตา เรื่องราว ราชาแห่งนาค",
       "codes": [
         "BT09-043"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "สั่งใช้",
+                  "trigger": {
+                    "on": "activated"
+                  },
+                  "fromAvatarZone": true,
+                  "oncePerTurn": true,
+                  "cost": [
+                    {
+                      "op": "discard",
+                      "count": 1
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Magic",
+                        "nameIncludes": [
+                          "Skill"
+                        ]
+                      },
+                      "dest": "hand",
+                      "optional": true
+                    }
+                  ]
+                },
+                {
+                  "keyword": "ต่อเนื่อง",
+                  "trigger": {
+                    "on": "static",
+                    "if": "self.zone==avatarZone"
+                  },
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amountPer": "ownHellTypePerN",
+                      "hellType": "Magic",
+                      "perN": 2,
+                      "per": 1,
+                      "layer": 3,
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → ทิ้งมือแลก Skill จากนรก + POWER+1 ต่อ Magic ในนรกทุก 2 ใบ"
     },
     {
       "name": "คนจับใบดำ",
@@ -975,17 +1086,88 @@
       "codes": [
         "BT09-042"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "allowOwnBattlePhase": true,
+          "requireHandFilter": {
+            "type": "Avatar",
+            "nameIncludes": [
+              "เรื่องราว"
+            ],
+            "cost": 6
+          },
+          "actions": [
+            {
+              "op": "storyEvolve",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "cost": 6
+              },
+              "powerBonus": 0
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "exiledFromAvatar"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดงเรื่องราว Cost 6 จากมือ → เนรเทศตัวเองแล้วอัญเชิญใบที่แสดง · เนรเทศจาก Avatar Zone แล้วจั่ว 1"
     },
     {
       "name": "นักท่องเรื่องราว มายา",
       "codes": [
         "BT11-048"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ แสดง Avatar \"เรื่องราว\" Cost 6 1 ใบจากบนมือ : เนรเทศ Avatar ใบนี้ และอัญเชิญ การ์ดใบที่แสดง ลงบน Avatar Zone ฝ่า"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "allowOwnBattlePhase": true,
+          "requireHandFilter": {
+            "type": "Avatar",
+            "nameIncludes": [
+              "เรื่องราว"
+            ],
+            "cost": 6
+          },
+          "actions": [
+            {
+              "op": "storyEvolve",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "cost": 6
+              },
+              "powerBonus": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดงเรื่องราว Cost 6 จากมือ → เนรเทศตัวเองแล้วอัญเชิญ · ใบที่อัญเชิญ POWER +1"
     },
     {
       "name": "นักรบทองแห่งภาคีมะม่วง",
@@ -2012,9 +2194,54 @@
       "codes": [
         "BT11-049"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ ถ้า Avatar ใบนี้ถูก อัญเชิญมาด้วยความสามารถของ \"นักท่องเรื่องราว\" : จะได้รับความสามารถต่อไปนี้ {red \"อัตโนมัติ"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "ownPlayMagic"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 1,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "Skill"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true,
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic แล้ว POWER +1 เทิร์นละครั้ง"
     },
     {
       "name": "มาวิน",

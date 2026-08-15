@@ -1200,16 +1200,90 @@
     {
       "code": "BT11-048",
       "name": "นักท่องเรื่องราว มายา",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ แสดง Avatar \"เรื่องราว\" Cost 6 1 ใบจากบนมือ : เนรเทศ Avatar ใบนี้ และอัญเชิญ การ์ดใบที่แสดง ลงบน Avatar Zone ฝ่า"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "allowOwnBattlePhase": true,
+          "requireHandFilter": {
+            "type": "Avatar",
+            "nameIncludes": [
+              "เรื่องราว"
+            ],
+            "cost": 6
+          },
+          "actions": [
+            {
+              "op": "storyEvolve",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "cost": 6
+              },
+              "powerBonus": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แสดงเรื่องราว Cost 6 จากมือ → เนรเทศตัวเองแล้วอัญเชิญ · ใบที่อัญเชิญ POWER +1"
     },
     {
       "code": "BT11-049",
       "name": "มายา เรื่องราว เทพเจ้าสายฟ้า",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ ถ้า Avatar ใบนี้ถูก อัญเชิญมาด้วยความสามารถของ \"นักท่องเรื่องราว\" : จะได้รับความสามารถต่อไปนี้ {red \"อัตโนมัติ"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "ownPlayMagic"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 1,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "Skill"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true,
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic แล้ว POWER +1 เทิร์นละครั้ง"
     },
     {
       "code": "BT11-050",
