@@ -889,7 +889,7 @@ body.dragging .card.hand:hover{transform:none}
 .ctx-row{display:flex;gap:3px;padding:2px 2px 5px;border-bottom:1px solid var(--border);margin-bottom:4px}
 .ctx-ico{flex:1;min-width:34px;height:34px;padding:0;font-size:16px;line-height:1;background:var(--panel);border:1.5px solid var(--border);border-radius:7px;color:#e5dcc8;cursor:pointer}
 .ctx-ico:hover{background:var(--red);border-color:var(--red-lite);color:#fff}
-/* ⚡＋－ ปุ่มลัดลอยบนการ์ด (เดสก์ท็อป: โผล่ตอนชี้เมาส์) */
+/* ปุ่มลัดลอยบนการ์ด (เดสก์ท็อป: โผล่ตอนชี้เมาส์ — ⚡ 🤝 🔗) */
 .card .qa{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);display:none;gap:2px;z-index:24}
 .card .qa-b{width:19px;height:19px;padding:0;font-size:11px;line-height:1;border-radius:5px;border:1px solid rgba(0,0,0,.6);background:rgba(20,18,16,.92);color:#ffe9b0;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.6)}
 .card .qa-b:hover{background:var(--gold);color:#241c12}

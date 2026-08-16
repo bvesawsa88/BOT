@@ -608,11 +608,13 @@
       if (node.classList && node.classList.contains('float-card')) return;
       inner.appendChild(node.cloneNode(true));
     });
-    inner.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
     inner.querySelectorAll('button,input,select,textarea,a').forEach(n => {
       n.setAttribute('tabindex', '-1');
       n.disabled = true;
     });
+    const bar = inner.querySelector('#userBar');
+    if (bar) { bar.style.right = '16px'; bar.style.left = 'auto'; bar.style.top = '12px'; }
+    inner.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
     shot.appendChild(inner);
   }
 
@@ -3543,7 +3545,7 @@
     if (cls === 'magic' && c.faceUp && !opts.forceUp && c.name) {
       tok += `<div class="mz-name" title="${esc(c.name)}">${esc(c.name)}</div>`;
     }
-    // ⚡➕➖ ปุ่มลัดลอยบนการ์ด — สนาม: โผล่ตอนชี้เมาส์ · มือที่มีสั่งใช้จากมือ: โชว์ ⚡ ตลอด · คลิกขวา = สั่งใช้
+    // ปุ่มลัดลอยบนการ์ด — สนาม: โผล่ตอนชี้เมาส์ · มือ/นรกที่มีสั่งใช้: โชว์ ⚡ ตลอด · คลิกขวา = สั่งใช้
     let qa = '';
     const qz = ['avatar', 'magic', 'construct', 'land'].includes(cls);
     const kz0 = BoTEngine.zoneOf(st, k) || '';
@@ -3562,7 +3564,6 @@
       classes.push('hell-act');
       qa = `<div class="qa qa-hand"><button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้จากนรก (หรือคลิกขวา)">⚡</button></div>`;
     } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
-      const canAtk = cls === 'avatar' && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT;
       const canUnityBtn = cls === 'avatar' && canUseUnity(k);
       const canModAtt = cls === 'magic' && canAttachFromMagic(k);
       // มีความสามารถสั่งใช้ (activated) เท่านั้นถึงโชว์ ⚡ — กดแล้วถ้ามีเลือกปฏิบัติจะขึ้นกล่อง 2 เทค
@@ -3572,14 +3573,11 @@
         if ((on === 'activatedFromHell' || ab.fromHell) && kz0.endsWith('.hell')) return true;
         return false;
       });
-      qa = `<div class="qa">`
-        + (canAtk ? `<button class="qa-b qa-atk" data-qa="atk" data-k="${k}" title="โจมตี → ชี้เป้า (นอนให้อัตโนมัติ)">⚔</button>` : '')
-        + (canUnityBtn ? `<button class="qa-b qa-unity" data-qa="unity" data-k="${k}" title="🤝 สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">🤝</button>` : '')
-        + (canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : '')
-        + (hasAct ? `<button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">⚡</button>` : '')
-        + `<button class="qa-b" data-qa="inc" data-k="${k}" title="POWER +1">＋</button>`
-        + `<button class="qa-b" data-qa="dec" data-k="${k}" title="POWER −1">－</button>`
-        + `</div>`;
+      const parts = []
+        .concat(canUnityBtn ? `<button class="qa-b qa-unity" data-qa="unity" data-k="${k}" title="🤝 สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">🤝</button>` : [])
+        .concat(canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : [])
+        .concat(hasAct ? `<button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">⚡</button>` : []);
+      if (parts.length) qa = `<div class="qa">${parts.join('')}</div>`;
     }
     return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${od}${inh}${tok}${order}${scoutBadge}${qa}</div>`;
   }
@@ -4436,29 +4434,11 @@
     menu.style.left = Math.max(4, Math.min(x, window.innerWidth - r.width - 6)) + 'px';
     menu.style.top = Math.max(4, Math.min(y, window.innerHeight - r.height - 6)) + 'px';
   }
-  let menuAnchor = { x: 0, y: 0 };
-  function openMoveMenu(k) {
-    const c = st.inst[k]; if (!c) return;
-    const own = BoTEngine.ownerOf(st, k); const ow = own === 'S' ? my : own;
-    const entries = [
-      { label: '← กลับ', fn: () => openMenu(k, menuAnchor.x, menuAnchor.y) },
-      { label: '🌀 มิติมืด (เนรเทศ)', act: { type: 'move', k, to: ow + '.dark' } },
-      { label: '⬆️ วางบนสุดของเด็ค', act: { type: 'move', k, to: ow + '.deck' } },
-      { label: '⬇️ วางล่างสุดของเด็ค', act: { type: 'move', k, to: ow + '.deck', pos: 'bottom' } },
-      ...(c.type === 'Magic' && c.subtype === 'Land'
-        ? [{ label: '🗻 วางช่อง Land (กลาง)', act: { type: 'move', k, to: 'land' } }]
-        : []),
-    ];
-    showMenu('ส่งไปที่อื่น…', entries, menuAnchor.x, menuAnchor.y);
-  }
   function openMenu(k, x, y) {
     const c = st.inst[k]; if (!c) return;
-    menuAnchor = { x, y };
     const owner0 = BoTEngine.ownerOf(st, k);
     const own = owner0 === 'S' ? my : owner0;
-    // เมนูสั้นที่สุด: แถวปุ่มไอคอนแถวเดียว + "ส่งไปที่อื่น…" (คำสั่งอื่นใช้ปุ่มลอยบนการ์ด/ดับเบิลคลิก/ลากเอา)
     const onField = ['.avatar', '.magic', '.construct'].some(z => (BoTEngine.zoneOf(st, k) || '').endsWith(z));
-    // มีความสามารถสั่งใช้ → แถวไอคอน ⚡ = สั่งใช้ (ไม่ใช่แค่ประกาศชี้เป้า)
     const kzMenu = BoTEngine.zoneOf(st, k) || '';
     const hasActivated = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code, c.name) || {}).abilities || [])
       .concat(c.granted || []).some(ab => {
@@ -4468,31 +4448,15 @@
         if ((on === 'activatedFromHell' || ab.fromHell) && kzMenu.endsWith('.hell')) return true;
         return false;
       }));
-    const quick = [
-      // ⚔️ โจมตี — เฉพาะการ์ดบนสนามที่ตื่นอยู่ (กดแล้วชี้เป้า → นอนให้เอง)
-      ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT
-        ? [{ icon: '⚔️', title: 'โจมตี → ชี้เป้า (นอนให้อัตโนมัติ)', fn: () => startAnnounce(k, 'attack') }] : []),
-      ...(hasActivated
-        ? [{ icon: '⚡', title: 'สั่งใช้ความสามารถ (คลิกขวาก็ได้)', act: { type: 'activateAbility', k, by: mode === 'solo' ? own : undefined } }]
-        : []),
-      { icon: c.tapped ? '☀️' : '😴', title: c.tapped ? 'ตื่น (Untap) — ดับเบิลคลิกการ์ดก็ได้' : 'นอน (Tap) — ดับเบิลคลิกการ์ดก็ได้', act: { type: 'toggleTap', k } },
-      { icon: '＋', title: 'POWER +1 (กดรัวได้)', act: { type: 'counter', k, d: 1 }, keep: true },
-      { icon: '－', title: 'POWER −1 (กดรัวได้)', act: { type: 'counter', k, d: -1 }, keep: true },
-      { icon: '✋', title: 'กลับขึ้นมือ — ลากไปแถวมือก็ได้', act: { type: 'move', k, to: own + '.hand' } },
-      { icon: '💀', title: 'ส่งลงนรก — ลากไปกองนรกก็ได้', act: { type: 'move', k, to: own + '.hell' } },
-    ];
-    if (!c.faceUp) quick.splice(1, 0, { icon: '👁', title: 'หงายการ์ด', act: { type: 'toggleFace', k } });
+    // เหลือเฉพาะสั่งใช้ + ความสามารถของการ์ด (สามัคคี / แทงหลัง / โล่มนุษย์ / สวมใส่ / คู่หู) — ไม่มีแมนนวล
     const entries = [
-      { row: quick },
-      // ประกาศใช้ (แจ้งอีกฝั่ง) — ไม่ใช้ไอคอน ⚡ (สงวนไว้เฉพาะสั่งใช้)
-      ...((onField || kzMenu === 'land') ? [{ label: '📣 ประกาศใช้ → ชี้เป้า (แจ้งอีกฝั่ง)', fn: () => startAnnounce(k) }] : []),
-      // 🤝 สามัคคี — เฉพาะการ์ดที่มี keyword (หรือลากทับผู้รับ / กดไอคอนตอนชี้เมาส์)
+      ...(hasActivated
+        ? [{ label: '⚡ สั่งใช้ความสามารถ', act: { type: 'activateAbility', k, by: mode === 'solo' ? own : undefined } }]
+        : []),
       ...(canUseUnity(k)
         ? [{ label: '🤝 สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)', fn: () => startAnnounce(k, 'unity') }] : []),
-      // 🗡️ แทงหลัง — นอนแล้วยก POWER+1 ให้ผู้โจมตี
       ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT && BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')
         ? [{ label: '🗡️ แทงหลัง — นอนแล้วเสริมผู้โจมตี…', fn: () => startAnnounce(k, 'backstab') }] : []),
-      // 🛡️ โล่มนุษย์ — ตอนถูกประกาศโจมตี
       ...((() => {
         const pnd = st.pending;
         const kz0 = BoTEngine.zoneOf(st, k) || '';
@@ -4505,51 +4469,35 @@
             || Object.values(st.inst).some(x => x.attachedTo === k && BoTEngine.keywordsOf(x.code).includes('โล่มนุษย์')));
         return hasShield ? [{ label: '🛡️ โล่มนุษย์ — รับการโจมตีแทน', act: { type: 'humanShield', k, by: side } }] : [];
       })()),
-      // 🔗 สวมใส่ — เฉพาะ Magic ชนิด Modification ที่อยู่ใน Magic Zone → เลือก Avatar
       ...(canAttachFromMagic(k)
         ? [{ label: '🔗 สวมใส่ → เลือก Avatar (หรือลากทับ)', fn: () => startAnnounce(k, 'attach') }] : []),
-      // 🤝 คู่หู — เฉพาะการ์ดที่มีข้อความ คู่หู/Link (จับได้เฉพาะชื่อคู่ที่ระบุ)
       ...((onField && (BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && hasBuddyAbility(c))
         ? [c.pairWith && st.inst[c.pairWith]
-          ? { label: `💔 เลิกคู่กับ "${st.inst[c.pairWith].name}"`, act: { type: 'pair', k, by: mode === 'solo' ? (own) : undefined } }
+          ? { label: `💔 เลิกคู่กับ "${st.inst[c.pairWith].name}"`, act: { type: 'pair', k, by: mode === 'solo' ? own : undefined } }
           : { label: `🤝 จับคู่หู${buddyPartnerName(c.effect) ? ' → ' + buddyPartnerName(c.effect) : ''}…`, fn: () => startAnnounce(k, 'pair') }]
         : []),
-      // 🎯 เลือกปฏิบัติ / ⚡ สั่งใช้ — กด ⚡ บนการ์ดแล้วขึ้นกล่องเลือกเทค
       ...((() => {
         const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
         const abs = (e && e.abilities) || [];
-        const out = [];
         const modes = abs.filter(ab => ab.trigger && ab.trigger.on === 'chooseMode' && ab.options && ab.options.length);
-        if (modes.length && !hasActivated) out.push({ label: '🎯 เลือกปฏิบัติ…', fn: () => openChoiceFromEffects(k, modes[0].options) });
-        return out;
+        return (modes.length && !hasActivated)
+          ? [{ label: '🎯 เลือกปฏิบัติ…', fn: () => openChoiceFromEffects(k, modes[0].options) }]
+          : [];
       })()),
-      { label: '📤 ส่งไปที่อื่น…', fn: () => openMoveMenu(k) },
     ];
-    Object.values(st.inst).filter(x => x.attachedTo === k).forEach(x =>
-      entries.push({ label: `✂️ ถอด "${x.name}" → นรก`, act: { type: 'detach', k: x.id } }));
-
-    // ── กลไกพิเศษตามบริบท ──
-    const kz = BoTEngine.zoneOf(st, k) || '';
-    const kOwner = BoTEngine.ownerOf(st, k);
-    const oth = p => (p === 'A' ? 'B' : 'A');
-    // ยึดการควบคุม — Avatar ฝั่งตรงข้ามเท่านั้น
-    if (kz.endsWith('.avatar') && kOwner !== 'S' && (mode === 'solo' ? kOwner !== my : (seat !== 'S' && kOwner !== seat)))
-      entries.push({ label: '⛓️ ยึดการควบคุม → ฝั่งเรา', act: { type: 'takeControl', k, by: oth(kOwner) } });
-    // อัญเชิญพิเศษ (ไม่จ่าย Cost) — Avatar/Construct จากมือ/นรก/มิติมืดฝั่งเรา
-    // เมฟิสโต้ (noPaidSummon) / แว่น (noHandSummon) ห้ามใช้ทางนี้จากมือ
     {
       const eMenu = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
-      const blockHandSpecial = kz.endsWith('.hand') && eMenu && (eMenu.noPaidSummon || eMenu.noHandSummon);
-      if (!blockHandSpecial && (c.type === 'Avatar' || c.type === 'Construct') &&
-        (kz.endsWith('.hand') || kz.endsWith('.hell') || kz.endsWith('.dark')) &&
-        (mode === 'solo' || (seat !== 'S' && kz[0] === seat))) {
-        const destZone = kz[0] + (c.type === 'Construct' ? '.construct' : '.avatar');
-        const giftFree = kz.endsWith('.hand') && BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, k);
-        const label = giftFree
-          ? '✨ อัญเชิญฟรี (เงื่อนไขการ์ด) → สนาม'
-          : '✨ อัญเชิญพิเศษ (ไม่จ่าย Cost) → สนาม';
-        entries.unshift({ label, act: { type: 'summon', k, to: destZone, free: true, by: kz[0] } });
+      const blockHandSpecial = kzMenu.endsWith('.hand') && eMenu && (eMenu.noPaidSummon || eMenu.noHandSummon);
+      const giftFree = kzMenu.endsWith('.hand') && BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, k);
+      if (giftFree && !blockHandSpecial && (c.type === 'Avatar' || c.type === 'Construct') &&
+        (mode === 'solo' || (seat !== 'S' && kzMenu[0] === seat))) {
+        const destZone = kzMenu[0] + (c.type === 'Construct' ? '.construct' : '.avatar');
+        entries.unshift({ label: '✨ อัญเชิญฟรี (เงื่อนไขการ์ด) → สนาม', act: { type: 'summon', k, to: destZone, free: true, by: kzMenu[0] } });
       }
+    }
+    if (!entries.length) {
+      toast('ใบนี้ไม่มีคำสั่งใช้ — ลากเพื่ออัญเชิญ / โจมตี / ย้ายโซน', 2800);
+      return;
     }
     showMenu(canPeek(k) ? c.name : 'การ์ดคว่ำ', entries, x, y);
   }
@@ -5186,17 +5134,15 @@
     }
   }, { passive: true });
 
-  // ⚡➕➖ ปุ่มลัดบนการ์ด (โผล่ตอนชี้เมาส์) — กดรัวได้ ไม่ต้องเปิดเมนู
+  // ปุ่มลัดบนการ์ด (โผล่ตอนชี้เมาส์) — สามัคคี / สวมใส่ / สั่งใช้
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-qa]'); if (!b || !st) return;
     e.preventDefault(); e.stopPropagation();
     const k = b.dataset.k; if (!st.inst[k]) return;
-    if (b.dataset.qa === 'atk') startAnnounce(k, 'attack');
-    else if (b.dataset.qa === 'unity') startAnnounce(k, 'unity');
+    if (b.dataset.qa === 'unity') startAnnounce(k, 'unity');
     else if (b.dataset.qa === 'attach') startAnnounce(k, 'attach');
     else if (b.dataset.qa === 'ann') startAnnounce(k);
     else if (b.dataset.qa === 'act') tryActivateAbility(k);
-    else sendAction({ type: 'counter', k, d: b.dataset.qa === 'inc' ? 1 : -1 });
   }, true);
 
   // คลิกขวา = สั่งใช้ความสามารถ (มี activated ตามโซน) · ไม่มี → เปิดเมนูคำสั่ง
@@ -5459,21 +5405,20 @@
       if (canSel) { if (selMap[d.k]) delete selMap[d.k]; else selMap[d.k] = true; render(); }
       return;
     }
-    // การ์ดบนสนามฝั่งเรา (หรือ Land ร่วม) — คลิกเดี่ยว = เปิดเมนูปุ่มลัด · ดับเบิลคลิก = นอน/ตื่น
+    // การ์ดบนสนามฝั่งเรา (หรือ Land ร่วม) — คลิกเดี่ยว = เมนูสั่งใช้ · ดับเบิลคลิก = สั่งใช้
     const fSide = BoTEngine.ownerOf(st, d.k);
     const isField = z.endsWith('.avatar') || z.endsWith('.magic') || z.endsWith('.construct') || z === 'land';
     if (isField && (mode === 'solo' || fSide === my || fSide === 'S')) {
-      if (dbl) { lastClick = { k: null, t: 0 }; closeMenu(); sendAction({ type: 'toggleTap', k: d.k }); return; }
+      if (dbl) { lastClick = { k: null, t: 0 }; closeMenu(); tryActivateAbility(d.k); return; }
       const cEl = document.querySelector(`[data-cid="${d.k}"]`);
       if (cEl) { const r = cEl.getBoundingClientRect(); openMenu(d.k, r.left + r.width / 2, r.top + r.height * 0.45); }
       return;
     }
-    if (dbl) { lastClick = { k: null, t: 0 }; sendAction({ type: 'toggleTap', k: d.k }); }
   });
 
   byId('ctxMenu').addEventListener('click', e => {
     const ico = e.target.closest('.ctx-ico');
-    if (ico) { // แถวปุ่มไอคอน — ปุ่มที่ตั้ง keep ไว้ (POWER ±) กดรัวได้ ไม่ปิดเมนู
+    if (ico) {
       const it = byId('ctxMenu')._entries[+ico.dataset.i];
       const r = it && it.row && it.row[+ico.dataset.j]; if (!r) return;
       if (!r.keep) closeMenu();
