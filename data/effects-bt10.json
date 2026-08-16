@@ -783,7 +783,6 @@
               },
               "dest": "magic",
               "shuffleAfter": true,
-              "autoPickThenName": true,
               "thenIfExactName": "ต้นมะม่วง",
               "thenIfFound": [
                 {
@@ -796,8 +795,7 @@
                     "symbol": "ต้นไม้"
                   },
                   "dest": "magic",
-                  "shuffleAfterIfFromDeck": true,
-                  "autoPickOnly": true
+                  "shuffleAfterIfFromDeck": true
                 }
               ]
             }

@@ -90,14 +90,12 @@ const BY_SET = {
             filter: mangoTreeNotOnly,
             dest: 'magic',
             shuffleAfter: true,
-            autoPickThenName: true,
             thenIfExactName: 'ต้นมะม่วง',
             thenIfFound: [{
               op: 'deckOrHellPick',
               filter: mangoTree,
               dest: 'magic',
-              shuffleAfterIfFromDeck: true,
-              autoPickOnly: true
+              shuffleAfterIfFromDeck: true
             }]
           }]
         },

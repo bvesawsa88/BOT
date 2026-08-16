@@ -1,4 +1,4 @@
-/* focused: BT10-040 ผู้คุมกฎแห่งภาคีมะม่วง — หยิบต้นมะม่วงก่อน แล้วค่อย Only #1 */
+/* focused: BT10-040 ผู้คุมกฎ — ใบแรกห้าม Only · ได้ต้นมะม่วงแล้วค่อยค้นเด็ค/นรก */
 const fs = require('fs');
 const path = require('path');
 const BoT = require('../js/engine.js');
@@ -41,9 +41,6 @@ function put(st, zone, code, extra) {
 }
 function fail(msg) { console.error('FAIL', msg); process.exit(1); }
 function ok(cond, msg) { if (!cond) fail(msg); console.log('ok', msg); }
-function namesIn(st, zone) {
-  return (st.zones[zone] || []).map(id => (st.inst[id] && st.inst[id].name) || id);
-}
 function drainReact(st, seed) {
   let n = 0;
   while ((st.prompts || [])[0] && st.prompts[0].kind === 'react' && n++ < 12) {
@@ -51,6 +48,12 @@ function drainReact(st, seed) {
     const fx = BoT.applyAction(st, { type: 'reactNo', by: chooser, seed: (seed || 1) + n });
     if (fx.deny) fail('reactNo deny: ' + fx.deny);
   }
+}
+function pickPrompt(st) {
+  return (st.prompts || []).find(p => p.kind === 'pick') || (st.prompts || [])[0] || null;
+}
+function candNames(st, p) {
+  return BoT.promptCandidates(st, p).map(id => (st.inst[id] && st.inst[id].name) || id);
 }
 function summonWarden(st, seed) {
   const warden = put(st, 'A.hand', 'BT10-040');
@@ -68,41 +71,47 @@ function summonWarden(st, seed) {
   const pick = ((ab && ab.actions) || []).find(a => a.op === 'deckPick');
   ok(!!pick, 'warden has deckPick juti');
   ok(!!(pick.filter && pick.filter.excludeOnly), 'first pick excludes Only');
-  ok(pick.thenIfExactName === 'ต้นมะม่วง', 'second pick only after ต้นมะม่วง');
-  ok(!!pick.autoPickThenName, 'auto-picks ต้นมะม่วง when in deck');
+  ok(!pick.autoPickThenName, 'does not auto-pick ต้นมะม่วง');
+  ok(pick.thenIfExactName === 'ต้นมะม่วง', 'second search only after ต้นมะม่วง');
   const then = (pick.thenIfFound || [])[0];
-  ok(then && then.op === 'deckOrHellPick' && then.autoPickOnly, 'then auto-picks Only #1');
+  ok(then && then.op === 'deckOrHellPick' && !then.autoPickOnly, 'then search deck or hell, no auto Only');
 }
 
-/* มีต้นมะม่วง + มาโกะ + ดยุก → หยิบต้นมะม่วงแล้ว Only อัตโนมัติ ไม่โผล่ Only ในใบแรก */
+/* ใบแรก: เลือกเอง ห้ามมาโกะ · หยิบต้นแล้วเปิดเด็ค/นรก (รวม Only) */
 {
   const st = emptyState();
   const tree = put(st, 'A.deck', 'BT02-036');
   const mako = put(st, 'A.deck', 'BT10-039');
   const duke = put(st, 'A.deck', 'BT11-046');
   summonWarden(st, 11);
-  const magic = namesIn(st, 'A.magic');
-  ok(magic.includes('ต้นมะม่วง'), 'first search took ต้นมะม่วง: ' + magic.join(', '));
-  ok(magic.includes('มาโกะ มารดาแห่งภาคีมะม่วง'), 'then took Only #1: ' + magic.join(', '));
-  ok(!magic.includes('ดยุกแห่งภาคีมะม่วง'), 'did not take duke instead of Only');
-  ok(!(st.prompts || []).some(p => p.kind === 'pick'), 'no leftover pick prompt');
-  ok(BoT.zoneOf(st, tree) === 'A.magic', 'tree on magic');
-  ok(BoT.zoneOf(st, mako) === 'A.magic', 'mako on magic');
-  ok(BoT.zoneOf(st, duke) === 'A.deck', 'duke stayed in deck');
+  const p1 = pickPrompt(st);
+  ok(p1 && p1.from === 'deckAll', 'first overlay searches deck');
+  const n1 = candNames(st, p1);
+  ok(n1.includes('ต้นมะม่วง'), 'first pick can take ต้นมะม่วง');
+  ok(n1.includes('ดยุกแห่งภาคีมะม่วง'), 'first pick can take other non-Only mango');
+  ok(!n1.includes('มาโกะ มารดาแห่งภาคีมะม่วง'), 'first pick hides Only: ' + n1.join(', '));
+  let fx = BoT.applyAction(st, { type: 'chooseTarget', k: tree, by: 'A', seed: 12 });
+  if (fx.deny) fail('pick tree deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, tree) === 'A.magic', 'tree on magic after first pick');
+  const p2 = pickPrompt(st);
+  ok(p2 && p2.from === 'deckOrHell', 'after tree, search deck or hell');
+  const n2 = candNames(st, p2);
+  ok(n2.includes('มาโกะ มารดาแห่งภาคีมะม่วง'), 'second pick can take Only: ' + n2.join(', '));
+  ok(n2.includes('ดยุกแห่งภาคีมะม่วง'), 'second pick can take other mango');
+  fx = BoT.applyAction(st, { type: 'chooseTarget', k: mako, by: 'A', seed: 13 });
+  if (fx.deny) fail('pick mako deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, mako) === 'A.magic', 'Only from deck after tree');
+  ok(BoT.zoneOf(st, duke) === 'A.deck', 'duke left in deck');
 }
 
-/* ไม่มีต้นมะม่วง → ใบแรกห้าม Only · หยิบดยุกแล้วไม่เปิดหยิบ Only */
+/* หยิบดยุกใบแรก → ไม่เปิดรอบสอง ไม่ได้มาโกะ */
 {
   const st = emptyState();
   const mako = put(st, 'A.deck', 'BT10-039');
   const duke = put(st, 'A.deck', 'BT11-046');
   summonWarden(st, 21);
-  const p = (st.prompts || [])[0];
-  ok(p && p.kind === 'pick' && p.from === 'deckAll', 'asks first mango (not Only)');
-  const cands = BoT.promptCandidates(st, p);
-  const candNames = cands.map(id => st.inst[id].name);
-  ok(candNames.includes('ดยุกแห่งภาคีมะม่วง'), 'first pick has non-Only mango');
-  ok(!candNames.includes('มาโกะ มารดาแห่งภาคีมะม่วง'), 'first pick hides Only #1: ' + candNames.join(', '));
+  const p1 = pickPrompt(st);
+  ok(!candNames(st, p1).includes('มาโกะ มารดาแห่งภาคีมะม่วง'), 'no Only on first pick');
   const fx = BoT.applyAction(st, { type: 'chooseTarget', k: duke, by: 'A', seed: 22 });
   if (fx.deny) fail('pick duke deny: ' + fx.deny);
   ok(!(st.prompts || []).some(x => x.kind === 'pick'), 'no second pick without ต้นมะม่วง');
@@ -110,14 +119,20 @@ function summonWarden(st, seed) {
   ok(BoT.zoneOf(st, mako) === 'A.deck', 'Only stayed in deck');
 }
 
-/* ต้นมะม่วงในเด็ค มาโกะในนรก → หยิบต้นแล้วหยิบ Only จากนรก */
+/* ต้นมะม่วงจากเด็ค แล้วหยิบมาโกะจากนรก */
 {
   const st = emptyState();
-  put(st, 'A.deck', 'BT02-036');
+  const tree = put(st, 'A.deck', 'BT02-036');
   const mako = put(st, 'A.hell', 'BT10-039');
   summonWarden(st, 31);
-  ok(namesIn(st, 'A.magic').includes('ต้นมะม่วง'), 'tree from deck');
-  ok(BoT.zoneOf(st, mako) === 'A.magic', 'Only #1 from hell after tree');
+  let fx = BoT.applyAction(st, { type: 'chooseTarget', k: tree, by: 'A', seed: 32 });
+  if (fx.deny) fail('pick tree deny: ' + fx.deny);
+  const p2 = pickPrompt(st);
+  ok(p2 && p2.from === 'deckOrHell', 'second search includes hell');
+  ok(BoT.promptCandidates(st, p2).includes(mako), 'Only in hell is a candidate');
+  fx = BoT.applyAction(st, { type: 'chooseTarget', k: mako, by: 'A', seed: 33 });
+  if (fx.deny) fail('pick mako from hell deny: ' + fx.deny);
+  ok(BoT.zoneOf(st, mako) === 'A.magic', 'Only from hell after tree');
 }
 
 console.log('all ok');
