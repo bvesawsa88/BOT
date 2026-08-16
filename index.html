@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0f0f11">
+<meta name="theme-color" content="#2a1810">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,9 +12,16 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260816a">
+<link rel="stylesheet" href="css/style.css?v=20260816g">
 </head>
 <body>
+<button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
+  <span class="hole-back-dot" aria-hidden="true"></span>
+</button>
+<button type="button" id="btnHome" class="home-btn hidden" title="เมนูหลัก">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4.2l8 7V20h-5.2v-5.4H9.2V20H4z" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  หน้าหลัก
+</button>
 
 <!-- ═══ เมนูหลัก ═══ -->
 <div id="menu" class="screen">
@@ -25,10 +32,8 @@
   <div class="float-card f1"><img src="https://cdn.bangbon.app/cards/SD01-001.png" alt=""></div>
   <div class="float-card f2"><img src="https://cdn.bangbon.app/cards/SD01-015.png" alt=""></div>
   <div class="float-card f3"><img src="https://cdn.bangbon.app/cards/SD01-004.png" alt=""></div>
-  <div class="menu-tag">การ์ดเกมสุดมันจากตลิ่งชัน — ฉบับออนไลน์</div>
   <img id="menuLogo" class="menu-logo" src="https://cdn.bangbon.app/assets/bottcg/logo_full_white.png" alt="Battle of Talingchan">
   <div id="menuTitleFallback" class="menu-title" style="display:none">BATTLE OF<br>TALINGCHAN</div>
-  <div class="menu-sub">Table Simulator · เฟส A (กฎไม่บังคับ — เล่นกับเพื่อนแบบโต๊ะจริง)</div>
 
   <!-- เมนูหลัก: เลือกหน้า — โหมดเล่นอยู่ในเมนูย่อยแยก -->
   <div id="menuHome" class="menu-btns">
@@ -50,7 +55,6 @@
       <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
       <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
       <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
-      <button id="mnuPlayBack" class="link-btn menu-back">← กลับเมนูหลัก</button>
     </div>
 
     <!-- เล่นกับบอท: เลือกเด็คคุณ vs บอท + ระดับความยาก -->
@@ -76,7 +80,6 @@
       <button type="button" id="btnBotPickDeck" class="link-btn">ใช้เด็คที่บอทเล่นเก่งสุด →</button>
       <div data-skin-mount></div>
       <button id="btnBotStart" class="btn-primary big">เริ่มเล่นกับบอท</button>
-      <button id="mnuBotBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
 
     <!-- ซ้อมคนเดียว: เลือกเด็ค A vs B แล้วเริ่ม -->
@@ -95,7 +98,6 @@
       </div>
       <div data-skin-mount></div>
       <button id="btnSoloStart" class="btn-primary big">เริ่มซ้อม</button>
-      <button id="mnuSoloBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
 
     <!-- การ์ดจริง: เลือกเด็คตัวเองแล้วเริ่ม -->
@@ -107,7 +109,6 @@
       </select>
       <div data-skin-mount></div>
       <button id="btnRealStart" class="btn-primary big">เริ่มโหมดการ์ดจริง</button>
-      <button id="mnuRealBack" class="link-btn menu-back">← กลับเลือกโหมด</button>
     </div>
   </div>
 
@@ -1007,6 +1008,13 @@
 </div>
 
 <!-- overlay ต่างๆ -->
+<div id="bookFlip" class="hidden" aria-hidden="true">
+  <div class="bf-under"></div>
+  <div class="bf-stage">
+    <div class="bf-face bf-recto"><div class="bf-shot"></div></div>
+    <div class="bf-face bf-verso"></div>
+  </div>
+</div>
 <div id="ctxMenu" class="hidden"></div>
 <div id="clash" class="hidden"></div>
 <div id="vfxLayer" aria-hidden="true"></div>
@@ -1031,7 +1039,7 @@
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260816a"></script>
+<script src="js/game.js?v=20260816f"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

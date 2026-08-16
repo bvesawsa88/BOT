@@ -1,5 +1,5 @@
 /* ── Deck Builder / Gallery ── */
-.screen-page{position:fixed;inset:0;display:flex;flex-direction:column;background:#1e1610}
+.screen-page{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--wood-bg);background-size:420px 420px}
 .db-top{height:42px;flex:none;display:flex;align-items:center;gap:12px;padding:0 14px;background:var(--panel);border-bottom:2px solid var(--red)}
 .db-main{flex:1;display:flex;min-height:0}
 .db-side{flex:none;background:var(--panel);border-bottom:1.5px solid var(--border);padding:8px 14px 10px;display:flex;flex-direction:column;gap:7px}
@@ -134,7 +134,7 @@
 .dc-note{font-size:12px;color:var(--gold);min-height:15px}
 #choiceModal{position:fixed;inset:0;background:rgba(10,10,12,.85);display:flex;align-items:center;justify-content:center;z-index:495;padding:16px}
 #authModal{position:fixed;inset:0;background:rgba(10,10,12,.85);display:flex;align-items:center;justify-content:center;z-index:496;padding:16px}
-#userBar{position:absolute;top:14px;right:16px;z-index:5;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--cream2)}
+#userBar{position:absolute;top:16px;right:max(18px,calc(50% - 250px + 18px));z-index:5;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
 #userBar .btn-ghost{padding:6px 14px}
 .auth-tabs{display:flex;margin-bottom:12px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
 .auth-tab{flex:1;padding:9px;background:var(--panel);color:var(--dim);border:none;font-weight:600;font-size:13px;font-family:'IBM Plex Sans Thai',sans-serif}

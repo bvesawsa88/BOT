@@ -578,8 +578,96 @@
   /* ── สลับจอ ── */
   const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'decks', 'deckbuilder', 'gallery', 'howto'];
   const SS_UI = 'bot_ui_v1';
+  const SCREEN_DEPTH = {
+    menu: 0, lanHall: 1, lobby: 1, decks: 1, gallery: 1, howto: 1,
+    room: 2, deckbuilder: 2, table: 3
+  };
   let curScreen = 'menu';
   let persistT = null;
+  let flipping = false;
+  let flipPending = null;
+
+  function reduceMotion() {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+    catch (e) { return false; }
+  }
+
+  function currentNotebookEl() {
+    if (curScreen === 'table') return byId('table');
+    return byId(curScreen) || byId('menu');
+  }
+
+  function fillFlipShot(fromEl) {
+    const shot = document.querySelector('#bookFlip .bf-shot');
+    if (!shot) return;
+    shot.innerHTML = '';
+    if (!fromEl) return;
+    const inner = document.createElement('div');
+    inner.className = 'bf-shot-inner';
+    [...fromEl.children].forEach(node => {
+      if (node.classList && node.classList.contains('float-card')) return;
+      inner.appendChild(node.cloneNode(true));
+    });
+    inner.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    inner.querySelectorAll('button,input,select,textarea,a').forEach(n => {
+      n.setAttribute('tabindex', '-1');
+      n.disabled = true;
+    });
+    shot.appendChild(inner);
+  }
+
+  function bookFlip(back, midFn) {
+    const ov = byId('bookFlip');
+    if (!ov || reduceMotion()) {
+      if (midFn) midFn();
+      return;
+    }
+    if (flipping) {
+      if (midFn) midFn();
+      return;
+    }
+    flipping = true;
+    fillFlipShot(currentNotebookEl());
+    const stage = ov.querySelector('.bf-stage');
+    ov.classList.remove('hidden', 'play', 'back', 'fwd', 'out');
+    ov.classList.add(back ? 'back' : 'fwd');
+    ov.setAttribute('aria-hidden', 'false');
+    try { snd('flip'); } catch (e) { }
+    requestAnimationFrame(() => { requestAnimationFrame(() => ov.classList.add('play')); });
+    let midDone = false;
+    const mid = () => {
+      if (midDone) return;
+      midDone = true;
+      try { if (midFn) midFn(); } catch (e) { }
+    };
+    const tMid = setTimeout(mid, 320);
+    const finish = () => {
+      clearTimeout(tMid);
+      mid();
+      ov.classList.add('out');
+      setTimeout(() => {
+        ov.classList.add('hidden');
+        ov.classList.remove('play', 'back', 'fwd', 'out');
+        ov.setAttribute('aria-hidden', 'true');
+        const shot = ov.querySelector('.bf-shot');
+        if (shot) shot.innerHTML = '';
+        flipping = false;
+        if (flipPending) {
+          const n = flipPending;
+          flipPending = null;
+          showScreen(n);
+        }
+      }, 160);
+    };
+    const tEnd = setTimeout(finish, 920);
+    const onEnd = (e) => {
+      if (e && stage && e.target !== stage) return;
+      if (stage) stage.removeEventListener('transitionend', onEnd);
+      clearTimeout(tEnd);
+      finish();
+    };
+    if (stage) stage.addEventListener('transitionend', onEnd);
+  }
 
   function persistUI(force) {
     if (STREAM) return;
@@ -631,7 +719,7 @@
     } catch (e) { }
   }
 
-  function showScreen(name) {
+  function applyScreen(name) {
     curScreen = name;
     SCREENS.forEach(s => byId(s).classList.toggle('hidden', s !== name));
     byId('table').classList.toggle('hidden', name !== 'table');
@@ -641,10 +729,25 @@
       pileView = null; byId('pileView').classList.add('hidden');
     }
     if (name === 'menu') {
-      try { showMenuHome(); } catch (e) { }
+      try { showMenuHome(true); } catch (e) { }
     }
     syncUrlForScreen(name);
     persistUI(true);
+    syncHomeBtn();
+  }
+
+  function showScreen(name, instant) {
+    const from = curScreen;
+    if (instant || reduceMotion() || name === from) {
+      applyScreen(name);
+      return;
+    }
+    if (flipping) {
+      flipPending = name;
+      return;
+    }
+    const back = (SCREEN_DEPTH[name] || 0) < (SCREEN_DEPTH[from] || 0);
+    bookFlip(back, () => applyScreen(name));
   }
   window.BOT = { showScreen, _st: () => st, _seat: () => seat, _mode: () => mode }; // showScreen ให้ deck-builder/gallery · debug helpers
 
@@ -1035,7 +1138,6 @@
       openLanHall();
     } else {
       stopPresence();
-      showMenuHome();
       showScreen('menu');
     }
   }
@@ -1611,14 +1713,14 @@
       setLanHallStatus('เชื่อมล็อบบี้ไม่ได้ — ต้องรัน node server.js (ไม่ใช่แค่ Apache/XAMPP)', 'err');
     };
   }
-  function openLanHall() {
+  function openLanHall(instant) {
     presenceWanted = true;
     try {
       const nickEl = byId('inpLanNick');
       if (nickEl && !nickEl.value) nickEl.value = localStorage.getItem('bot_nick') || '';
     } catch (e) { }
     ensurePlayReady().then(() => fillLanDeckSelects()).catch(() => fillLanDeckSelects());
-    showScreen('lanHall');
+    showScreen('lanHall', instant);
     connectPresence();
     renderLanPeerList();
   }
@@ -3263,12 +3365,12 @@
   }
 
   /* ── เริ่มโต๊ะ ── */
-  function startTable() {
+  function startTable(instant) {
     // 📺 บานสนาม: ฝั่ง "ของเรา" มาจากที่นั่งของหน้าต่างหลัก (ไม่ใช่ A ตายตัว) เพื่อโชว์บอร์ดฝั่งถูก
     my = STREAM ? streamSide : (seat === 'S' ? 'A' : seat); opp = my === 'A' ? 'B' : 'A';
     // ★ ผู้ชม: ใส่คลาสให้ CSS ทำสองฝั่งเท่ากัน (ไม่มีฝั่งไหนเป็น "ของเรา")
     byId('table').classList.toggle('spectate', mode === 'online' && seat === 'S');
-    showScreen('table');
+    showScreen('table', instant);
     byId('endOv').classList.add('hidden');
     battleIntroPlaying = false;
     battleIntroKey = '';
@@ -5632,7 +5734,7 @@
       if (!confirm(msg)) return;
     }
     if (mode === 'online') leaveOnline();
-    else { mode = null; st = null; realMode = false; soloBot = false; clearPersistedTable(); showMenuHome(); showScreen('menu'); }
+    else { mode = null; st = null; realMode = false; soloBot = false; clearPersistedTable(); showScreen('menu'); }
   }
   function syncTableNav() {
     const homeTitle = mode === 'online' ? 'ออกจากห้องกลับเมนูหลัก' : 'กลับเมนูหลัก';
@@ -5823,28 +5925,97 @@
     closeChoicePopup(true);
   };
 
-  function showMenuHome() {
-    byId('menuHome').classList.remove('hidden');
-    byId('menuPlay').classList.add('hidden');
+  function syncHomeBtn() {
+    const home = byId('btnHome');
+    const back = byId('btnBack');
+    const play = byId('menuPlay');
+    const onNotebook = curScreen === 'menu' || curScreen === 'lobby' || curScreen === 'lanHall' || curScreen === 'room';
+    const onMenuHome = curScreen === 'menu' && (!play || play.classList.contains('hidden'));
+    const showChrome = onNotebook && !onMenuHome;
+    if (home) home.classList.toggle('hidden', !showChrome);
+    if (back) back.classList.toggle('hidden', !showChrome);
+    document.body.classList.toggle('has-back', showChrome);
   }
-  function showMenuPlayModes() {
+  function goHomeNotebook() {
+    if (curScreen === 'table') { goHomeFromTable(); return; }
+    if (curScreen === 'room') { leaveOnline(); return; }
+    try { stopPresence(); } catch (e) { }
+    showScreen('menu');
+  }
+  function goBackNotebook() {
+    if (curScreen === 'menu') {
+      const bot = byId('menuBotSetup');
+      const solo = byId('menuSoloSetup');
+      const real = byId('menuRealSetup');
+      if ((bot && !bot.classList.contains('hidden')) ||
+          (solo && !solo.classList.contains('hidden')) ||
+          (real && !real.classList.contains('hidden'))) {
+        showMenuPlayModes();
+        return;
+      }
+      showMenuHome();
+      return;
+    }
+    if (curScreen === 'room') { leaveOnline(); return; }
+    if (curScreen === 'lobby' || curScreen === 'lanHall') {
+      try { stopPresence(); } catch (e) { }
+      showScreen('menu');
+      return;
+    }
+    if (curScreen === 'deckbuilder') {
+      showScreen('decks');
+      try { if (window.openDeckList) window.openDeckList(); } catch (e) { }
+      return;
+    }
+    if (curScreen === 'table') { goHomeFromTable(); return; }
+    showScreen('menu');
+  }
+
+  function showMenuHome(instant) {
+    const apply = () => {
+      byId('menuHome').classList.remove('hidden');
+      byId('menuPlay').classList.add('hidden');
+      syncHomeBtn();
+    };
+    const play = byId('menuPlay');
+    if (instant || reduceMotion() || !play || play.classList.contains('hidden')) {
+      apply();
+      return;
+    }
+    if (flipping) { apply(); return; }
+    bookFlip(true, apply);
+  }
+  function showMenuPlayModes(instant) {
+    const apply = () => {
+      const modes = byId('menuPlayModes');
+      const solo = byId('menuSoloSetup');
+      const bot = byId('menuBotSetup');
+      const real = byId('menuRealSetup');
+      if (modes) modes.classList.remove('hidden');
+      if (solo) solo.classList.add('hidden');
+      if (bot) bot.classList.add('hidden');
+      if (real) real.classList.add('hidden');
+      syncHomeBtn();
+    };
     const modes = byId('menuPlayModes');
-    const solo = byId('menuSoloSetup');
-    const bot = byId('menuBotSetup');
-    const real = byId('menuRealSetup');
-    if (modes) modes.classList.remove('hidden');
-    if (solo) solo.classList.add('hidden');
-    if (bot) bot.classList.add('hidden');
-    if (real) real.classList.add('hidden');
+    const already = modes && !modes.classList.contains('hidden');
+    if (instant || already || reduceMotion() || flipping) { apply(); return; }
+    bookFlip(true, apply);
   }
   function showMenuPlay() {
-    byId('menuHome').classList.add('hidden');
-    byId('menuPlay').classList.remove('hidden');
-    showMenuPlayModes();
-    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
+    const apply = () => {
+      byId('menuHome').classList.add('hidden');
+      byId('menuPlay').classList.remove('hidden');
+      showMenuPlayModes(true);
+      syncHomeBtn();
+      ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
+    };
+    if (reduceMotion() || flipping) apply();
+    else bookFlip(false, apply);
   }
   byId('mnuPlay').onclick = () => showMenuPlay();
-  byId('mnuPlayBack').onclick = () => showMenuHome();
+  byId('btnHome').onclick = goHomeNotebook;
+  byId('btnBack').onclick = goBackNotebook;
   // โหมดออนไลน์ — ปุ่มถูกคอมเมนต์ใน HTML ไว้ก่อน (อย่าลบ handler)
   const mnuOnline = byId('mnuOnline');
   if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
@@ -5855,7 +6026,6 @@
   };
   byId('btnLanHallBack').onclick = () => {
     stopPresence();
-    showMenuHome();
     showScreen('menu');
   };
   byId('btnLanByCode').onclick = () => {
@@ -5914,7 +6084,7 @@
   byId('mnuHowTo').onclick = () => {
     ensureHowto().then(() => { showScreen('howto'); byId('howto').scrollTop = 0; });
   };
-  byId('hwBack').onclick = () => { showMenuHome(); showScreen('menu'); };
+  byId('hwBack').onclick = () => showScreen('menu');
   // บนโต๊ะเปิดคู่มือเป็นแท็บใหม่ จะได้ไม่ทิ้งเกมที่เล่นค้างอยู่
   byId('btnHowToTop').onclick = () => window.open(location.pathname + '#howto', '_blank');
   function activeDeckSpec() { // เด็คหลักที่เซฟไว้ / starter ที่เลือก
@@ -5974,14 +6144,19 @@
       startTable();
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   }
-  byId('mnuBot').onclick = () => {
-    byId('menuPlayModes').classList.add('hidden');
-    byId('menuBotSetup').classList.remove('hidden');
-    byId('menuSoloSetup').classList.add('hidden');
-    byId('menuRealSetup').classList.add('hidden');
-    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
-  };
-  byId('mnuBotBack').onclick = () => showMenuPlayModes();
+  function openPlaySetup(which) {
+    const apply = () => {
+      byId('menuPlayModes').classList.add('hidden');
+      byId('menuBotSetup').classList.toggle('hidden', which !== 'bot');
+      byId('menuSoloSetup').classList.toggle('hidden', which !== 'solo');
+      byId('menuRealSetup').classList.toggle('hidden', which !== 'real');
+      syncHomeBtn();
+      ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
+    };
+    if (reduceMotion() || flipping) apply();
+    else bookFlip(false, apply);
+  }
+  byId('mnuBot').onclick = () => openPlaySetup('bot');
   byId('btnBotStart').onclick = () => startBotMatch();
   const btnBotPick = byId('btnBotPickDeck');
   if (btnBotPick) btnBotPick.onclick = () => applyBestBotDeck();
@@ -5996,15 +6171,7 @@
       }
     }
   };
-  byId('mnuSolo').onclick = () => {
-    // ซ้อมคนเดียว → ค่อยโชว์เลือกเด็ค A vs B
-    byId('menuPlayModes').classList.add('hidden');
-    byId('menuSoloSetup').classList.remove('hidden');
-    byId('menuBotSetup').classList.add('hidden');
-    byId('menuRealSetup').classList.add('hidden');
-    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
-  };
-  byId('mnuSoloBack').onclick = () => showMenuPlayModes();
+  byId('mnuSolo').onclick = () => openPlaySetup('solo');
   byId('btnSoloStart').onclick = () => startSoloMatch();
   /* 🎴 เล่นกับคนที่ใช้การ์ดจริง — ใช้เอนจินเดียวกับซ้อมมือ (ไม่มีกติกาใหม่)
      ต่างกันแค่ preset: สนามฝั่งเดียวเปิดให้เลย + บอกวิธีแชร์จอ เพื่อไม่ต้องมานั่งกดปุ่มเอง */
@@ -6021,18 +6188,10 @@
       toast(`🎴 โหมดการ์ดจริง · ใช้เด็ค "${act.name}" — กด 📺 บานสนาม แล้วแชร์เฉพาะหน้าต่างนั้นใน Discord`, 11000);
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   }
-  byId('mnuReal').onclick = () => {
-    byId('menuPlayModes').classList.add('hidden');
-    byId('menuSoloSetup').classList.add('hidden');
-    byId('menuBotSetup').classList.add('hidden');
-    byId('menuRealSetup').classList.remove('hidden');
-    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
-  };
-  byId('mnuRealBack').onclick = () => showMenuPlayModes();
+  byId('mnuReal').onclick = () => openPlaySetup('real');
   byId('btnRealStart').onclick = () => startRealMatch();
   byId('btnLobbyBack').onclick = () => {
     stopPresence();
-    showMenuHome();
     showScreen('menu');
   };
   byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; connect(() => wsSend({ t: 'create', nick: myNick(), uid: myUid() })); };
@@ -6258,7 +6417,7 @@
 
   // เปิดหน้าคู่มือตรงจากลิงก์ — ต้องอยู่ก่อน auto-join เพราะ ?room= จะพาไปล็อบบี้แทน
   if (location.hash === '#howto' || new URLSearchParams(location.search).get('howto') === '1') {
-    ensureHowto().then(() => showScreen('howto'));
+    ensureHowto().then(() => showScreen('howto', true));
   }
 
   function restoreSoloTable(data) {
@@ -6272,9 +6431,9 @@
       if (soloBot && st) st.skipLethalPlead = true;
       gameStart = data.gameStart || Date.now();
       selMap = {};
-      startTable();
+      startTable(true);
       toast(soloBot ? '🤖 กู้โต๊ะเล่นกับบอทต่อจากก่อนรีเฟรช' : (realMode ? '🎴 กู้โต๊ะโหมดการ์ดจริงต่อจากก่อนรีเฟรช' : 'กู้โต๊ะซ้อมต่อจากก่อนรีเฟรช'), 2800);
-    }).catch(() => { clearPersistedTable(); showScreen('menu'); });
+    }).catch(() => { clearPersistedTable(); showScreen('menu', true); });
   }
 
   /* ── กู้หน้าจอ/โต๊ะหลังรีเฟรช (sessionStorage) ── */
@@ -6289,16 +6448,16 @@
     }
     const hash = (location.hash || '').replace(/^#/, '');
     if (['decks', 'deckbuilder', 'gallery', 'howto', 'lobby', 'lanHall'].includes(hash)) {
-      if (hash === 'howto') ensureHowto().then(() => showScreen('howto'));
-      else if (hash === 'lanHall') openLanHall();
+      if (hash === 'howto') ensureHowto().then(() => showScreen('howto', true));
+      else if (hash === 'lanHall') openLanHall(true);
       else if (hash === 'decks' || hash === 'deckbuilder' || hash === 'gallery') {
         ensureTools().then(() => {
-          showScreen(hash);
+          showScreen(hash, true);
           if (hash === 'decks') window.openDeckList();
           if (hash === 'deckbuilder') window.openDeckBuilder();
           if (hash === 'gallery') window.openGallery();
         });
-      } else showScreen(hash);
+      } else showScreen(hash, true);
       return true;
     }
     let data = null;
@@ -6312,7 +6471,7 @@
     // ห้องออนไลน์ / LAN — เข้าใหม่ด้วยรหัสเดิม
     if ((data.screen === 'room' || data.screen === 'table') && data.mode === 'online' && data.room && data.room.length === 6) {
       ensurePlayReady().catch(() => { });
-      showScreen('lobby');
+      showScreen('lobby', true);
       byId('inpRoom').value = data.room.toUpperCase();
       if (data.netKind === 'lan') {
         // โฮสต์รีเฟรช = ต้องสร้างห้องใหม่ (Peer ID เดิมใช้ต่อไม่ได้ชัวร์)
@@ -6324,15 +6483,15 @@
       return true;
     }
     if (['lobby', 'decks', 'deckbuilder', 'gallery', 'howto'].includes(data.screen)) {
-      if (data.screen === 'howto') ensureHowto().then(() => showScreen('howto'));
+      if (data.screen === 'howto') ensureHowto().then(() => showScreen('howto', true));
       else if (data.screen === 'decks' || data.screen === 'deckbuilder' || data.screen === 'gallery') {
         ensureTools().then(() => {
-          showScreen(data.screen);
+          showScreen(data.screen, true);
           if (data.screen === 'decks') window.openDeckList();
           if (data.screen === 'deckbuilder') window.openDeckBuilder();
           if (data.screen === 'gallery') window.openGallery();
         });
-      } else showScreen(data.screen);
+      } else showScreen(data.screen, true);
       return true;
     }
     // hash #table แต่ session ยังมีโต๊ะ (เผื่อ screen ใน session ไม่ตรง)
@@ -6350,12 +6509,12 @@
   const qLan = qParams.get('lan');
   const qRoom = qParams.get('room');
   if (!restored && qLan && String(qLan).length === 6) {
-    showScreen('lobby');
+    showScreen('lobby', true);
     byId('inpRoom').value = String(qLan).toUpperCase();
     byId('lobbyMsg').textContent = 'กำลังเข้าห้อง LAN ' + String(qLan).toUpperCase() + '…';
     ensurePlayReady().then(() => joinLanRoom(qLan)).catch(() => joinLanRoom(qLan));
   } else if (!restored && qRoom && qRoom.length === 6) {
-    showScreen('lobby');
+    showScreen('lobby', true);
     byId('inpRoom').value = qRoom.toUpperCase();
     byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + qRoom.toUpperCase() + '…';
     connect(() => wsSend({ t: 'join', room: qRoom, nick: myNick(), as: 'player', uid: myUid() }));

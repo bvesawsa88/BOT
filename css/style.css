@@ -4,6 +4,10 @@
   --red:#3c3c45; --red-dark:#000000; --red-lite:#d2d2d8; --gold:#f0f0f3;
   --mb-h:54px; /* ความสูงแถบปุ่มล่างจอ (มือถือ) */
   --cream:#f4f4f6; --cream2:#bcbcc4; --dim:#86868f; --green:#414f47;
+  --wood:#2a1810; --paper:#f4ead6; --ink:#1a1612;
+  --wood-bg:var(--wood) url('../assets/ui/wood.svg');
+  --paper-bg:var(--paper) url('../assets/ui/paper.svg');
+  --book-w:min(520px, calc(100% - 16px));
   --cs:1; /* card scale — จอใหญ่ขยายผ่าน media query ด้านล่าง */
   --skin-card-back:url('../assets/card-back.png');
   --skin-life-back:url('../assets/life-card-back.png');
@@ -15,7 +19,7 @@
   --skin-life-back-opp:var(--skin-life-back);
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:'Sarabun',sans-serif;color:var(--cream);background:#111113;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:'Sarabun',sans-serif;color:var(--cream);background-color:var(--wood);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px,rgba(255,220,170,.05) 3px 4px,transparent 4px 9px),url('../assets/ui/wood.svg');background-size:auto,420px 420px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .hidden{display:none!important}
 .spacer{flex:1}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#4a3a30;border-radius:4px}
@@ -33,12 +37,54 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .btn-gold:hover{filter:brightness(1.1)}
 .btn-mini{font-size:11px;font-weight:600;background:var(--border);color:#e5dcc8;border:1.5px solid var(--panel);border-radius:6px;padding:3px 9px}
 
-/* ── จอก่อนเข้าเกม (เมนู/ล็อบบี้/ห้องรอ) ── */
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse at 50% 30%,#27272c 0%,#111113 72%);padding:20px;overflow:hidden}
+/* ── จอก่อนเข้าเกม (เมนู/ล็อบบี้/ห้องรอ) — สมุดบนโต๊ะไม้ ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background-color:var(--wood);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px,rgba(255,220,170,.05) 3px 4px,transparent 4px 9px),url('../assets/ui/wood.svg');background-size:auto,420px 420px;padding:22px 16px 36px;overflow:hidden;color:var(--ink);isolation:isolate}
+.screen::before,.screen::after{content:'';position:absolute;pointer-events:none}
+.screen::before{
+  z-index:0;
+  top:10px;bottom:28px;left:50%;transform:translateX(-50%);
+  width:var(--book-w);
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(ellipse at 50% 30%,transparent 42%,rgba(92,58,22,.11) 100%),
+    linear-gradient(rgba(50,36,18,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(50,36,18,.07) 1px,transparent 1px),
+    url('../assets/ui/paper.svg');
+  background-size:auto,18px 18px,18px 18px,256px 256px;
+  border-radius:3px 12px 10px 2px;
+  box-shadow:
+    -2px 0 0 #eadfc8,
+    -4px 1px 0 #e0d3b8,
+    -6px 2px 0 #d4c6aa,
+    10px 8px 22px rgba(0,0,0,.48),
+    2px 2px 0 rgba(0,0,0,.18),
+    inset -22px 0 28px rgba(80,50,20,.07),
+    inset 14px 0 18px rgba(40,24,10,.05),
+    inset 0 18px 28px rgba(90,60,20,.05);
+}
+.screen::after{
+  z-index:1;
+  top:18px;bottom:38px;left:50%;
+  width:12px;margin-left:calc(var(--book-w) / -2 + 8px);
+  background-image:radial-gradient(circle at 50% 8px,#1c140e 2.4px,transparent 2.7px);
+  background-size:12px 32px;background-repeat:repeat-y;opacity:.72;
+}
+body.has-back .screen::after{top:50px}
+.screen>*{z-index:2}
 .link-btn{background:none;border:none;color:var(--dim);font-family:'Sarabun',sans-serif;font-size:12.5px;text-decoration:underline;margin-top:10px}
+.screen .link-btn{color:#3a332c}
+.screen .link-btn:hover{color:var(--ink)}
 .link-btn:hover{color:var(--gold)}
 .btn-ghost{font-weight:600;font-size:12.5px;background:var(--card-ui);color:var(--cream2);border:2px solid var(--border);border-radius:7px;padding:6px 12px}
 .btn-ghost:hover{filter:brightness(1.3)}
+.screen .btn-ghost,.screen .btn-primary,.screen .btn-dark,.screen .btn-mini{
+  background:rgba(255,250,240,.28);color:var(--ink);border:2px solid var(--ink);
+  box-shadow:inset 0 0 0 1.25px var(--ink);filter:none;
+  border-radius:16px 20px 14px 18px/14px 16px 18px 12px;
+}
+.screen .btn-ghost:hover,.screen .btn-primary:hover,.screen .btn-dark:hover,.screen .btn-mini:hover{
+  background:rgba(26,22,18,.06);filter:none;
+}
 .row-2{display:flex;gap:8px}
 .row-2>button{flex:1}
 .panel{width:300px;max-width:90vw;background:var(--card-ui);border:2px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px}
@@ -46,34 +92,142 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .panel-note{font-size:12.5px;color:var(--dim);line-height:1.5}
 .panel input,.panel select{background:var(--panel);border:1.5px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Sarabun',sans-serif;font-size:14px;padding:10px 12px;outline:none;min-width:0}
 .code-input{font-family:'IBM Plex Sans Thai',sans-serif!important;font-size:18px!important;font-weight:700;letter-spacing:4px;text-align:center;text-transform:uppercase}
+.screen .panel{background:rgba(255,250,240,.42);border:2px solid var(--ink);border-radius:14px 18px 12px 16px/12px 14px 16px 10px;color:var(--ink)}
+.screen .panel-title{color:var(--ink)}
+.screen .panel-note,.screen .lan-hall-status,.screen .lan-peer-empty,.screen .lan-peer-meta,.screen .room-share,.screen .room-specs,.screen .opp-waiting,.screen .opp-deck-line{color:#4a433c}
+.screen .panel input,.screen .panel select,.screen .menu-deck-select{
+  background:rgba(255,252,245,.78);border:1.5px solid var(--ink);color:var(--ink)
+}
+.screen .lan-peer{background:rgba(255,250,240,.5);border-color:var(--ink)}
+.screen .lan-peer-name,.screen .player-name{color:var(--ink)}
+.screen .lobby-or{color:#4a433c}
+.screen .room-code{color:var(--ink);background:rgba(255,250,240,.55);border:2px dashed var(--ink)}
 
 /* เมนูหลัก */
-.menu-tag{font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:600;color:var(--red-lite);letter-spacing:3px;text-align:center}
-.menu-logo{width:min(560px,84vw);max-height:38vh;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6))}
-.menu-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:64px;font-weight:700;line-height:1.1;text-align:center;color:var(--gold);text-shadow:4px 4px 0 #7a1f1a,8px 8px 24px rgba(0,0,0,.6)}
-.menu-sub{font-size:14px;color:var(--dim);margin-bottom:18px;text-align:center}
-.menu-btns{display:flex;flex-direction:column;gap:10px;width:300px;max-width:86vw}
-.menu-btns .btn-primary.big{font-size:17px;border-width:3px;border-radius:11px;box-shadow:4px 4px 0 var(--panel)}
-.menu-btns .btn-dark.big{font-size:15px;border-width:3px;border-color:var(--panel);border-radius:11px;box-shadow:4px 4px 0 var(--panel)}
+#userBar{position:absolute;top:16px;right:max(18px,calc(50% - (var(--book-w) / 2) + 18px));z-index:5;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
+#userBar .btn-ghost{padding:6px 14px;font-size:12px}
+#userChip{color:var(--ink)}
+.home-btn{
+  position:fixed;top:16px;left:max(28px,calc(50% - (var(--book-w) / 2) + 32px));z-index:6;
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'IBM Plex Sans Thai',sans-serif;font-weight:600;font-size:12px;
+  background:rgba(255,250,240,.42);color:var(--ink);border:2px solid var(--ink);
+  box-shadow:inset 0 0 0 1.25px var(--ink);padding:6px 12px 6px 10px;
+  border-radius:16px 20px 14px 18px/14px 16px 18px 12px;cursor:pointer
+}
+.home-btn svg{width:16px;height:16px;flex:none}
+.home-btn:hover{background:rgba(26,22,18,.06)}
+.home-btn.hidden{display:none!important}
+.hole-back{
+  position:fixed;top:10px;left:50%;z-index:7;
+  width:48px;height:48px;margin-left:calc(var(--book-w) / -2 - 10px);
+  border:none;background:transparent;padding:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center
+}
+.hole-back-dot{
+  width:18px;height:18px;border-radius:50%;background:#1c140e;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.14),0 0 0 1.5px rgba(26,22,18,.12);
+  display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s,background .15s
+}
+.hole-back-dot::after{
+  content:'‹';font-size:16px;line-height:1;color:#f4ead6;font-weight:700;margin-top:-1px;opacity:.9
+}
+.hole-back:hover .hole-back-dot,.hole-back:focus-visible .hole-back-dot{
+  transform:scale(1.28);background:#0c0907;box-shadow:0 0 0 2px var(--ink)
+}
+.hole-back.hidden{display:none!important}
+.menu-tag{font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:.2px;text-align:center;padding:0 18px}
+.menu-logo{width:min(420px,78vw);max-height:22vh;object-fit:contain;display:block;filter:invert(1)}
+.menu-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:42px;font-weight:700;line-height:1.1;text-align:center;color:var(--ink);text-shadow:none}
+.menu-sub{font-size:13px;color:var(--ink);margin-bottom:14px;text-align:center;padding:0 22px;line-height:1.45}
+.menu-btns{display:flex;flex-direction:column;gap:12px;width:min(340px,78vw)}
+.menu-btns .btn-primary.big,.menu-btns .btn-dark.big{font-size:16px;font-weight:700;padding:13px 16px;border-width:2.5px;box-shadow:inset 0 0 0 1.5px var(--ink)}
 .menu-btns button:disabled{opacity:.45;cursor:default;box-shadow:none}
-.menu-group-label{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:var(--dim);letter-spacing:1px;text-align:center;margin-bottom:2px}
-.menu-play .menu-back{margin-top:6px;align-self:center}
+.menu-group-label{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:#4a433c;letter-spacing:1px;text-align:center;margin-bottom:2px}
 .menu-matchup{display:flex;flex-direction:column;gap:6px;width:100%;margin-bottom:4px}
 #menuSoloSetup,#menuRealSetup,#menuPlayModes,#menuBotSetup{display:flex;flex-direction:column;gap:10px;width:100%;align-items:stretch}
 #menuSoloSetup.hidden,#menuRealSetup.hidden,#menuPlayModes.hidden,#menuBotSetup.hidden{display:none}
 .menu-play{max-height:min(68vh,640px);overflow-y:auto;padding-bottom:4px;scrollbar-width:thin}
-.menu-deck-lab{font-size:12px;font-weight:700;color:var(--accent,#7dd3fc);letter-spacing:.5px}
-.menu-bot-hint{font-size:12px;line-height:1.45;color:var(--dim,#94a3b8);margin:2px 0 8px;padding:8px 10px;border-left:3px solid var(--accent,#7dd3fc);background:rgba(125,211,252,.06);border-radius:0 8px 8px 0}
-.menu-vs{text-align:center;font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;color:var(--dim);letter-spacing:2px;opacity:.8}
+.menu-deck-lab{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.5px}
+.menu-bot-hint{font-size:12px;line-height:1.45;color:#4a433c;margin:2px 0 8px;padding:8px 10px;border-left:3px solid var(--ink);background:rgba(26,22,18,.05);border-radius:0 8px 8px 0}
+.menu-vs{text-align:center;font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;color:#4a433c;letter-spacing:2px;opacity:.8}
 .menu-deck-select{width:100%;padding:10px 12px;border-radius:10px;border:2px solid var(--panel);background:#1a1a1e;color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600}
 .menu-btns.hidden{display:none}
-.menu-copy{position:absolute;bottom:10px;font-size:11px;color:#5c5347}
+.menu-copy{position:absolute;bottom:8px;font-size:11px;color:#f0e6d2;text-shadow:0 1px 2px rgba(0,0,0,.55);z-index:2}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.float-card{position:absolute;animation:floaty 5s ease-in-out infinite;pointer-events:none}
+.float-card{display:none;position:absolute;animation:floaty 5s ease-in-out infinite;pointer-events:none}
 .float-card img{width:100%;border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:block}
 .f1{left:8%;top:18%;width:150px;opacity:.85}.f1 img{transform:rotate(-14deg)}
 .f2{right:9%;top:24%;width:150px;opacity:.85;animation-duration:6s;animation-delay:.8s}.f2 img{transform:rotate(11deg)}
 .f3{left:22%;bottom:8%;width:120px;opacity:.55;animation-duration:7s;animation-delay:.4s}.f3 img{transform:rotate(8deg)}
+
+/* ── พลิกหน้าสมุดเล่มเดียวกัน (สันซ้าย) ── */
+#bookFlip{position:fixed;inset:0;z-index:380;pointer-events:none;perspective:1800px;perspective-origin:8% 45%;overflow:hidden;opacity:1;transition:opacity .18s linear}
+#bookFlip.play{pointer-events:auto}
+#bookFlip.out{opacity:0}
+.bf-under,.bf-stage{
+  position:absolute;top:10px;bottom:28px;left:50%;width:var(--book-w);margin-left:calc(var(--book-w) * -.5);
+  border-radius:3px 12px 10px 2px;
+}
+.bf-under{
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(ellipse at 50% 30%,transparent 42%,rgba(92,58,22,.11) 100%),
+    linear-gradient(rgba(50,36,18,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(50,36,18,.07) 1px,transparent 1px),
+    url('../assets/ui/paper.svg');
+  background-size:auto,18px 18px,18px 18px,256px 256px;
+  box-shadow:-2px 0 0 #eadfc8,-4px 1px 0 #e0d3b8,-6px 2px 0 #d4c6aa,8px 6px 18px rgba(0,0,0,.35);
+}
+.bf-under::before{
+  content:'';position:absolute;top:8px;bottom:8px;left:8px;width:12px;
+  background-image:radial-gradient(circle at 50% 8px,#1c140e 2.4px,transparent 2.7px);
+  background-size:12px 32px;background-repeat:repeat-y;opacity:.55;
+}
+.bf-stage{
+  transform:rotateY(0);transform-origin:left center;transform-style:preserve-3d;
+  transition:transform .82s cubic-bezier(.16,.7,.2,1);
+  z-index:1;
+}
+#bookFlip.fwd.play .bf-stage{transform:rotateY(-178deg)}
+#bookFlip.back.play .bf-stage{transform:rotateY(178deg)}
+.bf-face{position:absolute;inset:0;border-radius:3px 12px 10px 2px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.bf-recto{
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(ellipse at 50% 30%,transparent 42%,rgba(92,58,22,.11) 100%),
+    linear-gradient(rgba(50,36,18,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(50,36,18,.07) 1px,transparent 1px),
+    url('../assets/ui/paper.svg');
+  background-size:auto,18px 18px,18px 18px,256px 256px;
+  box-shadow:10px 8px 22px rgba(0,0,0,.45),inset -22px 0 28px rgba(80,50,20,.07);
+}
+.bf-recto::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+  background:linear-gradient(90deg,rgba(40,24,10,.02),rgba(0,0,0,.28) 82%,rgba(0,0,0,.5));
+  opacity:0;transition:opacity .82s cubic-bezier(.16,.7,.2,1);
+}
+#bookFlip.play .bf-recto::after{opacity:1}
+.bf-recto::before{
+  content:'';position:absolute;top:8px;bottom:8px;left:8px;width:12px;pointer-events:none;z-index:2;
+  background-image:radial-gradient(circle at 50% 8px,#1c140e 2.4px,transparent 2.7px);
+  background-size:12px 32px;background-repeat:repeat-y;opacity:.72;
+}
+.bf-shot{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;padding:22px 16px 36px;overflow:hidden;pointer-events:none;z-index:1;
+}
+.bf-shot-inner{display:contents}
+.bf-verso{
+  background:#e6d9bf;
+  background-image:url('../assets/ui/paper.svg');
+  background-size:256px 256px;
+  transform:rotateY(180deg);
+  box-shadow:inset 22px 0 28px rgba(60,40,20,.16);
+}
+@media (prefers-reduced-motion:reduce){
+  #bookFlip,.bf-stage,.bf-recto::after{transition:none!important}
+}
 
 /* ล็อบบี้ */
 .lobby-flex{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
@@ -81,7 +235,7 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .lobby-msg{font-size:12px;color:var(--red-lite);min-height:14px}
 
 /* ล็อบบี้ LAN ท้าสู้ */
-.lan-hall-wrap{display:flex;align-items:stretch;justify-content:center;gap:18px;flex-wrap:wrap;width:min(720px,96vw)}
+.lan-hall-wrap{display:flex;align-items:stretch;justify-content:center;gap:18px;flex-wrap:wrap;width:min(480px,100%)}
 .lan-hall-me{width:min(320px,92vw);flex:1 1 260px}
 .lan-hall-list-panel{width:min(340px,92vw);flex:1 1 280px;min-height:280px}
 .lan-hall-status{font-size:12.5px;color:var(--dim);line-height:1.45;min-height:1.4em}
@@ -125,7 +279,7 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .opp-deck-line{font-size:12.5px;color:var(--dim)}
 .room-specs{font-size:12px;color:var(--dim);min-height:16px}
 .btn-ready-on{background:#2c8f5e!important;color:#fff!important}
-.start-btn{width:auto!important;padding:13px 40px!important;font-size:17px!important;border-width:3px!important;border-radius:11px!important;box-shadow:4px 4px 0 var(--panel)!important}
+.screen .btn-primary.big.start-btn,.start-btn{width:auto!important;padding:13px 40px!important;font-size:17px!important;border-width:2.5px!important}
 
 /* จอจบเกม */
 #endOv{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#27272cee 0%,#111113ee 72%);display:flex;align-items:center;justify-content:center;z-index:250;padding:16px}
@@ -1267,4 +1421,4 @@ body.stream-win #roomInfo{opacity:.8}
 .skin-modal-card .dc-x{background:none;border:none;color:var(--dim);font-size:18px;line-height:1;padding:2px 6px;cursor:pointer}
 
 /* โครงหน้าเครื่องมือ (สไตล์เต็มโหลดตอนเปิด) */
-.screen-page{position:fixed;inset:0;display:flex;flex-direction:column;background:#1e1610}
+.screen-page{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--wood-bg);background-size:420px 420px}
