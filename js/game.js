@@ -241,6 +241,7 @@
   /* แอนิเมชันเปิดศึกหลังมัลลิแกนครบ → ค่อย beginDuel (จั่วเพิ่มผู้เริ่ม) */
   let battleIntroPlaying = false;
   let battleIntroKey = '';
+  let battleIntroRetryT = null;
   function nickOf(p) {
     if (mode === 'online' && roomSt && roomSt[p] && roomSt[p].nick) return roomSt[p].nick;
     return 'ผู้เล่น ' + p;
@@ -248,7 +249,18 @@
   function playBattleIntroThenStart(fp) {
     if (!st || !st.awaitBattleStart) return;
     const key = (st.turnSeq || st.turn) + ':' + (st.firstPlayer || 'A');
-    if (battleIntroPlaying || battleIntroKey === key) return;
+    if (battleIntroPlaying) return;
+    // แอนิเมชันจบแล้วแต่ยังรอเปิดศึก (beginDuel หลุด) — ส่งซ้ำแบบ async กันลูป render
+    if (battleIntroKey === key) {
+      if (battleIntroRetryT) return;
+      battleIntroRetryT = setTimeout(() => {
+        battleIntroRetryT = null;
+        if (!st || !st.awaitBattleStart) return;
+        const who = mode === 'solo' ? (st.firstPlayer || 'A') : (seat === 'A' || seat === 'B' ? seat : undefined);
+        sendAction({ type: 'beginDuel', by: who });
+      }, 50);
+      return;
+    }
     battleIntroPlaying = true;
     battleIntroKey = key;
     const ov = byId('battleOv');
@@ -371,6 +383,41 @@
     }
     return true;
   }
+  function endTurnActor() {
+    if (!st) return null;
+    if (mode === 'online') return (seat === 'A' || seat === 'B') ? seat : null;
+    return soloBot ? my : st.active;
+  }
+  function handOverLimit(side) {
+    if (!st || !side || st.over || mullP || st.awaitBattleStart || !st.fpDrawn) return false;
+    return ((st.zones[side + '.hand'] || []).length > 7);
+  }
+  function showingHandDiscard() {
+    const who = endTurnActor();
+    return !!(pendingEndTurn && who && who === my && handOverLimit(who));
+  }
+  function tryFinishPendingEndTurn() {
+    if (!pendingEndTurn || !st || st.over) return;
+    const who = endTurnActor();
+    if (!who || st.active !== who) { pendingEndTurn = false; return; }
+    if ((st.zones[who + '.hand'] || []).length > 7) return;
+    if ((st.prompts || []).length || st.pending || st.scout || st.awaitBattleStart) return;
+    pendingEndTurn = false;
+    setTimeout(() => {
+      if (!st || st.over) return;
+      if (st.active !== who) return;
+      if ((st.zones[who + '.hand'] || []).length > 7) {
+        pendingEndTurn = true;
+        render();
+        return;
+      }
+      if ((st.prompts || []).length || st.pending || st.scout || st.awaitBattleStart) {
+        pendingEndTurn = true;
+        return;
+      }
+      sendAction({ type: 'endTurn' });
+    }, 380);
+  }
   function syncEndTurnUi() {
     const ok = canEndTurnNow();
     const fab = byId('btnEndTurnFab');
@@ -386,6 +433,7 @@
         && !(mobile && (drawerOpen || pvOpen));
       fab.classList.toggle('hidden', !show);
       fab.classList.toggle('wait', !ok);
+      fab.classList.toggle('hand-full-wait', showingHandDiscard());
       fab.disabled = !ok;
       if (show) syncEndTurnFabPos();
     }
@@ -393,6 +441,7 @@
     if (desk) {
       desk.disabled = !ok;
       desk.classList.toggle('wait', !ok);
+      desk.classList.toggle('hand-full-wait', showingHandDiscard());
     }
   }
   function syncEndTurnFabPos() {
@@ -443,6 +492,14 @@
   }
   function doEndTurn() {
     if (!st) return;
+    const who = endTurnActor();
+    if (who && st.active === who && canEndTurnNow() && (st.zones[who + '.hand'] || []).length > 7) {
+      pendingEndTurn = true;
+      const n = (st.zones[who + '.hand'] || []).length;
+      toast(`มือเต็ม ${n} ใบ — ทิ้งให้เหลือ 7 แล้วจะจบเทิร์นให้อัตโนมัติ (ลากลงนรก)`, 4200);
+      render();
+      return;
+    }
     if (!canEndTurnNow()) {
       if (mode === 'online' && seat !== st.active) toast('ยังไม่ใช่ตาคุณ');
       else toast('ตอนนี้จบเทิร์นยังไม่ได้');
@@ -454,6 +511,7 @@
     };
     flash(byId('btnEndTurnFab'));
     flash(byId('btnEndTurn'));
+    pendingEndTurn = false;
     sendAction({ type: 'endTurn' });
   }
 
@@ -600,6 +658,7 @@
   let botT = null;
   let autoResolveAtkT = null;
   let autoResolveAtkKey = null;
+  let pendingEndTurn = false; // กดจบเทิร์นตอนมือเกิน 7 — รอทิ้งแล้วค่อยจบ
   let selMap = {};          // การ์ดในมือที่เลือกนับ GEM (ใช้ร่วมกับโหมดมัลลิแกน)
   let mullMode = false;     // (เลิกใช้) โหมดเลือกการ์ดเปลี่ยนมัลลิแกน
   let mullP = null;         // ผู้เล่นที่กำลังถูกถาม "เปลี่ยนมือไหม?" ตอนเริ่มเกม (null = ตอบครบแล้ว)
@@ -2269,6 +2328,8 @@
     }
     if (fx.battleIntro) playBattleIntroThenStart(fx.battleIntro.firstPlayer || (st && st.firstPlayer) || 'A');
     if (fx.battleStarted) {
+      botFailKeys = new Set();
+      botFailTurn = -1;
       flashPhase('Main', st.active);
       toast(`⚔️ เปิดศึก — ผู้เริ่ม ${st.firstPlayer || 'A'} จั่วเพิ่มแล้ว`, 2800);
     }
@@ -2293,6 +2354,7 @@
       }, wait);
     }
     render();
+    if (pendingEndTurn && !(fx && fx.deny)) tryFinishPendingEndTurn();
     playFxAnims(fx);
     tryConsumeMagicDropTarget();
     if (fx.critical) {
@@ -2565,7 +2627,8 @@
     if (botFailKeys.has(key)) return false;
     const fx = sendAction(a);
     if (fx && fx.deny) {
-      botFailKeys.add(key);
+      // ปฏิเสธตอนยังไม่เปิดศึก อย่าจำเป็น fail-key ทั้งเทิร์น 1 — บอทเริ่มก่อนจะตัน
+      if (!/รอเปิดศึก|มือเปิดก่อน/.test(String(fx.deny || ''))) botFailKeys.add(key);
       scheduleBot();
       return false;
     }
@@ -2606,6 +2669,8 @@
       if (AI.isWantedLandCard(c, arch)) v += 40;
       if (AI.cardIsKeyEnabler(c, arch)) v += 30;
       if (AI.comboHoldScore) v += AI.comboHoldScore(st, 'B', c);
+      if (AI.isDeckKeyCard && AI.isDeckKeyCard(c)) v += 45;
+      if (AI.isBodyguardCard && AI.isBodyguardCard(c)) v += 22;
     }
     return v;
   }
@@ -2638,6 +2703,12 @@
         if (AI.isGemBattery && AI.isGemBattery(st.inst[o])) keep -= 40;
         if (AI.paidAsCostMatches && AI.paidAsCostMatches(st.inst[o], c0)) keep -= 55;
         if (/วีรชนชีวภาพ/.test((st.inst[o].name || '')) && c0.color === 'เขียว') keep -= 160;
+        if (/มะขาม/.test((c0.name || '')) && /ภูติผลไม้/.test((st.inst[o].name || ''))) {
+          if (/แตงกวา|มะม่วง/.test(st.inst[o].name || '')) keep += 90;
+          else keep -= 55;
+        }
+        if (AI.isDeckKeyCard && AI.isDeckKeyCard(st.inst[o])) keep += 70;
+        if (AI.isBodyguardCard && AI.isBodyguardCard(st.inst[o])) keep += 40;
         if (/มะขาม/.test((st.inst[o].name || '')) && AI.hasLandNamed(st, AI.LAND.FOREST)
           && (st.zones['B.avatar'] || []).length >= 2) keep += 90;
       }
@@ -2964,7 +3035,7 @@
       botCollectAttachCands().forEach(it => bag.push(it));
       const pick = botLookaheadPick(bag);
       if (pick && pick.a && botSend(pick.a)) return true;
-      if (pick && pick.pass) return false;
+      // อย่าพาส Main ทั้งเฟส — ถ้าจำลองบอกไม่คุ้ม ให้ heuristic เลือกต่อ
     }
     const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
     // ถ้าพร้อมเปิดเทค/เรียกจากนรก — แทรก activate ขึ้นก่อน
@@ -2989,7 +3060,12 @@
       return c && c.type === 'Avatar' && c.faceUp !== false && !c.tapped && !c.cannotChangeStateUntilEOT;
     });
     if (mine.length < 2) return false;
-    const donors = mine.filter(k => cardHasUnityKw(k));
+    const AIU = botAI();
+    const donors = mine.filter(k => {
+      if (!cardHasUnityKw(k)) return false;
+      if (lv !== 'easy' && AIU && AIU.isBodyguardCard && AIU.isBodyguardCard(st.inst[k])) return false;
+      return true;
+    });
     if (!donors.length) return false;
     const enemies = (st.zones['A.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
     const enemyCons = lv === 'easy' ? [] : (st.zones['A.construct'] || []).slice();
@@ -3055,8 +3131,12 @@
     const allowLife = lv === 'easy' || !AI || !AI.shouldLifeAttack || AI.shouldLifeAttack(st, 'B', {
       lethal, losing, lifeHitsThisTurn: botLifeHits,
     });
+    // มะม่วง / ยักษ์หิน = โล่มนุษย์ กันคีย์ (ทศกัณฑ์ แตงกวา) — ห้ามบุก
+    const strikers = lv === 'easy' ? mine : mine.filter(k => !(AI && AI.isBodyguardCard && AI.isBodyguardCard(st.inst[k])));
+    const atkMine = (lethal && !strikers.length) ? mine : strikers;
+    if (!atkMine.length) return false;
 
-    const sortedAtk = mine.slice().sort((a, b) => eff(a) - eff(b) || botThreatScore(a) - botThreatScore(b));
+    const sortedAtk = atkMine.slice().sort((a, b) => eff(a) - eff(b) || botThreatScore(a) - botThreatScore(b));
     const sortedEn = enemies.slice().sort((a, b) => botThreatScore(b) - botThreatScore(a));
     const used = new Set();
     const assigned = new Map();
@@ -3070,13 +3150,13 @@
       });
       if (killer) { used.add(killer); assigned.set(e, killer); }
     }
-    const leftover = mine.filter(a => !used.has(a));
+    const leftover = atkMine.filter(a => !used.has(a));
     const cleared = assigned.size === enemies.length;
-    const faceNow = enemies.length === 0 ? mine : mine.filter(botHasEgg);
+    const faceNow = enemies.length === 0 ? atkMine : atkMine.filter(botHasEgg);
     const canLethalNow = lethal && faceNow.length > 0;
 
     const plans = [];
-    for (const atk of mine) {
+    for (const atk of atkMine) {
       const ap = eff(atk);
       const egg = botHasEgg(atk);
       const myTh = botThreatScore(atk);
@@ -3187,13 +3267,22 @@
       if (dest === 'attachTo' || dest === 'avatar') {
         return cands.filter(ownSide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
       }
-      return cands.filter(ownSide).sort((a, b) => eff(a) - eff(b) || botCardVal(a) - botCardVal(b))[0] || cands[0];
+      const srcC = pr.src && st.inst[pr.src];
+      if (srcC && /มณโฑ/.test(srcC.name || '')) {
+        const hellPhibek = (st.zones['B.hell'] || []).some(id => /พิเภก/.test((st.inst[id] && st.inst[id].name) || ''));
+        if (hellPhibek && cands.includes(pr.src)) return pr.src;
+      }
+      return cands.filter(ownSide).sort((a, b) => {
+        const ka = AI && AI.isDeckKeyCard && AI.isDeckKeyCard(st.inst[a]) ? 80 : 0;
+        const kb = AI && AI.isDeckKeyCard && AI.isDeckKeyCard(st.inst[b]) ? 80 : 0;
+        return (eff(a) + ka) - (eff(b) + kb) || botCardVal(a) - botCardVal(b);
+      })[0] || cands[0];
     }
     // อัญเชิญ / ขึ้นมือ / คืนเด็ค — เลือกตามอาร์คไทป์
     if (dest === 'avatar' || dest === 'hand' || dest === 'scoutOtaHost' || dest === 'deck' || from === 'ownHell'
       || pr.kind === 'hellPick' || /hell/i.test(dest + from + (pr.kind || ''))) {
       if (AI) {
-        const pick = AI.pickSummonTarget(st, 'B', cands, arch);
+        const pick = AI.pickSummonTarget(st, 'B', cands, arch, dest || pr.kind);
         if (pick) return pick;
       }
       return cands.slice().sort((a, b) => {
@@ -3510,7 +3599,9 @@
     if (autoResolveAtkKey === key && autoResolveAtkT) return; // อย่ารีเซ็ตเวลาทุกรอบ render
     clearAutoResolveAtk();
     autoResolveAtkKey = key;
-    const opts = (BoTEngine.counterOptions && BoTEngine.counterOptions(st, pnd.target)) || [];
+    const opts = (BoTEngine.attackReactOptions && BoTEngine.attackReactOptions(st, pnd.target))
+      || (BoTEngine.counterOptions && BoTEngine.counterOptions(st, pnd.target))
+      || [];
     const shields = (BoTEngine.humanShieldOptions && BoTEngine.humanShieldOptions(st, pnd.target)) || [];
     const delay = (opts.length || shields.length) ? 1800 : 120;
     const atkKey = pnd.atk;
@@ -3525,6 +3616,14 @@
   }
   function botTick() {
     if (!botActive()) return;
+    try {
+      botTickInner();
+    } catch (e) {
+      try { console.warn('botTick', e); } catch (e2) { }
+      scheduleBot();
+    }
+  }
+  function botTickInner() {
     if (st.turn === 1 && !st.fpDrawn && !st.awaitBattleStart) {
       const done = st.mulliganDone || {};
       if (!done.B) {
@@ -3534,7 +3633,10 @@
           return;
         }
       }
+      // รอมือเปิดครบ — ห้ามลงการ์ดตอนนี้ (deny จะไปติด fail-key ทั้งเทิร์น 1)
+      return;
     }
+    if (st.awaitBattleStart || (st.turn === 1 && !st.fpDrawn)) return;
     if (st.scout && st.scout.p === 'B') { botHandleScout(); return; }
     if ((st.chain || []).length && st.chainPri === 'B') {
       botSend({ type: 'chainPass', by: 'B' });
@@ -3635,6 +3737,7 @@
 
   /* ── เริ่มโต๊ะ ── */
   function startTable(instant) {
+    pendingEndTurn = false;
     // 📺 บานสนาม: ฝั่ง "ของเรา" มาจากที่นั่งของหน้าต่างหลัก (ไม่ใช่ A ตายตัว) เพื่อโชว์บอร์ดฝั่งถูก
     my = STREAM ? streamSide : (seat === 'S' ? 'A' : seat); opp = my === 'A' ? 'B' : 'A';
     // ★ ผู้ชม: ใส่คลาสให้ CSS ทำสองฝั่งเท่ากัน (ไม่มีฝั่งไหนเป็น "ของเรา")
@@ -3643,6 +3746,7 @@
     byId('endOv').classList.add('hidden');
     battleIntroPlaying = false;
     battleIntroKey = '';
+    if (battleIntroRetryT) { clearTimeout(battleIntroRetryT); battleIntroRetryT = null; }
     const bov = byId('battleOv');
     if (bov) { bov.classList.add('hidden'); bov.classList.remove('show', 'play', 'out'); }
     applyPerspective();
@@ -3765,9 +3869,14 @@
       if (pr0.from === 'ownMagic') classes.push('pick-ok');
     }
     // สวนกลับตอนถูกโจมตี — ใบ React ในมือกะพริบเขียวด้วย
-    if (st.pending && (mode === 'solo' || seat === st.pending.target) && BoTEngine.counterOptions) {
-      const cops = BoTEngine.counterOptions(st, st.pending.target) || [];
+    if (st.pending && (mode === 'solo' || seat === st.pending.target) && BoTEngine.attackReactOptions) {
+      const cops = BoTEngine.attackReactOptions(st, st.pending.target) || [];
       if (cops.includes(k)) classes.push('react-pick');
+    }
+    // มือเกิน 7 — กะพริบแดงให้ทิ้ง (อย่าทับไฮไลต์เป้าเอฟเฟกต์)
+    if (cls === 'hand' && showingHandDiscard() && (BoTEngine.zoneOf(st, k) || '') === my + '.hand'
+      && !classes.includes('react-pick') && !classes.includes('targetable')) {
+      classes.push('hand-full-flash');
     }
     // โล่มนุษย์ — Avatar ที่รับแทนได้กะพริบ
     if (st.pending && (mode === 'solo' || seat === st.pending.target) && BoTEngine.humanShieldOptions) {
@@ -3880,6 +3989,7 @@
     syncTableNav();
     if (lastPhaseShown !== st.phase + '|' + st.turn + '|' + st.active) {
       const prevActive = (lastPhaseShown || '').split('|')[2];
+      if (pendingEndTurn && prevActive && prevActive !== st.active) pendingEndTurn = false;
       lastPhaseShown = st.phase + '|' + st.turn + '|' + st.active;
       flashPhase(st.phase, st.active);
       // solo: เตือนเมื่อเทิร์น/ฝ่ายเปลี่ยนไปคนละฝั่งกับมุมมองปัจจุบัน
@@ -4228,6 +4338,14 @@
       + mh.map(k => st.inst[k].revealed ? cardHTML(k, 'magic', { forceUp: true, noTap: true }) : `<div class="card oppback"></div>`).join('');
     // forceUp: มือตัวเองต้องเห็นหน้าเสมอ (กันใบที่เคยคว่ำในเด็คหลังมัลลิแกน/ฮามดัล)
     else byId('myHandRow').innerHTML = mh.map(k => cardHTML(k, 'hand', { noTap: true, forceUp: true })).join('');
+    const handRow = byId('myHandRow');
+    const fullN = mh.length;
+    const showFull = seat !== 'S' && showingHandDiscard();
+    if (handRow) {
+      handRow.classList.toggle('hand-full', showFull);
+      if (showFull) handRow.setAttribute('data-hand-warn', `มือเต็ม ${fullN} — ทิ้งให้เหลือ 7`);
+      else handRow.removeAttribute('data-hand-warn');
+    }
 
     // เลือกผู้เริ่มก่อน (solo · ก่อนเริ่มเล่นจริง)
     const played = ['A.avatar', 'B.avatar', 'A.construct', 'B.construct', 'A.magic', 'B.magic'].some(z => (st.zones[z] || []).length);
@@ -5638,13 +5756,15 @@
       return;
     }
     // สวนโจมตี: แตะ React ที่กะพริบเขียวในมือ = ใช้เลย (ดักโจมตี + React ยืดหยุ่น)
-    if (st.pending && BoTEngine.counterOptions) {
+    if (st.pending && (BoTEngine.attackReactOptions || BoTEngine.counterOptions)) {
       const defSide = st.pending.target;
       if ((mode === 'solo' || seat === defSide)) {
-        const cops = BoTEngine.counterOptions(st, defSide) || [];
+        const cops = (BoTEngine.attackReactOptions
+          ? BoTEngine.attackReactOptions(st, defSide)
+          : BoTEngine.counterOptions(st, defSide)) || [];
         const prAtk = (st.prompts || [])[0];
         const fromPrompt = prAtk && prAtk.kind === 'react' && prAtk.reactTrigger === 'enemyDeclareAttack'
-          && (prAtk.options || []).includes(d.k);
+          && cops.includes(d.k) && (prAtk.options || []).includes(d.k);
         if (cops.includes(d.k) || fromPrompt) {
           sendAction({ type: 'playMagic', k: d.k, by: mode === 'solo' ? defSide : undefined });
           return;

@@ -2841,6 +2841,30 @@
     }
   }
 
+  /* ค่าเซ่นไหว้ของความสามารถจ่ายได้ไหม (มะม่วง / รถถัง ฯลฯ ต้องอยู่บนสนาม) */
+  function sacrificeCostOk(st, owner, cost, srcK) {
+    const list = normalizeAbilityCost(cost) || (Array.isArray(cost) ? cost : null);
+    if (!list || !list.length) return true;
+    for (let i = 0; i < list.length; i++) {
+      const costOp = list[i];
+      if (!costOp || costOp.op !== 'sacrifice') continue;
+      const p = {
+        kind: 'pick', from: 'ownAvatars', src: srcK || null, chooser: owner,
+        filter: costOp.filter || {}, dest: 'sacrifice', optional: false, includeSelf: true
+      };
+      if (!promptCandidates(st, p).length) return false;
+    }
+    return true;
+  }
+  function abilitySacrificeNeed(cost) {
+    const list = normalizeAbilityCost(cost) || (Array.isArray(cost) ? cost : null) || [];
+    const sac = list.find(c => c && c.op === 'sacrifice');
+    if (!sac) return 'Avatar';
+    const n = sac.filter && sac.filter.nameIncludes;
+    if (Array.isArray(n) && n[0]) return n[0];
+    if (typeof n === 'string' && n) return n;
+    return 'Avatar';
+  }
   /* เงื่อนไข/ค่าใช้จ่ายของ React ดักโจมตี (เช่น เพื่อชาติต้องเซ่นรถถัง) — คืนข้อความ deny หรือ null ถ้าใช้ได้ */
   function enemyDeclareAttackDeny(st, owner, abs, cardName) {
     if (!abs || !abs.length) return `ใช้ "${cardName}" ไม่ได้`;
@@ -2854,12 +2878,8 @@
         const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], ab.requireOwnNameIncludes));
         if (!ok) return `ใช้ "${cardName}" ไม่ได้ — ต้องมี Avatar ชื่อมี "${ab.requireOwnNameIncludes}" บนสนาม`;
       }
-      if (ab.cost && ab.cost[0] && ab.cost[0].op === 'sacrifice') {
-        const p = { kind: 'pick', from: 'ownAvatars', src: null, chooser: owner, filter: ab.cost[0].filter || {}, dest: 'sacrifice', optional: false };
-        if (!promptCandidates(st, p).length) {
-          const need = (ab.cost[0].filter && ab.cost[0].filter.nameIncludes && ab.cost[0].filter.nameIncludes[0]) || 'Avatar';
-          return `ใช้ "${cardName}" ไม่ได้ — ไม่มี "${need}" ให้เซ่นไหว้`;
-        }
+      if (!sacrificeCostOk(st, owner, ab.cost, null)) {
+        return `ใช้ "${cardName}" ไม่ได้ — ไม่มี "${abilitySacrificeNeed(ab.cost)}" ให้เซ่นไหว้`;
       }
     }
     // ริกกี้ ฯลฯ: React ที่ผลแค่ทำลาย/ลดผู้โจมตี — ใช้ไม่ได้ถ้าผู้โจมตีกัน Magic
@@ -2942,6 +2962,8 @@
         const avs = st.zones[owner + '.avatar'] || [];
         if (!avs.length || avs.some(id => !nameMatches(st.inst[id], needle))) return false;
       }
+      // ไปคุยกับรากมะม่วง ฯลฯ — ไม่มีเป้าเซ่น (มะม่วง) อย่ายื่นให้ใช้
+      if (ab0 && !sacrificeCostOk(st, owner, ab0.cost, k)) return false;
       return true;
     });
   }
@@ -3420,6 +3442,7 @@
       if (oncePerTurnCardBlocked(st, m, owner)) return;
       const ab = abilitiesOf(mc.code, triggerOn, mc.name)[0];
       if (ab && !reactFieldReqOk(st, owner, ab, reqOpts)) return;
+      if (ab && !sacrificeCostOk(st, owner, ab.cost, m)) return;
       if (filterFn && !filterFn(m, mc)) return;
       if (!out.includes(m)) out.push(m);
     };

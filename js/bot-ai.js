@@ -509,6 +509,8 @@
     }
     if (boardLosing(st, side) && /มะเฟือง/.test(nameOf(c))) bonus += 160;
     if (finishComboReady(st, side) && isGreenBeater(c)) bonus += 90;
+    if (/พญายักษ์ ทศกัณ/.test(nameOf(c)) && hasGem4BatteryInHand(st, side) && fruitCountInHand(st, side) < 2)
+      bonus += 70;
     if (isGemBattery(c)) bonus -= 160;
     return bonus;
   }
@@ -644,6 +646,13 @@
       });
       score += hellYakP3 ? 45 : -90;
     }
+    if (/พญายักษ์ ทศกัณ/.test(nameOf(c))) {
+      const canDrop = zoneIds(st, side + '.hand').some(id => {
+        const x = st.inst[id];
+        return x && !isDeckKeyCard(x) && !holdForNationTrap(x) && !isBodyguardCard(x);
+      });
+      score += canDrop ? 75 : -30;
+    }
     if (/มณโฑ/.test(nameOf(c))) {
       const fieldYak = zoneIds(st, side + '.avatar').some(id => {
         const x = st.inst[id];
@@ -653,7 +662,9 @@
         const x = st.inst[id];
         return x && x.symbol === 'ยักษ์';
       });
-      if (fieldYak && hellYak) score += 50;
+      const hellPhibek = zoneIds(st, side + '.hell').some(id => /พิเภก/.test(nameOf(st.inst[id])));
+      if (hellPhibek) score += 90;
+      else if (fieldYak && hellYak) score += 50;
       else score -= 80;
     }
 
@@ -752,9 +763,75 @@
     return 0;
   }
 
+  function fruitCountInHand(st, side) {
+    return zoneIds(st, side + '.hand').filter(k => /ภูติผลไม้/.test(nameOf(st.inst[k]))).length;
+  }
+  function hasGem4BatteryInHand(st, side) {
+    return zoneIds(st, side + '.hand').some(k => {
+      const c = st.inst[k]; if (!c) return false;
+      if (/วีรชนชีวภาพ/.test(nameOf(c))) return true;
+      return c.type === 'Avatar' && (+c.gem || 0) >= 4 && (+c.power || 0) === 0;
+    });
+  }
+  function isDeckKeyCard(c) {
+    const n = nameOf(c);
+    return /พญายักษ์ ทศกัณ/.test(n) || /ภูติผลไม้ แตงกวา/.test(n);
+  }
+  function isBodyguardCard(c) {
+    const n = nameOf(c);
+    return /ยักษ์หินแผ่นดินใหญ่/.test(n) || /ภูติผลไม้ มะม่วง/.test(n);
+  }
+  function hellYakCount(st, side) {
+    return zoneIds(st, side + '.hell').filter(id => {
+      const x = st.inst[id];
+      if (!x) return false;
+      if (x.symbol === 'ยักษ์') return true;
+      return /ยักษ์|พิเภก|มณโฑ|กุมภกรรณ/.test(nameOf(x));
+    }).length;
+  }
+  /** เลือกมันขึ้นมือ: ภูติเยอะ+ยังไม่มีป่า → มะขาม | เจม 4 วีรชน → ทศกัณฑ์ */
+  function pickPoorSearchTarget(st, side, cands, dest) {
+    if (dest && dest !== 'hand' && dest !== 'hellPick') return null;
+    const makham = cands.find(k => /มะขาม/.test(nameOf(st.inst[k])));
+    const tosakan = cands.find(k => /พญายักษ์ ทศกัณ/.test(nameOf(st.inst[k])));
+    if (!makham && !tosakan) return null;
+    const fruits = fruitCountInHand(st, side);
+    const hasLand = hasLandNamed(st, LAND.FOREST);
+    const gem4 = hasGem4BatteryInHand(st, side);
+    if (makham && fruits >= 2 && !hasLand) return makham;
+    if (tosakan && (gem4 || fruits < 2 || hasLand)) return tosakan;
+    if (makham && fruits >= 2) return makham;
+    return tosakan || makham || null;
+  }
+  /** ทศกัณฑ์เรียกยักษ์ P3: นรกเยอะ→พิเภก · มีศัตรู→กุมภกรรณ · ว่าง→ยักษ์หิน · เหลือมณโฑ→มณโฑ */
+  function pickYakshaRecruit(st, side, cands) {
+    const find = re => cands.find(k => re.test(nameOf(st.inst[k])));
+    const named = find(/กุมภกรรณ/) || find(/ยักษ์หินแผ่นดินใหญ่/) || find(/พิเภก/) || find(/มณโฑ/);
+    if (!named) return null;
+    const oppN = zoneIds(st, otherSide(side) + '.avatar').length;
+    const hellN = hellYakCount(st, side);
+    if (hellN >= 2) {
+      const p = find(/พิเภก/);
+      if (p) return p;
+    }
+    if (oppN > 0) {
+      const k = find(/กุมภกรรณ/);
+      if (k) return k;
+    } else {
+      const k = find(/ยักษ์หินแผ่นดินใหญ่/);
+      if (k) return k;
+    }
+    return find(/พิเภก/) || find(/กุมภกรรณ/) || find(/ยักษ์หินแผ่นดินใหญ่/) || find(/มณโฑ/) || null;
+  }
+
   /** เป้าอัญเชิญจากนรก/เด็ค */
   function pickSummonTarget(st, side, cands, arch) {
     if (!cands || !cands.length) return null;
+    const dest = arguments.length >= 5 ? arguments[4] : 'hand';
+    const poor = pickPoorSearchTarget(st, side, cands, dest);
+    if (poor) return poor;
+    const yak = pickYakshaRecruit(st, side, cands);
+    if (yak) return yak;
     const ranked = cands.slice().map(k => {
       const c = st.inst[k];
       let s = 0;
@@ -764,6 +841,10 @@
       if (arch === ARCH.ISAN && c && /อีสานสลิงเกอร์/.test(nameOf(c))) s += 80;
       if (arch === ARCH.FOREST && c && /ป่าพงไพร/.test(nameOf(c))) s += 100;
       if (arch === ARCH.ISAN && c && /โคกอีสานนูน/.test(nameOf(c))) s += 100;
+      if (arch === ARCH.FOREST && c && /แตงกวา/.test(nameOf(c)) && !ownNameOnField(st, side, 'แตงกวา'))
+        s += 50;
+      if (arch === ARCH.FOREST && c && /ภูติผลไม้ มะม่วง/.test(nameOf(c)) && !ownNameOnField(st, side, 'มะม่วง'))
+        s += 28;
       return { k, s };
     });
     ranked.sort((a, b) => b.s - a.s);
@@ -909,5 +990,7 @@
     finishComboParts,
     isGreenBeater,
     lifeUpCount,
+    isDeckKeyCard,
+    isBodyguardCard,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
