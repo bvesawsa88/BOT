@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260816i">
+<link rel="stylesheet" href="css/style.css?v=20260816k">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -589,31 +589,53 @@
 </div>
 
 <div id="table" class="hidden">
-  <header id="topbar">
-    <div class="brand">Battle of Talingchan <span>· Table Simulator</span></div>
-    <div id="roomInfo" class="room-info"></div>
-    <button id="btnInvite" class="btn-mini hidden">คัดลอกลิงก์เชิญ</button>
-    <button id="btnBot" class="btn-mini hidden"></button>
-    <button id="btnRematchTop" class="btn-mini">รีแมตช์</button>
-    <button id="btnHowToTop" class="btn-mini" title="เปิดคู่มือวิธีเล่น (แท็บใหม่)">📖 วิธีเล่น</button>
-    <button id="btnFull" class="btn-mini" title="สลับเต็มจอ (กด F)">⛶ เต็มจอ</button>
-    <button id="btnClean" class="btn-mini" title="ซ่อน/แสดง UI สำหรับถ่ายรูป/สตรีม (กด H)">🖼 ซ่อน UI</button>
-    <button id="btnOneSide" class="btn-mini" title="ซ่อนสนามฝั่งตรงข้าม เหลือสนามเราใบเดียวแบบใหญ่ — เหมาะตอนคู่ต่อสู้ใช้การ์ดจริง">⬍ สนามฝั่งเดียว</button>
-    <button id="btnStream" class="btn-mini" title="เปิดหน้าต่างสนามแยก (ไม่มีมือใคร) — เอาไปแชร์จอใน Discord ได้ปลอดภัย">📺 บานสนาม</button>
-    <!-- 📺 ปุ่มนี้โผล่เฉพาะในบานสนาม: สลับโชว์บอร์ดเดียว (ฝั่งเรา ใหญ่เต็มจอ) ↔ สองบอร์ด -->
-    <button id="btnStreamBoth" class="btn-mini stream-only" title="สลับระหว่างโชว์บอร์ดฝั่งเราใบเดียวแบบใหญ่ ↔ โชว์ทั้งสองบอร์ด">⬍ โชว์ 2 บอร์ด</button>
-    <div class="spacer"></div>
-    <div id="chipOpp" class="chip"></div>
-    <div id="turnText" class="turn-text"></div>
-    <div id="chipMe" class="chip"></div>
-    <!-- solo: สลับมุมมองฝั่ง A↔B ให้มือฝั่งที่เล่นอยู่ด้านล่าง -->
-    <button id="btnSwapSide" class="btn-mini hidden" title="สลับมุมมอง — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่ง</button>
-    <button id="btnCardPeek" class="btn-mini only-mobile" title="ดูการ์ดที่แตะล่าสุด"><span class="ico-full">การ์ด</span><span class="ico-short" aria-hidden="true">🔍</span></button>
-    <!-- ปุ่มจำเป็น — อยู่ขวาสุดเสมอ ไม่ถูกซ่อนบนมือถือ -->
-    <button id="btnEnd" class="btn-mini btn-essential" title="ประกาศจบเกม">จบเกม</button>
-    <button id="btnHomeTop" class="btn-mini btn-essential" title="กลับเมนูหลัก / ออกจากห้อง"><span class="ico-full">เมนูหลัก</span><span class="ico-short" aria-hidden="true">🏠</span></button>
-    <button id="btnLogToggle" class="btn-mini only-mobile" title="เมนู / บันทึกเกม"><span class="ico-full">เมนู</span><span class="ico-short" aria-hidden="true">☰</span></button>
-  </header>
+  <button type="button" id="btnTableMenu" class="table-menu-btn" title="เมนูโต๊ะ" aria-label="เมนูโต๊ะ" aria-expanded="false">☰</button>
+  <button id="btnSwapSide" class="btn-mini hidden" title="สลับมุมมอง — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่ง</button>
+  <div id="tableMenu" class="table-menu hidden">
+    <div class="tm-status">
+      <div id="roomInfo" class="room-info"></div>
+      <div class="tm-chips">
+        <div id="chipOpp" class="chip"></div>
+        <div id="turnText" class="turn-text"></div>
+        <div id="chipMe" class="chip"></div>
+      </div>
+    </div>
+    <div class="tm-grid">
+      <button id="btnInvite" class="btn-mini hidden">คัดลอกลิงก์เชิญ</button>
+      <button id="btnBot" class="btn-mini hidden"></button>
+      <button id="btnRematchTop" class="btn-mini">รีแมตช์</button>
+      <button id="btnHowToTop" class="btn-mini" title="เปิดคู่มือวิธีเล่น (แท็บใหม่)">📖 วิธีเล่น</button>
+      <button id="btnFull" class="btn-mini" title="สลับเต็มจอ (กด F)">⛶ เต็มจอ</button>
+      <button id="btnClean" class="btn-mini" title="ซ่อน/แสดง UI สำหรับถ่ายรูป/สตรีม (กด H)">🖼 ซ่อน UI</button>
+      <button id="btnOneSide" class="btn-mini" title="ซ่อนสนามฝั่งตรงข้าม เหลือสนามเราใบเดียวแบบใหญ่ — เหมาะตอนคู่ต่อสู้ใช้การ์ดจริง">⬍ สนามฝั่งเดียว</button>
+      <button id="btnStream" class="btn-mini" title="เปิดหน้าต่างสนามแยก (ไม่มีมือใคร) — เอาไปแชร์จอใน Discord ได้ปลอดภัย">📺 บานสนาม</button>
+      <button id="btnStreamBoth" class="btn-mini stream-only" title="สลับระหว่างโชว์บอร์ดฝั่งเราใบเดียวแบบใหญ่ ↔ โชว์ทั้งสองบอร์ด">⬍ โชว์ 2 บอร์ด</button>
+      <button id="btnCardPeek" class="btn-mini only-mobile" title="ดูการ์ดที่แตะล่าสุด"><span class="ico-full">การ์ด</span><span class="ico-short" aria-hidden="true">🔍</span></button>
+      <button id="btnLogToggle" class="btn-mini only-mobile" title="บันทึกเกม"><span class="ico-full">บันทึกเกม</span><span class="ico-short" aria-hidden="true">📜</span></button>
+      <button id="btnDice" class="btn-mini">🎲 ทอยเต๋า</button>
+      <button id="btnCoin" class="btn-mini">🪙 โยนเหรียญ</button>
+      <button id="btnEnd" class="btn-mini btn-essential" title="ประกาศจบเกม">จบเกม</button>
+      <button id="btnHomeTop" class="btn-mini btn-essential" title="กลับเมนูหลัก / ออกจากห้อง"><span class="ico-full">เมนูหลัก</span><span class="ico-short" aria-hidden="true">🏠</span></button>
+    </div>
+    <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
+    <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
+    <div class="ctrl-row hidden" id="swapSideRow">
+      <button id="btnSwapSideCtrl" class="btn-gold" style="width:100%" title="สลับมุมมองฝั่ง A↔B — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่งผู้เล่น</button>
+    </div>
+    <div id="deckOps" title="จำนวนบวก + บนกอง = เปิดดู N ใบบนสุด · จำนวนติดลบ (−5) + บนกอง = ธรณีสูบ · ค้นหาจากเด็คสับให้อัตโนมัติตอนปิด">
+      <div class="dop-row">
+        <span class="dop-lbl">🃏 เด็ค</span>
+        <button class="dop-step" data-dop-adj="-1">−</button>
+        <input id="dopN" type="number" min="-30" max="30" value="5" inputmode="numeric" title="บวก = เปิดบนกอง · ติดลบ = ธรณีสูบ">
+        <button class="dop-step" data-dop-adj="1">+</button>
+        <span class="dop-unit">ใบ</span>
+      </div>
+      <div class="dop-btns">
+        <button id="btnDeckSearch" class="btn-dark" title="ค้นหาจากเด็ค — 🔒 อีกฝั่งไม่เห็นเนื้อหาเด็ค แต่จะเห็นชื่อใบที่เราหยิบขึ้นมือ · ปิดแล้วสับให้อัตโนมัติ">🔍 ค้นหาจากเด็ค</button>
+        <button id="btnDeckPeekTop" class="btn-dark" title="จำนวนบวก = เปิดบนกอง · จำนวนติดลบ = ธรณีสูบ">👁 บนกอง</button>
+      </div>
+    </div>
+  </div>
 
   <div id="phaseFlash" class="hidden"></div>
   <div id="annFlash" class="ann-flash"></div>
@@ -721,9 +743,10 @@
       <div id="myHandRow" class="hand-row my-hand" data-drop=""></div>
     </section>
 
-    <!-- ปุ่มจบเทิร์นลอย — มือถือแนวตั้ง (แถบ mobileBar ถูกซ่อน) -->
+    <!-- ปุ่มจบเทิร์นลอย — มือถือแนวตั้ง (แถบ mobileBar / แผงขวาถูกซ่อน) -->
     <button type="button" id="btnEndTurnFab" class="end-turn-fab hidden" aria-label="จบเทิร์น">
-      <b>🏁</b><span>จบเทิร์น</span>
+      <span class="et-phase et-phase-fab">MAIN</span>
+      <b>จบเทิร์น</b>
     </button>
 
     <!-- ═══ แถบควบคุมล่างจอ — เฉพาะมือถือ (ปุ่มใหญ่ แตะง่าย) ═══ -->
@@ -743,38 +766,16 @@
     </div>
 
     <aside id="logPane">
-      <div class="pane-head rp-head">ตัวควบคุม <button id="btnLogClose" class="btn-mini only-mobile">ปิด</button></div>
-      <div id="pvControls">
-        <div id="phaseBar" class="phase-bar phase-bar-ro" title="เฟสเปลี่ยนอัตโนมัติตามการเล่น (จั่ว→เมน→แบทเทิล→จบ)"></div>
-        <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
-        <div class="ctrl-row hidden" id="mullRow"><button id="btnMulligan" class="btn-gold" style="width:100%">🔄 มัลลิแกน (เปลี่ยนมือเปิด)</button></div>
-        <div class="ctrl-row hidden" id="swapSideRow">
-          <button id="btnSwapSideCtrl" class="btn-gold" style="width:100%" title="สลับมุมมองฝั่ง A↔B — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่งผู้เล่น</button>
-        </div>
-        <div class="ctrl-row">
-          <button id="btnEndTurn" class="btn-primary" style="width:100%">จบเทิร์น ▸</button>
-        </div>
-        <div class="ctrl-row">
-          <button id="btnDice" class="btn-gold">🎲 ทอยเต๋า d6</button>
-          <button id="btnCoin" class="btn-dark">🪙 โยนเหรียญ</button>
-        </div>
-        <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
+      <button type="button" id="btnEndTurn" class="end-turn-btn" aria-label="จบเทิร์น">
+        <span id="etPhase" class="et-phase">MAIN PHASE</span>
+        <b class="et-label">จบเทิร์น</b>
+        <span id="etSub" class="et-sub">กด Enter</span>
+      </button>
+      <div class="pane-head rp-head">📜 บันทึกเกม <button id="btnLogClose" class="btn-mini only-mobile">ปิด</button></div>
+      <div id="pvControls" class="hidden" aria-hidden="true">
+        <div id="phaseBar" class="phase-bar phase-bar-ro"></div>
+        <div class="ctrl-row hidden" id="mullRow"><button id="btnMulligan" class="btn-gold">มัลลิแกน</button></div>
       </div>
-      <!-- 🃏 คำสั่งเด็ค — จำนวนบวก+บนกอง=เปิดบนกอง · จำนวนติดลบ(−5)+บนกอง=ธรณีสูบ -->
-      <div id="deckOps" title="จำนวนบวก + บนกอง = เปิดดู N ใบบนสุด · จำนวนติดลบ (−5) + บนกอง = ธรณีสูบ · ค้นหาจากเด็คสับให้อัตโนมัติตอนปิด">
-        <div class="dop-row">
-          <span class="dop-lbl">🃏 เด็ค</span>
-          <button class="dop-step" data-dop-adj="-1">−</button>
-          <input id="dopN" type="number" min="-30" max="30" value="5" inputmode="numeric" title="บวก = เปิดบนกอง · ติดลบ = ธรณีสูบ">
-          <button class="dop-step" data-dop-adj="1">+</button>
-          <span class="dop-unit">ใบ</span>
-        </div>
-        <div class="dop-btns">
-          <button id="btnDeckSearch" class="btn-dark" title="ค้นหาจากเด็ค — 🔒 อีกฝั่งไม่เห็นเนื้อหาเด็ค แต่จะเห็นชื่อใบที่เราหยิบขึ้นมือ · ปิดแล้วสับให้อัตโนมัติ">🔍 ค้นหาจากเด็ค</button>
-          <button id="btnDeckPeekTop" class="btn-dark" title="จำนวนบวก = เปิดบนกอง · จำนวนติดลบ = ธรณีสูบ">👁 บนกอง</button>
-        </div>
-      </div>
-      <div class="pane-head rp-head">📜 บันทึกเกม</div>
       <div id="logBody"></div>
       <div class="pane-head rp-head">💬 แชท</div>
       <div id="chatBody"></div>
@@ -1053,7 +1054,7 @@
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260816i"></script>
+<script src="js/game.js?v=20260816k"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

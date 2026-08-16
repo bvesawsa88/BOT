@@ -345,6 +345,16 @@
     ps.className = 'phase-slot ph-' + st.phase + (mine ? '' : ' wait');
     ps.title = mine ? 'แตะเพื่อจบเทิร์น' : ('รอตาฝั่ง ' + st.active);
     ps.setAttribute('aria-disabled', mine ? 'false' : 'true');
+    const etPh = byId('etPhase'), etSub = byId('etSub'), etFabPh = document.querySelector('.et-phase-fab');
+    if (etPh) etPh.textContent = meta.en;
+    if (etFabPh) etFabPh.textContent = meta.short;
+    if (etSub) etSub.textContent = mine ? 'กด Enter' : ('ตาฝั่ง ' + st.active);
+    const desk = byId('btnEndTurn');
+    if (desk) {
+      desk.classList.toggle('wait', !mine);
+      desk.classList.remove('ph-Draw', 'ph-Main', 'ph-Battle', 'ph-End');
+      desk.classList.add('ph-' + st.phase);
+    }
     syncEndTurnUi();
   }
   function canEndTurnNow() {
@@ -367,20 +377,38 @@
     const mb = byId('mbEnd');
     const desk = byId('btnEndTurn');
     const onTable = !byId('table').classList.contains('hidden');
-    const portrait = window.matchMedia('(max-width:920px) and (orientation:portrait)').matches;
+    const mobile = window.matchMedia('(max-width:920px)').matches;
+    const landscapeMobile = window.matchMedia('(max-width:1100px) and (orientation:landscape), (max-height:520px) and (orientation:landscape)').matches;
     const drawerOpen = !byId('logPane').classList.contains('hidden');
     const pvOpen = byId('previewPane').classList.contains('open');
     if (fab) {
-      const show = onTable && portrait && st && !st.over && !drawerOpen && !pvOpen && !mullP;
+      const show = onTable && !landscapeMobile && st && !st.over && !mullP
+        && !(mobile && (drawerOpen || pvOpen));
       fab.classList.toggle('hidden', !show);
       fab.classList.toggle('wait', !ok);
       fab.disabled = !ok;
+      if (show) syncEndTurnFabPos();
     }
     if (mb) mb.classList.toggle('wait', !ok);
     if (desk) {
       desk.disabled = !ok;
-      desk.style.opacity = ok ? '' : '.45';
+      desk.classList.toggle('wait', !ok);
     }
+  }
+  function syncEndTurnFabPos() {
+    const fab = byId('btnEndTurnFab');
+    const hell = byId('myHell');
+    if (!fab || !hell || fab.classList.contains('hidden')) return;
+    const r = hell.getBoundingClientRect();
+    if (r.width < 8 || r.height < 8) return;
+    const fw = fab.offsetWidth || 108;
+    const fh = fab.offsetHeight || 48;
+    const left = Math.round(r.left + (r.width - fw) / 2);
+    const top = Math.round(r.top - fh - 4);
+    fab.style.left = Math.max(6, Math.min(left, window.innerWidth - fw - 6)) + 'px';
+    fab.style.top = Math.max(6, top) + 'px';
+    fab.style.right = 'auto';
+    fab.style.bottom = 'auto';
   }
   function doEndTurn() {
     if (!st) return;
@@ -389,10 +417,12 @@
       else toast('ตอนนี้จบเทิร์นยังไม่ได้');
       return;
     }
-    const fab = byId('btnEndTurnFab');
-    if (fab && !fab.classList.contains('hidden')) {
-      fab.classList.remove('flash'); void fab.offsetWidth; fab.classList.add('flash');
-    }
+    const flash = el => {
+      if (!el || el.classList.contains('hidden')) return;
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    };
+    flash(byId('btnEndTurnFab'));
+    flash(byId('btnEndTurn'));
     sendAction({ type: 'endTurn' });
   }
 
@@ -3867,6 +3897,8 @@
     const firstpAvail = mode === 'solo' && st.turn === 1 && !played;
     byId('firstpRow').classList.toggle('hidden', !firstpAvail);
     if (firstpAvail) byId('btnFirstP').textContent = `🎲 สลับผู้เริ่มก่อน (ตอนนี้: ${st.firstPlayer || 'A'})`;
+    const menuBtn = byId('btnTableMenu');
+    if (menuBtn) menuBtn.classList.toggle('need', !!(firstpAvail || (canSwapSoloSide() && st.active !== my)));
     // มัลลิแกน — ถามทีละคนให้ครบก่อน · จั่วเพิ่มผู้เริ่มทำหลังแอนิเมชันเปิดศึก (beginDuel)
     const amSpec = mode === 'online' && seat === 'S';
     const done = st.mulliganDone || {};
@@ -4018,6 +4050,7 @@
       myH.style.height = rowMy.toFixed(2) + 'px';
       myH.style.minHeight = '';
     }
+    syncEndTurnFabPos();
   }
 
   /* มือถือ: ใช้เต็มความกว้างแถวมือ · ใบน้อยจัดกลุ่มตรงกลาง · ใบเยอะเหลื่อมเต็มแถว */
@@ -4069,12 +4102,8 @@
         start = pad + (W - natural) / 2;
         step = cw + gapIdeal;
       } else {
-        // ใบเยอะ: ใช้เต็มความกว้างแถว (ไม่จำกัดพื้นที่)
+        // ใบเยอะ: เหลื่อมให้พอดีความกว้างแถว
         step = (W - cw) / (n - 1);
-        const minPeek = Math.max(30, Math.round(cw * 0.36));
-        if (step < minPeek) {
-          step = minPeek;
-        }
       }
     }
     /* visible ทั้งสองแกน — ถ้าแกน X เป็น hidden/auto เบราว์เซอร์จะบังคับ Y เป็น auto
@@ -4460,7 +4489,7 @@
     announceSrc = null; announceKind = 'use';
   }
   /* กองเด็คบนเสื่อ = "แตะเพื่อจั่ว" อย่างเดียว — คำสั่งเด็คทั้งหมด (จั่ว/สับ/ค้นหา/สอดแนม/ท็อป/สูบ)
-     อยู่ที่แผง 🃏 เด็ค ในแถบขวา (#deckOps) ที่เดียว */
+     อยู่ที่เมนูโต๊ะ ☰ → แผง 🃏 เด็ค */
   function closeMenu() { byId('ctxMenu').classList.add('hidden'); }
 
   /* ── เลือกปฏิบัติ (เลือก 1 ใน N ข้อ) ── */
@@ -5027,7 +5056,7 @@
       }
     } else if (deckEl) {
       drag = { deck: deckEl.dataset.deck, x0: e.clientX, y0: e.clientY, moved: false, suppress: false };
-      // กองเด็ค: แตะ = จั่ว · คำสั่งอื่นอยู่ที่แผง 🃏 เด็ค ในแถบขวา
+      // กองเด็ค: แตะ = จั่ว · คำสั่งอื่นอยู่ที่เมนูโต๊ะ ☰
     } else {
       const pileEl = e.target.closest('[data-pile]');
       if (pileEl) drag = { pile: pileEl.dataset.pile, x0: e.clientX, y0: e.clientY, moved: false, suppress: false };
@@ -5351,6 +5380,33 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doEndTurn(); }
     });
   }
+  function closeTableMenu() {
+    const m = byId('tableMenu'), b = byId('btnTableMenu');
+    if (m) m.classList.add('hidden');
+    if (b) { b.classList.remove('on'); b.setAttribute('aria-expanded', 'false'); }
+  }
+  function toggleTableMenu() {
+    const m = byId('tableMenu'), b = byId('btnTableMenu');
+    if (!m) return;
+    const open = m.classList.contains('hidden');
+    m.classList.toggle('hidden', !open);
+    if (b) { b.classList.toggle('on', open); b.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  }
+  const btnTableMenu = byId('btnTableMenu');
+  if (btnTableMenu) btnTableMenu.onclick = e => { e.stopPropagation(); toggleTableMenu(); };
+  const tableMenuEl = byId('tableMenu');
+  if (tableMenuEl) {
+    tableMenuEl.addEventListener('click', e => {
+      if (e.target.closest('#deckOps, #dopN, .dop-step, #firstpRow, #swapSideRow, #inpChat')) return;
+      if (e.target.closest('.tm-grid button, #btnHomeTop, #btnEnd')) closeTableMenu();
+    });
+  }
+  document.addEventListener('pointerdown', e => {
+    const m = byId('tableMenu');
+    if (!m || m.classList.contains('hidden')) return;
+    if (m.contains(e.target) || (btnTableMenu && btnTableMenu.contains(e.target))) return;
+    closeTableMenu();
+  });
   window.addEventListener('resize', () => { if (st) syncEndTurnUi(); });
   window.addEventListener('orientationchange', () => { setTimeout(() => { if (st) { syncPhaseSlot(); syncEndTurnUi(); } }, 200); });
   // btnStrict ถูกถอดออกจากหน้า (แมนนวล 100%)
@@ -5493,7 +5549,7 @@
   byId('inpChat').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
   byId('btnInvite').onclick = copyInvite;
   byId('btnTutClose').onclick = () => { try { localStorage.setItem('bot_tut_seen', '1'); } catch (e) { } byId('tut').classList.add('hidden'); };
-  byId('btnLogToggle').onclick = () => byId('logPane').classList.toggle('hidden');
+  byId('btnLogToggle').onclick = () => { closeTableMenu(); byId('logPane').classList.toggle('hidden'); };
   byId('btnLogClose').onclick = () => byId('logPane').classList.add('hidden');
   function closeCardPeek() {
     const pv = byId('previewPane');
@@ -5512,14 +5568,25 @@
     if (bC) bC.classList.toggle('on', pv.classList.contains('open'));
     const drawerOpen = !lg.classList.contains('hidden');
     if (bL) bL.classList.toggle('on', drawerOpen);
-    if (bD) bD.classList.toggle('on', drawerOpen);
+    if (bD) bD.classList.toggle('on', !!(byId('tableMenu') && !byId('tableMenu').classList.contains('hidden')));
     syncEndTurnUi();
   }
+  const openTableDeck = () => {
+    byId('previewPane').classList.remove('open');
+    byId('logPane').classList.add('hidden');
+    const m = byId('tableMenu');
+    if (m) m.classList.remove('hidden');
+    const b = byId('btnTableMenu');
+    if (b) { b.classList.add('on'); b.setAttribute('aria-expanded', 'true'); }
+    setTimeout(() => { const d = byId('deckOps'); if (d) d.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 30);
+    mbSync();
+  };
   const openDrawer = (scrollToDeck) => {
     byId('previewPane').classList.remove('open');
+    closeTableMenu();
     byId('logPane').classList.remove('hidden');
-    if (scrollToDeck) setTimeout(() => { const d = byId('deckOps'); if (d) d.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 30);
-    mbSync();
+    if (scrollToDeck) openTableDeck();
+    else mbSync();
   };
   function toggleCardPeek() { // พรีวิวการ์ดที่แตะล่าสุด
     const pv = byId('previewPane');
@@ -5531,7 +5598,11 @@
   const btnCardPeek = byId('btnCardPeek');
   if (btnCardPeek) btnCardPeek.onclick = toggleCardPeek;
   byId('mbEnd').onclick = () => doEndTurn();
-  byId('mbDeck').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(true) : (lg.classList.add('hidden'), mbSync()); };
+  byId('mbDeck').onclick = () => {
+    const m = byId('tableMenu');
+    if (m && !m.classList.contains('hidden')) { closeTableMenu(); mbSync(); }
+    else openTableDeck();
+  };
   byId('mbLog').onclick = () => { const lg = byId('logPane'); lg.classList.contains('hidden') ? openDrawer(false) : (lg.classList.add('hidden'), mbSync()); };
   // แนะนำหมุนจอ (มือถือแนวตั้ง) — กดข้ามแล้วจำไว้
   try { if (localStorage.getItem('bot_rot_skip')) byId('rotateHint').classList.add('off'); } catch (e) { }
@@ -5543,7 +5614,11 @@
   // ── เต็มจอ + คีย์ลัด (เดสก์ท็อป) ──
   function toggleFull() { try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { } }
   byId('btnFull').onclick = toggleFull;
-  function toggleClean() { const on = byId('table').classList.toggle('clean'); byId('btnClean').textContent = on ? '🖼 แสดง UI' : '🖼 ซ่อน UI'; }
+  function toggleClean() {
+    closeTableMenu();
+    const on = byId('table').classList.toggle('clean');
+    byId('btnClean').textContent = on ? '🖼 แสดง UI' : '🖼 ซ่อน UI';
+  }
   byId('btnClean').onclick = toggleClean;
   document.addEventListener('keydown', e => {
     if (byId('table').classList.contains('hidden')) return;                 // เฉพาะตอนอยู่หน้าโต๊ะ
@@ -5554,7 +5629,7 @@
       'enter': () => doEndTurn(),
       'd': () => byId('btnDice').click(),
       'c': () => byId('btnCoin').click(),
-      'l': () => byId('logPane').classList.toggle('hidden'),
+      'l': () => { closeTableMenu(); byId('logPane').classList.toggle('hidden'); },
       'f': toggleFull,
       'h': toggleClean,
       'escape': () => {
@@ -6147,6 +6222,7 @@
     layoutMyHand();
     layoutMagicZones();
     syncFieldCardScale();
+    syncEndTurnFabPos();
   }
   window.addEventListener('resize', onResize);
   window.addEventListener('orientationchange', () => setTimeout(() => { onResize(); if (st) { layoutMyHand(); layoutMagicZones(); } }, 120));

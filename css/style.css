@@ -230,7 +230,6 @@ body.has-back .screen::after{top:50px}
 
 /* ── โครงโต๊ะ ── */
 #table{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
-#topbar{height:42px;flex:none;display:flex;align-items:center;gap:12px;padding:0 12px;background:var(--panel);border-bottom:2px solid var(--red)}
 .brand{font-family:'IBM Plex Sans Thai',sans-serif;font-weight:700;font-size:15px;color:var(--gold);white-space:nowrap}
 .brand span{color:var(--dim);font-weight:500}
 .room-info{font-size:12.5px;color:var(--dim);white-space:nowrap}
@@ -240,9 +239,29 @@ body.has-back .screen::after{top:50px}
 .turn-text{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:var(--gold);white-space:nowrap}
 #main{flex:1;display:flex;min-height:0}
 /* โหมดซ่อน UI (ถ่ายรูป/สตรีม) — เหลือแต่โต๊ะ+การ์ด */
-#table.clean #previewPane,#table.clean #logPane{display:none}
-#table.clean #topbar .btn-mini:not(#btnClean):not(#btnFull){display:none}
-#table.clean #topbar{opacity:.85}
+#table.clean #previewPane,#table.clean #logPane,#table.clean #btnEndTurnFab{display:none}
+#table.clean #btnSwapSide{display:none!important}
+
+/* ── เมนูโต๊ะ (แทนแถบบน) ── */
+.table-menu-btn{position:fixed;top:8px;right:8px;left:auto;z-index:211;width:36px;height:36px;padding:0;
+  border-radius:10px;border:1.5px solid var(--border);background:rgba(15,15,17,.92);color:var(--cream);
+  font-size:18px;line-height:1;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:pointer}
+.table-menu-btn:hover,.table-menu-btn.on{background:var(--gold);color:#1a1814;border-color:var(--gold)}
+.table-menu-btn.need{background:var(--gold);color:#241c12;border-color:var(--gold);animation:swapNeed 1.1s ease-in-out infinite}
+.table-menu{position:fixed;top:50px;right:8px;left:auto;z-index:210;width:min(360px,calc(100vw - 16px));max-height:min(78vh,640px);
+  overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:10px;
+  background:var(--panel);border:2px solid var(--border);border-radius:12px;
+  box-shadow:0 12px 36px rgba(0,0,0,.65)}
+.tm-status{display:flex;flex-direction:column;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.tm-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tm-grid{display:flex;flex-wrap:wrap;gap:6px}
+.tm-grid .btn-mini{font-size:12px;padding:6px 10px}
+#tableMenu #deckOps{border-bottom:none;padding-top:6px;border-top:1px solid var(--border)}
+#tableMenu .tool-result{font-size:11px;text-align:left;min-height:1.3em}
+#tableMenu .room-info{white-space:normal;line-height:1.4}
+#tableMenu .ctrl-row{display:flex}
+#tableMenu .ctrl-row > button{width:100%}
+#btnSwapSide{position:fixed;top:8px;right:50px;left:auto;z-index:211;height:36px;padding:0 10px}
 #previewPane{width:216px;flex:none;background:var(--panel);border-right:1.5px solid var(--border);padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
 .pane-head{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11.5px;font-weight:600;color:var(--dim);letter-spacing:.4px;display:flex;justify-content:space-between;align-items:center}
 .pv-head{flex:none;position:sticky;top:0;z-index:2;margin:-10px -10px 0;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--border)}
@@ -472,7 +491,37 @@ body.has-back .screen::after{top:50px}
 #pvControls .phase-pip.on{box-shadow:0 0 0 2px var(--gold),2px 2px 0 var(--panel);transform:translateY(-1px)}
 #pvControls .phase-bar-ro .phase-pip{cursor:default;pointer-events:none;opacity:.85}
 #pvControls .phase-bar-ro .phase-pip.on{opacity:1}
-#btnEndTurn{font-size:14px;font-weight:700;padding:10px 12px;border-radius:9px;box-shadow:3px 3px 0 var(--panel)}
+.end-turn-btn{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  margin:8px 8px 0;padding:12px 10px 13px;width:calc(100% - 16px);border-radius:14px;cursor:pointer;
+  font-family:'IBM Plex Sans Thai',sans-serif;color:#f4ead6;text-align:center;
+  background:linear-gradient(180deg,rgba(255,220,170,.16),transparent 42%),linear-gradient(180deg,#4a2e1c,#1c100c);
+  border:2px solid #c9a14a;box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,230,190,.22)}
+.end-turn-btn:hover{filter:brightness(1.12)}
+.end-turn-btn:active{transform:scale(.98)}
+.end-turn-btn .et-phase{font-size:10px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;opacity:.72;color:#f0d78a}
+.end-turn-btn .et-label{font-size:18px;font-weight:700;line-height:1.15;color:#ffe9b0;text-shadow:0 1px 0 #1a1008}
+.end-turn-btn .et-sub{font-size:11px;font-weight:500;opacity:.7}
+.end-turn-btn.wait{opacity:.42;filter:grayscale(.35);cursor:not-allowed}
+.end-turn-btn.ph-Draw{border-color:#5ecf94}
+.end-turn-btn.ph-Draw .et-phase{color:#c8f0d8}
+.end-turn-btn.ph-Battle{border-color:#e0625a;background:linear-gradient(180deg,rgba(255,140,120,.14),transparent 42%),linear-gradient(180deg,#4a1e18,#1c0c0a)}
+.end-turn-btn.ph-Battle .et-phase,.end-turn-btn.ph-Battle .et-label{color:#ffd7d2}
+.end-turn-btn.ph-End{border-color:#e6c368}
+.end-turn-btn.flash{animation:endBtnFlash .45s ease}
+@keyframes endBtnFlash{0%,100%{transform:scale(1)}40%{transform:scale(1.04);filter:brightness(1.25)}}
+#logPane .end-turn-btn{display:none}
+.end-turn-fab{display:none}
+.end-turn-fab:not(.hidden){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  position:fixed;z-index:70;min-width:108px;padding:8px 14px 9px;border-radius:14px;
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:700;
+  color:#ffe9b0;background:linear-gradient(180deg,rgba(255,220,170,.16),transparent 42%),linear-gradient(180deg,#4a2e1c,#1c100c);
+  border:2px solid #c9a14a;box-shadow:0 6px 18px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,230,190,.22);cursor:pointer}
+.end-turn-fab .et-phase-fab{font-size:9px;font-weight:600;letter-spacing:1.2px;opacity:.75;color:#f0d78a}
+.end-turn-fab b{font-size:15px;line-height:1.15;font-weight:700}
+.end-turn-fab.wait{opacity:.4;filter:grayscale(.35);pointer-events:none}
+.end-turn-fab.flash{animation:endFabFlash .45s ease}
+.end-turn-fab:active{transform:scale(.96);filter:brightness(1.08)}
+@keyframes endFabFlash{0%,100%{transform:scale(1)}40%{transform:scale(1.06);filter:brightness(1.2)}}
 #btnDice,#btnCoin{font-size:12.5px;padding:9px 10px}
 #btnDice{box-shadow:3px 3px 0 var(--panel)}
 #pvControls .tool-result{font-size:11px;text-align:center}
@@ -523,8 +572,8 @@ body.has-back .screen::after{top:50px}
   align-items:center;justify-content:flex-start;gap:8px;position:relative;z-index:80;isolation:isolate;
   align-self:stretch;width:100%;box-sizing:border-box;scrollbar-width:thin}
 .card.hand{transition:transform .14s ease-out,width .14s ease-out,height .14s ease-out,left .14s ease-out}
-.card.hand:hover{transform:translateY(-10px) scale(1.06);z-index:50}
-.card.hand.sel{transform:translateY(-8px);z-index:45;outline:3px solid var(--gold);outline-offset:-1px}
+.card.hand:hover{transform:translateY(-6px) scale(1.05);z-index:50}
+.card.hand.sel{transform:translateY(-6px) scale(1.06);z-index:45;outline:2px solid var(--gold);outline-offset:-1px}
 .card.hand.sel,.card.hand:hover{box-shadow:0 8px 18px rgba(0,0,0,.65)}
 .card.hand .fb-name{font-size:10px}
 .card.hand .fb-pow{font-size:11px}
@@ -532,11 +581,11 @@ body.has-back .screen::after{top:50px}
 .hand-row.my-hand.hand-spread{position:relative;overflow:visible!important;gap:0}
 .hand-row.my-hand.hand-spread .card.hand{margin:0;transform:none}
 .hand-row.my-hand.hand-spread .card.hand.sel{
-  transform:translateY(-28px) scale(1.42)!important;transform-origin:bottom center;
-  z-index:220!important;outline:3px solid var(--gold);outline-offset:1px;
-  box-shadow:0 14px 32px rgba(0,0,0,.75),0 0 0 2px rgba(232,196,106,.55)}
+  transform:translateY(-8px) scale(1.08)!important;transform-origin:bottom center;
+  z-index:220!important;outline:2px solid var(--gold);outline-offset:1px;
+  box-shadow:0 8px 18px rgba(0,0,0,.65),0 0 0 1px rgba(232,196,106,.4)}
 .hand-row.my-hand.hand-spread .card.hand:hover:not(.sel){
-  transform:translateY(-12px) scale(1.08)!important;z-index:180}
+  transform:translateY(-6px) scale(1.04)!important;z-index:180}
 /* ★ มุมมองผู้ชม — ไม่มีฝั่ง "ของเรา" ให้มือทั้งสองฝั่งขนาดเท่ากัน (เล็กเท่ากัน) */
 #table.spectate .hand-row.my-hand{height:auto;min-height:0;padding:1px 0;align-items:center}
 #table.spectate #myHandRow .card{width:auto!important;height:52px!important;aspect-ratio:512/716;margin:0 -4px;
@@ -552,7 +601,7 @@ body.has-back .screen::after{top:50px}
   width:var(--opp-hand-card-w)!important;height:var(--opp-hand-card-h)!important;
   aspect-ratio:512/716;margin:0 2px;flex:none;box-sizing:border-box}
 #oppHandRow .tool-result{font-size:11px;align-self:center;white-space:nowrap}
-.card.hand:hover{transform:translateY(-10px) scale(1.06);z-index:50}
+.card.hand:hover{transform:translateY(-6px) scale(1.05);z-index:50}
 /* ขยายการ์ดในสนามตอนชี้ ให้อ่านง่าย + เงา/ขอบเรืองเล็กน้อย */
 .card.avatar .face,.card.magic .face,.card.construct .face,.card.land .face{box-shadow:0 3px 10px rgba(0,0,0,.6);border:1px solid rgba(0,0,0,.35)}
 .card.avatar,.card.magic,.card.construct{transition:transform .13s,box-shadow .13s}
@@ -564,7 +613,7 @@ body.dragging .card.avatar:hover,body.dragging .card.magic:hover,body.dragging .
 body.dragging .card.land:hover{transform:rotate(90deg)}
 body.dragging .card.avatar.tapped:hover{transform:rotate(90deg) scale(.86)}
 body.dragging .card.hand:hover{transform:none}
-.card.hand.sel{outline:3px solid var(--gold);outline-offset:-1px;transform:translateY(-8px);z-index:45}
+.card.hand.sel{outline:2px solid var(--gold);outline-offset:-1px}
 .card.hand .gem{position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:var(--gold);color:#26201b;font-size:10.5px;font-weight:700;border-radius:9px;padding:1px 8px}
 /* หลังการ์ดของมือที่มองไม่เห็น (ฝั่งตรงข้าม/มุมมองผู้ชม) = โลโก้เดียวกับหลังการ์ดจริง */
 .card.oppback{width:32px;height:45px;border-radius:4px;margin-left:-8px;
@@ -596,7 +645,7 @@ body.dragging .card.hand:hover{transform:none}
 @media (prefers-reduced-motion:reduce){.card.deal,.card.deal-land,.card.atk-strike,.card.atk-hit,.mz.atk-hit{animation:none}.card.vfx-hide{opacity:1!important}}
 
 /* แถบสั่งการลอย — กองแนวตั้งใต้แถบบน ไม่ให้เชน/พรอมต์/โจมตีทับกัน */
-#floatBars{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:190;
+#floatBars{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:190;
   display:flex;flex-direction:column;align-items:center;gap:8px;
   width:min(94vw,780px);max-width:min(94vw,780px);pointer-events:none}
 #floatBars > .hidden{display:none!important}
@@ -622,7 +671,7 @@ body.dragging .card.hand:hover{transform:none}
 @keyframes attackPulse{0%,100%{box-shadow:0 6px 24px rgba(0,0,0,.55),0 0 0 1px rgba(210,210,216,.25)}50%{box-shadow:0 6px 28px rgba(0,0,0,.6),0 0 0 3px rgba(240,240,243,.5)}}
 #attackText{font-weight:700}
 /* แจ้งเตือนเฟสตัวใหญ่ (เด้งกลางบนเมื่อเปลี่ยนเฟส/เทิร์น) */
-#phaseFlash{position:absolute;top:54px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:200;pointer-events:none;font-family:'IBM Plex Sans Thai',sans-serif;font-weight:700;font-size:24px;padding:9px 30px;border-radius:14px;background:rgba(15,15,17,.93);border:2px solid var(--red-lite);color:var(--cream);box-shadow:0 8px 30px rgba(0,0,0,.6);opacity:0;transition:opacity .22s,transform .22s}
+#phaseFlash{position:absolute;top:12px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:200;pointer-events:none;font-family:'IBM Plex Sans Thai',sans-serif;font-weight:700;font-size:24px;padding:9px 30px;border-radius:14px;background:rgba(15,15,17,.93);border:2px solid var(--red-lite);color:var(--cream);box-shadow:0 8px 30px rgba(0,0,0,.6);opacity:0;transition:opacity .22s,transform .22s}
 #phaseFlash.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #phaseFlash.ph-Battle{border-color:#e0625a;color:#ffd7d2}
 #phaseFlash.ph-Main{border-color:#e6c368;color:#ffe9b0}
@@ -795,13 +844,7 @@ body.dragging .card.hand:hover{transform:none}
 #logPane{width:250px;flex:none;background:var(--panel);border-left:1.5px solid var(--border);display:flex;flex-direction:column}
 #logPane .pane-head{padding:9px 12px;border-bottom:1px solid var(--border)}
 #logBody{flex:1 1 0;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:5px;min-height:180px}
-/* ปุ่มควบคุมย้ายมาอยู่แผงขวา (บนสุด) + log/แชท แยกช่อง */
-#logPane #pvControls{border-top:none;margin-top:0;padding:7px 10px 8px;gap:5px;border-bottom:2px solid var(--border)}
-#logPane #pvControls .phase-pip{padding:5px 5px;font-size:12px}
-#logPane #btnEndTurn{padding:7px 10px;font-size:13.5px}
-#logPane #btnDice,#logPane #btnCoin,#logPane #btnFirstP{padding:6px 8px;font-size:12px}
-#logPane #pvControls .tool-result{font-size:10.5px;line-height:1.35}
-#logPane #pvControls .pvc-head{display:none}
+#logPane #pvControls{display:none}
 .rp-head{flex:none;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03);font-size:11.5px;font-weight:600;color:var(--dim);letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center}
 #chatBody{flex:1 1 0;min-height:90px;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:4px}
 .chat-empty{color:#5c5347;font-size:12px;text-align:center;padding:12px}
@@ -935,7 +978,7 @@ body.dragging .card .qa{display:none!important}
 .df5{transform:rotateX(-90deg) translateZ(50px)}
 .df6{transform:rotateY(180deg) translateZ(50px)}
 /* ข้อความแจ้งชั่วคราว — มุมซ้ายบน (พ้นมือ/สนาม) + คลิกทะลุได้ ไม่มีทางขวางการกดการ์ด */
-#toast{position:fixed;left:12px;top:52px;transform:none;z-index:180;pointer-events:none;
+#toast{position:fixed;left:12px;top:10px;transform:none;z-index:180;pointer-events:none;
   background:rgba(18,14,10,.95);border:1.5px solid var(--gold);border-radius:10px;
   padding:9px 14px;font-size:13px;line-height:1.5;color:var(--cream);
   max-width:min(340px,52vw);text-align:left;box-shadow:0 6px 20px rgba(0,0,0,.6);
@@ -998,16 +1041,11 @@ body.dragging .card .qa{display:none!important}
   .only-mobile{display:inline-block}
   .only-mobile-flex{display:flex!important}
   .phase-slot{display:flex} /* มือถือ: ช่องเปลี่ยนเฟสกลางสนาม */
-  .brand span,.room-info{display:none}
   /* ลิ้นชักขวา — เลื่อนดูได้ ไม่ชนแถบล่าง */
-  #logPane{position:fixed;right:0;top:42px;bottom:var(--mb-h);width:92vw;max-width:360px;z-index:120;
+  #logPane{position:fixed;right:0;top:0;bottom:var(--mb-h);width:92vw;max-width:360px;z-index:120;
     box-shadow:-8px 0 24px rgba(0,0,0,.5);overflow-y:auto}
   #logPane.hidden{display:none!important}
-  #logPane #pvControls .ctrl-row{flex-direction:row}
-  #logPane #pvControls .phase-pip{padding:9px 6px;font-size:14px}
-  #logPane #btnEndTurn{padding:14px;font-size:16px;min-height:48px;border-radius:10px;
-    background:linear-gradient(180deg,#4a4a55,#2a2a32);border-color:#6a6a75}
-  #logPane #btnDice,#logPane #btnCoin,#logPane #btnFirstP{padding:10px;font-size:13.5px}
+  #logPane #btnEndTurn{margin:10px 10px 0;padding:14px 10px 15px;min-height:64px}
   #deckOps .dop-btns button{padding:10px 4px;font-size:12.5px}
   #deckOps .dop-step{width:34px;height:34px;font-size:18px}
   #dopN{width:52px;font-size:16px;padding:5px 2px}
@@ -1017,6 +1055,7 @@ body.dragging .card .qa{display:none!important}
   #previewPane{position:fixed;left:0;right:0;bottom:var(--mb-h);top:auto;width:auto;max-height:62vh;z-index:130;
     border:none;border-top:2px solid var(--red);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.6);
     overflow-y:auto;transform:translateY(102%);transition:transform .22s ease;padding-bottom:8px}
+  #previewPane .pv-head{padding-left:10px}
   #previewPane.open{transform:translateY(0)}
   #previewPane .pv-img{max-height:38vh}
   /* แถบปุ่มล่างจอ */
@@ -1033,7 +1072,7 @@ body.dragging .card .qa{display:none!important}
   #mobileBar .mb-end b{color:#1a1814;font-size:20px}
   #mobileBar .mb-end span{color:#1a1814;font-weight:700;opacity:1}
   #mobileBar .mb-end.wait{opacity:.4;filter:grayscale(.4)}
-  /* ปุ่มจบเทิร์นลอย — โชว์เฉพาะแนวตั้ง (แถบล่างถูกซ่อน) */
+  /* ปุ่มจบเทิร์นลอย — โชว์เฉพาะแนวตั้ง (แถบล่างถูกซ่อน) · ตำแหน่งจาก JS เหนือนรก */
   .end-turn-fab{display:none}
   /* เว้นที่ให้แถบล่าง + มือเรียงยาวไม่ซ้อน */
   #main{padding-bottom:var(--mb-h)}
@@ -1053,12 +1092,7 @@ body.dragging .card .qa{display:none!important}
 /* ═══ มือถือแนวนอน — โหมดหลัก (สไตล์ Master Duel): สนามเต็มจอ · ปุ่มเป็นแถบไอคอนแนวตั้งขอบขวา ═══ */
 @media (max-width:1100px) and (orientation:landscape),(max-height:520px) and (orientation:landscape){
   :root{--mb-w:50px}
-  /* แถบบนบางที่สุด — เหลือแค่สถานะเทิร์น/ผู้เล่น · ปุ่มอื่นเป็นไอคอนจิ๋ว (คืนความสูงให้สนาม) */
-  #topbar{padding:0 4px;gap:3px;min-height:0;height:26px;overflow:hidden;flex-wrap:nowrap}
-  #topbar .brand{display:none}
-  #topbar .btn-mini{padding:1px 5px;font-size:9.5px;border-radius:5px}
-  #topbar .chip{font-size:10px;padding:1px 7px}
-  #topbar .turn-text{font-size:10.5px}
+  /* มือถือแนวนอน: ไม่มีแถบบน — คืนความสูงให้สนาม */
   /* แถวมือฝ่ายตรงข้าม — สูงตาม --u · ขนาดเท่ามือล่าง */
   #oppHandRow{min-height:0;padding:1px 4px;justify-content:center;align-items:center}
   #oppHandRow .card,#oppHandRow .card.oppback,#oppHandRow .card.hand{
@@ -1100,32 +1134,14 @@ body.dragging .card .qa{display:none!important}
 
   /* ★ สนามบนมือถือ = ใช้เสื่อวาดมือ + พิกัดโซนชุดเดียวกับเดสก์ท็อปเป๊ะ (ไม่ override อะไรเลย)
      — ถอดโหมดกริด/ป้ายโซน/สีพื้นที่เคยทำไว้ออกแล้ว ตามคำขอ */
-  /* topbar: เหลือปุ่มจำเป็น · ตัดปุ่มที่นานๆ ใช้ที */
-  #btnRematchTop,#btnClean,#btnHowToTop,#btnFull,#btnOneSide,#btnStream{display:none}
-  #btnHomeTop .ico-full{display:none}
-  #btnHomeTop .ico-short{display:inline}
-  #btnEnd{font-size:9.5px;padding:1px 6px}
 }
 
 /* ═══ มือถือแนวตั้ง: 3 ชั้น — สถานะบาง · สนาม · มือใหญ่ ═══ */
 #rotateHint{display:none!important}
 @media (max-width:920px) and (orientation:portrait){
   :root{--mb-h:0px}
-  /* 1) สถานะ: เทิร์น+เฟส · ปุ่มไอคอนขวา · ซ่อนชิปฝั่ง */
-  #topbar{height:30px;padding:0 6px 0 8px;gap:5px;overflow:hidden;border-bottom-width:1px}
-  #topbar .brand,#topbar .room-info,#topbar .spacer,
-  #chipOpp,#chipMe,#btnInvite,#btnBot,#btnRematchTop,#btnHowToTop,
-  #btnFull,#btnClean,#btnOneSide,#btnStream,#btnStreamBoth{display:none!important}
-  #topbar .turn-text{font-size:12px;flex:1;text-align:left;min-width:0;font-weight:600}
-  #topbar .turn-text .tt-side{color:var(--gold);font-weight:700}
-  #topbar .ph-tag{font-size:11px;padding:1px 7px}
   #btnSwapSide:not(.hidden){display:inline-flex!important;align-items:center;justify-content:center;
-    font-size:12px;font-weight:700;padding:0;width:34px;height:24px;flex:none;border-radius:7px}
-  /* ปุ่มจำเป็นบนแถบ: จบเกม · โฮม · เมนู · การ์ด */
-  #btnEnd,#btnHomeTop,#btnLogToggle,#btnCardPeek{display:inline-flex!important;align-items:center;justify-content:center;
-    font-size:11px;padding:0 6px;height:24px;flex:none;border-radius:7px}
-  #btnEnd{width:auto;min-width:34px;font-weight:700}
-  #btnHomeTop,#btnLogToggle,#btnCardPeek{width:30px;font-size:13px;padding:0}
+    font-size:12px;font-weight:700;padding:0 8px;height:32px;border-radius:8px}
   #btnHomeTop .ico-full,#btnLogToggle .ico-full,#btnCardPeek .ico-full{display:none}
   #btnHomeTop .ico-short,#btnLogToggle .ico-short,#btnCardPeek .ico-short{display:inline}
 
@@ -1147,37 +1163,18 @@ body.dragging .card .qa{display:none!important}
   .mat-my{flex:1 1 0}
   #linkLayer{z-index:3} /* เส้นสวมใส่ — อยู่เหนือเสื่อ แต่ต่ำกว่ามือ */
 
-  /* ปุ่มเฟส: แคปซูลแตะได้ — ใหญ่ขึ้น เป็นทางลัดจบเทิร์น */
-  .phase-slot{position:absolute;top:36%;right:6px;left:auto;transform:translateY(-50%);
-    margin:0;padding:10px 14px;min-height:44px;max-width:none;width:auto;border-radius:22px;
-    align-self:auto;flex:none;z-index:10;gap:0;cursor:pointer;
-    background:rgba(18,22,32,.92);border:2px solid rgba(120,170,255,.65);
-    box-shadow:0 4px 16px rgba(0,0,0,.55);-webkit-tap-highlight-color:transparent}
-  .phase-slot::before,.phase-slot::after{display:none}
-  .phase-slot .ps-label{font-size:12px;letter-spacing:1.2px;color:#e8f2ff}
-  .phase-slot .ps-sub{display:block;font-size:9px;opacity:.85;margin-top:2px;letter-spacing:.3px}
-  .phase-slot.ph-Battle{background:rgba(40,16,16,.92);border-color:rgba(255,120,110,.65)}
-  .phase-slot.ph-Battle .ps-label{color:#ffd7d2}
-  .phase-slot.ph-End{background:rgba(36,30,12,.94);border-color:rgba(230,195,104,.75);
-    box-shadow:0 0 0 1px rgba(230,195,104,.25),0 4px 16px rgba(0,0,0,.55)}
-  .phase-slot.ph-End .ps-label{color:#ffe9b0}
-  .phase-slot.ph-Draw{background:rgba(12,32,22,.92);border-color:rgba(100,200,150,.55)}
-  .phase-slot.ph-Draw .ps-label{color:#c8f0d8}
-  .phase-slot.pulse{animation:psPulseAbs .55s ease}
-  .phase-slot:active{transform:translateY(-50%) scale(.94);filter:brightness(1.15)}
-  .phase-slot.wait{opacity:.45;pointer-events:none}
-  @keyframes psPulseAbs{0%,100%{filter:brightness(1);transform:translateY(-50%)}40%{filter:brightness(1.35);transform:translateY(-50%)}}
+  /* ปุ่มเฟสกลางสนาม — ใช้ปุ่มจบเทิร์นเหนือนรกแทน */
+  .phase-slot{display:none!important}
 
-  /* ปุ่มจบเทิร์นลอยเหนือมือ — ไม่ทับแถวการ์ด (ความสูงมือจาก --hand-row-my) */
-  .end-turn-fab:not(.hidden){display:flex;align-items:center;justify-content:center;gap:6px;
-    position:fixed;right:max(10px,env(safe-area-inset-right));
-    bottom:calc(var(--hand-row-my, 150px) + 10px + env(safe-area-inset-bottom,0px));
-    z-index:60;min-width:118px;min-height:48px;padding:10px 16px;border-radius:999px;
-    font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:700;
-    color:#1a1814;background:linear-gradient(180deg,#f0d78a,#c9a14a);
-    border:2px solid #8a6a28;box-shadow:0 6px 18px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.12) inset;
+  /* ปุ่มจบเทิร์น — ตำแหน่งจาก JS (เหนือนรกฝั่งล่าง) */
+  .end-turn-fab:not(.hidden){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    z-index:70;min-width:108px;min-height:48px;padding:8px 14px;border-radius:14px;
+    font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:700;
+    color:#ffe9b0;background:linear-gradient(180deg,rgba(255,220,170,.16),transparent 42%),linear-gradient(180deg,#4a2e1c,#1c100c);
+    border:2px solid #c9a14a;box-shadow:0 6px 18px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,230,190,.22);
     -webkit-tap-highlight-color:transparent;cursor:pointer}
-  .end-turn-fab b{font-size:18px;line-height:1;font-weight:400}
+  .end-turn-fab .et-phase-fab{font-size:9px;font-weight:600;letter-spacing:1.2px;opacity:.75;color:#f0d78a}
+  .end-turn-fab b{font-size:16px;line-height:1.15;font-weight:700}
   .end-turn-fab:active{transform:scale(.95);filter:brightness(1.08)}
   .end-turn-fab.wait{opacity:.4;filter:grayscale(.35);pointer-events:none}
   .end-turn-fab.flash{animation:endFabFlash .45s ease}
@@ -1187,24 +1184,23 @@ body.dragging .card .qa{display:none!important}
   .hand-row.my-hand{gap:0;padding:4px 2px 8px;flex:0 0 var(--hand-row-my, calc(var(--u) * 1.5));
     position:relative;z-index:80;isolation:isolate;overflow:visible!important;
     background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.72) 100%)}
-  .card.hand,.hand-row .card.hand,#oppHandRow .card.hand{margin:0 -16px;border-radius:6px;aspect-ratio:512/716;
+  .card.hand,.hand-row .card.hand,#oppHandRow .card.hand{margin:0 -22px;border-radius:6px;aspect-ratio:512/716;
     box-shadow:0 4px 12px rgba(0,0,0,.55);position:relative;z-index:1}
   .card.hand:nth-child(odd){transform:rotate(-2deg)}
   .card.hand:nth-child(even){transform:rotate(2deg)}
-  .card.hand:hover,.card.hand.sel{transform:translateY(-18px) scale(1.08) rotate(0)!important;z-index:20}
+  .card.hand:hover,.card.hand.sel{transform:translateY(-8px) scale(1.06) rotate(0)!important;z-index:20}
 
-  #logPane{top:30px;bottom:0;width:100vw;max-width:none}
+  #logPane{top:0;bottom:0;width:100vw;max-width:none}
   #previewPane{bottom:0;max-height:58vh;border-radius:16px 16px 0 0}
 
   .sel-bar,.attack-bar{padding:8px 10px;gap:6px}
   .sel-bar span,.attack-bar span{font-size:12px}
-  #floatBars{top:30px;width:min(96vw,780px);gap:6px}
+  #floatBars{top:12px;width:min(96vw,780px);gap:6px}
 }
 
 /* ═══ 📺 บานสนาม — หน้าต่างแยกสำหรับแชร์จอใน Discord ═══
    เกมยังรันในหน้าต่างหลัก · บานนี้แค่แสดงสนาม กดอะไรไม่ได้
    ข้อมูลมือถูกตัดทิ้งตั้งแต่ฝั่งส่ง (stripHands ใน game.js) — CSS แค่จัดหน้าให้โล่ง */
-body.stream-win #topbar .btn-mini,
 body.stream-win #btnLogToggle,
 body.stream-win #previewPane,
 body.stream-win #pvControls,
@@ -1212,13 +1208,13 @@ body.stream-win #deckOps,
 body.stream-win #selBar,
 body.stream-win #mobileBar,
 body.stream-win #btnEndTurnFab,
+body.stream-win #btnEndTurn,
 body.stream-win #toast{display:none!important}
 body.stream-win #board{pointer-events:none}          /* กันเผลอกดในหน้าต่างที่กำลังแชร์ */
 body.stream-win #logPane{width:214px}
 /* ปุ่มสลับบอร์ด — โผล่เฉพาะบานสนาม (จางไว้ ไม่กวนภาพที่ถ่ายทอด) */
 .stream-only{display:none}
-body.stream-win .stream-only{display:inline-block!important;opacity:.35;transition:opacity .15s}
-body.stream-win #topbar:hover .stream-only{opacity:1}
+body.stream-win .tm-grid .btn-mini:not(.stream-only){display:none!important}
 
 /* ── บอร์ดเดียว: โชว์เฉพาะสนามฝั่งเรา กินความกว้างเต็ม ──
    เสื่อถูกจำกัดด้วยความกว้างเสมอ (อัตราส่วนจริง 1069x330) → ต้องเอาแผงขวาลงมาไว้ล่าง
@@ -1237,7 +1233,6 @@ body.stream-win.one-board #board{flex:1 1 auto;min-height:0}
 body.stream-win.one-board .mat-my{flex:0 1 auto;width:100%;height:var(--matH,100%);min-height:0;margin:auto 0}
 body.stream-win.one-board #logPane{width:100%;flex:0 0 auto;height:clamp(90px,21vh,230px);overflow:hidden;border-left:none;border-top:1.5px solid var(--border)}
 body.stream-win.one-board #logBody{flex:1 1 auto;min-height:0;overflow-y:auto}
-body.stream-win.one-board #logPane>.rp-head:first-child{display:none}  /* หัว "ตัวควบคุม" ไม่มีปุ่มอะไรแล้วในบานสนาม */
 body.stream-win.one-board #logPane .rp-head{padding:3px 10px;font-size:11px}
 
 body.stream-win.one-board #chatBody{display:none}
