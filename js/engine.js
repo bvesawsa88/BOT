@@ -1769,6 +1769,12 @@
     ['A.magic', 'B.magic'].forEach(z => (st.zones[z] || []).slice().forEach(k => tickOneGlobalEndTimer(st, fx, ending, k)));
   }
 
+  function cardIsOnly(c) {
+    if (!c) return false;
+    if (/Only/i.test(String(c.ex || ''))) return true;
+    const e = fxCard(c);
+    return !!(e && e.only);
+  }
   function matchFilterEx(st, k, f) {
     const c = st.inst[k]; if (!c) return false;
     if (!f) return true;
@@ -1790,7 +1796,7 @@
     if (f.nameIncludesAny && !f.nameIncludesAny.some(n => nameMatches(c, n))) return false;
     if (f.nameNotIncludes && nameMatches(c, f.nameNotIncludes)) return false;
     if (f.nameNotEquals && (c.name || '') === f.nameNotEquals) return false;
-    if (f.excludeOnly && c.ex && /^Only/i.test(String(c.ex))) return false;
+    if (f.excludeOnly && cardIsOnly(c)) return false;
     if (f.hasJuti && !cardHasJuti(st, k)) return false;
     if (f.nameOrSymbol && Array.isArray(f.nameOrSymbol)) {
       const ok = f.nameOrSymbol.some(cond => {
@@ -5692,21 +5698,43 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           summonTapped: !!ac.summonTapped, summonUntappedIfLandNameIncludes: ac.summonUntappedIfLandNameIncludes || null,
           scheduleDestroyAfterOppTurn: !!ac.scheduleDestroyAfterOppTurn, thenIfColor: ac.thenIfColor || null,
           thenIfFound: ac.thenIfFound || null, thenIfExactName: ac.thenIfExactName || null,
+          autoPickThenName: !!ac.autoPickThenName, autoPickOnly: !!ac.autoPickOnly,
           multiMax: ac.multiMax || null, multiGot: 0
         };
-        if (promptCandidates(st, p).length) {
+        const deckCands = promptCandidates(st, p);
+        if (deckCands.length) {
           addLog(st, ctx.owner, `ค้นหาการ์ดในเด็คด้วยเอฟเฟกต์ ${nameOf(st, ctx.src)}`);
-          st.prompts.push(p); prompted = true;
+          const autoName = p.autoPickThenName ? p.thenIfExactName : null;
+          const autoK = (autoName && deckCands.find(id => (st.inst[id] && st.inst[id].name) === autoName))
+            || (p.autoPickOnly && deckCands.find(id => cardIsOnly(st.inst[id])));
+          if (autoK) {
+            st.prompts.push(p);
+            const inner = applyAction(st, { type: 'chooseTarget', k: autoK, by: ctx.owner, seed: 1 });
+            if (inner) Object.keys(inner).forEach(key => { if (key !== 'deny' && inner[key] != null) fx[key] = inner[key]; });
+            prompted = !!(st.prompts || []).length;
+          } else {
+            st.prompts.push(p); prompted = true;
+          }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในเด็ค`);
       } else if (ac.op === 'deckOrHellPick') {
         const p = {
           kind: 'pick', from: 'deckOrHell', src: ctx.src, chooser: ctx.owner, filter: ac.filter || {},
           dest: ac.dest || 'hand', optional: true, srcToHell: !!ctx.toHellAfter, paidCost: !!ac.paidCost,
-          shuffleAfterIfFromDeck: ac.shuffleAfterIfFromDeck !== false
+          shuffleAfterIfFromDeck: ac.shuffleAfterIfFromDeck !== false,
+          autoPickOnly: !!ac.autoPickOnly
         };
-        if (promptCandidates(st, p).length) {
+        const orCands = promptCandidates(st, p);
+        if (orCands.length) {
           addLog(st, ctx.owner, `ค้นหาการ์ดในเด็คหรือนรกด้วยเอฟเฟกต์ ${nameOf(st, ctx.src)}`);
-          st.prompts.push(p); prompted = true;
+          const autoK = p.autoPickOnly && orCands.find(id => cardIsOnly(st.inst[id]));
+          if (autoK) {
+            st.prompts.push(p);
+            const inner = applyAction(st, { type: 'chooseTarget', k: autoK, by: ctx.owner, seed: 1 });
+            if (inner) Object.keys(inner).forEach(key => { if (key !== 'deny' && inner[key] != null) fx[key] = inner[key]; });
+            prompted = !!(st.prompts || []).length;
+          } else {
+            st.prompts.push(p); prompted = true;
+          }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในเด็คหรือนรก`);
       } else if (ac.op === 'hellPick') {
         let filter = Object.assign({}, ac.filter || {});

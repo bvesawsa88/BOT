@@ -2853,6 +2853,17 @@
   }
   function botPickTarget(pr, cands) {
     if (!cands.length) return null;
+    if (pr.thenIfExactName) {
+      const hit = cands.find(k => st.inst[k] && st.inst[k].name === pr.thenIfExactName);
+      if (hit) return hit;
+    }
+    if (!(pr.filter && pr.filter.excludeOnly)) {
+      const onlyHit = cands.find(k => {
+        const c = st.inst[k];
+        return c && (/Only/i.test(String(c.ex || '')) || (BoTEngine.effectOf && (BoTEngine.effectOf(c.code, c.name) || {}).only));
+      });
+      if (onlyHit && (pr.autoPickOnly || pr.from === 'deckOrHell' || pr.dest === 'magic')) return onlyHit;
+    }
     const dest = pr.dest || '';
     const from = pr.from || '';
     const enemySide = k => BoTEngine.ownerOf(st, k) === 'A';

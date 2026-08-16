@@ -30,6 +30,7 @@ const BY_SET = {
     'BT10-039': {
       code: 'BT10-039',
       name: 'มาโกะ มารดาแห่งภาคีมะม่วง',
+      only: true,
       abilitiesFromMagicZone: true,
       abilities: [
         {
@@ -89,12 +90,14 @@ const BY_SET = {
             filter: mangoTreeNotOnly,
             dest: 'magic',
             shuffleAfter: true,
+            autoPickThenName: true,
             thenIfExactName: 'ต้นมะม่วง',
             thenIfFound: [{
               op: 'deckOrHellPick',
               filter: mangoTree,
               dest: 'magic',
-              shuffleAfterIfFromDeck: true
+              shuffleAfterIfFromDeck: true,
+              autoPickOnly: true
             }]
           }]
         },
@@ -111,23 +114,10 @@ const BY_SET = {
           keyword: 'อัตโนมัติ',
           trigger: { on: 'ownTurnEnd' },
           requireOwnMagicNameIncludes: 'ต้นมะม่วง',
-          actions: [{
-            op: 'chooseMode',
-            options: [
-              { label: 'ตื่น', actions: [{ op: 'untap', target: 'self' }] },
-              {
-                label: 'POWER +2 จน Draw Phase ต่อไป',
-                actions: [{ op: 'modifyPower', amount: 2, duration: 'nextOwnDraw', target: { select: 'self' } }]
-              },
-              {
-                label: 'ตื่น และ POWER +2',
-                actions: [
-                  { op: 'untap', target: 'self' },
-                  { op: 'modifyPower', amount: 2, duration: 'nextOwnDraw', target: { select: 'self' } }
-                ]
-              }
-            ]
-          }]
+          actions: [
+            { op: 'modifyPower', amount: 2, duration: 'nextOwnDraw', target: { select: 'self' } },
+            { op: 'untap', target: 'self' }
+          ]
         },
         lastWill(true)
       ],

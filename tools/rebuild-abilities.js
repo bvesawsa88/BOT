@@ -37,7 +37,7 @@ const META_KEYS = [
   'uniqueAttachedNames', 'attachOnly', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
   'stackPowerOnReattach', 'reattachEnemyIfNoOwn',
   'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf',
-  'noHellSummon'
+  'noHellSummon', 'only'
 ];
 
 function loadJson(p) {
