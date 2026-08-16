@@ -649,8 +649,8 @@ body.dragging .card.hand:hover{transform:none}
 .card.atk-hit,.mz.atk-hit{animation:atkHit .7s ease-in-out;z-index:28!important;outline:2.5px solid #ffd75e!important}
 @media (prefers-reduced-motion:reduce){.card.deal,.card.deal-land,.card.atk-strike,.card.atk-hit,.mz.atk-hit{animation:none}.card.vfx-hide{opacity:1!important}}
 
-/* แถบสั่งการลอย — กองแนวตั้งใต้แถบบน ไม่ให้เชน/พรอมต์/โจมตีทับกัน */
-#floatBars{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:190;
+/* แถบสั่งการลอย — วางที่เมจิกโซนฝั่งบน (JS จัดตำแหน่ง) ไม่ทับปุ่มบ้าน */
+#floatBars{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:190;
   display:flex;flex-direction:column;align-items:center;gap:8px;
   width:min(94vw,780px);max-width:min(94vw,780px);pointer-events:none}
 #floatBars > .hidden{display:none!important}
@@ -1135,7 +1135,7 @@ body.dragging .card .qa{display:none!important}
   .sel-bar{padding:8px 12px;gap:8px}
   .sel-bar span{font-size:12px}
   .sel-bar button{font-size:12.5px;padding:7px 12px}
-  #floatBars{top:36px;width:min(96vw,780px);gap:6px}
+  #floatBars{top:52px;width:min(96vw,780px);gap:6px}
 
   /* ★ สนามบนมือถือ = ใช้เสื่อวาดมือ + พิกัดโซนชุดเดียวกับเดสก์ท็อปเป๊ะ (ไม่ override อะไรเลย)
      — ถอดโหมดกริด/ป้ายโซน/สีพื้นที่เคยทำไว้ออกแล้ว ตามคำขอ */
@@ -1200,7 +1200,7 @@ body.dragging .card .qa{display:none!important}
 
   .sel-bar,.attack-bar{padding:8px 10px;gap:6px}
   .sel-bar span,.attack-bar span{font-size:12px}
-  #floatBars{top:12px;width:min(96vw,780px);gap:6px}
+  #floatBars{top:52px;width:min(96vw,780px);gap:6px}
 }
 
 /* ═══ 📺 บานสนาม — หน้าต่างแยกสำหรับแชร์จอใน Discord ═══

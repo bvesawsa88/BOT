@@ -410,6 +410,37 @@
     fab.style.right = 'auto';
     fab.style.bottom = 'auto';
   }
+  /* แถบจะขัด/พรอมต์ — วางที่เมจิกโซนฝั่งบน ไม่ให้ทับปุ่มบ้าน/เมนู */
+  function syncFloatBarsPos() {
+    const bars = byId('floatBars');
+    if (!bars) return;
+    const has = [...bars.children].some(el => !el.classList.contains('hidden'));
+    if (!has) return;
+    const table = byId('table');
+    const one = table && (table.classList.contains('one-side') || document.body.classList.contains('one-board'));
+    const zone = (!one && byId('oppMagicZone')) || null;
+    const r = zone ? zone.getBoundingClientRect() : null;
+    const pad = 8;
+    const chromeRight = 96;
+    if (r && r.width >= 24 && r.height >= 12) {
+      const maxW = Math.min(Math.max(r.width, 200), window.innerWidth - pad - chromeRight);
+      let cx = r.left + r.width / 2;
+      const rightLimit = window.innerWidth - chromeRight;
+      if (cx + maxW / 2 > rightLimit) cx = rightLimit - maxW / 2;
+      if (cx - maxW / 2 < pad) cx = pad + maxW / 2;
+      bars.style.width = maxW + 'px';
+      bars.style.maxWidth = maxW + 'px';
+      bars.style.left = cx + 'px';
+      bars.style.top = Math.max(48, Math.round(r.top + 4)) + 'px';
+      bars.style.transform = 'translateX(-50%)';
+      return;
+    }
+    bars.style.left = '50%';
+    bars.style.top = '52px';
+    bars.style.width = '';
+    bars.style.maxWidth = '';
+    bars.style.transform = 'translateX(-50%)';
+  }
   function doEndTurn() {
     if (!st) return;
     if (!canEndTurnNow()) {
@@ -4000,6 +4031,7 @@
     syncOneSide();  // ⬍ ความสูงเสื่ออาจเปลี่ยนถ้าแถวมือสูงขึ้น/ลง
     syncFieldCardScale(); // 3D: ชดเชยสเกลการ์ดให้สูงบนจอเท่ากัน
     streamPush();   // 📺 ส่งสนามให้บานสนาม (ถ้าเปิดอยู่)
+    requestAnimationFrame(syncFloatBarsPos);
   }
 
   /* เลิกชดเชยสเกลรายใบ — ใช้สัดส่วน 8 ส่วนทั้งกระดานแทน */
@@ -4062,6 +4094,7 @@
       myH.style.minHeight = '';
     }
     syncEndTurnFabPos();
+    syncFloatBarsPos();
   }
 
   /* มือถือ: ใช้เต็มความกว้างแถวมือ · ใบน้อยจัดกลุ่มตรงกลาง · ใบเยอะเหลื่อมเต็มแถว */
@@ -6234,6 +6267,7 @@
     layoutMagicZones();
     syncFieldCardScale();
     syncEndTurnFabPos();
+    syncFloatBarsPos();
   }
   window.addEventListener('resize', onResize);
   window.addEventListener('orientationchange', () => setTimeout(() => { onResize(); if (st) { layoutMyHand(); layoutMagicZones(); } }, 120));
