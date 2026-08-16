@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260816k">
+<link rel="stylesheet" href="css/style.css?v=20260816l">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -589,6 +589,9 @@
 </div>
 
 <div id="table" class="hidden">
+  <button type="button" id="btnHomeTop" class="table-home-btn" title="กลับเมนูหลัก" aria-label="กลับหน้าโฮม">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4.2l8 7V20h-5.2v-5.4H9.2V20H4z" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  </button>
   <button type="button" id="btnTableMenu" class="table-menu-btn" title="เมนูโต๊ะ" aria-label="เมนูโต๊ะ" aria-expanded="false">☰</button>
   <button id="btnSwapSide" class="btn-mini hidden" title="สลับมุมมอง — มือฝั่งที่เลือกจะมาอยู่ด้านล่าง">⇄ สลับฝั่ง</button>
   <div id="tableMenu" class="table-menu hidden">
@@ -615,7 +618,6 @@
       <button id="btnDice" class="btn-mini">🎲 ทอยเต๋า</button>
       <button id="btnCoin" class="btn-mini">🪙 โยนเหรียญ</button>
       <button id="btnEnd" class="btn-mini btn-essential" title="ประกาศจบเกม">จบเกม</button>
-      <button id="btnHomeTop" class="btn-mini btn-essential" title="กลับเมนูหลัก / ออกจากห้อง"><span class="ico-full">เมนูหลัก</span><span class="ico-short" aria-hidden="true">🏠</span></button>
     </div>
     <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
     <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
@@ -1054,7 +1056,7 @@
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260816k"></script>
+<script src="js/game.js?v=20260816l"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

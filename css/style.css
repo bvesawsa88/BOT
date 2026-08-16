@@ -246,7 +246,12 @@ body.has-back .screen::after{top:50px}
 .table-menu-btn{position:fixed;top:8px;right:8px;left:auto;z-index:211;width:36px;height:36px;padding:0;
   border-radius:10px;border:1.5px solid var(--border);background:rgba(15,15,17,.92);color:var(--cream);
   font-size:18px;line-height:1;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:pointer}
-.table-menu-btn:hover,.table-menu-btn.on{background:var(--gold);color:#1a1814;border-color:var(--gold)}
+.table-home-btn{position:fixed;top:8px;right:50px;left:auto;z-index:211;width:36px;height:36px;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:10px;border:1.5px solid var(--border);background:rgba(15,15,17,.92);color:var(--cream);
+  box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:pointer}
+.table-home-btn svg{width:18px;height:18px;display:block}
+.table-home-btn:hover,.table-menu-btn:hover,.table-menu-btn.on{background:var(--gold);color:#1a1814;border-color:var(--gold)}
 .table-menu-btn.need{background:var(--gold);color:#241c12;border-color:var(--gold);animation:swapNeed 1.1s ease-in-out infinite}
 .table-menu{position:fixed;top:50px;right:8px;left:auto;z-index:210;width:min(360px,calc(100vw - 16px));max-height:min(78vh,640px);
   overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:10px;
@@ -261,7 +266,7 @@ body.has-back .screen::after{top:50px}
 #tableMenu .room-info{white-space:normal;line-height:1.4}
 #tableMenu .ctrl-row{display:flex}
 #tableMenu .ctrl-row > button{width:100%}
-#btnSwapSide{position:fixed;top:8px;right:50px;left:auto;z-index:211;height:36px;padding:0 10px}
+#btnSwapSide{position:fixed;top:8px;right:92px;left:auto;z-index:211;height:36px;padding:0 10px}
 #previewPane{width:216px;flex:none;background:var(--panel);border-right:1.5px solid var(--border);padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
 .pane-head{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11.5px;font-weight:600;color:var(--dim);letter-spacing:.4px;display:flex;justify-content:space-between;align-items:center}
 .pv-head{flex:none;position:sticky;top:0;z-index:2;margin:-10px -10px 0;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--border)}
@@ -1202,6 +1207,7 @@ body.dragging .card .qa{display:none!important}
    เกมยังรันในหน้าต่างหลัก · บานนี้แค่แสดงสนาม กดอะไรไม่ได้
    ข้อมูลมือถูกตัดทิ้งตั้งแต่ฝั่งส่ง (stripHands ใน game.js) — CSS แค่จัดหน้าให้โล่ง */
 body.stream-win #btnLogToggle,
+body.stream-win #btnHomeTop,
 body.stream-win #previewPane,
 body.stream-win #pvControls,
 body.stream-win #deckOps,

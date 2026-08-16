@@ -5398,7 +5398,7 @@
   if (tableMenuEl) {
     tableMenuEl.addEventListener('click', e => {
       if (e.target.closest('#deckOps, #dopN, .dop-step, #firstpRow, #swapSideRow, #inpChat')) return;
-      if (e.target.closest('.tm-grid button, #btnHomeTop, #btnEnd')) closeTableMenu();
+      if (e.target.closest('.tm-grid button, #btnEnd')) closeTableMenu();
     });
   }
   document.addEventListener('pointerdown', e => {
