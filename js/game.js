@@ -2361,6 +2361,8 @@
   const eff = k => BoTEngine.effPower(st, k);
   let botFailKeys = new Set();
   let botFailTurn = -1;
+  let botLifeHitTurn = -1;
+  let botLifeHits = 0;
   function botAI() { return (typeof BotAI !== 'undefined' && BotAI) ? BotAI : null; }
   function botCloneSt(s) {
     try { return JSON.parse(JSON.stringify(s)); } catch (e) { return null; }
@@ -2632,8 +2634,10 @@
         if (AI.cardIsKeyEnabler(st.inst[o], arch)) keep += 50;
         if (st.inst[o].subtype === 'React') keep += 25;
         if (AI.comboHoldScore) keep += AI.comboHoldScore(st, 'B', st.inst[o]);
+        if (AI.holdForNationTrap && AI.holdForNationTrap(st.inst[o])) keep += 400;
         if (AI.isGemBattery && AI.isGemBattery(st.inst[o])) keep -= 40;
         if (AI.paidAsCostMatches && AI.paidAsCostMatches(st.inst[o], c0)) keep -= 55;
+        if (/วีรชนชีวภาพ/.test((st.inst[o].name || '')) && c0.color === 'เขียว') keep -= 160;
         if (/มะขาม/.test((st.inst[o].name || '')) && AI.hasLandNamed(st, AI.LAND.FOREST)
           && (st.zones['B.avatar'] || []).length >= 2) keep += 90;
       }
@@ -2839,6 +2843,87 @@
     }
     return false;
   }
+  function botNationTrapHold() {
+    const AI = botAI();
+    return getBotLevel() !== 'easy' && AI && AI.nationTrapArmed && AI.nationTrapArmed(st, 'B');
+  }
+  function botTryNationTrapSummon() {
+    const AI = botAI();
+    if (getBotLevel() === 'easy' || !AI || !AI.nationTrapSetup || !AI.nationTrapSetup(st, 'B')) return false;
+    const bait = AI.cheapestTankInHand(st, 'B');
+    if (!bait || !st.inst[bait]) return false;
+    const c = st.inst[bait];
+    const free = !!(BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, bait));
+    const cost = free ? 0 : (BoTEngine.effCost ? BoTEngine.effCost(st, bait) : (+c.cost || 0));
+    const pay = free ? [] : botBuildPay(bait, cost);
+    if (pay == null) return false;
+    if (pay.some(k => AI.holdForNationTrap && AI.holdForNationTrap(st.inst[k]))) return false;
+    const a = { type: 'summon', k: bait, to: 'B.avatar', payIds: pay, by: 'B' };
+    if (free) a.free = true;
+    return botSend(a);
+  }
+  function botFinishParts() {
+    const AI = botAI();
+    return (AI && AI.finishComboParts) ? AI.finishComboParts(st, 'B') : {};
+  }
+  function botTryFinishCombo() {
+    if (getBotLevel() === 'easy') return false;
+    const AI = botAI();
+    if (!AI || !AI.finishComboReady || !AI.finishComboReady(st, 'B')) return false;
+    const p = botFinishParts();
+    const host = p.greenField;
+    if (p.scratchPend && host) {
+      if (botSend({ type: 'attach', k: p.scratchPend, to: host, by: 'B' })) return true;
+    }
+    if (p.scratchHand && host && botMagicTypeFree('Modification')) {
+      if (botSend({ type: 'playMagic', k: p.scratchHand, by: 'B' })) return true;
+    }
+    if (!host && p.greenHand) {
+      const c = st.inst[p.greenHand];
+      const free = !!(BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, p.greenHand));
+      const cost = free ? 0 : (BoTEngine.effCost ? BoTEngine.effCost(st, p.greenHand) : (+c.cost || 0));
+      const pay = free ? [] : botBuildPay(p.greenHand, cost);
+      if (pay != null) {
+        const a = { type: 'summon', k: p.greenHand, to: 'B.avatar', payIds: pay, by: 'B' };
+        if (free) a.free = true;
+        if (botSend(a)) return true;
+      }
+    }
+    return false;
+  }
+  function botTryLosingLine() {
+    if (getBotLevel() === 'easy') return false;
+    const AI = botAI();
+    if (!AI || !AI.boardLosing || !AI.boardLosing(st, 'B')) return false;
+    const p = botFinishParts();
+    if (p.scratchPend && p.greenField) {
+      if (botSend({ type: 'attach', k: p.scratchPend, to: p.greenField, by: 'B' })) return true;
+    }
+    if (p.scratchHand && (p.greenField || p.starfruitHand) && botMagicTypeFree('Modification')) {
+      if (p.greenField && botSend({ type: 'playMagic', k: p.scratchHand, by: 'B' })) return true;
+    }
+    if (AI.wantedLandNeedle) {
+      const need = AI.wantedLandNeedle(botArch());
+      if (need && !AI.hasLandNamed(st, need) && botTryPlayMagic()) return true;
+    }
+    if (p.starfruitHand) {
+      const c = st.inst[p.starfruitHand];
+      const zone = st.zones['B.avatar'] || [];
+      const cap = (BoTEngine.avatarCap && BoTEngine.avatarCap(st, 'B')) || 4;
+      const avCount = zone.filter(k => st.inst[k] && st.inst[k].type === 'Avatar').length;
+      if (c && avCount < cap) {
+        const free = !!(BoTEngine.freeSummonOk && BoTEngine.freeSummonOk(st, p.starfruitHand));
+        const cost = free ? 0 : (BoTEngine.effCost ? BoTEngine.effCost(st, p.starfruitHand) : (+c.cost || 0));
+        const pay = free ? [] : botBuildPay(p.starfruitHand, cost);
+        if (pay != null) {
+          const a = { type: 'summon', k: p.starfruitHand, to: 'B.avatar', payIds: pay, by: 'B' };
+          if (free) a.free = true;
+          if (botSend(a)) return true;
+        }
+      }
+    }
+    return false;
+  }
   function botTryMain() {
     const lv = getBotLevel();
     const AI = botAI();
@@ -2849,7 +2934,19 @@
       return c && c.subtype === 'Modification' && !c.attachedTo;
     });
     if (pendingMod && (st.zones['B.avatar'] || []).some(k => st.inst[k] && st.inst[k].type === 'Avatar')) {
-      if (botTryAttach()) return true;
+      if (!botNationTrapHold() && botTryAttach()) return true;
+    }
+    // กับดักเพื่อชาติ: ลงรถถังเหยื่อ (A003) แล้วพาส — รอจั่ว / รออีกฝ่ายตี
+    if (botNationTrapHold()) return false;
+    if (botTryNationTrapSummon()) return true;
+    // วีรชนชีวภาพ + ไม้เกาหลัง + Avatar เขียว — ลงแล้วสวมเตะไข่ปิดเกม
+    if (botTryFinishCombo()) return true;
+    // สู้บอร์ดไม่ได้ — ลงมะเฟืองเตะไข่ทีละ 1
+    if (botTryLosingLine()) return true;
+    if (lv !== 'easy' && AI && AI.boardLosing && AI.boardLosing(st, 'B')) {
+      const hasEggBoard = (st.zones['B.avatar'] || []).some(k => botHasEgg(k) || /มะเฟือง/.test((st.inst[k] && st.inst[k].name) || ''));
+      if (hasEggBoard && !(AI.finishComboReady && AI.finishComboReady(st, 'B')))
+        return false;
     }
     // แลนด์เป้าหมายยังไม่อยู่บนสนาม — วางก่อนลงอย่างอื่น
     if (AI && lv !== 'easy' && AI.wantedLandNeedle) {
@@ -2952,6 +3049,12 @@
     const lethal = oppL.critical && oppL.n > 0;
     const life = oppL.target;
     if (!mine.length) return false;
+    const AI = botAI();
+    const losing = lv !== 'easy' && AI && AI.boardLosing && AI.boardLosing(st, 'B');
+    if (botLifeHitTurn !== st.turn) { botLifeHitTurn = st.turn; botLifeHits = 0; }
+    const allowLife = lv === 'easy' || !AI || !AI.shouldLifeAttack || AI.shouldLifeAttack(st, 'B', {
+      lethal, losing, lifeHitsThisTurn: botLifeHits,
+    });
 
     const sortedAtk = mine.slice().sort((a, b) => eff(a) - eff(b) || botThreatScore(a) - botThreatScore(b));
     const sortedEn = enemies.slice().sort((a, b) => botThreatScore(b) - botThreatScore(a));
@@ -2986,6 +3089,7 @@
           if (isAssigned) score += 28;
           if (cleared && leftover.length && !egg) score += 32;
           if (egg && (lethal || (racing && oppL.down <= 2))) score -= 60;
+          if (losing && !myL.critical) score -= 90;
           if (myL.critical && mine.length <= 2 && !lethal && !(th > myTh + 15 || botHasEgg(e)))
             score -= 70;
           plans.push({ atk, def: e, score });
@@ -3010,7 +3114,7 @@
           }
         }
       }
-      if (life && (enemies.length === 0 || egg) && ap > 0) {
+      if (life && (enemies.length === 0 || egg) && ap > 0 && allowLife) {
         let lifeScore = 88 + Math.min(ap, 10);
         if (lethal) lifeScore = 2500 + ap;
         else {
@@ -3019,6 +3123,7 @@
           if (oppL.down <= 1) lifeScore += 90;
           if (cleared && leftover.length > 1 && !egg) lifeScore -= 12;
           if (lv === 'hard') lifeScore += 8;
+          if (losing) lifeScore += 40;
         }
         plans.push({ atk, life, score: lifeScore });
       }
@@ -3042,7 +3147,10 @@
     const ordered = canLethalNow ? plans.filter(p => p.life).concat(plans.filter(p => !p.life)) : plans;
     for (const p of ordered) {
       if (p.life) {
-        if (botSend({ type: 'declareAttack', atk: p.atk, life: p.life, by: 'B' })) return true;
+        if (botSend({ type: 'declareAttack', atk: p.atk, life: p.life, by: 'B' })) {
+          botLifeHits++;
+          return true;
+        }
       } else if (botSend({ type: 'declareAttack', atk: p.atk, def: p.def, by: 'B' })) return true;
     }
     return false;
@@ -3153,6 +3261,12 @@
         const AI = botAI();
         let threat = AI && AI.magicNegateThreat ? AI.magicNegateThreat(tgt) : 40;
         if (tgt && tgt.subtype === 'React') threat += 20;
+        const nationId = (st._pendingMagic && st._pendingMagic.target)
+          || (st._pendingMagic && st._pendingMagic.innerPending && st._pendingMagic.innerPending.src)
+          || (st._pendingMagic && st._pendingMagic.src);
+        const nationC = nationId && st.inst[nationId];
+        if (nationC && /เพื่อชาติ/.test(nationC.name || '')) threat += 220;
+        if (tgt && /เพื่อชาติ/.test(tgt.name || '')) threat += 220;
         const lv = getBotLevel();
         const need = lv === 'easy' ? 90 : lv === 'hard' ? 32 : 48;
         if (threat < need) { botSend({ type: 'reactNo', by: 'B' }); return; }
@@ -3438,6 +3552,22 @@
       return;
     }
     if (st.phase === 'Battle') {
+      // กับดักเพื่อชาติ — อย่าบุก/สามัคคีด้วยรถถังเหยื่อ จบเทิร์นรอจั่ว
+      if (botNationTrapHold()) {
+        const bh = st.zones['B.hand'] || [];
+        if (bh.length > 7) {
+          const AI = botAI();
+          const drop = bh.slice().sort((a, b) => {
+            const ha = AI && AI.holdForNationTrap && AI.holdForNationTrap(st.inst[a]) ? 500 : 0;
+            const hb = AI && AI.holdForNationTrap && AI.holdForNationTrap(st.inst[b]) ? 500 : 0;
+            return (botCardVal(a) + ha) - (botCardVal(b) + hb);
+          })[0];
+          botSend({ type: 'move', k: drop, to: 'B.hell', by: 'B' });
+          return;
+        }
+        botSend({ type: 'endTurn', by: 'B' });
+        return;
+      }
       // สามัคคีก่อน แล้วค่อยโจมตี (รวมตี LIFE ด้วยเตะไข่จากไม้เกาหลัง ฯลฯ)
       if (botTryUnity()) return;
       if (botTryAttack()) return;

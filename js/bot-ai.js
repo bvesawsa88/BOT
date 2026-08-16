@@ -298,6 +298,152 @@
     return 25;
   }
 
+  function hasNationInHand(st, side) {
+    return zoneIds(st, side + '.hand').some(k => /เพื่อชาติ/.test(nameOf(st.inst[k])));
+  }
+  function tankOnField(st, side) {
+    return zoneIds(st, side + '.avatar').some(k => nameHasTank(st.inst[k]));
+  }
+  /** รถถังในมือที่ลงเหยื่อเพื่อชาติถูกสุด (A003 คอส 0 ก่อน) */
+  function cheapestTankInHand(st, side) {
+    const tanks = zoneIds(st, side + '.hand').filter(k => {
+      const c = st.inst[k];
+      return c && c.type === 'Avatar' && nameHasTank(c);
+    });
+    if (!tanks.length) return null;
+    tanks.sort((a, b) => {
+      const ca = st.inst[a], cb = st.inst[b];
+      const costA = +ca.cost || 0, costB = +cb.cost || 0;
+      if (costA !== costB) return costA - costB;
+      return (+cb.power || 0) - (+ca.power || 0);
+    });
+    return tanks[0];
+  }
+  /** กับดักพร้อม: รถถังบนสนาม + เพื่อชาติในมือ — อย่าลงใบต่อ / อย่าบุกด้วยเหยื่อ */
+  function nationTrapArmed(st, side) {
+    return hasNationInHand(st, side) && tankOnField(st, side);
+  }
+  /** ควรลงรถถังเหยื่อแล้วพาส: มีเพื่อชาติ+รถถังในมือ สนามยังไม่มีรถถัง อีกฝั่งยืนหนา */
+  function nationTrapSetup(st, side) {
+    if (!hasNationInHand(st, side)) return false;
+    if (tankOnField(st, side)) return false;
+    if (!cheapestTankInHand(st, side)) return false;
+    const enemyN = zoneIds(st, otherSide(side) + '.avatar').length;
+    const ownN = zoneIds(st, side + '.avatar').length;
+    return enemyN >= 2 || ownN === 0;
+  }
+  function holdForNationTrap(c) {
+    if (!c) return false;
+    const n = nameOf(c);
+    return /เพื่อชาติ/.test(n) || /อย่าให้มีครั้งที่/.test(n);
+  }
+
+  function lifeUpCount(st, side) {
+    return zoneIds(st, side + '.life').filter(k => st.inst[k] && st.inst[k].faceUp).length;
+  }
+  function isNormalMagicCard(c) {
+    if (!c || c.type !== 'Magic') return false;
+    const sub = c.subtype || 'Normal';
+    return sub === 'Normal' || sub === '';
+  }
+  function hellHasGemAvatar(st, side, minGem) {
+    return zoneIds(st, side + '.hell').some(k => {
+      const x = st.inst[k];
+      return x && x.type === 'Avatar' && (+x.gem || 0) >= minGem;
+    });
+  }
+  function hellHasNormalMagic(st, side) {
+    return zoneIds(st, side + '.hell').some(k => isNormalMagicCard(st.inst[k]));
+  }
+  /** LIFE ที่หงายแล้วใช้ความสามารถเก็บใบไม่ได้ (โดมไม่มี Avatar GEM≥3 / อู๊ดไม่มีเวท Normal ในนรก) */
+  function lifeRevealUnusable(st, owner, c) {
+    const n = nameOf(c);
+    if (/ไม่นะ\s*โดม/.test(n)) return !hellHasGemAvatar(st, owner, 3);
+    if (/ไม่นะ\s*อู๊ด/.test(n)) return !hellHasNormalMagic(st, owner);
+    return false;
+  }
+  function revealedUnusableLife(st, owner) {
+    return zoneIds(st, owner + '.life').some(k => {
+      const c = st.inst[k];
+      return c && c.faceUp && lifeRevealUnusable(st, owner, c);
+    });
+  }
+  /**
+   * นโยบายตี LIFE
+   * - ไม่หงายเกิน 3 / ไม่ให้หงายมากกว่าเราที่ ≥4 (กันเลือกมันพวกจน)
+   * - เปิด 3 แล้ว + มือศัตรู ≤ 3 → ไม่ตี (อย่าให้ใบใช้)
+   * - เจอโดม/อู๊ดที่ใช้ไม่ได้ → ตีย้ำได้ จนกว่ามือศัตรู > 5
+   * - สู้บอร์ดไม่ได้ → เตะไข่ทีละ 1
+   */
+  function shouldLifeAttack(st, side, opts) {
+    opts = opts || {};
+    const opp = otherSide(side);
+    const oppDown = zoneIds(st, opp + '.life').filter(k => st.inst[k] && !st.inst[k].faceUp).length;
+    if (opts.lethal || oppDown === 0) return true;
+    const myUp = lifeUpCount(st, side);
+    const oppUp = lifeUpCount(st, opp);
+    const oppHand = zoneIds(st, opp + '.hand').length;
+    const dud = revealedUnusableLife(st, opp);
+    const newUp = oppUp + 1;
+    if (dud && oppHand > 5) return false;
+    if (oppUp >= 3 && oppHand <= 3 && !dud) return false;
+    if (!dud) {
+      if (newUp > 3) return false;
+      if (newUp >= 4 && newUp > myUp) return false;
+    }
+    if (opts.losing && (opts.lifeHitsThisTurn || 0) >= 1) return false;
+    return true;
+  }
+
+  function boardLosing(st, side) {
+    if (nationTrapArmed(st, side) || nationTrapSetup(st, side)) return false;
+    const opp = otherSide(side);
+    const E = eng();
+    const pwr = k => {
+      const c = st.inst[k];
+      if (!c) return 0;
+      try { return (E && E.effPower) ? E.effPower(st, k) : (+c.power || 0); }
+      catch (e) { return +c.power || 0; }
+    };
+    const mine = zoneIds(st, side + '.avatar').filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
+    const theirs = zoneIds(st, opp + '.avatar').filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
+    if (!theirs.length) return false;
+    const mySum = mine.reduce((s, k) => s + pwr(k), 0);
+    const thSum = theirs.reduce((s, k) => s + pwr(k), 0);
+    const canKill = mine.some(m => theirs.some(t => pwr(m) > pwr(t)));
+    if (mine.length === 0 && theirs.length >= 2) return true;
+    if (theirs.length >= 3 && mySum + 4 < thSum) return true;
+    if (theirs.length >= 2 && mine.length <= theirs.length && !canKill) return true;
+    return false;
+  }
+
+  function isGreenBeater(c) {
+    return !!(c && c.type === 'Avatar' && c.color === 'เขียว' && (+c.power || 0) > 0);
+  }
+  function finishComboParts(st, side) {
+    const hand = zoneIds(st, side + '.hand');
+    const field = zoneIds(st, side + '.avatar');
+    const mag = zoneIds(st, side + '.magic');
+    return {
+      hero: hand.find(k => /วีรชนชีวภาพ/.test(nameOf(st.inst[k]))) || null,
+      scratchHand: hand.find(k => /ไม้เกาหลัง/.test(nameOf(st.inst[k]))) || null,
+      scratchPend: mag.find(k => {
+        const c = st.inst[k];
+        return c && /ไม้เกาหลัง/.test(nameOf(c)) && !c.attachedTo;
+      }) || null,
+      greenHand: hand.find(k => isGreenBeater(st.inst[k])) || null,
+      greenField: field.find(k => isGreenBeater(st.inst[k])) || null,
+      starfruitHand: hand.find(k => /มะเฟือง/.test(nameOf(st.inst[k]))) || null,
+    };
+  }
+  /** วีรชนชีวภาพ + ไม้เกาหลัง + Avatar เขียว — ลงแล้วสวมเตะไข่ปิดเกม */
+  function finishComboReady(st, side) {
+    const p = finishComboParts(st, side);
+    const scratch = p.scratchHand || p.scratchPend;
+    if (p.greenField && scratch) return true;
+    return !!(p.hero && scratch && p.greenHand);
+  }
+
   /** เวทฝั่งตรงข้ามคุ้มขัดไหม */
   function magicNegateThreat(c) {
     if (!c) return 0;
@@ -353,6 +499,16 @@
     }
     if (nameHasTank(c) && zoneIds(st, side + '.hand').some(id => holdsForTankCombo(st.inst[id])))
       bonus += 28;
+    if (nationTrapSetup(st, side)) {
+      const bait = cheapestTankInHand(st, side);
+      if (k === bait) bonus += 240;
+      else if (nameHasTank(c)) bonus += 90;
+      else bonus -= 180;
+    } else if (nationTrapArmed(st, side) && !nameHasTank(c)) {
+      bonus -= 220;
+    }
+    if (boardLosing(st, side) && /มะเฟือง/.test(nameOf(c))) bonus += 160;
+    if (finishComboReady(st, side) && isGreenBeater(c)) bonus += 90;
     if (isGemBattery(c)) bonus -= 160;
     return bonus;
   }
@@ -704,6 +860,8 @@
       if (ownNameOnField(st, side, 'อีสานสลิงเกอร์')) v += 22;
       v += Math.min(8, hellReturned(st, side)) * 3;
     }
+    if (hasNationInHand(st, side) && tankOnField(st, side))
+      v += 50 + zoneIds(st, opp + '.avatar').length * 36;
     if ((st.prompts || []).length) v -= 12;
     return v;
   }
@@ -739,5 +897,17 @@
     comboHoldScore,
     ownTankCount,
     nameHasTank,
+    hasNationInHand,
+    tankOnField,
+    cheapestTankInHand,
+    nationTrapArmed,
+    nationTrapSetup,
+    holdForNationTrap,
+    shouldLifeAttack,
+    boardLosing,
+    finishComboReady,
+    finishComboParts,
+    isGreenBeater,
+    lifeUpCount,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
