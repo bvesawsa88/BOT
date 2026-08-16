@@ -3128,7 +3128,9 @@
     const AI = botAI();
     const losing = lv !== 'easy' && AI && AI.boardLosing && AI.boardLosing(st, 'B');
     if (botLifeHitTurn !== st.turn) { botLifeHitTurn = st.turn; botLifeHits = 0; }
-    const allowLife = lv === 'easy' || !AI || !AI.shouldLifeAttack || AI.shouldLifeAttack(st, 'B', {
+    const forceLife = lv !== 'easy' && AI && AI.canForceLifeWin
+      && AI.canForceLifeWin(st, 'B', { lifeHitsThisTurn: botLifeHits });
+    const allowLife = lv === 'easy' || forceLife || !AI || !AI.shouldLifeAttack || AI.shouldLifeAttack(st, 'B', {
       lethal, losing, lifeHitsThisTurn: botLifeHits,
     });
     // มะม่วง / ยักษ์หิน = โล่มนุษย์ กันคีย์ (ทศกัณฑ์ แตงกวา) — ห้ามบุก
@@ -3168,7 +3170,7 @@
           let score = 70 + th - ap * 0.2;
           if (isAssigned) score += 28;
           if (cleared && leftover.length && !egg) score += 32;
-          if (egg && (lethal || (racing && oppL.down <= 2))) score -= 60;
+          if (egg && (lethal || forceLife || (racing && oppL.down <= 2))) score -= 60;
           if (losing && !myL.critical) score -= 90;
           if (myL.critical && mine.length <= 2 && !lethal && !(th > myTh + 15 || botHasEgg(e)))
             score -= 70;
@@ -3178,7 +3180,7 @@
           if (th > myTh + 8) score += 35;
           if (mine.length > enemies.length + 1) score += 12;
           if (myL.critical) score -= 55;
-          if (egg && (lethal || racing)) score -= 80;
+          if (egg && (lethal || forceLife || racing)) score -= 80;
           if (score > 15) plans.push({ atk, def: e, score });
         } else if (lv === 'hard' && ap + 1 >= dp && mine.length >= 3 && enemies.length >= 2 && th > myTh + 20) {
           plans.push({ atk, def: e, score: 18 + th - myTh });
@@ -3189,7 +3191,7 @@
           const dp = eff(e);
           if (ap > dp) {
             let score = 42 + dp;
-            if (egg && (lethal || racing)) score -= 40;
+            if (egg && (lethal || forceLife || racing)) score -= 40;
             plans.push({ atk, def: e, score });
           }
         }
@@ -3197,6 +3199,7 @@
       if (life && (enemies.length === 0 || egg) && ap > 0 && allowLife) {
         let lifeScore = 88 + Math.min(ap, 10);
         if (lethal) lifeScore = 2500 + ap;
+        else if (forceLife) lifeScore = 2000 + ap;
         else {
           if (racing) lifeScore += 45;
           if (oppL.down <= 2) lifeScore += 55;
@@ -3224,7 +3227,9 @@
       });
       plans.sort((a, b) => b.score - a.score);
     }
-    const ordered = canLethalNow ? plans.filter(p => p.life).concat(plans.filter(p => !p.life)) : plans;
+    const ordered = (canLethalNow || forceLife)
+      ? plans.filter(p => p.life).concat(plans.filter(p => !p.life))
+      : plans;
     for (const p of ordered) {
       if (p.life) {
         if (botSend({ type: 'declareAttack', atk: p.atk, life: p.life, by: 'B' })) {

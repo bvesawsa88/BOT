@@ -368,18 +368,89 @@
       return c && c.faceUp && lifeRevealUnusable(st, owner, c);
     });
   }
+  function avatarCanKickEgg(st, k) {
+    const c = st.inst[k];
+    if (!c) return false;
+    if (c._allowLifeDespiteAvatars) return true;
+    const E = eng();
+    if (E && E.hasKw) return !!E.hasKw(st, k, 'เตะไข่');
+    return modGrantsKickEgg(c);
+  }
+  /** Avatar ที่บุก LIFE ได้จริง (ตื่น · มีพลัง · ไม่ใช่โล่ · ถ้าศัตรูมีอวาตาต้องเตะไข่) */
+  function standingLifeStrikers(st, side) {
+    const opp = otherSide(side);
+    const enemyAv = zoneIds(st, opp + '.avatar').some(k => {
+      const x = st.inst[k];
+      return x && x.type === 'Avatar';
+    });
+    const E = eng();
+    const pwr = k => {
+      try { return (E && E.effPower) ? E.effPower(st, k) : (+(st.inst[k] && st.inst[k].power) || 0); }
+      catch (e) { return +(st.inst[k] && st.inst[k].power) || 0; }
+    };
+    return zoneIds(st, side + '.avatar').filter(k => {
+      const c = st.inst[k];
+      if (!c || c.type !== 'Avatar' || c.tapped || c.faceUp === false) return false;
+      if (pwr(k) <= 0) return false;
+      if (isBodyguardCard(c)) return false;
+      if (enemyAv && !avatarCanKickEgg(st, k)) return false;
+      return true;
+    }).length;
+  }
+  function lifeHitsToWin(st, opp) {
+    const lives = zoneIds(st, opp + '.life');
+    if (!lives.length) return 99;
+    const down = lives.filter(k => st.inst[k] && !st.inst[k].faceUp).length;
+    return down + 1;
+  }
+  /** React ที่ขัดคืนการขัดของอีกฝ่ายได้ — อย่าให้มีครั้งที่ 2 / ชายจากอนาคต */
+  function hasWinningCounterReact(st, side) {
+    return zoneIds(st, side + '.hand').some(k => {
+      const c = st.inst[k];
+      if (!c) return false;
+      const n = nameOf(c);
+      if (/อย่าให้มีครั้งที่/.test(n) || /ชายจากอนาคต/.test(n)) return true;
+      const abs = ((effectOf(c) && effectOf(c).abilities) || []);
+      return abs.some(ab => {
+        const on = ab.trigger && ab.trigger.on;
+        if (on !== 'enemyPlayReact' && on !== 'enemyPlayMagic') return false;
+        return (ab.actions || []).some(ac => ac.op === 'negate');
+      });
+    });
+  }
+  /**
+   * เปิด LIFE จนจบได้แม้ถูกขัด 1 ครั้ง
+   * - ยืนพอจบ+1 (เปิด 3 แล้วยืน 4)
+   * - หรือยืนพอจบพอดี + มี React ขัดคืน (เปิด 3 แล้วยืน 3)
+   * - หรือมือศัตรู 0 ใบ + ยืนพอจบ (ขัดจากมือไม่ได้)
+   */
+  function canForceLifeWin(st, side, opts) {
+    opts = opts || {};
+    const n = standingLifeStrikers(st, side);
+    const opp = otherSide(side);
+    const need = lifeHitsToWin(st, opp);
+    if (need >= 90) return false;
+    const hitsDone = opts.lifeHitsThisTurn || 0;
+    if (hitsDone > 0) return n >= need;
+    if (n >= need + 1) return true;
+    if (n >= need && hasWinningCounterReact(st, side)) return true;
+    if (n >= need && zoneIds(st, opp + '.hand').length === 0) return true;
+    return false;
+  }
   /**
    * นโยบายตี LIFE
    * - ไม่หงายเกิน 3 / ไม่ให้หงายมากกว่าเราที่ ≥4 (กันเลือกมันพวกจน)
    * - เปิด 3 แล้ว + มือศัตรู ≤ 3 → ไม่ตี (อย่าให้ใบใช้)
    * - เจอโดม/อู๊ดที่ใช้ไม่ได้ → ตีย้ำได้ จนกว่ามือศัตรู > 5
    * - สู้บอร์ดไม่ได้ → เตะไข่ทีละ 1
+   * - เปิด 3 แล้วยืน 4 / ยืน 3+React ขัดคืน / มือศัตรูว่างแล้วจบได้ → บุกปิดเกม
    */
   function shouldLifeAttack(st, side, opts) {
     opts = opts || {};
     const opp = otherSide(side);
     const oppDown = zoneIds(st, opp + '.life').filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     if (opts.lethal || oppDown === 0) return true;
+    if (canForceLifeWin(st, side, opts)) return true;
     const myUp = lifeUpCount(st, side);
     const oppUp = lifeUpCount(st, opp);
     const oppHand = zoneIds(st, opp + '.hand').length;
@@ -985,6 +1056,8 @@
     nationTrapSetup,
     holdForNationTrap,
     shouldLifeAttack,
+    canForceLifeWin,
+    hasWinningCounterReact,
     boardLosing,
     finishComboReady,
     finishComboParts,
