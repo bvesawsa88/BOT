@@ -2519,7 +2519,7 @@
         if (/มะขาม/.test((st.inst[o].name || '')) && AI.hasLandNamed(st, AI.LAND.FOREST)
           && (st.zones['B.avatar'] || []).length >= 2) keep += 90;
       }
-      if (ok) usable.push({ k: o, g: info.g, keep });
+      if (ok && info.g > 0) usable.push({ k: o, g: info.g, keep });
     }
     usable.sort((a, b) => a.keep - b.keep || b.g - a.g);
     let gem = 0; const pay = [];
@@ -2529,6 +2529,15 @@
       gem += o.g;
     }
     if (gem < cost) return null;
+    const gOf = k => payGemInfo(st.inst[k], c0).g;
+    for (;;) {
+      const total = pay.reduce((s, k) => s + gOf(k), 0);
+      if (total < cost) return null;
+      const drop = pay.findIndex(k => total - gOf(k) >= cost);
+      if (drop < 0) break;
+      pay.splice(drop, 1);
+    }
+    gem = pay.reduce((s, k) => s + gOf(k), 0);
     if (eAll && eAll.exactGemPay && gem !== cost) {
       while (pay.length && gem > cost) {
         const last = pay[pay.length - 1];
@@ -5287,6 +5296,10 @@
             toast(`GEM ไม่พอ: "${c0.name}" ต้องการ ${cost} (ใช้ได้ ${usable}) — แตะการ์ดในมือให้ GEM พอ แล้วลากลงสนาม`, 4500);
             return;
           }
+          if (cost > 0 && BoTEngine.gemPayDenyMsg) {
+            const payDeny = BoTEngine.gemPayDenyMsg(st, payIds, d.k, cost);
+            if (payDeny) { toast(payDeny, 4500); return; }
+          }
           sendAction({ type: 'summon', k: d.k, to, payIds: isFree ? [] : payIds, free: isFree || undefined });
           return;
         }
@@ -5375,7 +5388,19 @@
           return;
         }
       }
-      if (canSel) { if (selMap[d.k]) delete selMap[d.k]; else selMap[d.k] = true; render(); }
+      if (canSel) {
+        if (selMap[d.k]) delete selMap[d.k];
+        else {
+          const hc = st.inst[d.k];
+          const he = hc && BoTEngine.effectOf && BoTEngine.effectOf(hc.code, hc.name);
+          if (!mullP && (+(hc && hc.gem) || 0) <= 0 && !(he && he.gemAsCostForNameIncludes)) {
+            toast('ใบ GEM 0 ใช้จ่าย Cost ไม่ได้', 2800);
+            return;
+          }
+          selMap[d.k] = true;
+        }
+        render();
+      }
       return;
     }
     // การ์ดบนสนามฝั่งเรา (หรือ Land ร่วม) — คลิกเดี่ยว = เมนูสั่งใช้ · ดับเบิลคลิก = สั่งใช้

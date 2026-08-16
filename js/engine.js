@@ -470,6 +470,20 @@
     }
     return gemPaysFor(gc, avColor) ? g : 0;
   }
+  /* ชุดจ่ายผิดกติกา: ใบที่นับ 0 / มีใบที่ถอดแล้วยังครบ Cost (Cost 3 ห้าม 4+2 แต่ 2+2 ได้) */
+  function gemPayDenyMsg(st, payIds, summonK, cost) {
+    if (!(cost > 0)) return null;
+    const ids = payIds || [];
+    if (!ids.length) return null;
+    const vals = ids.map(k => gemUsableTowardSummon(st, k, summonK));
+    if (vals.some(v => v <= 0))
+      return 'ห้ามจ่าย Cost ด้วยการ์ด GEM 0 (หรือใบที่นับ GEM ไม่ได้)';
+    const total = vals.reduce((s, v) => s + v, 0);
+    if (total < cost) return null;
+    if (vals.some(v => total - v >= cost))
+      return `จ่าย GEM เกิน: Cost ${cost} มีใบที่ไม่จำเป็น (เช่น Cost 3 จ่าย 2+2 ได้ แต่ห้าม 4+2)`;
+    return null;
+  }
   function handGemUsableToward(st, owner, summonK, excludeIds) {
     const skip = {};
     (excludeIds || []).forEach(id => { skip[id] = true; });
@@ -3062,6 +3076,8 @@
           if (k === p.summonK) return false;
           if ((p.payIds || []).includes(k)) return false;
           if (gemUsableTowardSummon(st, k, p.summonK) <= 0) return false;
+          const nextPay = (p.payIds || []).concat([k]);
+          if (gemPayDenyMsg(st, nextPay, p.summonK, p.need)) return false;
         }
         if (p.costSumMax != null && (p.costGot || 0) + effCost(st, k) > p.costSumMax) return false;
         if (p.dest === 'attachTo' && p.attachMod && st.inst[p.attachMod]) {
@@ -7108,6 +7124,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (!a.free && eSum && eSum.exactGemPay && usable !== cost) {
           return deny(`พอดี: ต้องจ่าย GEM พอดี ${cost} (ตอนนี้ ${usable})`);
         }
+        if (!a.free && cost > 0) {
+          const payDeny = gemPayDenyMsg(st, payIds, a.k, cost);
+          if (payDeny) return deny(payDeny);
+        }
         ensureMain();
         // เก็บเอฟเฟกต์ "ถูกใช้เป็น Cost" ก่อนย้ายลงนรก (วันชัย/กัญญา)
         const paidAsCostEffects = [];
@@ -7921,7 +7941,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if (!(st.zones[p.chooser + '.hand'] || []).includes(a.k)) return failPay('จ่ายได้เฉพาะการ์ดในมือ');
             const add = gemUsableTowardSummon(st, a.k, sk);
             if (add <= 0) return failPay('ใบนี้จ่าย Cost การ์ดที่เลือกไม่ได้ (สีไม่ตรงหรือไม่มี GEM)');
-            p.payIds = (p.payIds || []).concat([a.k]);
+            const nextPay = (p.payIds || []).concat([a.k]);
+            const payDeny = gemPayDenyMsg(st, nextPay, sk, p.need);
+            if (payDeny) return failPay(payDeny);
+            p.payIds = nextPay;
             p.got = (p.got || 0) + add;
             p.excludeIds = [sk].concat(p.payIds);
             addLog(st, p.chooser, `จ่าย ${nameOf(st, a.k)} (GEM ${add}) รวม ${p.got}/${p.need}`);
@@ -11220,5 +11243,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, chooseModeOptionDeny, activatedTargetDeny, inOverdose };
+  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose };
 });
