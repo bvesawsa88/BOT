@@ -2355,13 +2355,131 @@
   function botActive() { return mode === 'solo' && soloBot && st && !st.over && !byId('table').classList.contains('hidden'); }
   function botDelayMs() {
     const lv = getBotLevel();
-    return lv === 'easy' ? 900 : lv === 'hard' ? 420 : 650;
+    return lv === 'easy' ? 900 : lv === 'hard' ? 480 : 650;
   }
   function scheduleBot() { if (!botActive()) return; clearTimeout(botT); botT = setTimeout(botTick, botDelayMs()); }
   const eff = k => BoTEngine.effPower(st, k);
   let botFailKeys = new Set();
   let botFailTurn = -1;
   function botAI() { return (typeof BotAI !== 'undefined' && BotAI) ? BotAI : null; }
+  function botCloneSt(s) {
+    try { return JSON.parse(JSON.stringify(s)); } catch (e) { return null; }
+  }
+  function botWithSt(next, fn) {
+    const prev = st;
+    st = next;
+    try { return fn(); } finally { st = prev; }
+  }
+  function botSimPromptAct(sim, pr) {
+    const chooser = pr.chooser;
+    if (chooser !== 'B') {
+      if (pr.kind === 'react') return { type: 'reactNo', by: chooser };
+      if (pr.optional !== false) return { type: 'skipPrompt', by: chooser };
+      const cands = (BoTEngine.promptCandidates && BoTEngine.promptCandidates(sim, pr)) || [];
+      if (cands[0]) return { type: 'chooseTarget', k: cands[0], by: chooser };
+      return { type: 'skipPrompt', by: chooser };
+    }
+    return botWithSt(sim, () => {
+      if (pr.kind === 'chooseMode' && pr.options && pr.options.length) {
+        const AI = botAI();
+        const denyFn = opt => botModeOptionDeny(pr.src, opt);
+        let opt = AI ? AI.pickChooseModeIndex(sim, 'B', pr, denyFn) : 0;
+        const order = [opt];
+        for (let i = 0; i < pr.options.length; i++) if (i !== opt) order.push(i);
+        for (const i of order) {
+          if (denyFn(pr.options[i])) continue;
+          return {
+            type: 'chooseMode', k: pr.src, opt: i,
+            label: (pr.options[i] && pr.options[i].label) || '', by: 'B',
+          };
+        }
+        return { type: 'skipPrompt', by: 'B' };
+      }
+      if (pr.kind === 'react') return { type: 'reactNo', by: 'B' };
+      if (pr.kind === 'peekTop') return { type: 'peekTopPlace', where: 'top', by: 'B' };
+      if (pr.kind === 'handOrSummon') {
+        const c = pr.card && sim.inst[pr.card];
+        const where = (c && c.type === 'Avatar' && (+c.power || 0) >= 3) ? 'avatar' : 'hand';
+        return { type: 'handOrSummonPick', where, by: 'B' };
+      }
+      if (pr.kind === 'guessReveal') return { type: 'guessRevealContinue', by: 'B' };
+      if (pr.kind === 'magicRedirect') return { type: 'magicRedirectYes', by: 'B' };
+      if (pr.kind === 'combatSurvive') return { type: 'combatSurviveYes', by: 'B' };
+      if (pr.kind === 'passengerReplace') return { type: 'passengerReplaceYes', by: 'B' };
+      if (pr.kind === 'preventLeaveExile') return { type: 'preventLeaveYes', by: 'B' };
+      if (pr.kind === 'pickSymbol') {
+        const opts = pr.symbols || pr.options || [];
+        const symbol = (typeof opts[0] === 'string' ? opts[0] : (opts[0] && (opts[0].symbol || opts[0].label))) || 'สัตว์';
+        return { type: 'pickSymbol', symbol, by: 'B' };
+      }
+      const cands = (BoTEngine.promptCandidates && BoTEngine.promptCandidates(sim, pr)) || [];
+      const pick = botPickTarget(pr, cands);
+      if (pick) return { type: 'chooseTarget', k: pick, by: 'B' };
+      if (pr.optional !== false) return { type: 'skipPrompt', by: 'B' };
+      if (cands[0]) return { type: 'chooseTarget', k: cands[0], by: 'B' };
+      return { type: 'skipPrompt', by: 'B' };
+    });
+  }
+  /** จำลอง 1 ตาบนสำเนากระดาน (ไม่แตะเกมจริง) — ระดับยากใช้เทียบว่าตาไหนกระดานดีกว่า */
+  function botSimAction(action) {
+    const s = botCloneSt(st);
+    if (!s || !action) return null;
+    let seed = 7;
+    const step = a => BoTEngine.applyAction(s, Object.assign({ seed: seed++ }, a));
+    let fx = step(Object.assign({}, action, { by: action.by || 'B' }));
+    if (!fx || fx.deny) return null;
+    let guard = 0;
+    while (guard++ < 14) {
+      if (s.over) break;
+      const pr = (s.prompts || [])[0];
+      if (pr) {
+        const na = botSimPromptAct(s, pr);
+        fx = step(Object.assign({}, na, { by: na.by || pr.chooser }));
+        if (fx && fx.deny) {
+          if (pr.optional !== false) {
+            fx = step({ type: 'skipPrompt', by: pr.chooser });
+            if (fx && fx.deny) break;
+          } else break;
+        }
+        continue;
+      }
+      if (s.scout && s.scout.p === 'B') {
+        fx = step({ type: 'scoutEnd', where: 'top', by: 'B' });
+        if (fx && fx.deny) break;
+        continue;
+      }
+      if (s.pending && s.pending.by === 'B' && s.pending.target === 'A') {
+        fx = step({ type: 'resolveAttack', by: 'A' });
+        if (fx && fx.deny) break;
+        continue;
+      }
+      break;
+    }
+    return s;
+  }
+  function botEval(s) {
+    const AI = botAI();
+    if (AI && AI.evalPosition) return AI.evalPosition(s, 'B');
+    return 0;
+  }
+  function botLookaheadPick(cands) {
+    if (!cands || !cands.length) return { fallback: true };
+    const now = botEval(st);
+    const ranked = cands.slice().sort((a, b) => (b.heur || 0) - (a.heur || 0)).slice(0, 16);
+    let best = null;
+    let anyOk = false;
+    for (const it of ranked) {
+      const after = botSimAction(it.a);
+      if (!after) continue;
+      anyOk = true;
+      const ev = botEval(after);
+      const mix = ev + (it.heur || 0) * 0.18;
+      if (!best || mix > best.mix) best = { a: it.a, mix, ev };
+    }
+    if (best && best.ev >= now - 12) return { a: best.a };
+    if (anyOk) return { pass: true };
+    return { fallback: true };
+  }
   function botArch() {
     const AI = botAI();
     return AI ? AI.detectArchetype(st, 'B') : 'generic';
@@ -2432,7 +2550,7 @@
     if (atkP < defP) return false;
     const lost = botThreatScore(pend.def);
     const atkTh = botThreatScore(pend.atk);
-    if (lv === 'hard') return lost >= 22 || atkTh >= 48 || atkP >= defP;
+    if (lv === 'hard') return lost >= 28 || atkTh >= 55 || (atkP > defP && lost >= 18);
     return lost >= 32 || atkP > defP;
   }
   function botKey(a) {
@@ -2573,7 +2691,7 @@
     }
     return s;
   }
-  function botTrySummon() {
+  function botCollectSummonCands() {
     const lv = getBotLevel();
     const hand = st.zones['B.hand'] || [];
     const zone = st.zones['B.avatar'] || [];
@@ -2602,26 +2720,31 @@
       if (lv === 'easy' && cost > 4 && !free) continue;
       const pay = free ? [] : botBuildPay(k, cost);
       if (pay == null) continue;
-      candidates.push({ k, to: c.type === 'Construct' ? 'B.construct' : 'B.avatar', pay, free, score: botSummonScore(k) });
+      const score = botSummonScore(k);
+      const a = { type: 'summon', k, to: c.type === 'Construct' ? 'B.construct' : 'B.avatar', payIds: pay, by: 'B' };
+      if (free) a.free = true;
+      candidates.push({ a, heur: score });
     }
-    candidates.sort((a, b) => b.score - a.score);
+    candidates.sort((x, y) => y.heur - x.heur);
+    return candidates;
+  }
+  function botTrySummon() {
+    const candidates = botCollectSummonCands();
     for (const cand of candidates) {
-      if (cand.score < -20 && getBotLevel() !== 'easy') continue; // เงื่อนไขไม่พร้อม — รอ
-      const a = { type: 'summon', k: cand.k, to: cand.to, payIds: cand.pay, by: 'B' };
-      if (cand.free) a.free = true;
-      if (botSend(a)) return true;
+      if (cand.heur < -20 && getBotLevel() !== 'easy') continue; // เงื่อนไขไม่พร้อม — รอ
+      if (botSend(cand.a)) return true;
     }
     return false;
   }
-  function botTryAttach() {
+  function botCollectAttachCands() {
     const AI = botAI();
     const mods = (st.zones['B.magic'] || []).filter(k => {
       const c = st.inst[k];
       return c && c.subtype === 'Modification' && !c.attachedTo;
     });
-    if (!mods.length) return false;
+    if (!mods.length) return [];
     const hosts = (st.zones['B.avatar'] || []).filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
-    if (!hosts.length) return false;
+    if (!hosts.length) return [];
     const enemyN = (st.zones['A.avatar'] || []).length;
     mods.sort((a, b) => {
       const ca = st.inst[a], cb = st.inst[b];
@@ -2630,6 +2753,7 @@
       if (eggA !== eggB) return eggA ? -1 : 1;
       return botCardVal(b) - botCardVal(a);
     });
+    const out = [];
     for (const mod of mods) {
       const c = st.inst[mod];
       const grantsEgg = AI && AI.modGrantsKickEgg ? AI.modGrantsKickEgg(c) : /ไม้เกาหลัง|เตะไข่/.test((c && (c.name || '') + (c.effect || '')) || '');
@@ -2643,13 +2767,19 @@
         }
         return eff(b) - eff(a);
       });
-      for (const host of rankedHosts) {
-        if (botSend({ type: 'attach', k: mod, to: host, by: 'B' })) return true;
-      }
+      rankedHosts.forEach((host, i) => {
+        out.push({ a: { type: 'attach', k: mod, to: host, by: 'B' }, heur: 40 + botCardVal(mod) - i * 4 + (grantsEgg ? 25 : 0) });
+      });
+    }
+    return out;
+  }
+  function botTryAttach() {
+    for (const it of botCollectAttachCands()) {
+      if (botSend(it.a)) return true;
     }
     return false;
   }
-  function botTryPlayMagic() {
+  function botCollectMagicCands() {
     const hand = st.zones['B.hand'] || [];
     const AI = botAI();
     const arch = botArch();
@@ -2669,16 +2799,19 @@
         score = mtype === 'Land' ? (land ? -5 : 50) : (mtype === 'Modification' ? 30 : 18);
         if (mtype === 'Modification' && !(st.zones['B.avatar'] || []).length) continue;
       }
-      ranked.push({ k, score });
+      ranked.push({ a: { type: 'playMagic', k, by: 'B' }, heur: score });
     }
-    ranked.sort((a, b) => b.score - a.score);
-    for (const it of ranked) {
-      if (it.score < 0) continue;
-      if (botSend({ type: 'playMagic', k: it.k, by: 'B' })) return true;
+    ranked.sort((x, y) => y.heur - x.heur);
+    return ranked;
+  }
+  function botTryPlayMagic() {
+    for (const it of botCollectMagicCands()) {
+      if (it.heur < 0) continue;
+      if (botSend(it.a)) return true;
     }
     return false;
   }
-  function botTryActivate() {
+  function botCollectActivateCands() {
     const AI = botAI();
     const arch = botArch();
     const pools = [
@@ -2694,14 +2827,15 @@
       // สั่งใช้จากนรก (ถ้าการ์ดรองรับ)
       ...(st.zones['B.hell'] || []).filter(k => cardHasActivatedAbility(k)),
     ];
-    const ranked = pools.slice().map(k => ({
-      k,
-      score: AI ? AI.activateScore(st, 'B', k, arch) : botCardVal(k),
-    })).sort((a, b) => b.score - a.score);
-    for (const it of ranked) {
-      if (it.score < -50) continue;
-      if (!cardHasActivatedAbility(it.k)) continue;
-      if (botSend({ type: 'activateAbility', k: it.k, by: 'B' })) return true;
+    return pools.slice().map(k => ({
+      a: { type: 'activateAbility', k, by: 'B' },
+      heur: AI ? AI.activateScore(st, 'B', k, arch) : botCardVal(k),
+    })).filter(it => it.heur >= -50 && cardHasActivatedAbility(it.a.k))
+      .sort((a, b) => b.heur - a.heur);
+  }
+  function botTryActivate() {
+    for (const it of botCollectActivateCands()) {
+      if (botSend(it.a)) return true;
     }
     return false;
   }
@@ -2717,7 +2851,6 @@
     if (pendingMod && (st.zones['B.avatar'] || []).some(k => st.inst[k] && st.inst[k].type === 'Avatar')) {
       if (botTryAttach()) return true;
     }
-    const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
     // แลนด์เป้าหมายยังไม่อยู่บนสนาม — วางก่อนลงอย่างอื่น
     if (AI && lv !== 'easy' && AI.wantedLandNeedle) {
       const need = AI.wantedLandNeedle(arch);
@@ -2725,6 +2858,18 @@
         if (botTryPlayMagic()) return true;
       }
     }
+    // ระดับยาก: จำลองทุกตา Main แล้วเลือกกระดานที่ดีสุด (ไม่ยึดลำดับ heuristic อย่างเดียว)
+    if (lv === 'hard') {
+      const bag = [];
+      botCollectMagicCands().forEach(it => { if (it.heur >= 0) bag.push(it); });
+      botCollectSummonCands().forEach(it => { if (it.heur >= -20) bag.push(it); });
+      botCollectActivateCands().forEach(it => bag.push(it));
+      botCollectAttachCands().forEach(it => bag.push(it));
+      const pick = botLookaheadPick(bag);
+      if (pick && pick.a && botSend(pick.a)) return true;
+      if (pick && pick.pass) return false;
+    }
+    const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
     // ถ้าพร้อมเปิดเทค/เรียกจากนรก — แทรก activate ขึ้นก่อน
     if (AI && lv !== 'easy' && AI.shouldActivateBeforeSummon(st, 'B', arch)) {
       if (botTryActivate()) return true;
@@ -2883,6 +3028,17 @@
     }
     if (!plans.length) return false;
     plans.sort((a, b) => b.score - a.score);
+    if (lv === 'hard' && plans.length > 1) {
+      const top = plans.slice(0, 8);
+      top.forEach(p => {
+        const act = p.life
+          ? { type: 'declareAttack', atk: p.atk, life: p.life, by: 'B' }
+          : { type: 'declareAttack', atk: p.atk, def: p.def, by: 'B' };
+        const after = botSimAction(act);
+        if (after) p.score += botEval(after) * 0.28;
+      });
+      plans.sort((a, b) => b.score - a.score);
+    }
     const ordered = canLethalNow ? plans.filter(p => p.life).concat(plans.filter(p => !p.life)) : plans;
     for (const p of ordered) {
       if (p.life) {

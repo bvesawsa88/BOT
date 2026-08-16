@@ -642,6 +642,72 @@
     return false;
   }
 
+  /**
+   * คะแนนตำแหน่งทั้งกระดาน — ใช้กับ look-ahead ระดับยาก
+   * (จำลองตาแล้วเทียบ ไม่ใช้ LLM ตอนเล่น — กติกาซับซ้อน LLM เล่นผิด/ช้า)
+   */
+  function evalPosition(st, side) {
+    if (!st) return 0;
+    const opp = otherSide(side);
+    if (st.over) {
+      const w = (st.over && st.over.winner) || st.over;
+      if (w === side) return 80000;
+      if (w === opp) return -80000;
+      return 0;
+    }
+    const E = eng();
+    const pwr = k => {
+      const c = st.inst[k];
+      if (!c) return 0;
+      try { return (E && E.effPower) ? E.effPower(st, k) : (+c.power || 0); }
+      catch (e) { return +c.power || 0; }
+    };
+    const hasEgg = k => {
+      try { return !!(E && E.hasKw && E.hasKw(st, k, 'เตะไข่')); }
+      catch (e) { return false; }
+    };
+    const lifeIds = s => zoneIds(st, s + '.life');
+    const lifeN = s => lifeIds(s).length;
+    const lifeDown = s => lifeIds(s).filter(k => st.inst[k] && !st.inst[k].faceUp).length;
+    let v = 0;
+    v += lifeN(side) * 95 + lifeDown(side) * 58;
+    v -= lifeN(opp) * 95 + lifeDown(opp) * 58;
+    if (lifeN(side) && !lifeDown(side)) v -= 85;
+    if (lifeN(opp) && !lifeDown(opp)) v += 110;
+
+    zoneIds(st, side + '.avatar').forEach(k => {
+      const c = st.inst[k]; if (!c) return;
+      v += 24 + pwr(k) * 10;
+      if (hasEgg(k)) v += 18;
+      if (c.tapped) v -= 6;
+    });
+    zoneIds(st, opp + '.avatar').forEach(k => {
+      const c = st.inst[k]; if (!c) return;
+      v -= 24 + pwr(k) * 10;
+      if (hasEgg(k)) v -= 20;
+    });
+    zoneIds(st, side + '.construct').forEach(k => { v += 10 + pwr(k) * 4; });
+    zoneIds(st, opp + '.construct').forEach(k => { v -= 10 + pwr(k) * 4; });
+
+    v += zoneIds(st, side + '.hand').length * 7;
+    v -= zoneIds(st, opp + '.hand').length * 5;
+    v += Math.min(8, zoneIds(st, side + '.deck').length) * 1.5;
+
+    const arch = detectArchetype(st, side);
+    if (landHelpsArchetype(st, arch)) v += 48;
+    else if (wantedLandNeedle(arch) && zoneIds(st, side + '.hand').some(k => isWantedLandCard(st.inst[k], arch)))
+      v += 8;
+    if (arch === ARCH.FOREST) {
+      v += zoneIds(st, side + '.hell').filter(id => /ภูติผลไม้/.test(nameOf(st.inst[id]))).length * 9;
+    }
+    if (arch === ARCH.ISAN) {
+      if (ownNameOnField(st, side, 'อีสานสลิงเกอร์')) v += 22;
+      v += Math.min(8, hellReturned(st, side)) * 3;
+    }
+    if ((st.prompts || []).length) v -= 12;
+    return v;
+  }
+
   root.BotAI = {
     LAND, ARCH,
     detectArchetype,
@@ -661,6 +727,7 @@
     pickSummonTarget,
     mulliganKeepScore,
     shouldActivateBeforeSummon,
+    evalPosition,
     hellReturned,
     ownNameOnField,
     wantedLandNeedle,
