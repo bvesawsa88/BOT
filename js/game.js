@@ -578,98 +578,8 @@
   /* ── สลับจอ ── */
   const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'decks', 'deckbuilder', 'gallery', 'howto'];
   const SS_UI = 'bot_ui_v1';
-  const SCREEN_DEPTH = {
-    menu: 0, lanHall: 1, lobby: 1, decks: 1, gallery: 1, howto: 1,
-    room: 2, deckbuilder: 2, table: 3
-  };
   let curScreen = 'menu';
   let persistT = null;
-  let flipping = false;
-  let flipPending = null;
-
-  function reduceMotion() {
-    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-    catch (e) { return false; }
-  }
-
-  function currentNotebookEl() {
-    if (curScreen === 'table') return byId('table');
-    return byId(curScreen) || byId('menu');
-  }
-
-  function fillFlipShot(fromEl) {
-    const shot = document.querySelector('#bookFlip .bf-shot');
-    if (!shot) return;
-    shot.innerHTML = '';
-    if (!fromEl) return;
-    const inner = document.createElement('div');
-    inner.className = 'bf-shot-inner';
-    [...fromEl.children].forEach(node => {
-      if (node.classList && node.classList.contains('float-card')) return;
-      inner.appendChild(node.cloneNode(true));
-    });
-    inner.querySelectorAll('button,input,select,textarea,a').forEach(n => {
-      n.setAttribute('tabindex', '-1');
-      n.disabled = true;
-    });
-    const bar = inner.querySelector('#userBar');
-    if (bar) { bar.style.right = '16px'; bar.style.left = 'auto'; bar.style.top = '12px'; }
-    inner.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
-    shot.appendChild(inner);
-  }
-
-  function bookFlip(back, midFn) {
-    const ov = byId('bookFlip');
-    if (!ov || reduceMotion()) {
-      if (midFn) midFn();
-      return;
-    }
-    if (flipping) {
-      if (midFn) midFn();
-      return;
-    }
-    flipping = true;
-    fillFlipShot(currentNotebookEl());
-    const stage = ov.querySelector('.bf-stage');
-    ov.classList.remove('hidden', 'play', 'back', 'fwd', 'out');
-    ov.classList.add(back ? 'back' : 'fwd');
-    ov.setAttribute('aria-hidden', 'false');
-    try { snd('flip'); } catch (e) { }
-    requestAnimationFrame(() => { requestAnimationFrame(() => ov.classList.add('play')); });
-    let midDone = false;
-    const mid = () => {
-      if (midDone) return;
-      midDone = true;
-      try { if (midFn) midFn(); } catch (e) { }
-    };
-    const tMid = setTimeout(mid, 320);
-    const finish = () => {
-      clearTimeout(tMid);
-      mid();
-      ov.classList.add('out');
-      setTimeout(() => {
-        ov.classList.add('hidden');
-        ov.classList.remove('play', 'back', 'fwd', 'out');
-        ov.setAttribute('aria-hidden', 'true');
-        const shot = ov.querySelector('.bf-shot');
-        if (shot) shot.innerHTML = '';
-        flipping = false;
-        if (flipPending) {
-          const n = flipPending;
-          flipPending = null;
-          showScreen(n);
-        }
-      }, 160);
-    };
-    const tEnd = setTimeout(finish, 920);
-    const onEnd = (e) => {
-      if (e && stage && e.target !== stage) return;
-      if (stage) stage.removeEventListener('transitionend', onEnd);
-      clearTimeout(tEnd);
-      finish();
-    };
-    if (stage) stage.addEventListener('transitionend', onEnd);
-  }
 
   function persistUI(force) {
     if (STREAM) return;
@@ -738,18 +648,8 @@
     syncHomeBtn();
   }
 
-  function showScreen(name, instant) {
-    const from = curScreen;
-    if (instant || reduceMotion() || name === from) {
-      applyScreen(name);
-      return;
-    }
-    if (flipping) {
-      flipPending = name;
-      return;
-    }
-    const back = (SCREEN_DEPTH[name] || 0) < (SCREEN_DEPTH[from] || 0);
-    bookFlip(back, () => applyScreen(name));
+  function showScreen(name) {
+    applyScreen(name);
   }
   window.BOT = { showScreen, _st: () => st, _seat: () => seat, _mode: () => mode }; // showScreen ให้ deck-builder/gallery · debug helpers
 
@@ -5916,47 +5816,28 @@
     showScreen('menu');
   }
 
-  function showMenuHome(instant) {
-    const apply = () => {
-      byId('menuHome').classList.remove('hidden');
-      byId('menuPlay').classList.add('hidden');
-      syncHomeBtn();
-    };
-    const play = byId('menuPlay');
-    if (instant || reduceMotion() || !play || play.classList.contains('hidden')) {
-      apply();
-      return;
-    }
-    if (flipping) { apply(); return; }
-    bookFlip(true, apply);
+  function showMenuHome() {
+    byId('menuHome').classList.remove('hidden');
+    byId('menuPlay').classList.add('hidden');
+    syncHomeBtn();
   }
-  function showMenuPlayModes(instant) {
-    const apply = () => {
-      const modes = byId('menuPlayModes');
-      const solo = byId('menuSoloSetup');
-      const bot = byId('menuBotSetup');
-      const real = byId('menuRealSetup');
-      if (modes) modes.classList.remove('hidden');
-      if (solo) solo.classList.add('hidden');
-      if (bot) bot.classList.add('hidden');
-      if (real) real.classList.add('hidden');
-      syncHomeBtn();
-    };
+  function showMenuPlayModes() {
     const modes = byId('menuPlayModes');
-    const already = modes && !modes.classList.contains('hidden');
-    if (instant || already || reduceMotion() || flipping) { apply(); return; }
-    bookFlip(true, apply);
+    const solo = byId('menuSoloSetup');
+    const bot = byId('menuBotSetup');
+    const real = byId('menuRealSetup');
+    if (modes) modes.classList.remove('hidden');
+    if (solo) solo.classList.add('hidden');
+    if (bot) bot.classList.add('hidden');
+    if (real) real.classList.add('hidden');
+    syncHomeBtn();
   }
   function showMenuPlay() {
-    const apply = () => {
-      byId('menuHome').classList.add('hidden');
-      byId('menuPlay').classList.remove('hidden');
-      showMenuPlayModes(true);
-      syncHomeBtn();
-      ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
-    };
-    if (reduceMotion() || flipping) apply();
-    else bookFlip(false, apply);
+    byId('menuHome').classList.add('hidden');
+    byId('menuPlay').classList.remove('hidden');
+    showMenuPlayModes();
+    syncHomeBtn();
+    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
   }
   byId('mnuPlay').onclick = () => showMenuPlay();
   byId('btnHome').onclick = goHomeNotebook;
@@ -6090,16 +5971,12 @@
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   }
   function openPlaySetup(which) {
-    const apply = () => {
-      byId('menuPlayModes').classList.add('hidden');
-      byId('menuBotSetup').classList.toggle('hidden', which !== 'bot');
-      byId('menuSoloSetup').classList.toggle('hidden', which !== 'solo');
-      byId('menuRealSetup').classList.toggle('hidden', which !== 'real');
-      syncHomeBtn();
-      ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
-    };
-    if (reduceMotion() || flipping) apply();
-    else bookFlip(false, apply);
+    byId('menuPlayModes').classList.add('hidden');
+    byId('menuBotSetup').classList.toggle('hidden', which !== 'bot');
+    byId('menuSoloSetup').classList.toggle('hidden', which !== 'solo');
+    byId('menuRealSetup').classList.toggle('hidden', which !== 'real');
+    syncHomeBtn();
+    ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
   }
   byId('mnuBot').onclick = () => openPlaySetup('bot');
   byId('btnBotStart').onclick = () => startBotMatch();

@@ -5,7 +5,7 @@
   --mb-h:54px; /* ความสูงแถบปุ่มล่างจอ (มือถือ) */
   --cream:#f4f4f6; --cream2:#bcbcc4; --dim:#86868f; --green:#414f47;
   --wood:#2a1810; --paper:#f4ead6; --ink:#1a1612;
-  --wood-bg:var(--wood) url('../assets/ui/wood.svg');
+  --wood-bg:var(--wood) url('../assets/ui/wood.svg?v=2');
   --paper-bg:var(--paper) url('../assets/ui/paper.svg');
   --book-w:min(520px, calc(100% - 16px));
   --cs:1; /* card scale — จอใหญ่ขยายผ่าน media query ด้านล่าง */
@@ -19,7 +19,7 @@
   --skin-life-back-opp:var(--skin-life-back);
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:'Sarabun',sans-serif;color:var(--cream);background-color:var(--wood);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px,rgba(255,220,170,.05) 3px 4px,transparent 4px 9px),url('../assets/ui/wood.svg');background-size:auto,420px 420px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:'Sarabun',sans-serif;color:var(--cream);background-color:var(--wood);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px,rgba(255,220,170,.05) 3px 4px,transparent 4px 9px),url('../assets/ui/wood.svg?v=2');background-size:auto,420px 420px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .hidden{display:none!important}
 .spacer{flex:1}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#4a3a30;border-radius:4px}
@@ -38,7 +38,7 @@ button{font-family:'IBM Plex Sans Thai',sans-serif;cursor:pointer}
 .btn-mini{font-size:11px;font-weight:600;background:var(--border);color:#e5dcc8;border:1.5px solid var(--panel);border-radius:6px;padding:3px 9px}
 
 /* ── จอก่อนเข้าเกม (เมนู/ล็อบบี้/ห้องรอ) — สมุดบนโต๊ะไม้ ── */
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background-color:var(--wood);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px,rgba(255,220,170,.05) 3px 4px,transparent 4px 9px),url('../assets/ui/wood.svg');background-size:auto,420px 420px;padding:22px 16px 36px;overflow:hidden;color:var(--ink);isolation:isolate}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background-color:var(--wood);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px,rgba(255,220,170,.05) 3px 4px,transparent 4px 9px),url('../assets/ui/wood.svg?v=2');background-size:auto,420px 420px;padding:22px 16px 36px;overflow:hidden;color:var(--ink);isolation:isolate}
 .screen::before,.screen::after{content:'';position:absolute;pointer-events:none}
 .screen::before{
   z-index:0;
@@ -160,74 +160,6 @@ body.has-back .screen::after{top:50px}
 .f1{left:8%;top:18%;width:150px;opacity:.85}.f1 img{transform:rotate(-14deg)}
 .f2{right:9%;top:24%;width:150px;opacity:.85;animation-duration:6s;animation-delay:.8s}.f2 img{transform:rotate(11deg)}
 .f3{left:22%;bottom:8%;width:120px;opacity:.55;animation-duration:7s;animation-delay:.4s}.f3 img{transform:rotate(8deg)}
-
-/* ── พลิกหน้าสมุดเล่มเดียวกัน (สันซ้าย) ── */
-#bookFlip{position:fixed;inset:0;z-index:380;pointer-events:none;perspective:1800px;perspective-origin:8% 45%;overflow:hidden;opacity:1;transition:opacity .18s linear}
-#bookFlip.play{pointer-events:auto}
-#bookFlip.out{opacity:0}
-.bf-under,.bf-stage{
-  position:absolute;top:10px;bottom:28px;left:50%;width:var(--book-w);margin-left:calc(var(--book-w) * -.5);
-  border-radius:3px 12px 10px 2px;
-}
-.bf-under{
-  background-color:var(--paper);
-  background-image:
-    radial-gradient(ellipse at 50% 30%,transparent 42%,rgba(92,58,22,.11) 100%),
-    linear-gradient(rgba(50,36,18,.07) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(50,36,18,.07) 1px,transparent 1px),
-    url('../assets/ui/paper.svg');
-  background-size:auto,18px 18px,18px 18px,256px 256px;
-  box-shadow:-2px 0 0 #eadfc8,-4px 1px 0 #e0d3b8,-6px 2px 0 #d4c6aa,8px 6px 18px rgba(0,0,0,.35);
-}
-.bf-under::before{
-  content:'';position:absolute;top:8px;bottom:8px;left:8px;width:12px;
-  background-image:radial-gradient(circle at 50% 8px,#1c140e 2.4px,transparent 2.7px);
-  background-size:12px 32px;background-repeat:repeat-y;opacity:.55;
-}
-.bf-stage{
-  transform:rotateY(0);transform-origin:left center;transform-style:preserve-3d;
-  transition:transform .82s cubic-bezier(.16,.7,.2,1);
-  z-index:1;
-}
-#bookFlip.fwd.play .bf-stage{transform:rotateY(-178deg)}
-#bookFlip.back.play .bf-stage{transform:rotateY(178deg)}
-.bf-face{position:absolute;inset:0;border-radius:3px 12px 10px 2px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
-.bf-recto{
-  background-color:var(--paper);
-  background-image:
-    radial-gradient(ellipse at 50% 30%,transparent 42%,rgba(92,58,22,.11) 100%),
-    linear-gradient(rgba(50,36,18,.07) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(50,36,18,.07) 1px,transparent 1px),
-    url('../assets/ui/paper.svg');
-  background-size:auto,18px 18px,18px 18px,256px 256px;
-  box-shadow:10px 8px 22px rgba(0,0,0,.45),inset -22px 0 28px rgba(80,50,20,.07);
-}
-.bf-recto::after{
-  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
-  background:linear-gradient(90deg,rgba(40,24,10,.02),rgba(0,0,0,.28) 82%,rgba(0,0,0,.5));
-  opacity:0;transition:opacity .82s cubic-bezier(.16,.7,.2,1);
-}
-#bookFlip.play .bf-recto::after{opacity:1}
-.bf-recto::before{
-  content:'';position:absolute;top:8px;bottom:8px;left:8px;width:12px;pointer-events:none;z-index:2;
-  background-image:radial-gradient(circle at 50% 8px,#1c140e 2.4px,transparent 2.7px);
-  background-size:12px 32px;background-repeat:repeat-y;opacity:.72;
-}
-.bf-shot{
-  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;padding:22px 16px 36px;overflow:hidden;pointer-events:none;z-index:1;
-}
-.bf-shot-inner{display:contents}
-.bf-verso{
-  background:#e6d9bf;
-  background-image:url('../assets/ui/paper.svg');
-  background-size:256px 256px;
-  transform:rotateY(180deg);
-  box-shadow:inset 22px 0 28px rgba(60,40,20,.16);
-}
-@media (prefers-reduced-motion:reduce){
-  #bookFlip,.bf-stage,.bf-recto::after{transition:none!important}
-}
 
 /* ล็อบบี้ */
 .lobby-flex{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
