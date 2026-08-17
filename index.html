@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260817m">
+<link rel="stylesheet" href="css/style.css?v=20260817n">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -231,7 +231,10 @@
       <span class="db-label">COST</span>
       <div id="dbCostChips" class="chip-row"></div>
       <select id="dbSymbol"></select>
-      <select id="dbSeries"></select>
+      <div class="db-ms" id="dbSeriesMs">
+        <button type="button" id="dbSeriesBtn" class="db-ms-btn" aria-haspopup="listbox" aria-expanded="false">ซีรีส์ — ทั้งหมด</button>
+        <div id="dbSeriesMenu" class="db-ms-menu hidden" role="listbox" aria-multiselectable="true"></div>
+      </div>
       <select id="dbSubtype">
         <option value="">ชนิด Magic — ทั้งหมด</option>
         <option value="Normal">Normal</option><option value="React">React</option>
@@ -539,7 +542,7 @@
         <h3>วิธีจัดและเอาไปเล่น</h3>
         <ol class="hw-ol">
           <li>เมนูหลัก → <b>เด็คของฉัน</b> → กด <b>จัดเด็คใหม่</b> หรือเลือกเด็คแล้วกด <b>จัดเด็คนี้</b></li>
-          <li>ค้นหาการ์ดจากแถบฟิลเตอร์ (ชื่อ / ข้อความ effect / รหัส) หรือกรองด้วยประเภท · สี · COST · Symbol · ซีรีส์ · ชนิด Magic</li>
+          <li>ค้นหาการ์ดจากแถบฟิลเตอร์ (ชื่อ / ข้อความ effect / รหัส) หรือกรองด้วยประเภท · สี · COST · Symbol · ซีรีส์ (เลือกได้หลายชุด) · ชนิด Magic</li>
           <li>กด <b>+</b> บนการ์ดเพื่อใส่ · <b>−</b> เพื่อเอาออก · คลิกที่การ์ดเพื่อดูรายละเอียดแล้วปรับจำนวน</li>
           <li>ดูแถบตรวจด้านขวาให้ขึ้น ✓ ครบ: Main 50 · LIFE 5 · มี Only #1 พอดี 1 ชื่อ · ไม่เกินลิมิต/banlist</li>
           <li>ตั้งชื่อเด็คแล้วกด <b>บันทึก</b> — ระบบตั้งให้เป็นเด็คหลักทันที (หรือจากหน้ารายการเด็คกด <b>ใช้เป็นเด็คหลัก</b>)</li>
@@ -1056,11 +1059,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260817m"></script>
+<script src="js/util.js?v=20260817n"></script>
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260817m"></script>
+<script src="js/game.js?v=20260817n"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

@@ -5,7 +5,7 @@
   const { byId, esc, asset } = BotUtil;
 
 /* ═══════════════ DECK BUILDER ═══════════════ */
-  const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: '', subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} }, name: '', preview: null };
+  const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} }, name: '', preview: null };
   const DK = { sel: null };
   const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 4, USEC: 5, PR: 6, CBR: 7 };
   const COLOR_HEX = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
@@ -95,6 +95,7 @@
     if (side) side.classList.remove('open');
     if (deck) deck.classList.remove('open');
     if (mask) { mask.classList.remove('open'); mask.setAttribute('aria-hidden', 'true'); }
+    closeSeriesMenu();
   }
   function toggleDbDrawer(which) {
     const side = dbSideEl(), deck = dbDeckEl(), mask = byId('dbDrawerMask');
@@ -117,7 +118,8 @@
       DB.db = db;
       byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด · Rule Book 3.2`;
       fillSelect('dbSymbol', 'Symbol — ทั้งหมด', [...new Set(db.cards.map(c => c.symbol).filter(Boolean))].sort());
-      fillSelect('dbSeries', 'ซีรีส์ — ทั้งหมด', [...new Set(db.cards.map(c => c.series).filter(Boolean))].sort());
+      fillSeriesMenu();
+      closeSeriesMenu();
       if (opts.empty) {
         DB.deck = { main: {}, life: {} };
         byId('dbName').value = '';
@@ -132,6 +134,57 @@
   };
   function fillSelect(id, first, vals) {
     byId(id).innerHTML = `<option value="">${esc(first)}</option>` + vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  }
+  function seriesList() {
+    if (!DB.db) return [];
+    return [...new Set(DB.db.cards.map(c => c.series).filter(Boolean))].sort();
+  }
+  function seriesLabel() {
+    const sel = DB.series || [];
+    if (!sel.length) return 'ซีรีส์ — ทั้งหมด';
+    if (sel.length === 1) return 'ซีรีส์ · ' + sel[0];
+    if (sel.length <= 3) return 'ซีรีส์ · ' + sel.join(', ');
+    return 'ซีรีส์ · ' + sel.length + ' ชุด';
+  }
+  function seriesMenuOpen() {
+    const menu = byId('dbSeriesMenu');
+    return !!(menu && !menu.classList.contains('hidden'));
+  }
+  function syncSeriesUi() {
+    const btn = byId('dbSeriesBtn');
+    if (btn) {
+      btn.textContent = seriesLabel();
+      btn.classList.toggle('on', (DB.series || []).length > 0);
+      btn.setAttribute('aria-expanded', seriesMenuOpen() ? 'true' : 'false');
+    }
+    const menu = byId('dbSeriesMenu');
+    if (!menu) return;
+    const sel = DB.series || [];
+    menu.querySelectorAll('[data-series]').forEach(b => {
+      const on = sel.includes(b.dataset.series);
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+  function fillSeriesMenu() {
+    const menu = byId('dbSeriesMenu');
+    if (!menu) return;
+    menu.innerHTML = seriesList().map(v =>
+      `<button type="button" class="db-ms-opt" data-series="${esc(v)}" role="option" aria-selected="false"><i class="db-ms-check" aria-hidden="true"></i>${esc(v)}</button>`
+    ).join('');
+    syncSeriesUi();
+  }
+  function closeSeriesMenu() {
+    const menu = byId('dbSeriesMenu');
+    if (menu) menu.classList.add('hidden');
+    syncSeriesUi();
+  }
+  function toggleSeries(v) {
+    const cur = DB.series || [];
+    DB.series = cur.includes(v) ? cur.filter(x => x !== v) : cur.concat(v).sort();
+    DB.shown = 60;
+    syncSeriesUi();
+    renderDB();
   }
   function chipRow(id, vals, cur, onPick) {
     byId(id).innerHTML = vals.map(v => `<button class="db-chip${cur === v ? ' on' : ''}" data-v="${esc(v)}">${v === '' ? 'ทั้งหมด' : esc(v)}</button>`).join('');
@@ -210,7 +263,7 @@
     const out = DB.db.cards.filter(c =>
       (!q || (c.name + ' ' + (c.effect || '') + ' ' + c.code).toLowerCase().includes(q)) &&
       (!DB.type || c.type === DB.type) && (!DB.color || c.color === DB.color) &&
-      (!DB.symbol || c.symbol === DB.symbol) && (!DB.series || c.series === DB.series) &&
+      (!DB.symbol || c.symbol === DB.symbol) && (!(DB.series && DB.series.length) || DB.series.includes(c.series)) &&
       (!DB.subtype || c.subtype === DB.subtype) &&
       (DB.cost === '' || (DB.cost === '8+' ? +c.cost >= 8 : String(c.cost) === DB.cost)));
     const key = {
@@ -353,9 +406,28 @@
   byId('dbGrid').addEventListener('pointerdown', closeDbDrawers);
   byId('dbQ').addEventListener('input', e => { DB.q = e.target.value; DB.shown = 60; renderDB(); });
   byId('dbSymbol').onchange = e => { DB.symbol = e.target.value; DB.shown = 60; renderDB(); };
-  byId('dbSeries').onchange = e => { DB.series = e.target.value; DB.shown = 60; renderDB(); };
+  byId('dbSeriesBtn').onclick = () => {
+    const menu = byId('dbSeriesMenu');
+    if (!menu) return;
+    menu.classList.toggle('hidden');
+    syncSeriesUi();
+  };
+  byId('dbSeriesMenu').addEventListener('click', e => {
+    const b = e.target.closest('[data-series]');
+    if (b) toggleSeries(b.dataset.series);
+  });
+  document.addEventListener('pointerdown', e => {
+    const wrap = byId('dbSeriesMs');
+    if (!wrap || wrap.contains(e.target) || !seriesMenuOpen()) return;
+    closeSeriesMenu();
+  });
   byId('dbSubtype').onchange = e => { DB.subtype = e.target.value; DB.shown = 60; renderDB(); };
-  byId('dbClear').onclick = () => { Object.assign(DB, { q: '', type: '', color: '', cost: '', symbol: '', series: '', subtype: '', shown: 60 }); byId('dbQ').value = ''; byId('dbSymbol').value = ''; byId('dbSeries').value = ''; byId('dbSubtype').value = ''; renderDB(); };
+  byId('dbClear').onclick = () => {
+    Object.assign(DB, { q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60 });
+    byId('dbQ').value = ''; byId('dbSymbol').value = ''; byId('dbSubtype').value = '';
+    closeSeriesMenu();
+    renderDB();
+  };
   byId('dbMore').onclick = () => { DB.shown += 60; renderDB(); };
   byId('dbSort').onchange = e => { DB.sort = e.target.value; renderDB(); };
   byId('dbDir').onclick = () => { DB.dir = -DB.dir; byId('dbDir').textContent = DB.dir === 1 ? '▲' : '▼'; renderDB(); };
