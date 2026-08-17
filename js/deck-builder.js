@@ -88,8 +88,31 @@
       .map(([col, n]) => `${col} ${n}`).join(' · ') || '—';
   }
 
+  function dbSideEl() { return document.querySelector('#deckbuilder .db-side'); }
+  function dbDeckEl() { return document.querySelector('#deckbuilder .db-deck'); }
+  function closeDbDrawers() {
+    const side = dbSideEl(), deck = dbDeckEl(), mask = byId('dbDrawerMask');
+    if (side) side.classList.remove('open');
+    if (deck) deck.classList.remove('open');
+    if (mask) { mask.classList.remove('open'); mask.setAttribute('aria-hidden', 'true'); }
+  }
+  function toggleDbDrawer(which) {
+    const side = dbSideEl(), deck = dbDeckEl(), mask = byId('dbDrawerMask');
+    if (!side || !deck) return;
+    if (which === 'side') {
+      deck.classList.remove('open');
+      side.classList.toggle('open');
+    } else {
+      side.classList.remove('open');
+      deck.classList.toggle('open');
+    }
+    const any = side.classList.contains('open') || deck.classList.contains('open');
+    if (mask) { mask.classList.toggle('open', any); mask.setAttribute('aria-hidden', any ? 'false' : 'true'); }
+  }
+
   window.openDeckBuilder = function (opts) {
     opts = opts || {};
+    closeDbDrawers();
     CardDB.load().then(db => {
       DB.db = db;
       byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด · Rule Book 3.2`;
@@ -317,14 +340,17 @@
   }
 
   /* events — deck builder */
-  byId('dbBack').onclick = () => { BOT.showScreen('decks'); window.openDeckList(); };
-  // ลิ้นชักบนมือถือ: ฟิลเตอร์ซ้าย / เด็คขวา
-  byId('dbFiltersBtn').onclick = () => { document.querySelector('.db-deck').classList.remove('open'); document.querySelector('.db-side').classList.toggle('open'); };
-  byId('dbDeckBtn').onclick = () => { document.querySelector('.db-side').classList.remove('open'); document.querySelector('.db-deck').classList.toggle('open'); };
-  byId('dbGrid').addEventListener('pointerdown', () => {
-    document.querySelector('.db-side').classList.remove('open');
-    document.querySelector('.db-deck').classList.remove('open');
-  });
+  byId('dbBack').onclick = () => { closeDbDrawers(); BOT.showScreen('decks'); window.openDeckList(); };
+  // ลิ้นชักบนมือถือ: ฟิลเตอร์ซ้าย / เด็คขวา — หุบแล้วตัด pointer-events ที่ CSS
+  byId('dbFiltersBtn').onclick = () => toggleDbDrawer('side');
+  byId('dbDeckBtn').onclick = () => toggleDbDrawer('deck');
+  const dbFiltersClose = byId('dbFiltersClose');
+  if (dbFiltersClose) dbFiltersClose.onclick = closeDbDrawers;
+  const dbDeckClose = byId('dbDeckClose');
+  if (dbDeckClose) dbDeckClose.onclick = closeDbDrawers;
+  const dbMask = byId('dbDrawerMask');
+  if (dbMask) dbMask.addEventListener('pointerdown', closeDbDrawers);
+  byId('dbGrid').addEventListener('pointerdown', closeDbDrawers);
   byId('dbQ').addEventListener('input', e => { DB.q = e.target.value; DB.shown = 60; renderDB(); });
   byId('dbSymbol').onchange = e => { DB.symbol = e.target.value; DB.shown = 60; renderDB(); };
   byId('dbSeries').onchange = e => { DB.series = e.target.value; DB.shown = 60; renderDB(); };
