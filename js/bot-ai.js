@@ -352,6 +352,18 @@
       return x && x.type === 'Avatar' && (+x.gem || 0) >= minGem;
     });
   }
+  function hellHasAvatarCostMax(st, side, maxCost) {
+    return zoneIds(st, side + '.hell').some(k => {
+      const x = st.inst[k];
+      return x && x.type === 'Avatar' && (+x.cost || 0) <= maxCost;
+    });
+  }
+  function handHasAvatarCostMax(st, side, maxCost) {
+    return zoneIds(st, side + '.hand').some(k => {
+      const x = st.inst[k];
+      return x && x.type === 'Avatar' && (+x.cost || 0) <= maxCost;
+    });
+  }
   function hellHasNormalMagic(st, side) {
     return zoneIds(st, side + '.hell').some(k => isNormalMagicCard(st.inst[k]));
   }
@@ -958,10 +970,148 @@
     return find(/พิเภก/) || find(/กุมภกรรณ/) || find(/ยักษ์หินแผ่นดินใหญ่/) || find(/มณโฑ/) || null;
   }
 
+  /**
+   * คะแนนใบตามบอร์ดตอนนี้ — ฝันร้ายใช้ตอนเสิร์ช/จัดท็อปเด็ค
+   * (แลนด์ที่ขาด · คอมโบรถถัง · มะขาม/ทศกัณฑ์ · มะเฟืองตอนแพ้บอร์ด)
+   */
+  function situationalPickScore(st, side, k) {
+    const c = st.inst[k];
+    if (!c) return -999;
+    const arch = detectArchetype(st, side);
+    const n = nameOf(c);
+    const opp = otherSide(side);
+    const needLand = wantedLandNeedle(arch);
+    const hasLand = needLand ? hasLandNamed(st, needLand) : !!landOnBoard(st);
+    const fruits = fruitCountInHand(st, side);
+    const ownN = zoneIds(st, side + '.avatar').length;
+    const oppN = zoneIds(st, opp + '.avatar').length;
+    let s = 0;
+    if (isWantedLandCard(c, arch)) s += hasLand ? -60 : 240;
+    if (arch === ARCH.FOREST && /มะขาม/.test(n) && fruits >= 2 && !hasLand) s += 220;
+    if (/พญายักษ์ ทศกัณ/.test(n) && (hasGem4BatteryInHand(st, side) || hasLand)) s += 190;
+    if (nameHasTank(c) && hasNationInHand(st, side) && !tankOnField(st, side)) s += 230;
+    if (/เพื่อชาติ/.test(n) && tankOnField(st, side) && !hasNationInHand(st, side)) s += 210;
+    if (/อย่าให้มีครั้งที่/.test(n) && nationTrapArmed(st, side)) s += 95;
+    if (st.pending && st.pending.target === side) {
+      if (/เพื่อชาติ/.test(n) && tankOnField(st, side)) s += 90;
+      if (/อย่าให้มีครั้งที่/.test(n)) s += 80;
+    }
+    if (boardLosing(st, side) && /มะเฟือง/.test(n)) s += 180;
+    const parts = finishComboParts(st, side);
+    if (parts && !parts.scratchHand && !parts.scratchPend && /ไม้เกาหลัง/.test(n)) s += 150;
+    if (parts && parts.scratchHand && isGreenBeater(c) && !parts.greenField && !parts.greenHand) s += 140;
+    if (arch === ARCH.ISAN && /อีสานสลิงเกอร์/.test(n) && !ownNameOnField(st, side, 'อีสานสลิงเกอร์')) s += 170;
+    if (arch === ARCH.ISAN && isWantedLandCard(c, arch) && ownNameOnField(st, side, 'อีสานสลิงเกอร์') && !hasLand) s += 40;
+    if (arch === ARCH.FOREST && /แตงกวา/.test(n) && hasLand && !ownNameOnField(st, side, 'แตงกวา')) s += 70;
+    if (arch === ARCH.FOREST && /ภูติผลไม้ มะม่วง/.test(n) && hasLand && !ownNameOnField(st, side, 'มะม่วง')) s += 40;
+    if (ownN === 0 && oppN >= 2 && c.type === 'Avatar' && (+c.power || 0) >= 3) s += 55;
+    if (c.type === 'Avatar') s += 8 + (+c.power || 0) * 7;
+    if (isGemBattery(c)) s += 12;
+    if (c.subtype === 'React') s += 20;
+    if (holdsForTankCombo(c)) s += 35;
+    if (cardIsKeyEnabler(c, arch)) s += 25;
+    return s;
+  }
+  function pickBestFromIds(st, side, ids) {
+    if (!ids || !ids.length) return null;
+    let best = null, bestS = -1e9;
+    ids.forEach(id => {
+      const sc = situationalPickScore(st, side, id);
+      if (sc > bestS) { bestS = sc; best = id; }
+    });
+    return best;
+  }
+  /** ย้ายใบที่เข้ากับบอร์ดไปบนสุดเด็ค (จั่วครั้งถัดไปได้ใบนั้น) — ใช้เฉพาะโหมดฝันร้าย */
+  function stackBestOnDeckTop(st, side) {
+    const d = st.zones && st.zones[side + '.deck'];
+    if (!d || d.length < 2) return false;
+    const best = pickBestFromIds(st, side, d);
+    if (!best) return false;
+    const i = d.indexOf(best);
+    if (i < 0 || i === d.length - 1) return false;
+    d.splice(i, 1);
+    d.push(best);
+    return true;
+  }
+  /** คะแนน LIFE ที่จะหงายเมื่อโดนตี — อู๊ด/โดมใช้ไม่ได้ต้องหลบ มีมมิหรือลงฟรีดีกว่า */
+  function nightmareLifeRevealScore(st, side, id) {
+    const c = st.inst[id];
+    if (!c) return -999;
+    const n = nameOf(c);
+    if (/ไม่นะ\s*อู๊ด/.test(n)) return hellHasNormalMagic(st, side) ? 70 : -300;
+    if (/ไม่นะ\s*โดม/.test(n)) return hellHasGemAvatar(st, side, 3) ? 70 : -300;
+    if (/มณโท/.test(n)) return hellHasAvatarCostMax(st, side, 2) ? 120 : 5;
+    if (/รัททาทุย/.test(n) && /ตาย/.test(n)) return handHasAvatarCostMax(st, side, 4) ? 115 : 15;
+    if (/มีมมิ/.test(n)) return 110;
+    return 20;
+  }
+  /** สลับ LIFE คว่ำใบถัดไปให้เป็นใบที่ใช้ได้ (ไม่แตะนรก — แค่ลำดับหงาย) */
+  function stackBestLifeReveal(st, side) {
+    const arr = st.zones && st.zones[side + '.life'];
+    if (!arr || arr.length < 2) return false;
+    const down = arr.filter(k => st.inst[k] && !st.inst[k].faceUp);
+    if (down.length < 2) return false;
+    let best = null, bestS = -1e9;
+    down.forEach(id => {
+      const sc = nightmareLifeRevealScore(st, side, id);
+      if (sc > bestS) { bestS = sc; best = id; }
+    });
+    if (!best) return false;
+    const first = down[0];
+    if (best === first) return false;
+    const i = arr.indexOf(best);
+    const j = arr.indexOf(first);
+    if (i < 0 || j < 0) return false;
+    arr[j] = best;
+    arr[i] = first;
+    return true;
+  }
+  /** ดวงดีมือเปิด: สุ่มได้ชุดที่เข้ากับเด็คจากกอง (ไม่แตะนรก) */
+  function nightmareSculptHand(st, side, keepN) {
+    keepN = keepN || 5;
+    const hand = st.zones[side + '.hand'] || [];
+    const deck = st.zones[side + '.deck'] || [];
+    const pool = hand.concat(deck);
+    if (pool.length < keepN) return false;
+    const ranked = pool.slice().sort((a, b) => situationalPickScore(st, side, b) - situationalPickScore(st, side, a));
+    const picked = [];
+    const usedName = {};
+    let landTaken = 0;
+    ranked.forEach(k => {
+      if (picked.length >= keepN) return;
+      const c = st.inst[k];
+      if (!c) return;
+      const n = nameOf(c);
+      if ((usedName[n] || 0) >= 2) return;
+      if (c.subtype === 'Land') {
+        if (landTaken >= 1) return;
+        landTaken += 1;
+      }
+      picked.push(k);
+      usedName[n] = (usedName[n] || 0) + 1;
+    });
+    ranked.forEach(k => {
+      if (picked.length >= keepN) return;
+      if (picked.indexOf(k) < 0) picked.push(k);
+    });
+    const rest = pool.filter(k => picked.indexOf(k) < 0);
+    st.zones[side + '.hand'] = picked.slice();
+    st.zones[side + '.deck'] = rest;
+    picked.forEach(id => { if (st.inst[id]) st.inst[id].faceUp = true; });
+    rest.forEach(id => { if (st.inst[id]) { st.inst[id].faceUp = false; delete st.inst[id]._heimdallReveal; } });
+    return true;
+  }
+
   /** เป้าอัญเชิญจากนรก/เด็ค */
   function pickSummonTarget(st, side, cands, arch) {
     if (!cands || !cands.length) return null;
     const dest = arguments.length >= 5 ? arguments[4] : 'hand';
+    const sit = pickBestFromIds(st, side, cands);
+    if (sit && dest !== 'sacrifice' && dest !== 'discard') {
+      const poor = pickPoorSearchTarget(st, side, cands, dest);
+      const yak = pickYakshaRecruit(st, side, cands);
+      if (!poor && !yak) return sit;
+    }
     const poor = pickPoorSearchTarget(st, side, cands, dest);
     if (poor) return poor;
     const yak = pickYakshaRecruit(st, side, cands);
@@ -1098,6 +1248,11 @@
     mainPriority,
     pickChooseModeIndex,
     pickSummonTarget,
+    pickBestFromIds,
+    stackBestOnDeckTop,
+    stackBestLifeReveal,
+    nightmareSculptHand,
+    situationalPickScore,
     mulliganKeepScore,
     shouldActivateBeforeSummon,
     evalPosition,

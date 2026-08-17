@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260817g">
+<link rel="stylesheet" href="css/style.css?v=20260817k">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -75,6 +75,7 @@
           <option value="easy">ง่าย</option>
           <option value="normal" selected>ปานกลาง</option>
           <option value="hard">ยาก</option>
+          <option value="nightmare">ฝันร้าย — ดวงดี จั่วได้ใบที่ต้องการเสมอ</option>
         </select>
       </div>
       <button type="button" id="btnBotPickDeck" class="link-btn">ใช้เด็คที่บอทเล่นเก่งสุด →</button>
@@ -367,8 +368,8 @@
         <h2>1 · เริ่มเล่น — เลือกโหมดไหนดี</h2>
         <div class="hw-cards">
           <div class="hw-c"><b>🤖 เล่นกับบอท</b>
-            <p>เลือกเด็คคุณ vs เด็คบอท แล้วเลือกระดับ ง่าย / ปานกลาง / ยาก — ซ้อมเด็คหรือลองกติกาโดยไม่ต้องมีเพื่อน</p>
-            <p class="hw-dim">ปุ่ม «ใช้เด็คที่บอทเล่นเก่งสุด» จะเลือกเด็คตัวอย่างที่บอทถนัดให้</p></div>
+            <p>เลือกเด็คคุณ vs เด็คบอท แล้วเลือกระดับ ง่าย / ปานกลาง / ยาก / ฝันร้าย — ซ้อมเด็คหรือลองกติกาโดยไม่ต้องมีเพื่อน</p>
+            <p class="hw-dim">ฝันร้าย: บอทดวงดี มือเปิดและจั่วได้ใบที่เข้ากับบอร์ดเสมอ ไม่ดึงจากนรก · โดนตี LIFE แล้วไม่หงายอู๊ดถ้าไม่มีนอมอล / ไม่หงายโดมถ้าไม่มีเจม 3 — ได้มีมมิหรือลงฟรีแทน (ซ้อม ไม่ใช่กติกาแมตช์)</p></div>
           <div class="hw-c"><b>ซ้อมมือคนเดียว</b>
             <p>คุมทั้งสองฝั่งบนเครื่องเดียว เห็นมือทั้งคู่ เลือกเด็คฝั่ง A vs B ได้ — เหมาะกับลองคอมโบ</p>
             <p class="hw-dim">กด ⇄ สลับฝั่ง เพื่อย้ายมือฝั่งที่เล่นอยู่มาด้านล่าง</p></div>
@@ -1052,11 +1053,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260817g"></script>
+<script src="js/util.js?v=20260817k"></script>
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260817g"></script>
+<script src="js/game.js?v=20260817k"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

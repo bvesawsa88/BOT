@@ -128,15 +128,20 @@
   let gameStart = 0;
   let soloCards = null;
   let soloBot = false;  // true = โหมดเล่นกับบอท (ฝั่ง B เป็น AI) · false = ซ้อมมือคุมสองฝั่ง
-  let botLevel = 'normal'; // easy | normal | hard — ระดับฝีมือบอท
+  let botLevel = 'normal'; // easy | normal | hard | nightmare
   try { botLevel = localStorage.getItem('bot_level') || 'normal'; } catch (e) { }
   function getBotLevel() {
     const el = byId('selBotLevel');
     const v = (el && el.value) || botLevel || 'normal';
-    return (v === 'easy' || v === 'hard') ? v : 'normal';
+    if (v === 'easy' || v === 'hard' || v === 'nightmare') return v;
+    return 'normal';
+  }
+  function botLvHard() {
+    const lv = getBotLevel();
+    return lv === 'hard' || lv === 'nightmare';
   }
   function setBotLevel(lv) {
-    botLevel = (lv === 'easy' || lv === 'hard') ? lv : 'normal';
+    botLevel = (lv === 'easy' || lv === 'hard' || lv === 'nightmare') ? lv : 'normal';
     try { localStorage.setItem('bot_level', botLevel); } catch (e) { }
     const el = byId('selBotLevel');
     if (el) el.value = botLevel;
@@ -2057,7 +2062,7 @@
   function updateBotDeckHint() { }
   function applyBestBotDeck() {
     const botBot = byId('selBotDeckBot');
-    if (getBotLevel() === 'hard' && STARTERS && STARTERS[HARD_BOT_DECK_KEY] && botBot) {
+    if (botLvHard() && STARTERS && STARTERS[HARD_BOT_DECK_KEY] && botBot) {
       botBot.value = hardBotDeckVal();
       try { localStorage.setItem('bot_opp_deck', hardBotDeckVal()); } catch (e) { }
       toast('🤖 ตั้งเด็คบอทเป็น「ป่าพงไพร (บอทยาก)」แล้ว', 2800);
@@ -2110,7 +2115,7 @@
         try { lvEl.value = localStorage.getItem('bot_level') || 'normal'; } catch (e) { lvEl.value = 'normal'; }
       }
       const hardDefault = STARTERS && STARTERS[HARD_BOT_DECK_KEY] && hardBotDeckVal();
-      if (getBotLevel() === 'hard' && hardDefault) botBot.value = hardDefault;
+      if (botLvHard() && hardDefault) botBot.value = hardDefault;
       else botBot.value = ok(opp) ? opp : (hardDefault || 'starter:SD01');
       updateBotDeckHint();
     }
@@ -2245,6 +2250,16 @@
   }
 
   function applyA(a) {
+    if (getBotLevel() === 'nightmare' && botActive() && st) {
+      const AI = botAI();
+      if (AI && AI.stackBestOnDeckTop) {
+        const forB = (a && a.type === 'endTurn' && st.active === 'A')
+          || st.active === 'B'
+          || (a && a.p === 'B' && (a.type === 'draw' || a.type === 'millDeck'));
+        if (forB) AI.stackBestOnDeckTop(st, 'B');
+      }
+      if (AI && AI.stackBestLifeReveal) AI.stackBestLifeReveal(st, 'B');
+    }
     const fx = BoTEngine.applyAction(st, a);
     if (fx.deny) {
       if (a.type === 'playMagic') magicDropTarget = null;
@@ -2417,7 +2432,7 @@
   function botActive() { return mode === 'solo' && soloBot && st && !st.over && !byId('table').classList.contains('hidden'); }
   function botDelayMs() {
     const lv = getBotLevel();
-    return lv === 'easy' ? 900 : lv === 'hard' ? 480 : 650;
+    return lv === 'easy' ? 900 : lv === 'nightmare' ? 360 : lv === 'hard' ? 480 : 650;
   }
   function scheduleBot() { if (!botActive()) return; clearTimeout(botT); botT = setTimeout(botTick, botDelayMs()); }
   const eff = k => BoTEngine.effPower(st, k);
@@ -2608,13 +2623,13 @@
     if (lv === 'easy') return !!(lifeAtk && myL.critical);
     if (lifeAtk) {
       if (myL.critical || myL.down <= 1) return true;
-      return lv === 'hard' ? myL.down <= 3 : myL.down <= 2;
+      return botLvHard() ? myL.down <= 3 : myL.down <= 2;
     }
     if (!pend.def) return false;
     if (atkP < defP) return false;
     const lost = botThreatScore(pend.def);
     const atkTh = botThreatScore(pend.atk);
-    if (lv === 'hard') return lost >= 28 || atkTh >= 55 || (atkP > defP && lost >= 18);
+    if (botLvHard()) return lost >= 28 || atkTh >= 55 || (atkP > defP && lost >= 18);
     return lost >= 32 || atkP > defP;
   }
   function botKey(a) {
@@ -2773,7 +2788,7 @@
     const conZone = st.zones['B.construct'] || [];
     const avCount = zone.filter(k => st.inst[k] && st.inst[k].type === 'Avatar').length;
     const cap = (BoTEngine.avatarCap && BoTEngine.avatarCap(st, 'B')) || 4;
-    const avLimit = lv === 'easy' ? 2 : lv === 'hard' ? Math.min(4, cap) : Math.min(3, cap);
+    const avLimit = lv === 'easy' ? 2 : botLvHard() ? Math.min(4, cap) : Math.min(3, cap);
     const candidates = [];
     for (const k of hand) {
       const c = st.inst[k]; if (!c) continue;
@@ -3027,7 +3042,7 @@
       }
     }
     // ระดับยาก: จำลองทุกตา Main แล้วเลือกกระดานที่ดีสุด (ไม่ยึดลำดับ heuristic อย่างเดียว)
-    if (lv === 'hard') {
+    if (botLvHard()) {
       const bag = [];
       botCollectMagicCands().forEach(it => { if (it.heur >= 0) bag.push(it); });
       botCollectSummonCands().forEach(it => { if (it.heur >= -20) bag.push(it); });
@@ -3048,7 +3063,7 @@
       if (step === 'activate' && botTryActivate()) return true;
       if (step === 'attach' && botTryAttach()) return true;
     }
-    if (lv === 'hard' && botTryActivate()) return true;
+    if (botLvHard() && botTryActivate()) return true;
     return false;
   }
   /** สามัคคี — นอนผู้ให้ที่เล็กที่สุด ให้ผู้รับชนะเป้าแค่ +1–2 อย่าบวกเกินจำเป็น */
@@ -3182,7 +3197,7 @@
           if (myL.critical) score -= 55;
           if (egg && (lethal || forceLife || racing)) score -= 80;
           if (score > 15) plans.push({ atk, def: e, score });
-        } else if (lv === 'hard' && ap + 1 >= dp && mine.length >= 3 && enemies.length >= 2 && th > myTh + 20) {
+        } else if (botLvHard() && ap + 1 >= dp && mine.length >= 3 && enemies.length >= 2 && th > myTh + 20) {
           plans.push({ atk, def: e, score: 18 + th - myTh });
         }
       }
@@ -3205,7 +3220,7 @@
           if (oppL.down <= 2) lifeScore += 55;
           if (oppL.down <= 1) lifeScore += 90;
           if (cleared && leftover.length > 1 && !egg) lifeScore -= 12;
-          if (lv === 'hard') lifeScore += 8;
+          if (botLvHard()) lifeScore += 8;
           if (losing) lifeScore += 40;
         }
         plans.push({ atk, life, score: lifeScore });
@@ -3216,7 +3231,7 @@
     }
     if (!plans.length) return false;
     plans.sort((a, b) => b.score - a.score);
-    if (lv === 'hard' && plans.length > 1) {
+    if (botLvHard() && plans.length > 1) {
       const top = plans.slice(0, 8);
       top.forEach(p => {
         const act = p.life
@@ -3286,6 +3301,10 @@
     // อัญเชิญ / ขึ้นมือ / คืนเด็ค — เลือกตามอาร์คไทป์
     if (dest === 'avatar' || dest === 'hand' || dest === 'scoutOtaHost' || dest === 'deck' || from === 'ownHell'
       || pr.kind === 'hellPick' || /hell/i.test(dest + from + (pr.kind || ''))) {
+      if (getBotLevel() === 'nightmare' && AI && AI.pickBestFromIds) {
+        const sit = AI.pickBestFromIds(st, 'B', cands);
+        if (sit) return sit;
+      }
       if (AI) {
         const pick = AI.pickSummonTarget(st, 'B', cands, arch, dest || pr.kind);
         if (pick) return pick;
@@ -3362,7 +3381,7 @@
         if (nationC && /เพื่อชาติ/.test(nationC.name || '')) threat += 220;
         if (tgt && /เพื่อชาติ/.test(tgt.name || '')) threat += 220;
         const lv = getBotLevel();
-        const need = lv === 'easy' ? 90 : lv === 'hard' ? 32 : 48;
+        const need = lv === 'easy' ? 90 : botLvHard() ? 32 : 48;
         if (threat < need) { botSend({ type: 'reactNo', by: 'B' }); return; }
         const tgtReact = !!(tgt && tgt.subtype === 'React');
         opts.sort((a, b) => {
@@ -3505,6 +3524,7 @@
     else botSend({ type: 'skipPrompt', by: 'B' });
   }
   function botMulliganIds() {
+    if (getBotLevel() === 'nightmare') return [];
     if (getBotLevel() === 'easy') return [];
     const hand = (st.zones['B.hand'] || []).slice();
     if (hand.length < 5) return [];
@@ -3517,7 +3537,7 @@
     });
     const hasKey = hand.some(k => AI && (AI.isWantedLandCard(st.inst[k], arch) || AI.cardIsKeyEnabler(st.inst[k], arch)));
     if (playable.length >= 1 && (avatars.length >= 1 || hasKey)) {
-      if (getBotLevel() === 'hard' && playable.length === 1 && avatars.length >= 3) {
+      if (botLvHard() && playable.length === 1 && avatars.length >= 3) {
         return hand.filter(k => avatars.includes(k) && !playable.includes(k) && (+st.inst[k].cost || 0) >= 5)
           .sort((a, b) => {
             const sa = AI ? AI.mulliganKeepScore(st, 'B', a, arch, false) : botCardVal(a);
@@ -3535,7 +3555,7 @@
       if (AI && AI.mulliganKeepScore(st, 'B', k, arch, playable.includes(k)) < 0) return true;
       return false;
     }).sort((a, b) => botCardVal(a) - botCardVal(b));
-    return drop.slice(0, Math.min(getBotLevel() === 'hard' ? 4 : 3, drop.length));
+    return drop.slice(0, Math.min(botLvHard() ? 4 : 3, drop.length));
   }
   function botHandleScout() {
     const sc = st.scout;
@@ -6519,7 +6539,11 @@
       st.skipLethalPlead = true;
       botFailKeys = new Set();
       botFailTurn = -1;
-      const lvLabel = botLevel === 'easy' ? 'ง่าย' : botLevel === 'hard' ? 'ยาก' : 'ปานกลาง';
+      if (getBotLevel() === 'nightmare') {
+        const AI = typeof BotAI !== 'undefined' ? BotAI : null;
+        if (AI && AI.nightmareSculptHand) AI.nightmareSculptHand(st, 'B', 5);
+      }
+      const lvLabel = botLevel === 'easy' ? 'ง่าย' : botLevel === 'nightmare' ? 'ฝันร้าย' : botLevel === 'hard' ? 'ยาก' : 'ปานกลาง';
       toast(`🤖 คุณ: ${you.name} · บอท(${lvLabel}): ${botD.name}`);
       gameStart = Date.now(); selMap = {};
       startTable();
@@ -6540,7 +6564,7 @@
   const selBotLv = byId('selBotLevel');
   if (selBotLv) selBotLv.onchange = () => {
     setBotLevel(selBotLv.value);
-    if (getBotLevel() === 'hard') {
+    if (getBotLevel() === 'hard' || getBotLevel() === 'nightmare') {
       const botBot = byId('selBotDeckBot');
       if (botBot && STARTERS && STARTERS[HARD_BOT_DECK_KEY]) {
         botBot.value = hardBotDeckVal();
