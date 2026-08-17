@@ -362,11 +362,67 @@
     if (/ไม่นะ\s*อู๊ด/.test(n)) return !hellHasNormalMagic(st, owner);
     return false;
   }
-  function revealedUnusableLife(st, owner) {
+  function lifeCardPending(st, owner, k) {
+    return (st.scheduled || []).some(s => s && s.player === owner && s.src === k);
+  }
+  /** โดม/อู๊ดหงายแล้วแต่หยิบไม่ได้ หรือเอฟเฟกต์ยิงไปแล้ว */
+  function revealedUnusableOrSpentLife(st, owner) {
     return zoneIds(st, owner + '.life').some(k => {
       const c = st.inst[k];
-      return c && c.faceUp && lifeRevealUnusable(st, owner, c);
+      if (!c || !c.faceUp) return false;
+      const n = nameOf(c);
+      if (/ไม่นะ\s*โดม/.test(n)) {
+        if (!hellHasGemAvatar(st, owner, 3)) return true;
+        return !lifeCardPending(st, owner, k);
+      }
+      if (/ไม่นะ\s*อู๊ด/.test(n)) {
+        if (!hellHasNormalMagic(st, owner)) return true;
+        return !lifeCardPending(st, owner, k);
+      }
+      return false;
     });
+  }
+  function hellPickFilterHits(st, owner, filter) {
+    filter = filter || {};
+    return zoneIds(st, owner + '.hell').some(k => {
+      const c = st.inst[k];
+      if (!c) return false;
+      if (filter.type && c.type !== filter.type) return false;
+      if (filter.subtype === 'Normal' && !isNormalMagicCard(c)) return false;
+      else if (filter.subtype && filter.subtype !== 'Normal' && (c.subtype || '') !== filter.subtype) return false;
+      if (filter.gemMin != null && (+c.gem || 0) < filter.gemMin) return false;
+      return true;
+    });
+  }
+  function actionsHandGain(st, owner, actions) {
+    let n = 0;
+    (actions || []).forEach(ac => {
+      if (!ac) return;
+      if (ac.op === 'draw') n += ac.count || 1;
+      else if (ac.op === 'hellPick') n += hellPickFilterHits(st, owner, ac.filter) ? 1 : 0;
+      else if (ac.op === 'schedule') n += actionsHandGain(st, owner, ac.actions);
+    });
+    return n;
+  }
+  function scheduledOppHandGain(st, opp) {
+    let n = 0;
+    (st.scheduled || []).forEach(s => {
+      if (!s || s.player !== opp) return;
+      if (s.when && s.when !== 'nextOwnMainPhase') return;
+      if (s.op === 'draw') n += s.count || 1;
+      else if (s.op === 'runActions') n += actionsHandGain(st, opp, s.actions);
+    });
+    return n;
+  }
+  function nextTurnNaturalHand(handN) {
+    const afterDraw = handN + 1;
+    return afterDraw < 3 ? 3 : afterDraw;
+  }
+  /** มือเทิร์นหน้าถ้าตี LIFE อีก 1 ครั้ง — สมมติใบคว่ำให้อีก 1 ใบ (จั่ว/หยิบ) */
+  function projectedHandIfHitLife(st, side) {
+    const opp = otherSide(side);
+    const cur = zoneIds(st, opp + '.hand').length;
+    return nextTurnNaturalHand(cur) + scheduledOppHandGain(st, opp) + 1;
   }
   function avatarCanKickEgg(st, k) {
     const c = st.inst[k];
@@ -439,11 +495,13 @@
   }
   /**
    * นโยบายตี LIFE
-   * - ไม่หงายเกิน 3 / ไม่ให้หงายมากกว่าเราที่ ≥4 (กันเลือกมันพวกจน)
-   * - เปิด 3 แล้ว + มือศัตรู ≤ 3 → ไม่ตี (อย่าให้ใบใช้)
-   * - เจอโดม/อู๊ดที่ใช้ไม่ได้ → ตีย้ำได้ จนกว่ามือศัตรู > 5
+   * - คำนวณมือเทิร์นหน้าก่อนทุกครั้ง (จั่ว 1 + เติมถึง 3 + ผล LIFE) ไม่ให้เกิน 5
+   * - มือ 0 → เทิร์นหน้าจั่วเติม 3 จึงตีได้แค่ 2 ใบที่ให้อีกฝ่ายได้ใบ
+   * - มือ > 5 แล้วเขาไม่เล่น → ตีทีละ 1
+   * - โดม/อู๊ดใช้ไม่ได้หรือยิงไปแล้ว → ตีย้ำได้ แต่ยังคุมมือไม่เกิน 5
+   * - ไม่หงายเกิน 3 / ไม่ให้หงายมากกว่าเราที่ ≥4 ถ้าเขายังใช้ไลฟ์ได้ (กันเลือกมัน)
    * - สู้บอร์ดไม่ได้ → เตะไข่ทีละ 1
-   * - เปิด 3 แล้วยืน 4 / ยืน 3+React ขัดคืน / มือศัตรูว่างแล้วจบได้ → บุกปิดเกม
+   * - จบเกมได้ในตานี้ → บุกปิดเลย
    */
   function shouldLifeAttack(st, side, opts) {
     opts = opts || {};
@@ -451,18 +509,23 @@
     const oppDown = zoneIds(st, opp + '.life').filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     if (opts.lethal || oppDown === 0) return true;
     if (canForceLifeWin(st, side, opts)) return true;
+    const hits = opts.lifeHitsThisTurn || 0;
+    const oppHand = zoneIds(st, opp + '.hand').length;
+    const proj = projectedHandIfHitLife(st, side);
+    if (oppHand > 5) {
+      if (hits >= 1) return false;
+    } else if (proj > 5) {
+      return false;
+    }
     const myUp = lifeUpCount(st, side);
     const oppUp = lifeUpCount(st, opp);
-    const oppHand = zoneIds(st, opp + '.hand').length;
-    const dud = revealedUnusableLife(st, opp);
+    const dud = revealedUnusableOrSpentLife(st, opp);
     const newUp = oppUp + 1;
-    if (dud && oppHand > 5) return false;
-    if (oppUp >= 3 && oppHand <= 3 && !dud) return false;
     if (!dud) {
       if (newUp > 3) return false;
       if (newUp >= 4 && newUp > myUp) return false;
     }
-    if (opts.losing && (opts.lifeHitsThisTurn || 0) >= 1) return false;
+    if (opts.losing && hits >= 1) return false;
     return true;
   }
 
