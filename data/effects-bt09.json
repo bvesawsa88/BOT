@@ -725,33 +725,39 @@
       "abilities": [
         {
           "trigger": {
-            "on": "chooseMode"
+            "on": "activated"
           },
-          "options": [
+          "actions": [
             {
-              "label": "ทำลาย Magic Zone ศัตรู 1 ใบ",
-              "actions": [
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
                 {
-                  "op": "chooseDestroy",
-                  "zones": [
-                    "magic"
-                  ],
-                  "side": "enemy",
-                  "filter": {},
-                  "optional": false
-                }
-              ]
-            },
-            {
-              "label": "ทำลาย Land Magic 1 ใบ",
-              "actions": [
+                  "label": "ทำลาย Magic Zone ศัตรู 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "chooseDestroy",
+                      "zones": [
+                        "magic"
+                      ],
+                      "side": "enemy",
+                      "filter": {},
+                      "optional": false
+                    }
+                  ]
+                },
                 {
-                  "op": "chooseDestroy",
-                  "zones": [
-                    "land"
-                  ],
-                  "filter": {},
-                  "optional": false
+                  "label": "ทำลาย Land Magic 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "chooseDestroy",
+                      "zones": [
+                        "land"
+                      ],
+                      "filter": {},
+                      "optional": false
+                    }
+                  ]
                 }
               ]
             }
@@ -760,7 +766,8 @@
       ],
       "parseStatus": "auto",
       "name": "ไต้ฝุ่น",
-      "reactAnyWindow": true
+      "reactAnyWindow": true,
+      "note": "ลากแล้วต้องกดเลือกปฏิบัติ · ทำลาย Magic ศัตรู หรือ Land · ใช้เป็น React นอกเทิร์น/Battle ได้"
     },
     {
       "code": "BT09-058",

@@ -153,19 +153,24 @@ const BY_SET = {
       code: 'BT09-057', name: 'ไต้ฝุ่น',
       reactAnyWindow: true,
       abilities: [{
-        trigger: { on: 'chooseMode' },
-        options: [
-          {
-            label: 'ทำลาย Magic Zone ศัตรู 1 ใบ',
-            actions: [{ op: 'chooseDestroy', zones: ['magic'], side: 'enemy', filter: {}, optional: false }]
-          },
-          {
-            label: 'ทำลาย Land Magic 1 ใบ',
-            actions: [{ op: 'chooseDestroy', zones: ['land'], filter: {}, optional: false }]
-          }
-        ]
+        trigger: { on: 'activated' },
+        actions: [{
+          op: 'chooseMode',
+          optional: false,
+          options: [
+            {
+              label: 'ทำลาย Magic Zone ศัตรู 1 ใบ',
+              actions: [{ op: 'chooseDestroy', zones: ['magic'], side: 'enemy', filter: {}, optional: false }]
+            },
+            {
+              label: 'ทำลาย Land Magic 1 ใบ',
+              actions: [{ op: 'chooseDestroy', zones: ['land'], filter: {}, optional: false }]
+            }
+          ]
+        }]
       }],
-      parseStatus: 'manual'
+      parseStatus: 'auto',
+      note: 'ลากแล้วต้องกดเลือกปฏิบัติ · ทำลาย Magic ศัตรู หรือ Land · ใช้เป็น React นอกเทิร์น/Battle ได้'
     }
   },
   'effects-bt10.json': {

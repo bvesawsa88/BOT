@@ -2178,14 +2178,15 @@
                 {
                   "keyword": "อัตโนมัติ",
                   "trigger": {
-                    "on": "ownPlayMagic"
+                    "on": "ownPlayMagic",
+                    "if": "ownTurn"
                   },
                   "oncePerTurn": true,
                   "actions": [
                     {
                       "op": "modifyPower",
                       "amount": 1,
-                      "duration": "endOfTurn",
+                      "duration": "permanent",
                       "target": {
                         "select": "self"
                       }
@@ -2210,7 +2211,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic แล้ว POWER +1 เทิร์นละครั้ง"
+      "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic ในเทิร์นเรา POWER +1 จนกว่าออกจากสนาม เทิร์นละครั้ง"
     },
     {
       "name": "มาวิน",

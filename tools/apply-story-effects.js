@@ -73,16 +73,41 @@ const GARUDA_GRANT = [
 const MAYA_GRANT = [
   {
     keyword: 'อัตโนมัติ',
-    trigger: { on: 'ownPlayMagic' },
+    trigger: { on: 'ownPlayMagic', if: 'ownTurn' },
     oncePerTurn: true,
     actions: [{
       op: 'modifyPower',
       amount: 1,
-      duration: 'endOfTurn',
+      duration: 'permanent',
       target: { select: 'self' }
     }]
   }
 ];
+
+const TYPHOON = {
+  code: 'BT09-057',
+  name: 'ไต้ฝุ่น',
+  reactAnyWindow: true,
+  abilities: [{
+    trigger: { on: 'activated' },
+    actions: [{
+      op: 'chooseMode',
+      optional: false,
+      options: [
+        {
+          label: 'ทำลาย Magic Zone ศัตรู 1 ใบ',
+          actions: [{ op: 'chooseDestroy', zones: ['magic'], side: 'enemy', filter: {}, optional: false }]
+        },
+        {
+          label: 'ทำลาย Land Magic 1 ใบ',
+          actions: [{ op: 'chooseDestroy', zones: ['land'], filter: {}, optional: false }]
+        }
+      ]
+    }]
+  }],
+  parseStatus: 'auto',
+  note: 'ลากแล้วต้องกดเลือกปฏิบัติ · ทำลาย Magic ศัตรู หรือ Land · ใช้เป็น React นอกเทิร์น/Battle ได้'
+};
 
 const BY_SET = {
   'effects-bt09.json': {
@@ -163,6 +188,7 @@ const BY_SET = {
       parseStatus: 'auto',
       note: 'เลือกเด็คหรือนรกเอาเรื่องราวขึ้นมือ · ถ้านรกมี Magic ≥8 จั่ว 1'
     },
+    'BT09-057': TYPHOON,
     'BT09-059': {
       code: 'BT09-059',
       name: 'Skill : Hypersense',
@@ -238,7 +264,7 @@ const BY_SET = {
         }
       ],
       parseStatus: 'auto',
-      note: 'ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic แล้ว POWER +1 เทิร์นละครั้ง'
+      note: 'ถูกอัญเชิญโดยนักท่องเรื่องราว → หา Skill จากเด็ค · ใช้ Magic ในเทิร์นเรา POWER +1 จนกว่าออกจากสนาม เทิร์นละครั้ง'
     }
   },
   'effects-cc02.json': {

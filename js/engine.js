@@ -2187,6 +2187,8 @@
     if (owner !== 'A' && owner !== 'B') return;
     (st.zones[owner + '.avatar'] || []).slice().forEach(k => {
       abil(st, k, 'ownPlayMagic').forEach(ab => {
+        const cond = (ab.trigger && ab.trigger.if) || '';
+        if (cond === 'ownTurn' && st.active !== owner) return;
         if (ab.oncePerTurn && !claimOncePerTurn(st, k, ab.oncePerTurnTag || 'ownPlayMagic')) return;
         runActions(st, fx, ab.actions || [], { src: k, owner, rng: rng || fx._rng || Math.random });
       });
@@ -4678,9 +4680,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           });
         }
       } else if (ac.op === 'chooseMode') {
-        st.prompts.push({ kind: 'chooseMode', src: ctx.src, chooser: ctx.owner, optional: true, options: ac.options || [] });
+        const optional = ac.optional !== false;
+        st.prompts.push({ kind: 'chooseMode', src: ctx.src, chooser: ctx.owner, optional, options: ac.options || [] });
         prompted = true;
-        addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ (ข้ามได้ — ยังไม่นับว่าใช้เทค)`);
+        addLog(st, ctx.owner, optional
+          ? `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ (ข้ามได้ — ยังไม่นับว่าใช้เทค)`
+          : `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ`);
       } else if (ac.op === 'grantBuffSummoned') {
         const sk = ctx.summoned;
         if (sk && st.inst[sk]) {
@@ -9175,10 +9180,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           fx.snd = 'tap';
           break;
         }
-        // เลือกปฏิบัติ (ไม่ใช่ทายประเภท) — ข้ามได้ ยังไม่นับเทคจนกว่าจะเลือกข้อ
+        // เลือกปฏิบัติ (ไม่ใช่ทายประเภท) — ข้ามได้ถ้า optional (นับเมื่อเลือกข้อแล้ว)
         if (p.kind === 'chooseMode' && !p.guessTypes) {
+          const allDenied = (p.options || []).length && p.options.every(opt => !!chooseModeOptionDeny(st, p.src, p.chooser, opt));
+          if (p.optional === false && !allDenied) return deny('ต้องเลือกปฏิบัติ');
+          if (p.optional === false && p.srcToHell && zoneOf(st, p.src))
+            doMove(st, p.src, p.chooser + '.hell', null, fx);
           st.prompts.shift();
-          addLog(st, p.chooser, `ข้ามเลือกปฏิบัติ`);
+          addLog(st, p.chooser, allDenied ? `ข้ามเลือกปฏิบัติ — ไม่มีตัวเลือกที่ใช้ได้` : `ข้ามเลือกปฏิบัติ`);
           fx.snd = 'tap';
           break;
         }

@@ -98,6 +98,58 @@ function skipNegate(st) {
   ok(BoT.effPower(st, bolt) === 4, 'bolt 3+1');
 }
 
+/* 3b) มายาสายฟ้า: ใช้ Magic ในเทิร์นเรา → POWER +1 ค้างข้ามเทิร์น (ไม่ใช่จนจบเทิร์น) */
+{
+  const st = emptyState();
+  const maya = put(st, 'A.avatar', 'BT11-048');
+  const bolt = put(st, 'A.hand', 'BT11-049');
+  apply(st, { type: 'activateAbility', k: maya, by: 'A' });
+  apply(st, { type: 'chooseTarget', k: bolt, by: 'A' });
+  const mag = put(st, 'A.hand', 'BT01-038');
+  put(st, 'A.deck', 'BT09-059');
+  put(st, 'A.deck', 'BT09-060');
+  apply(st, { type: 'playMagic', k: mag, by: 'A' });
+  skipNegate(st);
+  ok(BoT.effPower(st, bolt) === 5, 'bolt 3+1 evolve +1 from magic: ' + BoT.effPower(st, bolt));
+  const fxEnd = apply(st, { type: 'endTurn', by: 'A' });
+  ok(!fxEnd.deny, 'endTurn: ' + (fxEnd.deny || ''));
+  ok(BoT.effPower(st, bolt) === 5, 'bolt still +1 after end turn (until leave field): ' + BoT.effPower(st, bolt));
+}
+
+/* 9) ไต้ฝุ่น: ลากใช้แล้วต้องกดเลือกปฏิบัติ — ยังไม่ลงนรกจนกว่าจะเลือก */
+{
+  const st = emptyState();
+  const ty = put(st, 'A.hand', 'BT09-057');
+  const em = put(st, 'B.magic', 'BT01-038');
+  const fx = apply(st, { type: 'playMagic', k: ty, by: 'A' });
+  ok(!fx.deny, 'play typhoon: ' + (fx.deny || ''));
+  skipNegate(st);
+  ok(zone(st, ty) === 'A.magic', 'typhoon stays on magic until choose: ' + zone(st, ty));
+  const mode = (st.prompts || []).find(p => p.kind === 'chooseMode');
+  ok(mode && mode.optional === false && (mode.options || []).length === 2,
+    'typhoon chooseMode required: ' + JSON.stringify((st.prompts || []).map(p => p.kind + ':' + p.optional)));
+  const skipFx = apply(st, { type: 'skipPrompt', by: 'A' });
+  ok(skipFx.deny, 'cannot skip typhoon chooseMode: ' + (skipFx.deny || ''));
+  apply(st, { type: 'chooseMode', k: ty, opt: 0, by: 'A' });
+  const dest = (st.prompts || [])[0];
+  ok(dest && dest.kind === 'chooseDestroy', 'choose destroy enemy magic: ' + ((dest && dest.kind) || ''));
+  apply(st, { type: 'chooseTarget', k: em, by: 'A' });
+  ok(zone(st, em) === 'B.hell', 'enemy magic destroyed');
+  ok(zone(st, ty) === 'A.hell', 'typhoon to hell after resolve');
+}
+
+/* 10) ไต้ฝุ่น: ใช้ในเทิร์นฝ่ายตรงข้ามได้ (นับเป็น React) */
+{
+  const st = emptyState();
+  st.active = 'B';
+  const ty = put(st, 'A.hand', 'BT09-057');
+  put(st, 'B.magic', 'BT01-038');
+  const fx = apply(st, { type: 'playMagic', k: ty, by: 'A' });
+  ok(!fx.deny, 'typhoon on opp turn: ' + (fx.deny || ''));
+  skipNegate(st);
+  ok((st.prompts || []).some(p => p.kind === 'chooseMode'), 'chooseMode on opp turn');
+}
+
 /* 4) Hypersense: สนามเรื่องราวทั้งหมด → nullify */
 {
   const st = emptyState();
