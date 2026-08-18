@@ -5,7 +5,7 @@
   const { byId, esc, asset } = BotUtil;
 
 /* ═══════════════ DECK BUILDER ═══════════════ */
-  const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} }, name: '', preview: null };
+  const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} } };
   const DK = { sel: null };
   const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 4, USEC: 5, PR: 6, CBR: 7 };
   const COLOR_HEX = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
@@ -38,8 +38,10 @@
   function htmlComp(s) {
     const stat = (label, n) =>
       `<div class="db-stat${n ? '' : ' zero'}"><b>${n}</b><span>${esc(label)}</span></div>`;
-    return `<div class="db-comp-grid seven">
+    return `<div class="db-comp-grid three">
          ${stat('Avatar', s.types.Avatar)}${stat('Magic', s.types.Magic)}${stat('Construct', s.types.Construct)}
+       </div>
+       <div class="db-comp-grid four">
          ${stat('Normal', s.magics.Normal)}${stat('React', s.magics.React)}${stat('Land', s.magics.Land)}${stat('Mod', s.magics.Modification || 0)}
        </div>` + (s.extraMagic.length
         ? `<div class="db-legend">${s.extraMagic.map(([k, n]) => `<span>${esc(k)} ${n}</span>`).join('')}</div>`
@@ -95,7 +97,6 @@
     if (side) side.classList.remove('open');
     if (deck) deck.classList.remove('open');
     if (mask) { mask.classList.remove('open'); mask.setAttribute('aria-hidden', 'true'); }
-    closeSeriesMenu();
   }
   function toggleDbDrawer(which) {
     const side = dbSideEl(), deck = dbDeckEl(), mask = byId('dbDrawerMask');
@@ -118,8 +119,6 @@
       DB.db = db;
       byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด · Rule Book 3.2`;
       fillSelect('dbSymbol', 'Symbol — ทั้งหมด', [...new Set(db.cards.map(c => c.symbol).filter(Boolean))].sort());
-      fillSeriesMenu();
-      closeSeriesMenu();
       if (opts.empty) {
         DB.deck = { main: {}, life: {} };
         byId('dbName').value = '';
@@ -139,51 +138,17 @@
     if (!DB.db) return [];
     return [...new Set(DB.db.cards.map(c => c.series).filter(Boolean))].sort();
   }
-  function seriesLabel() {
+  function renderSeriesChips() {
+    const el = byId('dbSeriesChips');
+    if (!el) return;
     const sel = DB.series || [];
-    if (!sel.length) return 'ซีรีส์ — ทั้งหมด';
-    if (sel.length === 1) return 'ซีรีส์ · ' + sel[0];
-    if (sel.length <= 3) return 'ซีรีส์ · ' + sel.join(', ');
-    return 'ซีรีส์ · ' + sel.length + ' ชุด';
-  }
-  function seriesMenuOpen() {
-    const menu = byId('dbSeriesMenu');
-    return !!(menu && !menu.classList.contains('hidden'));
-  }
-  function syncSeriesUi() {
-    const btn = byId('dbSeriesBtn');
-    if (btn) {
-      btn.textContent = seriesLabel();
-      btn.classList.toggle('on', (DB.series || []).length > 0);
-      btn.setAttribute('aria-expanded', seriesMenuOpen() ? 'true' : 'false');
-    }
-    const menu = byId('dbSeriesMenu');
-    if (!menu) return;
-    const sel = DB.series || [];
-    menu.querySelectorAll('[data-series]').forEach(b => {
-      const on = sel.includes(b.dataset.series);
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-selected', on ? 'true' : 'false');
-    });
-  }
-  function fillSeriesMenu() {
-    const menu = byId('dbSeriesMenu');
-    if (!menu) return;
-    menu.innerHTML = seriesList().map(v =>
-      `<button type="button" class="db-ms-opt" data-series="${esc(v)}" role="option" aria-selected="false"><i class="db-ms-check" aria-hidden="true"></i>${esc(v)}</button>`
-    ).join('');
-    syncSeriesUi();
-  }
-  function closeSeriesMenu() {
-    const menu = byId('dbSeriesMenu');
-    if (menu) menu.classList.add('hidden');
-    syncSeriesUi();
+    el.innerHTML = `<button type="button" class="db-chip${!sel.length ? ' on' : ''}" data-all="1">ทั้งหมด</button>` +
+      seriesList().map(v => `<button type="button" class="db-chip${sel.includes(v) ? ' on' : ''}" data-v="${esc(v)}">${esc(v)}</button>`).join('');
   }
   function toggleSeries(v) {
     const cur = DB.series || [];
     DB.series = cur.includes(v) ? cur.filter(x => x !== v) : cur.concat(v).sort();
     DB.shown = 60;
-    syncSeriesUi();
     renderDB();
   }
   function chipRow(id, vals, cur, onPick) {
@@ -256,7 +221,6 @@
     renderDB();
   }
   function msg(t) { byId('dbMsg').textContent = t; }
-  function setPreviewDB(code) { DB.preview = code; }
 
   function filteredCards() {
     const q = DB.q.trim().toLowerCase();
@@ -307,6 +271,7 @@
     chipRow('dbTypeChips', ['', 'Avatar', 'Magic', 'Construct', 'Life'], DB.type, v => { DB.type = v; DB.shown = 60; renderDB(); });
     chipRow('dbColorChips', ['', 'แดง', 'ฟ้า', 'ม่วง', 'เขียว'], DB.color, v => { DB.color = v; DB.shown = 60; renderDB(); });
     chipRow('dbCostChips', ['', '0', '1', '2', '3', '4', '5', '6', '7', '8+'], DB.cost, v => { DB.cost = v; DB.shown = 60; renderDB(); });
+    renderSeriesChips();
 
     const filtered = filteredCards();
     byId('dbResult').textContent = `พบ ${filtered.length} ใบ · แสดง ${Math.min(DB.shown, filtered.length)}`;
@@ -406,26 +371,20 @@
   byId('dbGrid').addEventListener('pointerdown', closeDbDrawers);
   byId('dbQ').addEventListener('input', e => { DB.q = e.target.value; DB.shown = 60; renderDB(); });
   byId('dbSymbol').onchange = e => { DB.symbol = e.target.value; DB.shown = 60; renderDB(); };
-  byId('dbSeriesBtn').onclick = () => {
-    const menu = byId('dbSeriesMenu');
-    if (!menu) return;
-    menu.classList.toggle('hidden');
-    syncSeriesUi();
-  };
-  byId('dbSeriesMenu').addEventListener('click', e => {
-    const b = e.target.closest('[data-series]');
-    if (b) toggleSeries(b.dataset.series);
-  });
-  document.addEventListener('pointerdown', e => {
-    const wrap = byId('dbSeriesMs');
-    if (!wrap || wrap.contains(e.target) || !seriesMenuOpen()) return;
-    closeSeriesMenu();
+  byId('dbSeriesChips').addEventListener('click', e => {
+    if (e.target.closest('[data-all]')) {
+      DB.series = [];
+      DB.shown = 60;
+      renderDB();
+      return;
+    }
+    const b = e.target.closest('[data-v]');
+    if (b) toggleSeries(b.dataset.v);
   });
   byId('dbSubtype').onchange = e => { DB.subtype = e.target.value; DB.shown = 60; renderDB(); };
   byId('dbClear').onclick = () => {
     Object.assign(DB, { q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60 });
     byId('dbQ').value = ''; byId('dbSymbol').value = ''; byId('dbSubtype').value = '';
-    closeSeriesMenu();
     renderDB();
   };
   byId('dbMore').onclick = () => { DB.shown += 60; renderDB(); };
@@ -442,7 +401,6 @@
     if (q) { (q.dataset.q === 'add' ? addCode : subCode)(q.dataset.code); return; }
     if (e.target.closest('[data-close]') || !e.target.closest('[data-stop]')) byId('dbZoom').classList.add('hidden');
   });
-  byId('dbGrid').addEventListener('pointerover', e => { const el = e.target.closest('[data-code]'); if (el && DB.preview !== el.dataset.code) setPreviewDB(el.dataset.code); });
   ['dbMainList', 'dbLifeList'].forEach(id => {
     byId(id).addEventListener('click', e => {
       const row = e.target.closest('[data-code]'); if (!row) return;
@@ -450,7 +408,6 @@
       if (act) { (act.dataset.act === 'add' ? addCode : subCode)(row.dataset.code); return; }
       openCardModal(row.dataset.code);
     });
-    byId(id).addEventListener('pointerover', e => { const row = e.target.closest('[data-code]'); if (row) setPreviewDB(row.dataset.code); });
   });
   byId('dbSave').onclick = () => {
     const name = (byId('dbName').value.trim() || 'เด็คไม่มีชื่อ');

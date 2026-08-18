@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260817n">
+<link rel="stylesheet" href="css/style.css?v=20260818b">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -219,27 +219,33 @@
   </header>
   <aside class="db-side">
     <div class="db-drawer-bar"><span>ฟิลเตอร์</span><button type="button" id="dbFiltersClose" class="btn-mini">ปิด</button></div>
+    <div class="db-filter-search">
+      <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect / รหัส…" autocomplete="off">
+      <button id="dbClear" class="btn-dark small">ล้าง</button>
+    </div>
     <div class="db-filter-row">
-      <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect…" autocomplete="off">
       <span class="db-label">ประเภท</span>
       <div id="dbTypeChips" class="chip-row"></div>
+    </div>
+    <div class="db-filter-row">
       <span class="db-label">สี</span>
       <div id="dbColorChips" class="chip-row"></div>
-      <button id="dbClear" class="btn-dark small">ล้างฟิลเตอร์</button>
     </div>
     <div class="db-filter-row">
       <span class="db-label">COST</span>
       <div id="dbCostChips" class="chip-row"></div>
-      <select id="dbSymbol"></select>
-      <div class="db-ms" id="dbSeriesMs">
-        <button type="button" id="dbSeriesBtn" class="db-ms-btn" aria-haspopup="listbox" aria-expanded="false">ซีรีส์ — ทั้งหมด</button>
-        <div id="dbSeriesMenu" class="db-ms-menu hidden" role="listbox" aria-multiselectable="true"></div>
-      </div>
-      <select id="dbSubtype">
+    </div>
+    <div class="db-filter-selects">
+      <select id="dbSymbol" title="Symbol"></select>
+      <select id="dbSubtype" title="ชนิด Magic">
         <option value="">ชนิด Magic — ทั้งหมด</option>
         <option value="Normal">Normal</option><option value="React">React</option>
         <option value="Modification">Modification</option><option value="Land">Land</option>
       </select>
+    </div>
+    <div class="db-filter-row">
+      <span class="db-label">ซีรีส์</span>
+      <div id="dbSeriesChips" class="chip-row"></div>
     </div>
   </aside>
   <div class="db-main">
@@ -247,14 +253,13 @@
       <div class="db-result">
         <span id="dbResult"></span>
         <div class="spacer"></div>
-        <span class="db-hint">เรียงตาม</span>
+        <label class="db-hint" for="dbSort">เรียง</label>
         <select id="dbSort">
           <option value="code">ซีรีส์/รหัส</option><option value="name">ชื่อ</option>
           <option value="cost">ค่าใช้ (COST)</option><option value="power">พลัง (POWER)</option>
           <option value="gem">เจม (GEM)</option><option value="rarity">ความหายาก</option>
         </select>
         <button id="dbDir" class="btn-mini" title="สลับ น้อย→มาก / มาก→น้อย">▲</button>
-        <span class="db-hint">· คลิกการ์ด = ดูรายละเอียด · ปุ่ม −/+ บนการ์ด = ปรับจำนวน</span>
       </div>
       <div class="db-scroll">
         <div id="dbGrid" class="db-grid"></div>
@@ -279,19 +284,8 @@
       </div>
       <div class="db-deck-foot">
         <div class="row-2">
-          <select id="dbFillStarter" class="small" style="flex:1">
+          <select id="dbFillStarter" class="small">
             <option value="SD01">SD01 Starter</option>
-            <option value="SD02">SD02 Starter</option>
-            <option value="SD03">SD03 Starter</option>
-            <option value="SD04">SD04 Starter</option>
-            <option value="SD05">SD05 Starter</option>
-            <option value="SD06">SD06 Starter</option>
-            <option value="SD07">SD07 Starter</option>
-            <option value="SD08">SD08 Starter</option>
-            <option value="KD01">KD01 Starter</option>
-            <option value="KD02">KD02 Starter</option>
-            <option value="KD03">KD03 Starter</option>
-            <option value="KD04">KD04 Starter</option>
           </select>
           <button id="dbFillSD01" class="btn-dark small">ใส่เด็คตัวอย่าง</button>
           <button id="dbClearDeck" class="btn-dark small">ล้างเด็ค</button>
@@ -1059,11 +1053,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260817n"></script>
+<script src="js/util.js?v=20260818b"></script>
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260802b"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260817n"></script>
+<script src="js/game.js?v=20260818b"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>
