@@ -52,9 +52,44 @@
     },
     {
       "code": "BT09-007",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "โฮคุ โพลีกอน"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireOtherAvatar": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enterLink"
+          },
+          "actions": [
+            {
+              "op": "destroyHighestPower"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "โฮคุ โพลีกอน",
+      "extraSymbols": [
+        "สัตว์"
+      ],
+      "onlyAttackableAllyNameIncludes": "โฮคุ",
+      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]"
     },
     {
       "code": "BT09-008",
@@ -288,9 +323,36 @@
     },
     {
       "code": "BT09-025",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "โลกิ เจ้าชายยักษ์น้ำแข็ง"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "amountPer": "ownHellPerN",
+              "perN": 5,
+              "per": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "โลกิ เจ้าชายยักษ์น้ำแข็ง",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "cannotAttack": true,
+      "unityOnlyNameIncludes": "ธอร์",
+      "note": "สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]"
     },
     {
       "code": "BT09-026",
@@ -1042,6 +1104,7 @@
       ],
       "parseStatus": "auto",
       "note": "ออร่าภูติผลไม้ +2 และสามัคคี · สั่งใช้: เนรเทศใบบนสุดเด็ค → อัญเชิญภูติจากนรก (ได้คำสั่งเสียเนรเทศตัวเอง)",
+      "only": true,
       "auraNameIncludes": "ภูติผลไม้",
       "auraPower": 2,
       "grantKeywordAura": {

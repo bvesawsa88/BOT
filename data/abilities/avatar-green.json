@@ -986,6 +986,9 @@
         "PRMO-026"
       ],
       "abilities": [],
+      "enemyCostAura": -1,
+      "setPowerIfAllyNameIncludes": "ราชาอาณาจักรของแพง",
+      "setPowerTo": 2,
       "parseStatus": "auto"
     },
     {
@@ -1075,6 +1078,8 @@
         }
       ],
       "gemAsCostForNameIncludes": "ตำรวจ",
+      "gemAsCostValue": 5,
+      "gemAsCostColor": "ขาว",
       "revealOppDeckTopIfOwnNameIncludes": "ตำรวจ",
       "cannotBeAttackTargetIf": {
         "allyNameIncludes": "ตำรวจ"
@@ -1405,6 +1410,7 @@
         "BT05-038"
       ],
       "abilities": [],
+      "cannotBeAttackTargetIfOwnNameIncludes": "เครื่องบิน Super Air",
       "protectReplaceForNameIncludes": "เครื่องบิน Super Air",
       "parseStatus": "auto"
     },
@@ -1452,8 +1458,22 @@
       "codes": [
         "PRE0-003"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "revealOppHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ดูการ์ดบนมือฝ่ายตรงข้ามทั้งหมด"
     },
     {
       "name": "พญายักษ์ ทศกัณฐ์",
@@ -2401,6 +2421,7 @@
         "BT03-028"
       ],
       "abilities": [],
+      "combatImmuneVsLowerCost": true,
       "parseStatus": "auto"
     },
     {
@@ -2676,6 +2697,7 @@
           ]
         }
       ],
+      "cannotAttack": true,
       "parseStatus": "auto"
     },
     {

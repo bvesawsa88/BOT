@@ -519,15 +519,110 @@
     },
     {
       "code": "BT10-025",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "จอมเวทย์ โกลเด้น"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enterLink"
+          },
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "dest": "buildConstructFree",
+              "shuffleAfterIfFromDeck": true,
+              "filter": {
+                "type": "Construct",
+                "nameIncludes": [
+                  "จอมเวทย์"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "partial",
+      "name": "จอมเวทย์ โกลเด้น",
+      "note": "เมื่อเข้า Link: ก่อสร้าง Construct จอมเวทย์ จากเด็คหรือนรก (ถ้าจากเด็คให้สับ) · สั่งใช้เซ่นตัวเองกันจอมเวทย์ใบอื่นออกสนามยังไม่ทำ · [Link เดสสึหวา]"
     },
     {
       "code": "BT10-026",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "จอมเวทย์ เดสสึหวา"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "anyOf": [
+                  {
+                    "nameIncludes": [
+                      "คาถา"
+                    ]
+                  },
+                  {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "จอมเวทย์"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2,
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownPlayMagic"
+          },
+          "requireMagicNameIncludes": "คาถา",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "จอมเวทย์"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "จอมเวทย์ เดสสึหวา",
+      "onlyAttackableAllyNameIncludes": "เดสสึหวา",
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
     },
     {
       "code": "BT10-027",

@@ -753,6 +753,7 @@
           ]
         }
       ],
+      "costOnlyForSymbol": "รัททาทุย",
       "parseStatus": "auto",
       "note": "ใช้เป็น Cost ได้เฉพาะรัททาทุย · ทิ้งเป็น Cost ให้ชื่อมี รัททาทุย → อัญเชิญ C1G1P1"
     },
@@ -807,16 +808,59 @@
       "codes": [
         "ODY1-004"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPickMulti",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ทาโกะซัง"
+                ]
+              },
+              "countExact": 3,
+              "distinctNames": true,
+              "thenDraw": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: คืนทาโกะซังชื่อไม่ซ้ำ 3 ใบจากนรกเข้าเด็ค สับ แล้วจั่ว 1"
     },
     {
       "name": "ทาโกะซัง สูตรมนุษย์",
       "codes": [
         "ODY1-002"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ทาโกะซัง สูตรนรก"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำ ทาโกะซัง สูตรนรก จากเด็คขึ้นมือ แล้วสับ"
     },
     {
       "name": "เทอราโนดอน จากต่างแดน",
@@ -825,6 +869,7 @@
         "PRMO-033"
       ],
       "abilities": [],
+      "scoutBonusOwnKapom": 1,
       "parseStatus": "auto",
       "note": "กะปอมฝ่ายเราสอดแนม +1 (เฉพาะสอดแนมจาก Avatar กะปอม)"
     },
@@ -1289,8 +1334,23 @@
       "codes": [
         "PRE0-002"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "oppHandToDeckTop",
+              "random": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: สุ่มการ์ดมือศัตรู 1 ใบวางบนสุดเด็คศัตรู"
     },
     {
       "name": "พลทหารหิมะ",
@@ -2995,7 +3055,8 @@
         "SD07-003"
       ],
       "abilities": [],
-      "parseStatus": "manual",
+      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
@@ -3007,6 +3068,7 @@
       "keywords": [
         "แทงหลัง"
       ],
+      "drawOnSummonedByAvatarNameIncludes": "ขุนพล",
       "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
     }

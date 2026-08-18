@@ -1,4 +1,4 @@
-/* Link / คู่หู — เพมมุ สไปรท์ เจ้าหญิง · มิสทรอม่า ดินแดนยุติธรรม ออส่วนบอย */
+/* Link / คู่หู — เพมมุ สไปรท์ เจ้าหญิง · โฮคุ โกลเด้น · เดสสึหวา โลกิ · มิสทรอม่า ดินแดนยุติธรรม ออส่วนบอย */
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -18,6 +18,32 @@ function upsert(fileCards, entry) {
 
 const BY_SET = {
   'effects-bt09.json': {
+    'BT09-007': {
+      code: 'BT09-007',
+      name: 'โฮคุ โพลีกอน',
+      extraSymbols: ['สัตว์'],
+      onlyAttackableAllyNameIncludes: 'โฮคุ',
+      abilities: [
+        {
+          keyword: 'ต่อเนื่อง',
+          trigger: { on: 'static', if: 'self.zone==avatarZone' },
+          requireOtherAvatar: true,
+          actions: [{
+            op: 'modifyPower',
+            amount: 1,
+            layer: 3,
+            target: { select: 'self' }
+          }]
+        },
+        {
+          keyword: 'อัตโนมัติ',
+          trigger: { on: 'enterLink' },
+          actions: [{ op: 'destroyHighestPower' }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]'
+    },
     'BT09-008': {
       code: 'BT09-008',
       name: 'เพมมุ ยอดมนุษย์',
@@ -101,9 +127,93 @@ const BY_SET = {
       ],
       parseStatus: 'partial',
       note: 'ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่อยู่ในสถานะ Link POWER +2 · จุติยังคืนเด็คไม่ครบ (จั่ว 1)'
+    },
+    'BT09-025': {
+      code: 'BT09-025',
+      name: 'โลกิ เจ้าชายยักษ์น้ำแข็ง',
+      keywords: ['สามัคคี'],
+      cannotAttack: true,
+      unityOnlyNameIncludes: 'ธอร์',
+      abilities: [
+        {
+          keyword: 'สั่งใช้',
+          trigger: { on: 'activated' },
+          oncePerTurn: true,
+          actions: [{
+            op: 'modifyPower',
+            amount: 1,
+            amountPer: 'ownHellPerN',
+            perN: 5,
+            per: 1,
+            duration: 'endOfTurn',
+            target: { select: 'self' }
+          }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]'
     }
   },
   'effects-bt10.json': {
+    'BT10-025': {
+      code: 'BT10-025',
+      name: 'จอมเวทย์ โกลเด้น',
+      abilities: [
+        {
+          keyword: 'อัตโนมัติ',
+          trigger: { on: 'enterLink' },
+          actions: [{
+            op: 'deckOrHellPick',
+            dest: 'buildConstructFree',
+            shuffleAfterIfFromDeck: true,
+            filter: { type: 'Construct', nameIncludes: ['จอมเวทย์'] }
+          }]
+        }
+      ],
+      parseStatus: 'partial',
+      note: 'เมื่อเข้า Link: ก่อสร้าง Construct จอมเวทย์ จากเด็คหรือนรก (ถ้าจากเด็คให้สับ) · สั่งใช้เซ่นตัวเองกันจอมเวทย์ใบอื่นออกสนามยังไม่ทำ · [Link เดสสึหวา]'
+    },
+    'BT10-026': {
+      code: 'BT10-026',
+      name: 'จอมเวทย์ เดสสึหวา',
+      onlyAttackableAllyNameIncludes: 'เดสสึหวา',
+      abilities: [
+        {
+          keyword: 'จุติ',
+          trigger: { on: 'summoned', if: 'paidCost' },
+          cost: [{
+            op: 'discard',
+            count: 1,
+            filter: {
+              anyOf: [
+                { nameIncludes: ['คาถา'] },
+                { type: 'Avatar', nameIncludes: ['จอมเวทย์'] }
+              ]
+            }
+          }],
+          actions: [{ op: 'draw', count: 2, player: 'owner' }]
+        },
+        {
+          keyword: 'อัตโนมัติ',
+          trigger: { on: 'ownPlayMagic' },
+          requireMagicNameIncludes: 'คาถา',
+          actions: [{
+            op: 'modifyPower',
+            amount: 1,
+            duration: 'endOfTurn',
+            target: { select: 'choose', side: 'own', type: 'Avatar', nameIncludes: ['จอมเวทย์'] }
+          }]
+        },
+        {
+          keyword: 'อัตโนมัติ',
+          trigger: { on: 'declaredAsAttackTarget' },
+          oncePerTurn: true,
+          actions: [{ op: 'draw', count: 1, player: 'owner' }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]'
+    },
     'BT10-070': {
       code: 'BT10-070',
       name: 'ดินแดนยุติธรรม',

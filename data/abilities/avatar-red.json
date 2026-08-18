@@ -385,8 +385,7 @@
       ],
       "abilities": [],
       "attackIf": "emptyHand",
-      "parseStatus": "auto",
-      "note": "โจมตีได้เมื่อมือว่าง"
+      "parseStatus": "auto"
     },
     {
       "name": "เจนนี่ อย่าบู้บี้เลขา",
@@ -1040,8 +1039,28 @@
       "codes": [
         "ODY1-001"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ทาโกะซัง สูตรมนุษย์"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำ ทาโกะซัง สูตรมนุษย์ จากเด็คขึ้นมือ แล้วสับ"
     },
     {
       "name": "เทพารักษ์งมขวาน",
@@ -1603,8 +1622,29 @@
       "codes": [
         "PRE0-005"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellDistinctAvatarsMin",
+              "min": 10,
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: นรกเรามี Avatar ชื่อไม่ซ้ำ ≥10 → POWER +2"
     },
     {
       "name": "พม่าข้าศึก 2310",
@@ -1880,49 +1920,8 @@
         "CC01-001",
         "FPRO-004"
       ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "chooseDestroy",
-              "filter": {},
-              "zones": [
-                "avatar",
-                "magic",
-                "construct",
-                "land"
-              ],
-              "optional": true
-            }
-          ]
-        },
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "chooseDestroy",
-              "filter": {},
-              "zones": [
-                "avatar",
-                "magic",
-                "construct",
-                "land"
-              ],
-              "optional": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "stub"
     },
     {
       "name": "พระอิศวร นักเต้น",
@@ -3274,39 +3273,8 @@
         "BT06-004",
         "SL02-010"
       ],
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "setAlliesPowerToSelf",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "นาค"
-                ],
-                "symbol": "สัตว์วิเศษ"
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "battleDestroy"
-          },
-          "actions": [
-            {
-              "op": "revealOppLifeTop"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "manual"
     },
     {
       "name": "อนันตวดี ราชินีแห่งนาค",
@@ -3314,29 +3282,8 @@
         "BT07-006",
         "SL02-001"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "paidAsCost",
-            "if": "summonNameIncludes:นาค&summonSymbol:สัตว์วิเศษ"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 3,
-              "target": {
-                "select": "summoned"
-              }
-            }
-          ]
-        }
-      ],
-      "gemAsCostForNameIncludes": "อนันต์ ราชาแห่งนาค",
-      "gemAsCostValue": 6,
-      "gemAsCostColor": "แดง",
-      "costOnlyForSymbol": "สัตว์วิเศษ",
-      "parseStatus": "auto",
-      "note": "จ่ายได้เฉพาะสัตว์วิเศษ · จ่ายอัญเชิญอนันต์ = GEM 6 แดง · นาคที่ได้ +3"
+      "abilities": [],
+      "parseStatus": "manual"
     },
     {
       "name": "อ๊บ",
@@ -3550,7 +3497,6 @@
       ],
       "abilities": [
         {
-          "keyword": "สั่งใช้",
           "trigger": {
             "on": "whenAttacked"
           },
@@ -3561,8 +3507,8 @@
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "เมื่อถูกโจมตี: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี (ข้ามได้)"
+      "parseStatus": "partial",
+      "note": "สั่งใช้: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี"
     },
     {
       "name": "เอเจ้นท์สมูท",
@@ -3620,32 +3566,8 @@
         "BT06-003",
         "SL02-009"
       ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "until": "permanent",
-              "target": {
-                "select": "choose",
-                "side": "own",
-                "type": "Avatar",
-                "nameIncludes": [
-                  "นาค"
-                ],
-                "symbol": "สัตว์วิเศษ"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "manual"
     },
     {
       "name": "โอเดนย่ากาย",
@@ -3653,7 +3575,9 @@
         "ODY1-005"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "attackIf": "onlyAlliesNameIncludes:ทาโกะ",
+      "parseStatus": "auto",
+      "note": "โจมตีได้เมื่อ Avatar Zone ฝ่ายเรามีทาโกะเท่านั้น (ตัวเองยกเว้น)"
     },
     {
       "name": "ไอ้ชิด อโยธยา Express",
@@ -3679,7 +3603,6 @@
         "PRMO-087"
       ],
       "abilities": [],
-      "controlImmune": true,
       "controlImmuneExcept": "อีช่า",
       "parseStatus": "auto"
     },
@@ -3762,8 +3685,43 @@
       "codes": [
         "BT09-007"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireOtherAvatar": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enterLink"
+          },
+          "actions": [
+            {
+              "op": "destroyHighestPower"
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "สัตว์"
+      ],
+      "onlyAttackableAllyNameIncludes": "โฮคุ",
+      "parseStatus": "auto",
+      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]"
     },
     {
       "name": "DJ ปีโป้",

@@ -579,8 +579,29 @@
       "codes": [
         "ODY1-066"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ทาโกะ"
+                ],
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "POWER +1 ให้ Avatar ทาโกะ บนสนามทุกใบ จนจบเทิร์น"
     },
     {
       "name": "ตั๋วยืน",
@@ -1870,8 +1891,36 @@
       "codes": [
         "ODY1-063"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "nameIncludesAny": [
+                  "ทาโกะ",
+                  "โอเดนย่า"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "bounce",
+              "from": "any",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งทาโกะหรือโอเดนย่า 1 ใบ : เด้ง Avatar บนสนามขึ้นมือเจ้าของ"
     },
     {
       "name": "โอเดนย่า อร่อยมัก",

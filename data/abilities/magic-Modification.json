@@ -129,6 +129,7 @@
         "BT03-054"
       ],
       "abilities": [],
+      "hostCostDelta": -1,
       "parseStatus": "auto"
     },
     {
@@ -219,6 +220,11 @@
         "BT04-055"
       ],
       "abilities": [],
+      "hostCostDelta": 2,
+      "hostPowerIfEffCostMin": {
+        "min": 6,
+        "amount": 1
+      },
       "parseStatus": "auto"
     },
     {
@@ -518,8 +524,27 @@
       "codes": [
         "PRE0-001-2"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 0,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar ที่สวมใส่ POWER +0"
     },
     {
       "name": "น้ำชูกำลัง",
