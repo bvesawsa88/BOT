@@ -196,9 +196,25 @@
     {
       "code": "BT11-008",
       "name": "ออส่วนบอย",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เมื่อ \"กิมมิคแมน\" บน Avatar Zone เรา ถูกทำลายในเทิร์นฝ่ายตรงข้าม : ปรับ POWER ตั้งต้น การ์ดใบนั้น 6 [Link กิมม"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "oppTurn"
+          },
+          "requireDestroyedNameIncludes": "กิมมิคแมน",
+          "actions": [
+            {
+              "op": "setPrintedPower",
+              "amount": 6
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]",
+      "onlyAttackableAllyNameIncludes": "กิมมิคแมน"
     },
     {
       "code": "BT11-009",
@@ -274,22 +290,23 @@
       "name": "มิสทรอม่า",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
+          "requireOwnAnyLinked": true,
+          "unlessOwnLinkedNamesAll": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
+              "layer": 3,
               "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
+                "select": "self"
               }
             }
           ]
@@ -300,23 +317,24 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnLinkedNamesAll": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
+              "amount": 2,
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial",
+      "note": "ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ (ทำลาย Land ศัตรู / วางดินแดนยุติธรรม / ล็อก Land) ยังไม่ทำ"
     },
     {
       "code": "BT11-012",

@@ -25,27 +25,47 @@ const META_KEYS = [
   'ignoreNegativePower', 'auraPower', 'auraNameIncludes',
   'immuneOppMagicTarget', 'millInsteadDestroy', 'lifeBothModes', 'controlImmune',
   'addToHandWhenScoutedByNameIncludes', 'addToHandWhenMilledOrScoutedByNameIncludes',
-  'extraSymbols', 'destroyHostIfPower0', 'powerAsGemForSymbol',
-  'gemAsCostForNameIncludes', 'revealOppDeckTopIfOwnNameIncludes', 'cannotBeAttackTargetIf',
-  'cannotBeAttackTargetIfOwnSymbolOther', 'hostSymbolReplace', 'reattachOnHostDestroy', 'reactAnyWindow',
+  'extraSymbols', 'extraColors', 'destroyHostIfPower0', 'powerAsGemForSymbol',
+  'gemAsCostForNameIncludes', 'gemAsCostValue', 'gemAsCostColor', 'costOnlyForSymbol', 'revealOppDeckTopIfOwnNameIncludes', 'cannotBeAttackTargetIf',
+  'cannotBeAttackTargetIfOwnSymbolOther', 'cannotBeAttackTargetIfOwnNameIncludes', 'onlyAttackableAllyNameIncludes', 'hostSymbolReplace', 'reattachOnHostDestroy', 'reactAnyWindow',
   'destroyHostOnLeave',
   'costZeroIfDistinctOwnNameIncludes', 'costZeroIfOwnSymbol', 'abilitiesFromMagicZone',
   'blockAllLandPlay', 'destroyAfterGlobalEndPhases', 'stayOnMagic', 'remainOnMagic',
   'allowOppTurnMagic', 'oncePerTurnCard', 'ignoreReactOncePerTurnLimit', 'revealDeckTops',
   'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
   'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities',
-  'uniqueAttachedNames', 'attachOnly', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
+  'uniqueAttachedNames', 'attachOnly', 'hostAttachNameIncludes', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
   'stackPowerOnReattach', 'reattachEnemyIfNoOwn',
   'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf',
-  'noHellSummon', 'only'
-];
+    'noHellSummon', 'only', 'replaceFirstDrawWithSelf', 'bounceHostOnLeave',
+    'combatImmuneVsLowerCost', 'attackIf', 'enemyCostAura', 'setPowerIfAllyNameIncludes', 'setPowerTo',
+    'controlImmuneExcept', 'scoutBonusOwnKapom', 'scoutBonusConstruct', 'hostCostDelta',
+    'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
+    'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',
+    'drawOnSummonedByAvatarNameIncludes'
+  ];
 
 function loadJson(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
 function saveJson(p, obj) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
-  fs.writeFileSync(p, JSON.stringify(obj, null, 2) + '\n');
+  const text = JSON.stringify(obj, null, 2) + '\n';
+  let last;
+  for (let i = 0; i < 8; i++) {
+    try {
+      const tmp = p + '.tmp';
+      fs.writeFileSync(tmp, text);
+      fs.renameSync(tmp, p);
+      return;
+    } catch (e) {
+      last = e;
+      const wait = 150 * (i + 1);
+      const t0 = Date.now();
+      while (Date.now() - t0 < wait) { /* Windows file lock retry */ }
+    }
+  }
+  throw last;
 }
 
 function effectRichness(e) {

@@ -58,15 +58,85 @@
     },
     {
       "code": "BT09-008",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "เพมมุ ยอดมนุษย์"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "self",
+                "requireAttached": true
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "deck",
+              "host": "self",
+              "shuffleAfter": true,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธของเพมมุ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เพมมุ ยอดมนุษย์",
+      "hostAttachNameIncludes": "อาวุธของเพมมุ",
+      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
     },
     {
       "code": "BT09-009",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "สไปรท์ ยอดสุนัข"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd",
+            "if": "selfTapped"
+          },
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "nextOwnDraw",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "สไปรท์ ยอดสุนัข",
+      "keywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด",
+        "สามัคคี"
+      ],
+      "note": "โล่มนุษย์ ลูกฮึด สามัคคี · End Phase ถ้านอน: ตื่น และ POWER +2 จน Draw Phase ถัดไปของเรา · [Link เพมมุ]"
     },
     {
       "code": "BT09-010",
@@ -90,10 +160,37 @@
               "player": "owner"
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "onlyOwnTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "เพมมุ",
+                  "สไปรท์",
+                  "เมย์ แวมไพร์"
+                ],
+                "requireLinked": true
+              }
+            }
+          ]
         }
       ],
       "parseStatus": "partial",
-      "name": "เจ้าหญิงรวงข้าว"
+      "name": "เจ้าหญิงรวงข้าว",
+      "note": "ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่อยู่ในสถานะ Link POWER +2 · จุติยังคืนเด็คไม่ครบ (จั่ว 1)"
     },
     {
       "code": "BT09-012",

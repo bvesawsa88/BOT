@@ -384,7 +384,9 @@
         "BT03-009"
       ],
       "abilities": [],
-      "parseStatus": "auto"
+      "attackIf": "emptyHand",
+      "parseStatus": "auto",
+      "note": "โจมตีได้เมื่อมือว่าง"
     },
     {
       "name": "เจนนี่ อย่าบู้บี้เลขา",
@@ -429,9 +431,36 @@
               "player": "owner"
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "onlyOwnTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "เพมมุ",
+                  "สไปรท์",
+                  "เมย์ แวมไพร์"
+                ],
+                "requireLinked": true
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "note": "ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่อยู่ในสถานะ Link POWER +2 · จุติยังคืนเด็คไม่ครบ (จั่ว 1)"
     },
     {
       "name": "โจอี้ นักบอลขาหัก",
@@ -953,6 +982,7 @@
         "nameIncludes": "อัศวินโต๊ะกลม",
         "keyword": "สามัคคี"
       },
+      "destroyEnemyAnyOnSummonedByAvatarNameIncludes": "อัศวินโต๊ะกลม",
       "parseStatus": "auto",
       "note": "ยิงทำลายเมื่อถูกอัศวินอัญเชิญ — ยัง partial ถ้าแหล่งอัญเชิญไม่ผ่าน triggerSummon ctx"
     },
@@ -1850,8 +1880,49 @@
         "CC01-001",
         "FPRO-004"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "พระอิศวร นักเต้น",
@@ -2105,8 +2176,50 @@
       "codes": [
         "BT09-008"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "self",
+                "requireAttached": true
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "deck",
+              "host": "self",
+              "shuffleAfter": true,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธของเพมมุ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "hostAttachNameIncludes": "อาวุธของเพมมุ",
+      "parseStatus": "auto",
+      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
     },
     {
       "name": "ฟูมะ นินจาแห่งสายลม",
@@ -2187,22 +2300,23 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
+          "requireOwnAnyLinked": true,
+          "unlessOwnLinkedNamesAll": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
+              "layer": 3,
               "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
+                "select": "self"
               }
             }
           ]
@@ -2213,23 +2327,24 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnLinkedNamesAll": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
+              "amount": 2,
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial",
+      "note": "ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ (ทำลาย Land ศัตรู / วางดินแดนยุติธรรม / ล็อก Land) ยังไม่ทำ"
     },
     {
       "name": "มือปืนนคร ชานน",
@@ -2896,8 +3011,36 @@
         "BT09-009",
         "PRMO-112"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd",
+            "if": "selfTapped"
+          },
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "nextOwnDraw",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด",
+        "สามัคคี"
+      ],
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ ลูกฮึด สามัคคี · End Phase ถ้านอน: ตื่น และ POWER +2 จน Draw Phase ถัดไปของเรา · [Link เพมมุ]"
     },
     {
       "name": "สหายหุ่นผู้กล้า โฟเบีย",
@@ -3131,8 +3274,39 @@
         "BT06-004",
         "SL02-010"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "setAlliesPowerToSelf",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "อนันตวดี ราชินีแห่งนาค",
@@ -3140,8 +3314,29 @@
         "BT07-006",
         "SL02-001"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:นาค&summonSymbol:สัตว์วิเศษ"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "target": {
+                "select": "summoned"
+              }
+            }
+          ]
+        }
+      ],
+      "gemAsCostForNameIncludes": "อนันต์ ราชาแห่งนาค",
+      "gemAsCostValue": 6,
+      "gemAsCostColor": "แดง",
+      "costOnlyForSymbol": "สัตว์วิเศษ",
+      "parseStatus": "auto",
+      "note": "จ่ายได้เฉพาะสัตว์วิเศษ · จ่ายอัญเชิญอนันต์ = GEM 6 แดง · นาคที่ได้ +3"
     },
     {
       "name": "อ๊บ",
@@ -3174,9 +3369,25 @@
       "codes": [
         "BT11-008"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เมื่อ \"กิมมิคแมน\" บน Avatar Zone เรา ถูกทำลายในเทิร์นฝ่ายตรงข้าม : ปรับ POWER ตั้งต้น การ์ดใบนั้น 6 [Link กิมม"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "oppTurn"
+          },
+          "requireDestroyedNameIncludes": "กิมมิคแมน",
+          "actions": [
+            {
+              "op": "setPrintedPower",
+              "amount": 6
+            }
+          ]
+        }
+      ],
+      "onlyAttackableAllyNameIncludes": "กิมมิคแมน",
+      "parseStatus": "auto",
+      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]"
     },
     {
       "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์",
@@ -3339,6 +3550,7 @@
       ],
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "whenAttacked"
           },
@@ -3349,8 +3561,8 @@
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "สั่งใช้: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี"
+      "parseStatus": "auto",
+      "note": "เมื่อถูกโจมตี: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี (ข้ามได้)"
     },
     {
       "name": "เอเจ้นท์สมูท",
@@ -3408,8 +3620,32 @@
         "BT06-003",
         "SL02-009"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "โอเดนย่ากาย",
@@ -3443,6 +3679,8 @@
         "PRMO-087"
       ],
       "abilities": [],
+      "controlImmune": true,
+      "controlImmuneExcept": "อีช่า",
       "parseStatus": "auto"
     },
     {

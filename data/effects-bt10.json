@@ -1202,9 +1202,25 @@
     },
     {
       "code": "BT10-070",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ดินแดนยุติธรรม"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "protectOwnFromOppLeave": true,
+          "requireOwnLinkedNameAny": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
+          "protectNameOrEffectIncludes": "เพมมุ",
+          "actions": []
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ดินแดนยุติธรรม",
+      "note": "ตราบเท่าที่เพมมุหรือสไปรท์อยู่ใน Link: Avatar ฝ่ายเราที่มี \"เพมมุ\" ในชื่อหรือข้อความ ไม่ถูกนำออกจากสนามโดยความสามารถ/ผู้เล่นฝ่ายตรงข้าม (ยกเว้นต่อสู้)"
     },
     {
       "code": "BT10-071",
