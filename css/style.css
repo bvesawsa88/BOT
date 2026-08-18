@@ -277,7 +277,8 @@ body.has-back .screen::after{top:50px}
 .pv-empty{border:1.5px dashed var(--border);border-radius:10px;aspect-ratio:512/716;display:flex;align-items:center;justify-content:center;color:#5c5347;font-size:12px;text-align:center;padding:12px}
 .pv-img{width:100%;aspect-ratio:512/716;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.6);background-size:cover;background-position:center;background-color:var(--card-ui)}
 .pv-name{font-family:'IBM Plex Sans Thai',sans-serif;font-size:14.5px;font-weight:700}
-.pv-type{font-size:12px;color:var(--gold);font-weight:600}
+.pv-type{font-size:12px;color:var(--gold);font-weight:600;line-height:1.5}
+.pv-type .bot-sym{height:16px;width:16px;vertical-align:-3px}
 .pv-stat{font-size:12px;color:var(--cream2)}
 /* สถิติการ์ด — แยกสีคอส (จ่าย) กับสีเจม (ให้) ชัดเจน */
 .pv-stats{display:flex;flex-direction:column;gap:4px}
@@ -291,6 +292,11 @@ body.has-back .screen::after{top:50px}
 .cpill{font-size:11px;padding:1px 8px;border:1px solid var(--border);border-radius:20px;background:var(--card-ui);white-space:nowrap}
 .cpill.none{color:var(--dim)}
 .pv-effect{font-size:12.5px;line-height:1.55;color:#e5dcc8;background:var(--card-ui);border:1px solid var(--border);border-radius:8px;padding:8px 10px;white-space:pre-wrap}
+.bot-kw{height:1.2em;width:auto;vertical-align:-0.18em;display:inline}
+.bot-sym{height:1.35em;width:1.35em;object-fit:contain;vertical-align:-0.28em;display:inline}
+.bot-sym.meta{height:18px;width:18px;vertical-align:-4px}
+.pv-effect .bot-kw,.gl-zoom-effect .bot-kw{height:1.35em}
+.ctx-item .bot-kw{height:1.15em;margin-right:4px;vertical-align:-0.2em}
 
 #board{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-width:0;padding:2px 5px 0;gap:0;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#212327 0%,#141518 55%,#0b0c0e 100%);
   --board-tilt:0deg;--board-persp:none;
@@ -902,11 +908,15 @@ body.dragging .card.hand:hover{transform:none}
 /* ปุ่มลัดลอยบนการ์ด (เดสก์ท็อป: โผล่ตอนชี้เมาส์ — ⚡ 🤝 🔗) */
 .card .qa{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);display:none;gap:2px;z-index:24}
 .card .qa-b{width:19px;height:19px;padding:0;font-size:11px;line-height:1;border-radius:5px;border:1px solid rgba(0,0,0,.6);background:rgba(20,18,16,.92);color:#ffe9b0;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.card .qa-b.qa-kw{width:auto;min-width:19px;height:19px;padding:1px 3px;display:flex;align-items:center;justify-content:center}
+.card .qa-b.qa-kw .bot-kw{height:13px;width:auto;max-width:52px;object-fit:contain;vertical-align:0}
 .card .qa-b:hover{background:var(--gold);color:#241c12}
 @media (hover:hover){.card:hover .qa{display:flex}}
 /* มือที่มีสั่งใช้จากมือ — โชว์ ⚡ ตลอด (แทนคลิกขวา) */
 .card.hand.hand-act .qa.qa-hand{display:flex;top:4px;bottom:auto;left:auto;right:4px;transform:none}
 .card.hand.hand-act .qa-hand .qa-b{width:26px;height:26px;font-size:14px;border-color:var(--gold);background:rgba(30,22,12,.92);box-shadow:0 2px 8px rgba(0,0,0,.55)}
+.card.hand.hand-act .qa-hand .qa-b.qa-kw,.card.hell-act .qa-hand .qa-b.qa-kw{width:auto;height:22px;padding:2px 4px}
+.card.hand.hand-act .qa-hand .qa-b.qa-kw .bot-kw,.card.hell-act .qa-hand .qa-b.qa-kw .bot-kw{height:16px;max-width:70px}
 /* นรกที่มีสั่งใช้จากนรก (พี่ซี๊ด ฯลฯ) — โชว์ ⚡ ในหน้าต่างกอง */
 .card.hell-act .qa.qa-hand{display:flex;top:4px;bottom:auto;left:auto;right:4px;transform:none}
 .card.hell-act .qa-hand .qa-b{width:26px;height:26px;font-size:14px;border-color:var(--gold);background:rgba(30,22,12,.92);box-shadow:0 2px 8px rgba(0,0,0,.55)}

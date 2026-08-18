@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260818b">
+<link rel="stylesheet" href="css/style.css?v=20260818d">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -235,8 +235,11 @@
       <span class="db-label">COST</span>
       <div id="dbCostChips" class="chip-row"></div>
     </div>
+    <div class="db-filter-row">
+      <span class="db-label">ซิมโบล</span>
+      <div id="dbSymbolChips" class="chip-row db-sym-chips"></div>
+    </div>
     <div class="db-filter-selects">
-      <select id="dbSymbol" title="Symbol"></select>
       <select id="dbSubtype" title="ชนิด Magic">
         <option value="">ชนิด Magic — ทั้งหมด</option>
         <option value="Normal">Normal</option><option value="React">React</option>
@@ -1053,11 +1056,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260818b"></script>
+<script src="js/util.js?v=20260818d"></script>
 <script src="js/skins.js?v=20260816a"></script>
-<script src="js/carddb.js?v=20260802b"></script>
+<script src="js/carddb.js?v=20260818d"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260818b"></script>
+<script src="js/game.js?v=20260818d"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

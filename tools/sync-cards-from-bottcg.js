@@ -129,9 +129,11 @@ async function main() {
   let added = 0, removed = 0, changed = 0;
   const nextMap = new Map(cards.map(c => [c.uid, c]));
   // คง gemColor ที่เติมเองไว้ ถ้า bottcg ยังว่าง (สีเพชรบนการ์ดยังไม่ครบใน DB)
+  // คง Only #1 ที่เช็คจากรูปแล้ว ถ้า bottcg ตกหล่นบนรีปริ้น
   for (const c of cards) {
     const p = prevMap.get(c.uid);
     if (p && p.gemColor && !c.gemColor) c.gemColor = p.gemColor;
+    if (p && /Only\s*#?\s*1/i.test(p.ex || '') && !/Only\s*#?\s*1/i.test(c.ex || '')) c.ex = p.ex;
   }
   for (const c of cards) {
     const p = prevMap.get(c.uid);

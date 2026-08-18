@@ -119,8 +119,8 @@
     byId('glZoom').innerHTML = `<div class="gl-zoom-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
       <div class="gl-zoom-info">
         <div class="gl-zoom-name">${esc(c.name)}</div>
-        <div class="gl-zoom-meta">${esc(`${c.code} · ${c.type}${c.subtype ? ' / ' + c.subtype : ''} · ${c.rarity}${c.color ? ' · ' + c.color : ''}${c.symbol ? ' · ' + c.symbol : ''}${c.cost !== '' && c.cost != null ? ' · COST ' + c.cost : ''}${c.power !== '' && c.power != null ? ' · POWER ' + c.power : ''}`)}</div>
-        <div class="gl-zoom-effect">${esc((c.effect || '') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
+        <div class="gl-zoom-meta">${BotUtil.cardMetaHtml(c)}</div>
+        <div class="gl-zoom-effect">${BotUtil.formatEffect((c.effect || '') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
       </div>`;
     byId('glZoom').classList.remove('hidden');
   }

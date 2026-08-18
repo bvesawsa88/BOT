@@ -19,6 +19,9 @@
 .db-chip{font-family:'Sarabun',sans-serif;font-size:11.5px;padding:3px 10px;border-radius:12px;border:1px solid var(--border);background:var(--card-ui);color:var(--cream2)}
 .db-chip.on{background:var(--red);color:#fff;border-color:var(--red-lite)}
 .db-chip:hover{filter:brightness(1.25)}
+.db-sym-chips{flex-wrap:wrap}
+.db-sym-chip{padding:3px 6px;line-height:0}
+.db-sym-chip .bot-sym{height:20px;width:20px;vertical-align:middle}
 .db-grid-wrap{flex:5;display:flex;flex-direction:column;min-width:0;min-height:0}
 .db-result{flex:none;padding:8px 14px;font-size:12px;color:var(--dim);display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
 .db-result #dbResult{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -169,8 +172,10 @@
 .gl-zoom-img{height:86vh;max-width:60vw;aspect-ratio:512/716;border-radius:14px;background-size:cover;background-position:center;box-shadow:0 10px 50px rgba(0,0,0,.8)}
 .gl-zoom-info{width:300px;display:flex;flex-direction:column;gap:8px}
 .gl-zoom-name{font-family:'IBM Plex Sans Thai',sans-serif;font-size:20px;font-weight:700}
-.gl-zoom-meta{font-size:13px;color:var(--gold);font-weight:600}
+.gl-zoom-meta{font-size:13px;color:var(--gold);font-weight:600;line-height:1.55}
+.gl-zoom-meta .bot-sym{height:20px;width:20px;vertical-align:-5px;margin:0 1px}
 .gl-zoom-effect{font-size:13.5px;line-height:1.6;color:#e5dcc8;background:var(--card-ui);border:1px solid var(--border);border-radius:9px;padding:10px 12px;white-space:pre-wrap;max-height:50vh;overflow-y:auto}
+.gl-zoom-effect .bot-kw{height:1.35em}
 @keyframes packPop{0%{transform:translateY(40px) rotateY(90deg) scale(.6);opacity:0}60%{transform:translateY(-8px) rotateY(0) scale(1.06);opacity:1}100%{transform:none;opacity:1}}
 @keyframes shine{0%{filter:brightness(1)}50%{filter:brightness(1.35) saturate(1.2)}100%{filter:brightness(1)}}
 

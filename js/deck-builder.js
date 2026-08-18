@@ -118,7 +118,6 @@
     CardDB.load().then(db => {
       DB.db = db;
       byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด · Rule Book 3.2`;
-      fillSelect('dbSymbol', 'Symbol — ทั้งหมด', [...new Set(db.cards.map(c => c.symbol).filter(Boolean))].sort());
       if (opts.empty) {
         DB.deck = { main: {}, life: {} };
         byId('dbName').value = '';
@@ -131,9 +130,6 @@
       renderDB();
     });
   };
-  function fillSelect(id, first, vals) {
-    byId(id).innerHTML = `<option value="">${esc(first)}</option>` + vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  }
   function seriesList() {
     if (!DB.db) return [];
     return [...new Set(DB.db.cards.map(c => c.series).filter(Boolean))].sort();
@@ -150,6 +146,13 @@
     DB.series = cur.includes(v) ? cur.filter(x => x !== v) : cur.concat(v).sort();
     DB.shown = 60;
     renderDB();
+  }
+  function renderSymbolChips() {
+    const el = byId('dbSymbolChips');
+    if (!el || !DB.db) return;
+    const vals = [...new Set(DB.db.cards.map(c => c.symbol).filter(Boolean))].sort();
+    el.innerHTML = `<button type="button" class="db-chip${!DB.symbol ? ' on' : ''}" data-v="">ทั้งหมด</button>` +
+      vals.map(v => `<button type="button" class="db-chip db-sym-chip${DB.symbol === v ? ' on' : ''}" data-v="${esc(v)}" title="${esc(v)}">${BotUtil.symHtml(v, 'meta')}</button>`).join('');
   }
   function chipRow(id, vals, cur, onPick) {
     byId(id).innerHTML = vals.map(v => `<button class="db-chip${cur === v ? ' on' : ''}" data-v="${esc(v)}">${v === '' ? 'ทั้งหมด' : esc(v)}</button>`).join('');
@@ -182,7 +185,7 @@
       const cd = DB.db.byCode[k]; if (!cd) return;
       const e = out[cd.name] = out[cd.name] || { n: 0, lim: 0 };
       e.n += ct;
-      e.lim = Math.max(e.lim, limitOf(cd));   // ชื่อเดียวกันต่างรหัสอาจมี customLimit ไม่ตรงกัน — ยึดค่าสูงสุด
+      e.lim = Math.max(e.lim, limitOf(cd));   // ชื่อเดียวกันต่างรหัส: CardDB รวม Only/customLimit ทุกพิมพ์แล้ว ค่าจึงเท่ากัน
     }));
     return out;
   }
@@ -249,13 +252,12 @@
     const sec = c.type === 'Life' ? 'life' : 'main';
     const n = DB.deck[sec][code] || 0;
     const lim = limitOf(c);
-    const meta = `${c.code} · ${c.type}${c.subtype ? ' / ' + c.subtype : ''} · ${c.rarity}${c.color ? ' · ' + c.color : ''}${c.symbol ? ' · ' + c.symbol : ''}${c.cost !== '' && c.cost != null ? ' · COST ' + c.cost : ''}${c.gem !== '' && c.gem != null ? ' · GEM ' + c.gem : ''}${c.power !== '' && c.power != null ? ' · POWER ' + c.power : ''}`;
     byId('dbZoom').innerHTML = `
       <div class="gl-zoom-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
       <div class="gl-zoom-info" data-stop="1">
         <div class="gl-zoom-name">${esc(c.name)}</div>
-        <div class="gl-zoom-meta">${esc(meta)}</div>
-        <div class="gl-zoom-effect">${esc((c.effect || '—') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
+        <div class="gl-zoom-meta">${BotUtil.cardMetaHtml(c)}</div>
+        <div class="gl-zoom-effect">${BotUtil.formatEffect((c.effect || '—') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
         <div class="db-zoom-actions">
           <button class="db-pm big" data-q="sub" data-code="${esc(code)}">−</button>
           <div class="db-zoom-count">ในเด็ค ×${n}${lim < 4 ? ` <span>(ลิมิต ${lim})</span>` : ''}</div>
@@ -272,6 +274,7 @@
     chipRow('dbColorChips', ['', 'แดง', 'ฟ้า', 'ม่วง', 'เขียว'], DB.color, v => { DB.color = v; DB.shown = 60; renderDB(); });
     chipRow('dbCostChips', ['', '0', '1', '2', '3', '4', '5', '6', '7', '8+'], DB.cost, v => { DB.cost = v; DB.shown = 60; renderDB(); });
     renderSeriesChips();
+    renderSymbolChips();
 
     const filtered = filteredCards();
     byId('dbResult').textContent = `พบ ${filtered.length} ใบ · แสดง ${Math.min(DB.shown, filtered.length)}`;
@@ -370,7 +373,13 @@
   if (dbMask) dbMask.addEventListener('pointerdown', closeDbDrawers);
   byId('dbGrid').addEventListener('pointerdown', closeDbDrawers);
   byId('dbQ').addEventListener('input', e => { DB.q = e.target.value; DB.shown = 60; renderDB(); });
-  byId('dbSymbol').onchange = e => { DB.symbol = e.target.value; DB.shown = 60; renderDB(); };
+  byId('dbSymbolChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    DB.symbol = b.dataset.v || '';
+    DB.shown = 60;
+    renderDB();
+  });
   byId('dbSeriesChips').addEventListener('click', e => {
     if (e.target.closest('[data-all]')) {
       DB.series = [];
@@ -384,7 +393,7 @@
   byId('dbSubtype').onchange = e => { DB.subtype = e.target.value; DB.shown = 60; renderDB(); };
   byId('dbClear').onclick = () => {
     Object.assign(DB, { q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60 });
-    byId('dbQ').value = ''; byId('dbSymbol').value = ''; byId('dbSubtype').value = '';
+    byId('dbQ').value = ''; byId('dbSubtype').value = '';
     renderDB();
   };
   byId('dbMore').onclick = () => { DB.shown += 60; renderDB(); };
@@ -785,8 +794,8 @@
     byId('dkZoom').innerHTML = `<div class="gl-zoom-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
       <div class="gl-zoom-info">
         <div class="gl-zoom-name">${esc(c.name)}</div>
-        <div class="gl-zoom-meta">${esc(`${c.code} · ${c.type}${c.subtype ? ' / ' + c.subtype : ''} · ${c.rarity}${c.color ? ' · ' + c.color : ''}${c.symbol ? ' · ' + c.symbol : ''}${c.cost !== '' && c.cost != null ? ' · COST ' + c.cost : ''}${c.power !== '' && c.power != null ? ' · POWER ' + c.power : ''}`)}</div>
-        <div class="gl-zoom-effect">${esc((c.effect || '—') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
+        <div class="gl-zoom-meta">${BotUtil.cardMetaHtml(c)}</div>
+        <div class="gl-zoom-effect">${BotUtil.formatEffect((c.effect || '—') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
       </div>`;
     byId('dkZoom').classList.remove('hidden');
   });

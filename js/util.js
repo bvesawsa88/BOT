@@ -46,10 +46,76 @@
     return _once[href];
   }
 
-  const V = '20260818b';
+  const V = '20260818d';
   function asset(path) {
     return path + (path.includes('?') ? '&' : '?') + 'v=' + V;
   }
 
-  root.BotUtil = { byId, $, esc, loadScript, loadCss, asset, CACHE_V: V };
+  /* เทค / ซิมโบล — รูปทางการจาก bottcg (สีเดียวกับที่พิมพ์บนการ์ด) */
+  const CDN_ASSETS = 'https://cdn.bangbon.app/assets/bottcg';
+  const KW_FILE = {
+    'จุติ': 'rebirth', 'คำสั่งเสีย': 'lastwill', 'เซ่นไหว้': 'worship',
+    'สอดแนม': 'spy', 'ธรณีสูบ': 'earthquake', 'เลือกปฏิบัติ': 'discrimination',
+    'สามัคคี': 'unity', 'โล่มนุษย์': 'humanshield', 'เตะไข่': 'kick',
+    'เทิร์นละครั้ง': 'onceperturn', 'ต่อเนื่อง': 'continuous', 'สั่งใช้': 'command',
+    'อัตโนมัติ': 'auto', 'พอดี': 'exact', 'ลูกฮึด': 'guts', 'แทงหลัง': 'backstab',
+    'เนรเทศ': 'exile', 'คู่หู': 'link'
+  };
+  const SYM_FILE = {
+    'เทพ': 'deity', 'ยักษ์': 'giant', 'จอมเวทย์': 'wizard', 'คน': 'human',
+    'แมลง': 'insect', 'สัตว์': 'animal', 'รัททาทุย': 'rattatuy', 'นรก': 'hell',
+    'ผี': 'ghost', 'ปลา': 'fish', 'หุ่นยนต์': 'robot', 'สิ่งก่อสร้าง': 'construct',
+    'ต่างชาติ': 'foreign', 'ต้นไม้': 'tree', 'เปรต': 'pret', 'ฤษี': 'rishi',
+    'เอเลี่ยน': 'alien', 'กะปอม': 'kapom', 'สัตว์วิเศษ': 'beast', 'ทหาร': 'soldier',
+    'ไซเบอร์': 'cyber', 'มังกร': 'dragon'
+  };
+  function kwHtml(name, extraClass) {
+    const f = KW_FILE[name];
+    if (!f) return esc(name);
+    const cls = extraClass ? 'bot-kw ' + extraClass : 'bot-kw';
+    return `<img class="${cls}" src="${CDN_ASSETS}/keywords/${f}.png" alt="${esc(name)}" title="${esc(name)}" draggable="false">`;
+  }
+  function symHtml(name, extraClass) {
+    const f = SYM_FILE[name];
+    if (!f) return esc(name);
+    const cls = extraClass ? 'bot-sym ' + extraClass : 'bot-sym';
+    return `<img class="${cls}" src="${CDN_ASSETS}/symbol/${f}.png" alt="${esc(name)}" title="${esc(name)}" draggable="false">`;
+  }
+  function formatEffect(text) {
+    const raw = String(text ?? '');
+    if (!raw) return '';
+    const kws = Object.keys(KW_FILE).sort((a, b) => b.length - a.length);
+    const kwRe = kws.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const re = new RegExp('\\{symbol\\s+([^}]+)\\}|(' + kwRe + ')', 'g');
+    let out = '', last = 0, m;
+    while ((m = re.exec(raw))) {
+      out += esc(raw.slice(last, m.index));
+      if (m[1] != null) out += symHtml(m[1].trim());
+      else out += kwHtml(m[2]);
+      last = m.index + m[0].length;
+    }
+    out += esc(raw.slice(last));
+    return out;
+  }
+  function gemPrintColor(c) {
+    const raw = (c && c.gemColor) || '';
+    if (raw === 'ขาว' || raw === 'ใส' || raw === 'ไร้สี') return 'ใส';
+    if (raw) return raw;
+    return (c && c.color) || 'ใส';
+  }
+  function cardMetaHtml(c) {
+    if (!c) return '';
+    const bits = [esc(c.code), esc(c.type + (c.subtype ? ' / ' + c.subtype : '')), esc(c.rarity || '')];
+    bits.push(esc(c.color || 'ไร้สี'));
+    if (c.symbol) bits.push(symHtml(c.symbol, 'meta'));
+    if (c.cost !== '' && c.cost != null) bits.push('COST ' + esc(c.cost));
+    if (c.power !== '' && c.power != null) bits.push('POWER ' + esc(c.power));
+    if (c.gem !== '' && c.gem != null) bits.push('GEM ' + esc(gemPrintColor(c)) + ' ' + esc(c.gem));
+    return bits.filter(Boolean).join(' · ');
+  }
+
+  root.BotUtil = {
+    byId, $, esc, loadScript, loadCss, asset, CACHE_V: V,
+    kwHtml, symHtml, formatEffect, cardMetaHtml, gemPrintColor, KW_FILE, SYM_FILE
+  };
 })(typeof self !== 'undefined' ? self : this);

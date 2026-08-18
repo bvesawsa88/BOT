@@ -3960,10 +3960,10 @@
     const hellActOk = hasHellAct && canControl(k) && !mullP && !st.awaitBattleStart;
     if (handActOk) {
       classes.push('hand-act');
-      qa = `<div class="qa qa-hand"><button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้จากมือ (หรือคลิกขวา)">⚡</button></div>`;
+      qa = `<div class="qa qa-hand"><button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้จากมือ (หรือคลิกขวา)">${BotUtil.kwHtml('สั่งใช้')}</button></div>`;
     } else if (hellActOk) {
       classes.push('hell-act');
-      qa = `<div class="qa qa-hand"><button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้จากนรก (หรือคลิกขวา)">⚡</button></div>`;
+      qa = `<div class="qa qa-hand"><button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้จากนรก (หรือคลิกขวา)">${BotUtil.kwHtml('สั่งใช้')}</button></div>`;
     } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
       const canUnityBtn = cls === 'avatar' && canUseUnity(k);
       const canModAtt = cls === 'magic' && canAttachFromMagic(k);
@@ -3975,9 +3975,9 @@
         return false;
       });
       const parts = []
-        .concat(canUnityBtn ? `<button class="qa-b qa-unity" data-qa="unity" data-k="${k}" title="🤝 สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">🤝</button>` : [])
+        .concat(canUnityBtn ? `<button class="qa-b qa-kw qa-unity" data-qa="unity" data-k="${k}" title="สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">${BotUtil.kwHtml('สามัคคี')}</button>` : [])
         .concat(canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : [])
-        .concat(hasAct ? `<button class="qa-b" data-qa="act" data-k="${k}" title="⚡ สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">⚡</button>` : []);
+        .concat(hasAct ? `<button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">${BotUtil.kwHtml('สั่งใช้')}</button>` : []);
       if (parts.length) qa = `<div class="qa">${parts.join('')}</div>`;
     }
     return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${od}${inh}${tok}${order}${scoutBadge}${qa}</div>`;
@@ -4159,7 +4159,7 @@
             : `💀 ${millNm}: โดนธรณีสูบ — กด「ใช้ผลพิเศษ」หรือแตะใบในหน้าต่าง · ข้ามได้`;
         }
       }
-      byId('promptText').textContent = txt;
+      byId('promptText').innerHTML = BotUtil.formatEffect(txt);
       byId('btnReactYes').classList.add('hidden'); // เลิกถามใช่/ไม่ — แตะใบที่กะพริบแทน
       byId('btnReactNo').classList.toggle('hidden', !(mine && pr.kind === 'react'));
       if (mine && pr.kind === 'react') {
@@ -4736,11 +4736,12 @@
         rows.push(`<div class="pv-row"><span class="pv-lbl">POWER</span><b>${c.power}</b></div>`);
       }
     }
+    const fxText = (c.effect || '') + (c.favorText ? '\n\n"' + c.favorText + '"' : '');
     body.innerHTML = `<div class="pv-img" style="background-image:url('${esc(c.img)}')"></div>
       <div class="pv-name">${esc(c.name)}</div>
-      <div class="pv-type">${esc(c.type)}${c.subtype ? ' · ' + esc(c.subtype) : ''}</div>
+      <div class="pv-type">${BotUtil.cardMetaHtml(c)}</div>
       <div class="pv-stats">${rows.join('')}</div>
-      <div class="pv-effect">${esc(c.effect)}</div>`;
+      <div class="pv-effect">${BotUtil.formatEffect(fxText)}</div>`;
   }
 
   function canPeek(k) {
@@ -4838,7 +4839,7 @@
       entries.map((it, i) => it.row
         ? `<div class="ctx-row">` + it.row.map((r, j) =>
           `<button class="ctx-ico" data-i="${i}" data-j="${j}" title="${esc(r.title || '')}">${esc(r.icon)}</button>`).join('') + `</div>`
-        : `<button class="ctx-item" data-i="${i}">${esc(it.label)}</button>`).join('');
+        : `<button class="ctx-item" data-i="${i}">${it.html || esc(it.label)}</button>`).join('');
     menu._entries = entries;
     menu.classList.remove('hidden');
     const r = menu.getBoundingClientRect();
@@ -4862,12 +4863,12 @@
     // เหลือเฉพาะสั่งใช้ + ความสามารถของการ์ด (สามัคคี / แทงหลัง / โล่มนุษย์ / สวมใส่ / คู่หู) — ไม่มีแมนนวล
     const entries = [
       ...(hasActivated
-        ? [{ label: '⚡ สั่งใช้ความสามารถ', act: { type: 'activateAbility', k, by: mode === 'solo' ? own : undefined } }]
+        ? [{ label: 'สั่งใช้ความสามารถ', html: `${BotUtil.kwHtml('สั่งใช้')} สั่งใช้ความสามารถ`, act: { type: 'activateAbility', k, by: mode === 'solo' ? own : undefined } }]
         : []),
       ...(canUseUnity(k)
-        ? [{ label: '🤝 สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)', fn: () => startAnnounce(k, 'unity') }] : []),
+        ? [{ label: 'สามัคคี', html: `${BotUtil.kwHtml('สามัคคี')} สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)`, fn: () => startAnnounce(k, 'unity') }] : []),
       ...((BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && !c.tapped && c.faceUp && !c.cannotChangeStateUntilEOT && BoTEngine.hasKw && BoTEngine.hasKw(st, k, 'แทงหลัง')
-        ? [{ label: '🗡️ แทงหลัง — นอนแล้วเสริมผู้โจมตี…', fn: () => startAnnounce(k, 'backstab') }] : []),
+        ? [{ label: 'แทงหลัง', html: `${BotUtil.kwHtml('แทงหลัง')} แทงหลัง — นอนแล้วเสริมผู้โจมตี…`, fn: () => startAnnounce(k, 'backstab') }] : []),
       ...((() => {
         const pnd = st.pending;
         const kz0 = BoTEngine.zoneOf(st, k) || '';
@@ -4878,14 +4879,14 @@
           ? BoTEngine.hasKw(st, k, 'โล่มนุษย์')
           : (BoTEngine.keywordsOf(c.code).includes('โล่มนุษย์')
             || Object.values(st.inst).some(x => x.attachedTo === k && BoTEngine.keywordsOf(x.code).includes('โล่มนุษย์')));
-        return hasShield ? [{ label: '🛡️ โล่มนุษย์ — รับการโจมตีแทน', act: { type: 'humanShield', k, by: side } }] : [];
+        return hasShield ? [{ label: 'โล่มนุษย์', html: `${BotUtil.kwHtml('โล่มนุษย์')} โล่มนุษย์ — รับการโจมตีแทน`, act: { type: 'humanShield', k, by: side } }] : [];
       })()),
       ...(canAttachFromMagic(k)
         ? [{ label: '🔗 สวมใส่ → เลือก Avatar (หรือลากทับ)', fn: () => startAnnounce(k, 'attach') }] : []),
       ...((onField && (BoTEngine.zoneOf(st, k) || '').endsWith('.avatar') && hasBuddyAbility(c))
         ? [c.pairWith && st.inst[c.pairWith]
           ? { label: `💔 เลิกคู่กับ "${st.inst[c.pairWith].name}"`, act: { type: 'pair', k, by: mode === 'solo' ? own : undefined } }
-          : { label: `🤝 จับคู่หู${buddyPartnerName(c.effect) ? ' → ' + buddyPartnerName(c.effect) : ''}…`, fn: () => startAnnounce(k, 'pair') }]
+          : { label: `จับคู่หู${buddyPartnerName(c.effect) ? ' → ' + buddyPartnerName(c.effect) : ''}…`, html: `${BotUtil.kwHtml('คู่หู')} จับคู่หู${buddyPartnerName(c.effect) ? ' → ' + esc(buddyPartnerName(c.effect)) : ''}…`, fn: () => startAnnounce(k, 'pair') }]
         : []),
       ...((() => {
         const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
