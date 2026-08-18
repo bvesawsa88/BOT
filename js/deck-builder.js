@@ -5,7 +5,7 @@
   const { byId, esc, asset } = BotUtil;
 
 /* ═══════════════ DECK BUILDER ═══════════════ */
-  const DB = { db: null, q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} } };
+  const DB = { db: null, q: '', type: '', color: '', cost: '', gem: '', power: '', gemColor: '', symbol: '', series: [], subtype: '', keyword: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} } };
   const DK = { sel: null };
   const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 4, USEC: 5, PR: 6, CBR: 7 };
   const COLOR_HEX = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
@@ -104,6 +104,7 @@
     if (which === 'side') {
       deck.classList.remove('open');
       side.classList.toggle('open');
+      if (side.classList.contains('open')) applyDbFilterFold(false);
     } else {
       side.classList.remove('open');
       deck.classList.toggle('open');
@@ -153,6 +154,29 @@
     const vals = [...new Set(DB.db.cards.map(c => c.symbol).filter(Boolean))].sort();
     el.innerHTML = `<button type="button" class="db-chip${!DB.symbol ? ' on' : ''}" data-v="">ทั้งหมด</button>` +
       vals.map(v => `<button type="button" class="db-chip db-sym-chip${DB.symbol === v ? ' on' : ''}" data-v="${esc(v)}" title="${esc(v)}">${BotUtil.symHtml(v, 'meta')}</button>`).join('');
+  }
+  function magicSubtypeOf(c) {
+    if (!c || c.type !== 'Magic') return '';
+    return c.subtype || 'Normal';
+  }
+  function renderSubtypeChips() {
+    const el = byId('dbSubtypeChips');
+    if (!el) return;
+    const vals = ['Normal', 'React', 'Modification', 'Land'];
+    el.innerHTML = `<button type="button" class="db-chip${!DB.subtype ? ' on' : ''}" data-v="">ทั้งหมด</button>` +
+      vals.map(v => `<button type="button" class="db-chip db-sym-chip${DB.subtype === v ? ' on' : ''}" data-v="${esc(v)}" title="${esc(v)}">${BotUtil.magicHtml(v, 'meta')}</button>`).join('');
+  }
+  function keywordList() {
+    const known = BotUtil.KW_FILE || {};
+    const order = BotUtil.KW_FILTER_ORDER || Object.keys(known);
+    const extra = Object.keys(known).filter(k => !order.includes(k));
+    return order.filter(k => known[k]).concat(extra);
+  }
+  function renderKeywordChips() {
+    const el = byId('dbKeywordChips');
+    if (!el) return;
+    el.innerHTML = `<button type="button" class="db-chip${!DB.keyword ? ' on' : ''}" data-v="">ทั้งหมด</button>` +
+      keywordList().map(v => `<button type="button" class="db-chip db-kw-chip${DB.keyword === v ? ' on' : ''}" data-v="${esc(v)}" title="${esc(v)}">${BotUtil.kwHtml(v)}</button>`).join('');
   }
   function chipRow(id, vals, cur, onPick) {
     byId(id).innerHTML = vals.map(v => `<button class="db-chip${cur === v ? ' on' : ''}" data-v="${esc(v)}">${v === '' ? 'ทั้งหมด' : esc(v)}</button>`).join('');
@@ -231,8 +255,12 @@
       (!q || (c.name + ' ' + (c.effect || '') + ' ' + c.code).toLowerCase().includes(q)) &&
       (!DB.type || c.type === DB.type) && (!DB.color || c.color === DB.color) &&
       (!DB.symbol || c.symbol === DB.symbol) && (!(DB.series && DB.series.length) || DB.series.includes(c.series)) &&
-      (!DB.subtype || c.subtype === DB.subtype) &&
-      (DB.cost === '' || (DB.cost === '8+' ? +c.cost >= 8 : String(c.cost) === DB.cost)));
+      (!DB.subtype || magicSubtypeOf(c) === DB.subtype) &&
+      (!DB.keyword || (c.effect || '').includes(DB.keyword)) &&
+      (DB.cost === '' || (DB.cost === '8+' ? +c.cost >= 8 : String(c.cost) === DB.cost)) &&
+      (DB.gem === '' || (c.gem !== '' && c.gem != null && String(+c.gem) === DB.gem)) &&
+      (DB.power === '' || (c.power !== '' && c.power != null && (DB.power === '8+' ? +c.power >= 8 : String(+c.power) === DB.power))) &&
+      (!DB.gemColor || (c.gem !== '' && c.gem != null && BotUtil.gemPrintColor(c) === DB.gemColor)));
     const key = {
       code: c => c.code, name: c => c.name,
       cost: c => +c.cost || 0, power: c => +c.power || 0, gem: c => +c.gem || 0,
@@ -273,8 +301,13 @@
     chipRow('dbTypeChips', ['', 'Avatar', 'Magic', 'Construct', 'Life'], DB.type, v => { DB.type = v; DB.shown = 60; renderDB(); });
     chipRow('dbColorChips', ['', 'แดง', 'ฟ้า', 'ม่วง', 'เขียว'], DB.color, v => { DB.color = v; DB.shown = 60; renderDB(); });
     chipRow('dbCostChips', ['', '0', '1', '2', '3', '4', '5', '6', '7', '8+'], DB.cost, v => { DB.cost = v; DB.shown = 60; renderDB(); });
+    chipRow('dbGemChips', ['', '0', '1', '2', '3', '4'], DB.gem, v => { DB.gem = v; DB.shown = 60; renderDB(); });
+    chipRow('dbPowerChips', ['', '0', '1', '2', '3', '4', '5', '6', '7', '8+'], DB.power, v => { DB.power = v; DB.shown = 60; renderDB(); });
+    chipRow('dbGemColorChips', ['', 'ใส', 'แดง', 'ฟ้า', 'ม่วง', 'เขียว'], DB.gemColor, v => { DB.gemColor = v; DB.shown = 60; renderDB(); });
     renderSeriesChips();
     renderSymbolChips();
+    renderSubtypeChips();
+    renderKeywordChips();
 
     const filtered = filteredCards();
     byId('dbResult').textContent = `พบ ${filtered.length} ใบ · แสดง ${Math.min(DB.shown, filtered.length)}`;
@@ -367,6 +400,24 @@
   byId('dbDeckBtn').onclick = () => toggleDbDrawer('deck');
   const dbFiltersClose = byId('dbFiltersClose');
   if (dbFiltersClose) dbFiltersClose.onclick = closeDbDrawers;
+  function applyDbFilterFold(collapsed) {
+    const side = dbSideEl();
+    const btn = byId('dbFilterToggle');
+    if (side) side.classList.toggle('collapsed', collapsed);
+    if (btn) btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  }
+  (function initDbFilterFold() {
+    let collapsed = false;
+    try { collapsed = localStorage.getItem('bot_db_filters_open') === '0'; } catch (err) { }
+    applyDbFilterFold(collapsed);
+  })();
+  const dbFilterToggle = byId('dbFilterToggle');
+  if (dbFilterToggle) dbFilterToggle.onclick = () => {
+    const side = dbSideEl();
+    const collapsed = !(side && side.classList.contains('collapsed'));
+    applyDbFilterFold(collapsed);
+    try { localStorage.setItem('bot_db_filters_open', collapsed ? '0' : '1'); } catch (err) { }
+  };
   const dbDeckClose = byId('dbDeckClose');
   if (dbDeckClose) dbDeckClose.onclick = closeDbDrawers;
   const dbMask = byId('dbDrawerMask');
@@ -380,6 +431,20 @@
     DB.shown = 60;
     renderDB();
   });
+  byId('dbSubtypeChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    DB.subtype = b.dataset.v || '';
+    DB.shown = 60;
+    renderDB();
+  });
+  byId('dbKeywordChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    DB.keyword = b.dataset.v || '';
+    DB.shown = 60;
+    renderDB();
+  });
   byId('dbSeriesChips').addEventListener('click', e => {
     if (e.target.closest('[data-all]')) {
       DB.series = [];
@@ -390,10 +455,9 @@
     const b = e.target.closest('[data-v]');
     if (b) toggleSeries(b.dataset.v);
   });
-  byId('dbSubtype').onchange = e => { DB.subtype = e.target.value; DB.shown = 60; renderDB(); };
   byId('dbClear').onclick = () => {
-    Object.assign(DB, { q: '', type: '', color: '', cost: '', symbol: '', series: [], subtype: '', shown: 60 });
-    byId('dbQ').value = ''; byId('dbSubtype').value = '';
+    Object.assign(DB, { q: '', type: '', color: '', cost: '', gem: '', power: '', gemColor: '', symbol: '', series: [], subtype: '', keyword: '', shown: 60 });
+    byId('dbQ').value = '';
     renderDB();
   };
   byId('dbMore').onclick = () => { DB.shown += 60; renderDB(); };

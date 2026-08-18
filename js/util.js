@@ -46,7 +46,7 @@
     return _once[href];
   }
 
-  const V = '20260818d';
+  const V = '20260818h';
   function asset(path) {
     return path + (path.includes('?') ? '&' : '?') + 'v=' + V;
   }
@@ -69,6 +69,15 @@
     'เอเลี่ยน': 'alien', 'กะปอม': 'kapom', 'สัตว์วิเศษ': 'beast', 'ทหาร': 'soldier',
     'ไซเบอร์': 'cyber', 'มังกร': 'dragon'
   };
+  /* ชนิด Magic — ไฟล์อยู่ในโฟลเดอร์ symbol ชุดเดียวกับซิมโบล ({magic}/{react}/{mod}/{land}) */
+  const MAGIC_FILE = { Normal: 'magic', React: 'react', Modification: 'mod', Land: 'land' };
+  const MAGIC_TOKEN_FILE = { magic: 'magic', react: 'react', mod: 'mod', land: 'land' };
+  const MAGIC_TOKEN_LABEL = { magic: 'Magic', react: 'React', mod: 'Modification', land: 'Land' };
+  const KW_FILTER_ORDER = [
+    'เตะไข่', 'แทงหลัง', 'ลูกฮึด', 'โล่มนุษย์', 'สามัคคี', 'ต่อเนื่อง', 'เทิร์นละครั้ง',
+    'สั่งใช้', 'อัตโนมัติ', 'คำสั่งเสีย', 'จุติ', 'เซ่นไหว้', 'พอดี', 'ธรณีสูบ', 'เนรเทศ',
+    'เลือกปฏิบัติ', 'สอดแนม', 'คู่หู'
+  ];
   function kwHtml(name, extraClass) {
     const f = KW_FILE[name];
     if (!f) return esc(name);
@@ -81,17 +90,28 @@
     const cls = extraClass ? 'bot-sym ' + extraClass : 'bot-sym';
     return `<img class="${cls}" src="${CDN_ASSETS}/symbol/${f}.png" alt="${esc(name)}" title="${esc(name)}" draggable="false">`;
   }
+  function magicHtml(subtype, extraClass) {
+    const f = MAGIC_FILE[subtype];
+    if (!f) return esc(subtype);
+    const cls = extraClass ? 'bot-sym ' + extraClass : 'bot-sym';
+    return `<img class="${cls}" src="${CDN_ASSETS}/symbol/${f}.png" alt="${esc(subtype)}" title="${esc(subtype)}" draggable="false">`;
+  }
   function formatEffect(text) {
     const raw = String(text ?? '');
     if (!raw) return '';
     const kws = Object.keys(KW_FILE).sort((a, b) => b.length - a.length);
     const kwRe = kws.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-    const re = new RegExp('\\{symbol\\s+([^}]+)\\}|(' + kwRe + ')', 'g');
+    const re = new RegExp('\\{symbol\\s+([^}]+)\\}|\\{(magic|react|mod|land)\\}|(' + kwRe + ')', 'gi');
     let out = '', last = 0, m;
     while ((m = re.exec(raw))) {
       out += esc(raw.slice(last, m.index));
       if (m[1] != null) out += symHtml(m[1].trim());
-      else out += kwHtml(m[2]);
+      else if (m[2] != null) {
+        const tok = m[2].toLowerCase();
+        const label = MAGIC_TOKEN_LABEL[tok] || tok;
+        const cls = 'bot-sym';
+        out += `<img class="${cls}" src="${CDN_ASSETS}/symbol/${MAGIC_TOKEN_FILE[tok]}.png" alt="${esc(label)}" title="${esc(label)}" draggable="false">`;
+      } else out += kwHtml(m[3]);
       last = m.index + m[0].length;
     }
     out += esc(raw.slice(last));
@@ -116,6 +136,7 @@
 
   root.BotUtil = {
     byId, $, esc, loadScript, loadCss, asset, CACHE_V: V,
-    kwHtml, symHtml, formatEffect, cardMetaHtml, gemPrintColor, KW_FILE, SYM_FILE
+    kwHtml, symHtml, magicHtml, formatEffect, cardMetaHtml, gemPrintColor,
+    KW_FILE, SYM_FILE, MAGIC_FILE, KW_FILTER_ORDER
   };
 })(typeof self !== 'undefined' ? self : this);

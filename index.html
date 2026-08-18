@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260818d">
+<link rel="stylesheet" href="css/style.css?v=20260818h">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -218,37 +218,58 @@
     <button id="dbBack" class="btn-mini">← เด็คของฉัน</button>
   </header>
   <aside class="db-side">
-    <div class="db-drawer-bar"><span>ฟิลเตอร์</span><button type="button" id="dbFiltersClose" class="btn-mini">ปิด</button></div>
-    <div class="db-filter-search">
-      <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect / รหัส…" autocomplete="off">
-      <button id="dbClear" class="btn-dark small">ล้าง</button>
+    <div class="db-filter-head">
+      <button type="button" id="dbFilterToggle" class="db-filter-toggle" aria-expanded="true" aria-controls="dbFilterBody">
+        <span>ตัวกรอง</span>
+        <span class="db-filter-chev" aria-hidden="true"></span>
+      </button>
+      <button type="button" id="dbFiltersClose" class="btn-mini only-mobile">ปิด</button>
     </div>
-    <div class="db-filter-row">
-      <span class="db-label">ประเภท</span>
-      <div id="dbTypeChips" class="chip-row"></div>
-    </div>
-    <div class="db-filter-row">
-      <span class="db-label">สี</span>
-      <div id="dbColorChips" class="chip-row"></div>
-    </div>
-    <div class="db-filter-row">
-      <span class="db-label">COST</span>
-      <div id="dbCostChips" class="chip-row"></div>
-    </div>
-    <div class="db-filter-row">
-      <span class="db-label">ซิมโบล</span>
-      <div id="dbSymbolChips" class="chip-row db-sym-chips"></div>
-    </div>
-    <div class="db-filter-selects">
-      <select id="dbSubtype" title="ชนิด Magic">
-        <option value="">ชนิด Magic — ทั้งหมด</option>
-        <option value="Normal">Normal</option><option value="React">React</option>
-        <option value="Modification">Modification</option><option value="Land">Land</option>
-      </select>
-    </div>
-    <div class="db-filter-row">
-      <span class="db-label">ซีรีส์</span>
-      <div id="dbSeriesChips" class="chip-row"></div>
+    <div id="dbFilterBody" class="db-filter-body">
+      <div class="db-filter-search">
+        <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect / รหัส…" autocomplete="off">
+        <button id="dbClear" class="btn-dark small">ล้าง</button>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">ประเภท</span>
+        <div id="dbTypeChips" class="chip-row"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">สี</span>
+        <div id="dbColorChips" class="chip-row"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">COST</span>
+        <div id="dbCostChips" class="chip-row"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">GEM</span>
+        <div id="dbGemChips" class="chip-row"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">POWER</span>
+        <div id="dbPowerChips" class="chip-row"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">สีเจม</span>
+        <div id="dbGemColorChips" class="chip-row"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">ซิมโบล</span>
+        <div id="dbSymbolChips" class="chip-row db-sym-chips"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">เมจิก</span>
+        <div id="dbSubtypeChips" class="chip-row db-sym-chips"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">ความสามารถ</span>
+        <div id="dbKeywordChips" class="chip-row db-kw-chips"></div>
+      </div>
+      <div class="db-filter-row">
+        <span class="db-label">ซีรีส์</span>
+        <div id="dbSeriesChips" class="chip-row"></div>
+      </div>
     </div>
   </aside>
   <div class="db-main">
@@ -1056,11 +1077,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260818d"></script>
+<script src="js/util.js?v=20260818h"></script>
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260818d"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260818d"></script>
+<script src="js/game.js?v=20260818h"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>
