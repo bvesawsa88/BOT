@@ -5087,6 +5087,7 @@
   /* ── overlay ดูกองการ์ด: นรก/มิติมืด (สาธารณะ) · ค้นเด็ค/ดูท็อป (เจ้าของเท่านั้น) ── */
   let pileView = null; // {zone, mode:'pile'|'search'|'peek', n}
   function openPileView(zone, viewMode, n) {
+    try { closeTableMenu(); } catch (e) { }
     // 🔒 ค้นหาเด็ค = ข้อมูลปิด — เปิด overlay เฉพาะจอเรา (อีกฝั่งเห็นแค่ log ว่ากำลังค้น + ชื่อใบที่หยิบขึ้นมือ)
     if (viewMode === 'search') {
       sendAction({ type: 'peekDeck', p: zone[0], n: 0, priv: true });
@@ -5102,9 +5103,29 @@
     pileView = { zone, mode: viewMode, n: n || 0 };
     renderPileView();
   }
+  function pileOverlayOpen() {
+    const ov = byId('pileView');
+    return !!(ov && !ov.classList.contains('hidden'));
+  }
+  /* ดูกองเฉยๆ (นรก/มิติมืด/ค้นเด็ค) — ปิดได้ทันที · สอดแนม/เลือกจากเอฟเฟกต์ห้ามปิดจากพื้นหลัง */
+  function canDismissPileView() {
+    if (!pileOverlayOpen()) return false;
+    if (st && st.scout) return false;
+    const ov = byId('pileView');
+    return !ov.dataset.prompt;
+  }
+  function dismissPileViewIfIdle() {
+    if (!canDismissPileView()) return false;
+    closePileView();
+    return true;
+  }
   function closePileView() {
     const pv = pileView; pileView = null;
-    byId('pileView').classList.add('hidden');
+    const ov = byId('pileView');
+    ov.classList.add('hidden');
+    ov.classList.remove('scout-reveal');
+    ov.dataset.prompt = '';
+    try { closeMenu(); } catch (e) { }
     if (!pv) return;
     const isDeckView = pv.mode === 'search' || pv.mode === 'peek';
     const owner = pv.zone[0];
@@ -5317,6 +5338,7 @@
     byId('btnPileShuffle').classList.add('hidden');
     byId('btnPileClose').classList.remove('hidden');
     byId('btnPileClose').textContent = 'ปิด';
+    byId('pileHint').textContent = 'คลิกการ์ด = เมนูส่งไปโซนต่างๆ · แตะพื้นหลังหรือกด Esc เพื่อปิด';
     // ★ โหมดสอดแนม/เปิดท็อป (st.scout) — เปิดค้างทั้งสองจอจนกว่าเจ้าของจะเลือก บน/ใต้กอง
     const sc = st && st.scout;
     if (sc) {
@@ -5396,6 +5418,11 @@
     }
     closePileView();
   };
+  /* แตะพื้นมืดรอบกล่อง = ปิด (เฉพาะดูกองเฉยๆ ไม่ข้ามเอฟเฟกต์) */
+  byId('pileView').addEventListener('click', e => {
+    if (e.target !== byId('pileView')) return;
+    dismissPileViewIfIdle();
+  });
   /* ── 🃏 แผงคำสั่งเด็ค (แถบขวา) — ค้นหา / บนกอง · จำนวนติดลบ = ธรณีสูบ ── */
   const dopNRaw = () => {
     const v = +byId('dopN').value;
@@ -6140,6 +6167,9 @@
       'escape': () => {
         const pv = byId('previewPane');
         if (pv && pv.classList.contains('open')) { closeCardPeek(); return; }
+        if (dismissPileViewIfIdle()) return;
+        const pileClose = byId('btnPileClose');
+        if (pileOverlayOpen() && pileClose && !pileClose.classList.contains('hidden')) { pileClose.click(); return; }
         if (announceSrc) { announceSrc = null; announceKind = 'use'; render(); toast('ยกเลิกการชี้เป้า'); return; }
         const sk = byId('btnPromptSkip');
         if (!sk.classList.contains('hidden')) sk.click();

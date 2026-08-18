@@ -829,10 +829,13 @@ body.dragging .card.hand:hover{transform:none}
 .card .pw{position:absolute;bottom:3px;right:3px;background:rgba(10,10,12,.94);color:#fff;font-weight:700;font-size:11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:0 6px;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.8)}
 .card .pw.up{color:#8fe9a8;border-color:#2c8f5e}
 .card .pw.down{color:#ff9a90;border-color:var(--red-lite)}
-#pileView{position:fixed;inset:0;background:rgba(22,16,12,.88);display:flex;align-items:center;justify-content:center;z-index:210;padding:16px}
+/* z-index 220 > ปุ่มบ้าน/☰ (211) — ไม่งั้นปุ่ม「ปิด」มุมขวาถูกบัง เปิดนรกแล้วปิดไม่ได้ */
+#pileView{position:fixed;inset:0;background:rgba(22,16,12,.88);display:flex;align-items:center;justify-content:center;z-index:220;padding:16px}
 .pile-view-card{width:100%;max-width:760px;max-height:86vh;background:var(--card-ui);border:2px solid var(--red);border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
-.pile-view-head{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
-#pileTitle{font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:700;color:var(--gold)}
+.pile-view-head{flex:none;display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);min-width:0}
+#pileTitle{font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:700;color:var(--gold);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pileHint{min-width:0;flex:none;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#btnPileClose,#btnPileShuffle{flex:none}
 .pile-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 12px;align-content:start;align-items:start}
 .pile-grid .card{position:relative!important;width:100%!important;max-width:none;height:auto!important;aspect-ratio:512/716;margin:0 auto!important;flex:none!important;transform:none!important;overflow:visible}
 .pile-grid .card.tapped{transform:none!important}
@@ -1132,6 +1135,8 @@ body.dragging .card .qa{display:none!important}
   .zone.construct{width:150px}
   /* กันเบราว์เซอร์เด้งเมนู "บันทึกรูป" ตอนกดค้างการ์ด (feedback ผู้เล่น iPad) */
   .card,.mz,#board,#mobileBar{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  #pileHint{display:none}
+  #btnPileClose{min-width:72px;min-height:36px;font-size:14px;padding:6px 16px}
 }
 
 /* ═══ มือถือแนวนอน — โหมดหลัก (สไตล์ Master Duel): สนามเต็มจอ · ปุ่มเป็นแถบไอคอนแนวตั้งขอบขวา ═══ */
