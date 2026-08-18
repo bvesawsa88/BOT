@@ -155,8 +155,40 @@
         "BT07-013",
         "SL02-002"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludesAny": [
+                  "ครุฑ",
+                  "ขนมณี"
+                ],
+                "nameNotIncludes": "ครุฑเวนไตย"
+              },
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": true,
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 3,
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ครุฑสัจจะ เจ้าแห่งแสง",
@@ -783,17 +815,25 @@
               "op": "scout",
               "count": 5,
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "ขุนพล"
-                ]
+                ],
+                "symbol": "ต่างชาติ",
+                "sameColorAsSrc": true
               },
               "dest": "hand",
-              "restTo": "bottom"
+              "restTo": "bottom",
+              "shuffleAfter": true
             }
           ]
         }
       ],
-      "parseStatus": "partial"
+      "extraColors": [
+        "ม่วง"
+      ],
+      "parseStatus": "auto",
+      "note": "ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน"
     },
     {
       "name": "ไตรตัน เจ้าสมุทร",
@@ -871,7 +911,7 @@
       "abilities": [],
       "scoutBonusOwnKapom": 1,
       "parseStatus": "auto",
-      "note": "กะปอมฝ่ายเราสอดแนม +1 (เฉพาะสอดแนมจาก Avatar กะปอม)"
+      "note": "กะปอมฝ่ายเราสอดแนม +1"
     },
     {
       "name": "แท็กซี่ตีนเปล่า",
@@ -2022,8 +2062,9 @@
         "ODY1-017"
       ],
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "Draw Phase แรก: หยิบใบนี้จากเด็คแทนจั่ว — ยังเล่นมือ (ค้นเด็คเอง)"
+      "replaceFirstDrawWithSelf": true,
+      "parseStatus": "auto",
+      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)"
     },
     {
       "name": "รัททาทุย แบงค์",
@@ -2073,17 +2114,20 @@
               "filter": {
                 "nameIncludes": [
                   "รัททาทุย"
-                ],
-                "costMax": 5
+                ]
               },
               "dest": "avatar",
-              "shuffleAfter": true
+              "paidCost": false,
+              "shuffleAfter": true,
+              "optional": true,
+              "multiMax": 99,
+              "costSumMax": 5
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "กติกาเต็ม = อัญเชิญกี่ใบก็ได้ Cost รวม ≤5 — ตอนนี้อัญเชิญได้ 1 ใบต่อครั้ง"
+      "parseStatus": "auto",
+      "note": "มีนางพญาบนสนาม → อัญเชิญรัททาทุยจากเด็คกี่ใบก็ได้ Cost รวม≤5 (ไม่จุติ)"
     },
     {
       "name": "รัททาทุย พาหะ",
@@ -3056,8 +3100,9 @@
       ],
       "abilities": [],
       "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
+      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ",
       "parseStatus": "auto",
-      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
+      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
       "name": "แฮหัวเอี๋ยน ขุนพลธนูแห่งวุยก๊ก",

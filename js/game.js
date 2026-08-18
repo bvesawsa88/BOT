@@ -4068,6 +4068,10 @@
             txt = `✨ ${srcN}: เลือกการ์ดบน Magic Zone อัญเชิญลงสนาม — แตะใบที่กะพริบในหน้าต่าง`;
           else if (pr.from === 'ownMagic')
             txt = `✨ ${srcN}: เลือกการ์ดบน Magic Zone — แตะใบที่กะพริบในหน้าต่าง`;
+          else if (pr.dest === 'cancelAttackRest') txt = `🛡️ ${srcN}: นอน Avatar อื่น 1 ใบ เพื่อยกเลิกการโจมตี${pr.optional ? ' (หรือข้าม)' : ''}`;
+          else if (pr.dest === 'replaceFirstDraw') txt = `🃏 Draw Phase แรก: แตะ "${srcN}" จากเด็คขึ้นมือแทนการจั่ว (หรือข้ามเพื่อจั่วปกติ)`;
+          else if (pr.dest === 'takeControl') txt = `⛓️ ${srcN}: ยึด Avatar ฝ่ายตรงข้ามที่นอนอยู่${pr.thenAttachSrc ? ' แล้วสวมใส่ใบนี้' : ''}${pr.optional ? ' (หรือข้าม)' : ''}`;
+          else if (pr.dest === 'avatar' && pr.costSumMax != null) txt = `✨ ${srcN}: อัญเชิญจากเด็ค Cost รวม≤${pr.costSumMax} (ตอนนี้ ${pr.costGot || 0}) — แตะใบที่กะพริบ หรือข้าม`;
           else if (pr.dest === 'naraiSacSummon') txt = `🕉️ ${srcN}: เลือกพระนารายณ์บนสนามส่งนรก เพื่ออัญเชิญอวตาร`;
           else if (pr.dest === 'avatar' && pr.naraiReturn) txt = `🕉️ จบเทิร์น: เลือกพระนารายณ์จากนรกอัญเชิญกลับขึ้นสนาม`;
           else if (pr.dest === 'destroy') txt = `💥 ${srcN}: เลือก Avatar ศัตรูที่จะทำลาย${pr.optional ? ' (หรือข้าม — จะไม่เปลี่ยนร่างตอนจบเทิร์น)' : ''}`;

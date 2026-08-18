@@ -462,8 +462,8 @@
       "code": "SD06-019",
       "name": "วัดคู่บ้านคู่เมือง",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ",
+      "parseStatus": "auto",
+      "note": "Construct ฝ่ายเราสอดแนม +2",
       "scoutBonusConstruct": 2
     },
     {

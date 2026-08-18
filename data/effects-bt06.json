@@ -28,14 +28,69 @@
     },
     {
       "code": "BT06-003",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "เอรา นาคเกล็ดเขียว"
     },
     {
       "code": "BT06-004",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "setAlliesPowerToSelf",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "อนันต์ ราชาแห่งนาค"
     },
     {
@@ -393,9 +448,26 @@
     },
     {
       "code": "BT06-053",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "พลังแฝง"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "พลังแฝง",
+      "note": "เมื่อ Avatar ฝ่ายเราต่อสู้ (โจมตีหรือถูกโจมตี) POWER +2 จนจบเทิร์น"
     },
     {
       "code": "BT06-054",

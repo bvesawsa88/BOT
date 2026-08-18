@@ -1451,7 +1451,8 @@
         "PRE0-004"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "manual",
+      "note": "อัญเชิญได้เฉพาะทิ้ง GEM 1 จำนวน 5 ใบ + จุติถามจำนวน Avatar/Magic/Only ในเด็คศัตรู — กลไกใหม่หลายทาง"
     },
     {
       "name": "ผู้เล่นเหลี่ยม",
@@ -1481,8 +1482,36 @@
         "CC02-039",
         "FPRO-006"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "power": 3,
+                "nameNotIncludes": "ทศกัณฐ์"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "พญายักษ์ ทศกัณฑ์",

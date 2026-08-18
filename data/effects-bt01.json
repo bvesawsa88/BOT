@@ -96,6 +96,7 @@
       "code": "BT01-005",
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "whenAttacked"
           },
@@ -106,8 +107,8 @@
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "สั่งใช้: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี",
+      "parseStatus": "auto",
+      "note": "เมื่อถูกโจมตี: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี (ข้ามได้)",
       "name": "อู๊ดลูกเสือ"
     },
     {
@@ -158,9 +159,10 @@
     {
       "code": "BT01-008",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "Draw Phase แรก: หยิบใบนี้จากเด็คแทนจั่ว — ยังเล่นมือ (ค้นเด็คเอง)",
-      "name": "รัททาทุย นางพญา"
+      "parseStatus": "auto",
+      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)",
+      "name": "รัททาทุย นางพญา",
+      "replaceFirstDrawWithSelf": true
     },
     {
       "code": "BT01-009",
@@ -178,17 +180,20 @@
               "filter": {
                 "nameIncludes": [
                   "รัททาทุย"
-                ],
-                "costMax": 5
+                ]
               },
               "dest": "avatar",
-              "shuffleAfter": true
+              "paidCost": false,
+              "shuffleAfter": true,
+              "optional": true,
+              "multiMax": 99,
+              "costSumMax": 5
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "กติกาเต็ม = อัญเชิญกี่ใบก็ได้ Cost รวม ≤5 — ตอนนี้อัญเชิญได้ 1 ใบต่อครั้ง",
+      "parseStatus": "auto",
+      "note": "มีนางพญาบนสนาม → อัญเชิญรัททาทุยจากเด็คกี่ใบก็ได้ Cost รวม≤5 (ไม่จุติ)",
       "name": "รัททาทุย พ่อพันธุ์"
     },
     {
@@ -669,10 +674,32 @@
     },
     {
       "code": "BT01-042",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "React ยึด+สวมใส่เมื่อถูกทำลายจากการต่อสู้ — ซับซ้อนมาก",
-      "name": "ริกกี้ นักปลอมแปลง"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "fromCombat"
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "requireTapped": true
+              },
+              "until": "permanent",
+              "keepTapped": true,
+              "thenAttachSrc": true,
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อ Avatar เราถูกทำลายจากการต่อสู้: ยึด Avatar นอนของศัตรูแล้วสวมใบนี้ — ใบนี้ถูกทำลายแล้วโฮสต์กลับมือเจ้าของ",
+      "name": "ริกกี้ นักปลอมแปลง",
+      "bounceHostOnLeave": true
     },
     {
       "code": "BT01-043",
@@ -741,6 +768,18 @@
       "abilities": [
         {
           "trigger": {
+            "on": "battleDestroy"
+          },
+          "oncePerTurn": true,
+          "oncePerTurnTag": "battleDestroy",
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ]
+        },
+        {
+          "trigger": {
             "on": "sentToHell"
           },
           "actions": [
@@ -751,8 +790,8 @@
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ตื่นเมื่อทำลายสำเร็จใน Battle = ยังเล่นมือ",
+      "parseStatus": "auto",
+      "note": "โฮสต์ทำลายจากการต่อสู้ → ตื่นได้เทิร์นละครั้ง · ใบนี้ตกนรกแล้วหงาย LIFE 1",
       "name": "ตีพ่อ"
     },
     {

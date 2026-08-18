@@ -1603,19 +1603,65 @@
           },
           "actions": [
             {
-              "op": "deckPick",
+              "op": "deckOrHellPick",
               "filter": {
                 "nameIncludes": [
                   "ยานรายการ เถียงทันหน่วง"
                 ]
               },
               "dest": "hand",
-              "shuffleAfter": true
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnConstructNameIncludes": "ยานรายการ เถียงทันหน่วง",
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "pick",
+              "from": "enemy",
+              "dest": "magic",
+              "filter": {
+                "hasKeywordAny": [
+                  "สามัคคี",
+                  "เตะไข่",
+                  "โล่มนุษย์",
+                  "คำสั่งเสีย"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "ownerMagic",
+              "dest": "bounceHand",
+              "chooser": "opp",
+              "filter": {
+                "type": "Avatar"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto"
     },
     {
       "name": "พี่หน่วงเพชรฆาตโซเชียล",

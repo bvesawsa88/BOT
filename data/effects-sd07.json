@@ -40,9 +40,10 @@
       "code": "SD07-003",
       "name": "แฮหัวตุ้น ขุนพลตาเดียวแห่งวุยก๊ก",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ",
-      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล"
+      "parseStatus": "auto",
+      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ",
+      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
+      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ"
     },
     {
       "code": "SD07-004",

@@ -1,0 +1,1649 @@
+{
+  "cards": [
+    {
+      "code": "ODY1-001",
+      "name": "ทาโกะซัง สูตรสวรรค์",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ทาโกะซัง สูตรมนุษย์"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "note": "จุติ: นำ ทาโกะซัง สูตรมนุษย์ จากเด็คขึ้นมือ แล้วสับ"
+    },
+    {
+      "code": "ODY1-002",
+      "name": "ทาโกะซัง สูตรมนุษย์",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ทาโกะซัง สูตรนรก"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "note": "จุติ: นำ ทาโกะซัง สูตรนรก จากเด็คขึ้นมือ แล้วสับ"
+    },
+    {
+      "code": "ODY1-003",
+      "name": "ทาโกะซัง สูตรนรก",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ทาโกะซัง สูตรสวรรค์"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "note": "จุติ: นำ ทาโกะซัง สูตรสวรรค์ จากเด็คขึ้นมือ แล้วสับ"
+    },
+    {
+      "code": "ODY1-014",
+      "name": "กัญญา แม่บุญลือ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonSymbol:เปรต"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            },
+            {
+              "op": "discard"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-043",
+      "name": "ช่างแอร์ดวงซวย",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-011",
+      "name": "ชาวบ้านขายน้ำ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "น้ำ"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-039",
+      "name": "ตึก",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-042",
+      "name": "เทวดาตำรวจ",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-044",
+      "name": "เทวดาแบงค์",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-016",
+      "name": "นนทก",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "ต่อเนื่อง"
+      ]
+    },
+    {
+      "code": "ODY1-007",
+      "name": "นนทก นิ้วเพชร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "targetSymbol:เทพ"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-009",
+      "name": "ปื้ด เด็กเปรต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownRevealedLife",
+              "per": 2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-008",
+      "name": "พระเวสสุกรรม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "subtype": "Land"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-015",
+      "name": "พระอินทร์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "จุติ"
+      ]
+    },
+    {
+      "code": "ODY1-006",
+      "name": "พระอิศวร",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -4,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "จุติ"
+      ]
+    },
+    {
+      "code": "ODY1-040",
+      "name": "พี่โด 2.0",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-012",
+      "name": "แม่กบ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "counterSelf",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-041",
+      "name": "ลูกกบ",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-013",
+      "name": "วันชัย พ่อบุญลือ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonSymbol:เปรต"
+          },
+          "actions": [
+            {
+              "op": "grantProtectSummoned"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-010",
+      "name": "หนุมาน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarSymbol",
+              "symbol": "เทพ",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-005",
+      "name": "โอเดนย่ากาย",
+      "abilities": [],
+      "parseStatus": "auto",
+      "attackIf": "onlyAlliesNameIncludes:ทาโกะ",
+      "note": "โจมตีได้เมื่อ Avatar Zone ฝ่ายเรามีทาโกะเท่านั้น (ตัวเองยกเว้น)"
+    },
+    {
+      "code": "ODY1-058",
+      "name": "นายนิรยบาล กล้าม",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "ODY1-057",
+      "name": "นายนิรยบาล ชาวนา",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "ODY1-056",
+      "name": "นายนิรยบาล ปฎิรูป",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "ODY1-072",
+      "name": "ตีพ่อ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "oncePerTurn": true,
+          "oncePerTurnTag": "battleDestroy",
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "sentToHell"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โฮสต์ทำลายจากการต่อสู้ → ตื่นได้เทิร์นละครั้ง · ใบนี้ตกนรกแล้วหงาย LIFE 1"
+    },
+    {
+      "code": "ODY1-071",
+      "name": "ตีแม่",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "sentToHell"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-079",
+      "name": "น้ำชูกำลัง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownTurnEnd",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-075",
+      "name": "น้ำแดง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-076",
+      "name": "ไม้เกาหลัง",
+      "abilities": [],
+      "parseStatus": "auto",
+      "keywords": [
+        "เตะไข่"
+      ],
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ เตะไข่ (Avatar ใบนี้สามารถโจมตีไปที่ LIFE Card ได้โดยตรง แม้ว่า Avatar Zone ข"
+    },
+    {
+      "code": "ODY1-080",
+      "name": "รั้วของชาติ",
+      "abilities": [],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม"
+    },
+    {
+      "code": "ODY1-077",
+      "name": "หอกแหลมแทงทุกวัน ทุกวัน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "requireMilledThisTurn": true,
+          "requireNoModUsed": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "milledOptional": {
+        "requireNoModUsed": true,
+        "countsAsModification": true,
+        "actions": [
+          {
+            "op": "attach",
+            "from": "self"
+          }
+        ]
+      },
+      "attachOnly": {
+        "symbol": "นรก"
+      },
+      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)"
+    },
+    {
+      "code": "ODY1-087",
+      "name": "เคี้ยวเพื่อนเธอซะ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เคี้ยวเพื่อนเธอซะ — React อัญเชิญ: เซ่นหลายใบแล้วอัญเชิญจากมือตาม GEM"
+    },
+    {
+      "code": "ODY1-084",
+      "name": "เจ้ากล้าดียังไง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "sendAttackerToHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ส่งลงนรก ไม่ใช่ทำลาย — คำสั่งเสีย/โดนทำลายไม่ทำงาน"
+    },
+    {
+      "code": "ODY1-069",
+      "name": "ชายจากอนาคต",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
+    },
+    {
+      "code": "ODY1-070",
+      "name": "ริกกี้ นักปลอมแปลง",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "fromCombat"
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "requireTapped": true
+              },
+              "until": "permanent",
+              "keepTapped": true,
+              "thenAttachSrc": true,
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "bounceHostOnLeave": true,
+      "note": "React เมื่อ Avatar เราถูกทำลายจากการต่อสู้: ยึด Avatar นอนของศัตรูแล้วสวมใบนี้ — ใบนี้ถูกทำลายแล้วโฮสต์กลับมือเจ้าของ"
+    },
+    {
+      "code": "ODY1-073",
+      "name": "หมอมาแล้วววว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "preventDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
+    },
+    {
+      "code": "ODY1-086",
+      "name": "ความกล้าหาญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "destroyAtEnd": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-068",
+      "name": "ความเจริญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-088",
+      "name": "ความยุติธรรมสำหรับนนทก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-066",
+      "name": "ดาว O.D.Y 88",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ทาโกะ"
+                ],
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "POWER +1 ให้ Avatar ทาโกะ บนสนามทุกใบ จนจบเทิร์น"
+    },
+    {
+      "code": "ODY1-065",
+      "name": "ถุงเกราะโอเดนย่า",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
+    },
+    {
+      "code": "ODY1-089",
+      "name": "บำเพ็ญประโยชน์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือลงนรก : จั่วการ์ด 2 ใบ"
+    },
+    {
+      "code": "ODY1-085",
+      "name": "ประมาทร่วม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "both",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-035"
+    },
+    {
+      "code": "ODY1-078",
+      "name": "เพื่อลูกค้า",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            }
+          ],
+          "note": "ข้อจำกัด 'เทิร์นนี้อัญเชิญได้แค่สัตว์' = ผู้เล่นคุมเอง"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-067",
+      "name": "เมตตาระยะยาว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-063",
+      "name": "เอาแค่การ์ด !!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "nameIncludesAny": [
+                  "ทาโกะ",
+                  "โอเดนย่า"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "bounce",
+              "from": "any",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งทาโกะหรือโอเดนย่า 1 ใบ : เด้ง Avatar บนสนามขึ้นมือเจ้าของ"
+    },
+    {
+      "code": "ODY1-064",
+      "name": "โอเดนย่า อร่อยมัก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+    },
+    {
+      "code": "ODY1-090",
+      "name": "กระทะทองแดง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "นรก"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ส่ง Avatar {symbol นรก} 1 ใบจากมือลงนรก : ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) 2 ใบ แล้วจั่วการ์ดจาก Deck 2 ใบ"
+    },
+    {
+      "code": "ODY1-081",
+      "name": "เขาไกรลาสเอียง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "anyDeclareAttack",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "attacker",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-082",
+      "name": "ทุ่งนาแดนนี้(ไม่มีความหมาย)",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbols": [
+                  "แมลง",
+                  "สัตว์",
+                  "รัททาทุย",
+                  "คน"
+                ],
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-083",
+      "name": "มวยทะเลลลลลล",
+      "abilities": [],
+      "parseStatus": "auto",
+      "destroyAfterGlobalEndPhases": 4,
+      "attackLimitPerTurn": 1,
+      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
+    },
+    {
+      "code": "ODY1-074",
+      "name": "โรงบาล",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "hand",
+              "lockSummonAndAbility": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง ทิ้งมือ 1: Avatar Cost≤3 จากนรกขึ้นมือ — ใบนั้นและชื่อเดียวกันอัญเชิญ/ใช้ความสามารถไม่ได้จนจบเทิร์น"
+    },
+    {
+      "code": "ODY1-049",
+      "name": "ครูภาษาไทย",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "ODY1-047",
+      "name": "ครูวีรชัย",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-048",
+      "name": "จ่าแดงเดือด",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-023",
+      "name": "จ่ามะนาว",
+      "abilities": [],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "note": "โล่มนุษย์ใช้จากเมนูตอนถูกประกาศโจมตี"
+    },
+    {
+      "code": "ODY1-046",
+      "name": "เจ้าของร้านชาบู",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-050",
+      "name": "เด็กไม่ชอบแมลงสาบมากๆ",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "ODY1-037",
+      "name": "เด็กหนวด โอเดนย่า",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "ODY1-004",
+      "name": "ทาโกะจัง พนักงานดีเด่น",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPickMulti",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ทาโกะซัง"
+                ]
+              },
+              "countExact": 3,
+              "distinctNames": true,
+              "thenDraw": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: คืนทาโกะซังชื่อไม่ซ้ำ 3 ใบจากนรกเข้าเด็ค สับ แล้วจั่ว 1"
+    },
+    {
+      "code": "ODY1-022",
+      "name": "พ่อบุญใหญ่",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์",
+                "costMax": 4
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-024",
+      "name": "แมลงปอแจ็ค",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "replaceLandFromDeck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : ทำลายการ์ด Land Magic 1 ใบบน Land Magic Zone และสั่งใช้ Land Magic 1 ใบจาก Deck เรา หลังจากนั"
+    },
+    {
+      "code": "ODY1-020",
+      "name": "แมลงปอเลื่อยยนต์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Magic"
+              },
+              "zones": [
+                "magic",
+                "land"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-019",
+      "name": "รัททาทุย",
+      "abilities": [],
+      "parseStatus": "auto",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+    },
+    {
+      "code": "ODY1-017",
+      "name": "รัททาทุย นางพญา",
+      "abilities": [],
+      "parseStatus": "auto",
+      "replaceFirstDrawWithSelf": true,
+      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)"
+    },
+    {
+      "code": "ODY1-051",
+      "name": "รัททาทุย ผู้พิทักษ์ราชีนี",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "ODY1-018",
+      "name": "รัททาทุย พ่อพันธุ์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "requireOwnNameIncludes": "รัททาทุย นางพญา",
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "รัททาทุย"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true,
+              "optional": true,
+              "multiMax": 99,
+              "costSumMax": 5
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "มีนางพญาบนสนาม → อัญเชิญรัททาทุยจากเด็คกี่ใบก็ได้ Cost รวม≤5 (ไม่จุติ)"
+    },
+    {
+      "code": "ODY1-026",
+      "name": "ริกกี้ เพื่อนรัก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-045",
+      "name": "ลูกค้าชาบู",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-021",
+      "name": "ลูกแม่ศรีนวล",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "unrevealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-025",
+      "name": "เอเลี่ยนแสงสีฟ้า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "discard",
+              "then": [
+                {
+                  "op": "coinDestroyChoose",
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-035",
+      "name": "กัปตัน ไกร",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "กัปตัน ไกร — ทิ้งมือทั้งหมดแล้วเอา Avatar ศัตรูขึ้นมือ"
+    },
+    {
+      "code": "ODY1-038",
+      "name": "กัปตันโซเดียม",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "ODY1-053",
+      "name": "จอมมังการ์ด",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-028",
+      "name": "ทศกัณฑ์ยักษ์ที่---เมียพระอิศวร",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar"
+              },
+              "until": "permanent",
+              "keepTapped": true,
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ยึด Avatar ศัตรู 1 ใบมาฝั่งเราในสภาพนอน"
+    },
+    {
+      "code": "ODY1-054",
+      "name": "นายนิรยบาล ตัวใหญ่พิเศษ",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-030",
+      "name": "นายนิรยบาล \"เต๋า\"",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "who": "both",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-036",
+      "name": "นายนิรยบาล พ่อจีจ้า",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อเป็นเป้าโจมตีหรือสั่งโจมตี : ธรณีสูบ 2 ใบ แล้ว POWER +1 จนจบเทิร์น"
+    },
+    {
+      "code": "ODY1-031",
+      "name": "นีโม่",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToDeck",
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-055",
+      "name": "แบงค์ เทคนิคประทุมทู",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-052",
+      "name": "เฟนริล",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-032",
+      "name": "ยมทูต",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "สิมพลีนรก"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-034",
+      "name": "แรงงานทาสออฟฟิศ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToDeck",
+              "pos": "bottom",
+              "shuffle": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-029",
+      "name": "ศาลพระภูมิ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ผี"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
+      "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual"
+    },
+    {
+      "code": "ODY1-033",
+      "name": "สารวัตร ตำรวจสัมภเวสี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ตำรวจสัมภเวสี"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-027",
+      "name": "สุวรรณ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "พญายม",
+                  "นายนิรยบาล"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "ODY1-059",
+      "name": "กาลจักร",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-062",
+      "name": "พัทธกาล",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-061",
+      "name": "มหิตัน",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "ODY1-060",
+      "name": "โลทัน",
+      "abilities": [],
+      "parseStatus": "verified"
+    }
+  ]
+}

@@ -27,26 +27,119 @@
     {
       "code": "SL02-010",
       "name": "อนันต์ ราชาแห่งนาค",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "setAlliesPowerToSelf",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "SL02-001",
       "name": "อนันตวดี ราชินีแห่งนาค",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:นาค&summonSymbol:สัตว์วิเศษ"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "target": {
+                "select": "summoned"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "สัตว์วิเศษ",
+      "gemAsCostForNameIncludes": "อนันต์ ราชาแห่งนาค",
+      "gemAsCostValue": 6,
+      "gemAsCostColor": "แดง",
+      "note": "จ่ายได้เฉพาะสัตว์วิเศษ · จ่ายอัญเชิญอนันต์ = GEM 6 แดง · นาคที่ได้ +3"
     },
     {
       "code": "SL02-009",
       "name": "เอรา นาคเกล็ดเขียว",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "SL02-008",
       "name": "พลังแฝง",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ฝ่ายเราต่อสู้ (โจมตีหรือถูกโจมตี) POWER +2 จนจบเทิร์น"
     },
     {
       "code": "SL02-007",
@@ -71,8 +164,40 @@
     {
       "code": "SL02-002",
       "name": "ครุฑเวนไตย เจ้ากำลัง",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludesAny": [
+                  "ครุฑ",
+                  "ขนมณี"
+                ],
+                "nameNotIncludes": "ครุฑเวนไตย"
+              },
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": true,
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 3,
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "SL02-005",
@@ -95,17 +220,25 @@
               "op": "scout",
               "count": 5,
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "ขุนพล"
-                ]
+                ],
+                "symbol": "ต่างชาติ",
+                "sameColorAsSrc": true
               },
               "dest": "hand",
-              "restTo": "bottom"
+              "restTo": "bottom",
+              "shuffleAfter": true
             }
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "extraColors": [
+        "ม่วง"
+      ],
+      "note": "ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน"
     },
     {
       "code": "SL02-006",

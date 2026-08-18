@@ -1,0 +1,73 @@
+{
+  "cards": [
+    {
+      "code": "KD00-00A",
+      "name": "อะไรวะ !",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarLeftField"
+          },
+          "actions": [
+            {
+              "op": "bothReshuffleHandDraw",
+              "count": 4
+            },
+            {
+              "op": "fewestHandAvatarsRevealLife",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "note": "เมื่อ Avatar ฝ่ายเราออกจากสนาม — ทั้งคู่คืนมือสับ จั่ว 4 แล้วคนที่มี Avatar ในมือน้อยสุดหงาย LIFE 2"
+    },
+    {
+      "code": "KD00-00D",
+      "name": "ขอมือเธอหน่อย~",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "partyMostHandDiscardThenDrawToMax",
+              "discard": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ผู้เล่นมือเยอะสุดทิ้ง 2 ใบ แล้วทุกคนจั่วให้เท่ามือมากสุด"
+    },
+    {
+      "code": "KD00-00B",
+      "name": "เบียดเบียนผู้อื่น",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
+    },
+    {
+      "code": "KD00-00C",
+      "name": "โอน้อยออกแห่งโชคชะตา",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "rpsRevealLoserLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "2 คนข้ามโอน้อยออก — เป่ายิ้งฉุบ ผู้แพ้หงาย LIFE บนสุด ถ้าสาหัสแล้วแพ้เกม"
+    }
+  ]
+}

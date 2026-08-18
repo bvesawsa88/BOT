@@ -158,8 +158,21 @@
       "codes": [
         "KD00-00D"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "partyMostHandDiscardThenDrawToMax",
+              "discard": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ผู้เล่นมือเยอะสุดทิ้ง 2 ใบ แล้วทุกคนจั่วให้เท่ามือมากสุด"
     },
     {
       "name": "ขอให้ตีนไม่ติดพื้น",
@@ -725,7 +738,8 @@
         "ODY1-065"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
     },
     {
       "name": "ทะลวงส้วม",
@@ -907,7 +921,8 @@
         "KD00-00B"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "manual",
+      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
     },
     {
       "name": "แบงค์ Portal",
@@ -1928,15 +1943,29 @@
         "ODY1-064"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
     },
     {
       "name": "โอน้อยออกแห่งโชคชะตา",
       "codes": [
         "KD00-00C"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "rpsRevealLoserLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "2 คนข้ามโอน้อยออก — เป่ายิ้งฉุบ ผู้แพ้หงาย LIFE บนสุด ถ้าสาหัสแล้วแพ้เกม"
     },
     {
       "name": "โอเปอเรชั่น : รอยัล",

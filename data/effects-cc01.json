@@ -174,8 +174,49 @@
     {
       "code": "CC01-001",
       "name": "พระอิศวร เทพผู้ทำลาย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "CC01-021",
@@ -274,9 +315,31 @@
     {
       "code": "CC01-058",
       "name": "ริกกี้ นักปลอมแปลง",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "React ยึด+สวมใส่เมื่อถูกทำลายจากการต่อสู้ — ซับซ้อนมาก"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "fromCombat"
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "requireTapped": true
+              },
+              "until": "permanent",
+              "keepTapped": true,
+              "thenAttachSrc": true,
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อ Avatar เราถูกทำลายจากการต่อสู้: ยึด Avatar นอนของศัตรูแล้วสวมใบนี้ — ใบนี้ถูกทำลายแล้วโฮสต์กลับมือเจ้าของ",
+      "bounceHostOnLeave": true
     },
     {
       "code": "CC01-052",
@@ -580,17 +643,20 @@
               "filter": {
                 "nameIncludes": [
                   "รัททาทุย"
-                ],
-                "costMax": 5
+                ]
               },
               "dest": "avatar",
-              "shuffleAfter": true
+              "paidCost": false,
+              "shuffleAfter": true,
+              "optional": true,
+              "multiMax": 99,
+              "costSumMax": 5
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "กติกาเต็ม = อัญเชิญกี่ใบก็ได้ Cost รวม ≤5 — ตอนนี้อัญเชิญได้ 1 ใบต่อครั้ง"
+      "parseStatus": "auto",
+      "note": "มีนางพญาบนสนาม → อัญเชิญรัททาทุยจากเด็คกี่ใบก็ได้ Cost รวม≤5 (ไม่จุติ)"
     },
     {
       "code": "CC01-010",

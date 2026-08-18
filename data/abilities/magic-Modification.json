@@ -377,6 +377,18 @@
       "abilities": [
         {
           "trigger": {
+            "on": "battleDestroy"
+          },
+          "oncePerTurn": true,
+          "oncePerTurnTag": "battleDestroy",
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ]
+        },
+        {
+          "trigger": {
             "on": "sentToHell"
           },
           "actions": [
@@ -387,8 +399,8 @@
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ตื่นเมื่อทำลายสำเร็จใน Battle = ยังเล่นมือ"
+      "parseStatus": "auto",
+      "note": "โฮสต์ทำลายจากการต่อสู้ → ตื่นได้เทิร์นละครั้ง · ใบนี้ตกนรกแล้วหงาย LIFE 1"
     },
     {
       "name": "ตีแม่",

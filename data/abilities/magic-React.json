@@ -622,8 +622,25 @@
         "PRMO-134",
         "SL02-008"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ฝ่ายเราต่อสู้ (โจมตีหรือถูกโจมตี) POWER +2 จนจบเทิร์น"
     },
     {
       "name": "พันปักษา",
@@ -846,9 +863,31 @@
         "CC01-058",
         "ODY1-070"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "React ยึด+สวมใส่เมื่อถูกทำลายจากการต่อสู้ — ซับซ้อนมาก"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "fromCombat"
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "requireTapped": true
+              },
+              "until": "permanent",
+              "keepTapped": true,
+              "thenAttachSrc": true,
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "bounceHostOnLeave": true,
+      "parseStatus": "auto",
+      "note": "React เมื่อ Avatar เราถูกทำลายจากการต่อสู้: ยึด Avatar นอนของศัตรูแล้วสวมใบนี้ — ใบนี้ถูกทำลายแล้วโฮสต์กลับมือเจ้าของ"
     },
     {
       "name": "เราจะตายแล้วท่านหยุดเถอะ",
@@ -1177,8 +1216,26 @@
       "codes": [
         "KD00-00A"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarLeftField"
+          },
+          "actions": [
+            {
+              "op": "bothReshuffleHandDraw",
+              "count": 4
+            },
+            {
+              "op": "fewestHandAvatarsRevealLife",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ฝ่ายเราออกจากสนาม — ทั้งคู่คืนมือสับ จั่ว 4 แล้วคนที่มี Avatar ในมือน้อยสุดหงาย LIFE 2"
     },
     {
       "name": "อุบัติเหตุ!!!",

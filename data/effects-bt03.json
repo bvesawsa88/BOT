@@ -194,7 +194,8 @@
       "name": "จีสัส",
       "abilities": [],
       "attackIf": "emptyHand",
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "โจมตีได้เมื่อมือว่าง"
     },
     {
       "code": "BT03-010",
@@ -373,7 +374,8 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "ใช้เป็น Cost ได้เฉพาะรัททาทุย · ทิ้งเป็น Cost ให้ชื่อมี รัททาทุย → อัญเชิญ C1G1P1"
+      "note": "ใช้เป็น Cost ได้เฉพาะรัททาทุย · ทิ้งเป็น Cost ให้ชื่อมี รัททาทุย → อัญเชิญ C1G1P1",
+      "costOnlyForSymbol": "รัททาทุย"
     },
     {
       "code": "BT03-016",

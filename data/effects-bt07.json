@@ -65,9 +65,30 @@
     },
     {
       "code": "BT07-006",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "อนันตวดี ราชินีแห่งนาค"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:นาค&summonSymbol:สัตว์วิเศษ"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "target": {
+                "select": "summoned"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "อนันตวดี ราชินีแห่งนาค",
+      "gemAsCostForNameIncludes": "อนันต์ ราชาแห่งนาค",
+      "gemAsCostValue": 6,
+      "gemAsCostColor": "แดง",
+      "costOnlyForSymbol": "สัตว์วิเศษ",
+      "note": "จ่ายได้เฉพาะสัตว์วิเศษ · จ่ายอัญเชิญอนันต์ = GEM 6 แดง · นาคที่ได้ +3"
     },
     {
       "code": "BT07-007",
@@ -125,8 +146,40 @@
     },
     {
       "code": "BT07-013",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludesAny": [
+                  "ครุฑ",
+                  "ขนมณี"
+                ],
+                "nameNotIncludes": "ครุฑเวนไตย"
+              },
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": true,
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 3,
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ครุฑเวนไตย เจ้ากำลัง"
     },
     {
@@ -194,19 +247,65 @@
           },
           "actions": [
             {
-              "op": "deckPick",
+              "op": "deckOrHellPick",
               "filter": {
                 "nameIncludes": [
                   "ยานรายการ เถียงทันหน่วง"
                 ]
               },
               "dest": "hand",
-              "shuffleAfter": true
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnConstructNameIncludes": "ยานรายการ เถียงทันหน่วง",
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "pick",
+              "from": "enemy",
+              "dest": "magic",
+              "filter": {
+                "hasKeywordAny": [
+                  "สามัคคี",
+                  "เตะไข่",
+                  "โล่มนุษย์",
+                  "คำสั่งเสีย"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "ownerMagic",
+              "dest": "bounceHand",
+              "chooser": "opp",
+              "filter": {
+                "type": "Avatar"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "name": "พี่หน่วง พิธีกรผมสวย"
     },
     {

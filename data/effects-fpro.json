@@ -1,0 +1,285 @@
+{
+  "cards": [
+    {
+      "code": "FPRO-004",
+      "name": "พระอิศวร เทพผู้ทำลาย",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FPRO-006",
+      "name": "พญายักษ์ ทศกัณฐ์",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "power": 3,
+                "nameNotIncludes": "ทศกัณฐ์"
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FPRO-005",
+      "name": "พระนารายณ์ เทพผู้พิทักษ์",
+      "abilities": [],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์",
+        "เตะไข่"
+      ],
+      "halvePrintedInsteadDestroy": true,
+      "note": "โล่มนุษย์ เตะไข่ อัตโนมัติ เมื่อ Avatar ใบนี้จะถูกทำลาย : ปรับ POWER ตั้งต้นของ Avatar ใบนี้ลดลงครึ่งหนึ่งแทนการถูกทำลาย"
+    },
+    {
+      "code": "FPRO-002",
+      "name": "หุ่นนักรบผู้กล้า : ไมเกรน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "weaponModAttached"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "FPRO-007",
+      "name": "ไดโนกาฬสินธุ์ - สยามโมไทรันนัส",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "กะปอม"
+              },
+              "dest": "multiAvatar",
+              "paidCost": true,
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "FPRO-003",
+      "name": "พี่หน่วง พิธีกรผมสวย",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ยานรายการ เถียงทันหน่วง"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireOwnConstructNameIncludes": "ยานรายการ เถียงทันหน่วง",
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "pick",
+              "from": "enemy",
+              "dest": "magic",
+              "filter": {
+                "hasKeywordAny": [
+                  "สามัคคี",
+                  "เตะไข่",
+                  "โล่มนุษย์",
+                  "คำสั่งเสีย"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "ownerMagic",
+              "dest": "bounceHand",
+              "chooser": "opp",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "FPRO-001",
+      "name": "มณโฑ ราชินีเหล่ายักษ์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "sacrifice",
+              "includeSelf": true,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbol": "ยักษ์",
+                    "samePowerAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": false,
+                  "optional": false,
+                  "then": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "summoned"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "extraSymbols": [
+        "ยักษ์"
+      ],
+      "note": "นับเป็นยักษ์ · เทิร์นละครั้ง เซ่นยักษ์ 1 → ชุบยักษ์จากนรก P เท่ากัน คนละชื่อ แล้ว +2 จนจบเทิร์น"
+    }
+  ]
+}

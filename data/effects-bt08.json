@@ -191,18 +191,26 @@
               "op": "scout",
               "count": 5,
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "ขุนพล"
-                ]
+                ],
+                "symbol": "ต่างชาติ",
+                "sameColorAsSrc": true
               },
               "dest": "hand",
-              "restTo": "bottom"
+              "restTo": "bottom",
+              "shuffleAfter": true
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "name": "เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก"
+      "parseStatus": "auto",
+      "name": "เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก",
+      "extraColors": [
+        "ม่วง"
+      ],
+      "note": "ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน"
     },
     {
       "code": "BT08-021",

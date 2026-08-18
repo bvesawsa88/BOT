@@ -385,7 +385,8 @@
       ],
       "abilities": [],
       "attackIf": "emptyHand",
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "โจมตีได้เมื่อมือว่าง"
     },
     {
       "name": "เจนนี่ อย่าบู้บี้เลขา",
@@ -1920,8 +1921,49 @@
         "CC01-001",
         "FPRO-004"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "พระอิศวร นักเต้น",
@@ -3273,8 +3315,39 @@
         "BT06-004",
         "SL02-010"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "setAlliesPowerToSelf",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "อนันตวดี ราชินีแห่งนาค",
@@ -3282,8 +3355,29 @@
         "BT07-006",
         "SL02-001"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonNameIncludes:นาค&summonSymbol:สัตว์วิเศษ"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "target": {
+                "select": "summoned"
+              }
+            }
+          ]
+        }
+      ],
+      "gemAsCostForNameIncludes": "อนันต์ ราชาแห่งนาค",
+      "gemAsCostValue": 6,
+      "gemAsCostColor": "แดง",
+      "costOnlyForSymbol": "สัตว์วิเศษ",
+      "parseStatus": "auto",
+      "note": "จ่ายได้เฉพาะสัตว์วิเศษ · จ่ายอัญเชิญอนันต์ = GEM 6 แดง · นาคที่ได้ +3"
     },
     {
       "name": "อ๊บ",
@@ -3497,6 +3591,7 @@
       ],
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "whenAttacked"
           },
@@ -3507,8 +3602,8 @@
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "สั่งใช้: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี"
+      "parseStatus": "auto",
+      "note": "เมื่อถูกโจมตี: นอน Avatar อื่นฝ่ายเรา 1 ใบ → ยกเลิกการโจมตี (ข้ามได้)"
     },
     {
       "name": "เอเจ้นท์สมูท",
@@ -3566,8 +3661,32 @@
         "BT06-003",
         "SL02-009"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "โอเดนย่ากาย",
@@ -3603,6 +3722,7 @@
         "PRMO-087"
       ],
       "abilities": [],
+      "controlImmune": true,
       "controlImmuneExcept": "อีช่า",
       "parseStatus": "auto"
     },

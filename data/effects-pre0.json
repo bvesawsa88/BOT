@@ -1,0 +1,151 @@
+{
+  "cards": [
+    {
+      "code": "PRE0-001-2",
+      "name": "น้ำใจ",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 0,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "note": "Avatar ที่สวมใส่ POWER +0"
+    },
+    {
+      "code": "PRE0-005",
+      "name": "ผู้เล่นมั่ว",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellDistinctAvatarsMin",
+              "min": 10,
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "note": "ต่อเนื่อง: นรกเรามี Avatar ชื่อไม่ซ้ำ ≥10 → POWER +2"
+    },
+    {
+      "code": "PRE0-002",
+      "name": "ผู้เล่นภักดี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "oppHandToDeckTop",
+              "random": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: สุ่มการ์ดมือศัตรู 1 ใบวางบนสุดเด็คศัตรู"
+    },
+    {
+      "code": "PRE0-005-2",
+      "name": "ผู้เล่นโซเชียล",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "enemy",
+              "dest": "magic",
+              "filter": {
+                "type": "Avatar",
+                "powerLtSrc": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: เลือก Avatar ศัตรูที่ POWER น้อยกว่าใบนี้ มา Magic Zone ฝ่ายเรา"
+    },
+    {
+      "code": "PRE0-001",
+      "name": "ผู้เล่นยุคแรก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "peekOppBottomPickTop",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ดู 3 ใบล่างสุดเด็คศัตรู เลือก 1 ใบขึ้นบนสุด ที่เหลือเรียงเดิม"
+    },
+    {
+      "code": "PRE0-004",
+      "name": "ผู้เล่นจำไม",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัญเชิญได้เฉพาะทิ้ง GEM 1 จำนวน 5 ใบ + จุติถามจำนวน Avatar/Magic/Only ในเด็คศัตรู — กลไกใหม่หลายทาง"
+    },
+    {
+      "code": "PRE0-003",
+      "name": "ผู้เล่นเหลี่ยม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "revealOppHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ดูการ์ดบนมือฝ่ายตรงข้ามทั้งหมด"
+    }
+  ]
+}
