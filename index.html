@@ -446,13 +446,13 @@
           <tr><td><b>AVATAR</b></td><td>ตัวละครที่ลงสนาม แถวกลาง — สูงสุด <b>4 ใบ</b> (ไม่นับ Token) · Avatar+Token รวมสูงสุด 6 · มี Land <b>พิภพรัททาทุย</b> และ Avatar ฝั่งนั้นเป็น Symbol รัททาทุย ทั้งหมด ขยายเป็น 6</td></tr>
           <tr><td><b>MAGIC</b></td><td>การ์ดเวท — ใช้แล้วหงายเสมอ ไม่มีการเซ็ตคว่ำ · ประเภทละ 1 ครั้ง/เทิร์น (Normal / React / Modification / Land) ดูแถบ «เวทเทิร์นนี้» มุมสนาม</td></tr>
           <tr><td><b>CONSTRUCT</b></td><td>สิ่งก่อสร้าง แถวบนสุด — สูงสุด <b>3 ใบ</b> และ<b>ห้ามชื่อซ้ำ</b> (reprint คนละรหัสนับชื่อเดียวกัน)</td></tr>
-          <tr><td><b>LAND</b></td><td>ช่องกลางสนามใช้ร่วมกัน — มีได้แค่ <b>1 ใบ</b> (วางใบใหม่ทำลายใบเดิมให้อัตโนมัติ)</td></tr>
+          <tr><td><b>LAND</b></td><td>ช่องบนเสื่อทั้งสองฝ่าย — สนามมีได้แค่ <b>1 ใบ</b> แสดงที่ฝั่งคนที่วาง · <b>ทุกใบใช้ร่วมกันได้</b>ถ้าเงื่อนไขของฝั่งนั้นครบ (สั่งใช้ + ออร่า) · สั่งใช้ได้เฉพาะเทิร์นตัวเอง · ใช้ของอีกฝ่ายแล้วลงใบตัวเอง สั่งใช้ใบใหม่ได้อีกรอบ · ใบใหม่ทำลายใบเดิม</td></tr>
           <tr><td><b>LIFE</b></td><td>แถบการ์ดคว่ำด้านข้าง 5 ใบ — โดนตีหงายทีละใบให้อัตโนมัติ</td></tr>
           <tr><td><b>นรก (HELL)</b></td><td>กองทิ้ง — คลิกเปิดดูทั้งกองได้</td></tr>
           <tr><td><b>มิติมืด</b></td><td>โซนนำการ์ดออกจากเกม</td></tr>
           <tr><td><b>กองเด็ค</b></td><td>แตะ = จั่วเพิ่ม 1 ใบ (จั่วต้นเทิร์นระบบทำให้แล้ว) · ค้นหา/เปิดบนกองอยู่ที่แผงขวา 🃏 เด็ค</td></tr>
         </table>
-        <p class="hw-dim">ลากการ์ดได้เฉพาะโซนฝั่งตัวเอง + ช่อง Land กลาง — ขยับการ์ดฝั่งตรงข้ามไม่ได้</p>
+        <p class="hw-dim">ลากการ์ดได้เฉพาะโซนฝั่งตัวเอง + ช่อง Land ทั้งสองฝ่าย — ขยับการ์ดฝั่งตรงข้ามไม่ได้</p>
       </section>
 
       <section id="hw-card">
@@ -479,7 +479,7 @@
           <li>ใช้ได้ <b>ประเภทละ 1 ครั้งต่อเทิร์น</b> (แม้เทิร์นฝ่ายตรงข้าม) — React นับด้วย</li>
           <li><b>React</b> ใช้สวนได้ตอนถูกโจมตี / เริ่ม Battle ของอีกฝั่ง / เชนเวท — แถบเขียวโผล่ แตะใบหรือกด «ไม่ใช้» / รอหมดเวลา</li>
           <li><b>Modification</b> ลากลง Magic Zone แล้วกด 🔗 หรือลากทับ Avatar เพื่อสวมใส่ (การ์ดยังอยู่ใน Magic Zone มีเส้นโยง) · 1 Avatar สวมได้ไม่จำกัด ถ้าการ์ดไม่ได้จำกัดเอง</li>
-          <li><b>Land</b> วางช่องกลาง — ใบใหม่ทำลายใบเก่า</li>
+          <li><b>Land</b> ลากลงช่อง Land ฝั่งไหนก็ได้ — แสดงที่เสื่อฝั่งคนที่วาง · <b>ทุกใบใช้ร่วมกัน</b>ถ้าเงื่อนไขฝั่งเราครบ · สั่งใช้ได้เฉพาะเทิร์นตัวเอง · ใช้ของอีกฝ่ายแล้วลงใบตัวเอง สั่งใช้ใบใหม่ได้อีกรอบ</li>
         </ul>
 
         <h3>โจมตี</h3>
@@ -689,6 +689,7 @@
           <!-- ฝั่งบอท/ตรงข้าม — playmat จริงเป็น background + โซนโปร่งใสวางทับตามช่องในรูป -->
           <div class="mat mat-opp"><div class="mat-in">
             <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="oppConstructZone"><div id="oppConstruct" class="zone-cards"></div></div>
+            <div class="mz mz-land" data-lb="LAND" data-drop="land" id="oppLandZone"><div id="oppLand" class="zone-cards"></div></div>
             <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="oppAvatarZone"><b id="oppAvatarTag" class="cap-badge"></b><div id="oppAvatar" class="zone-cards"></div></div>
             <div class="mz mz-magic" data-lb="MAGIC" data-drop="" id="oppMagicZone"><div id="oppMagic" class="zone-cards"></div></div>
             <div class="mz mz-life" data-lb="LIFE" id="oppLifeZone"><b id="oppLifeWho" class="hidden"></b><em id="oppCrit" class="crit"></em><div id="oppLife" class="zone-cards"></div></div>

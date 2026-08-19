@@ -268,7 +268,6 @@
     if (!chooser || chooser === side || chooser === 'S') return false;
     return (st.zones['land'] || []).some(id => {
       const L = st.inst[id]; if (!L || L.faceUp === false) return false;
-      if (landControllerOf(st, id, side) !== side) return false;
       return abil(st, id, 'static').some(ab => {
         if (!ab.protectOwnFromOppLeave) return false;
         const cond = (ab.trigger && ab.trigger.if) || '';
@@ -425,10 +424,7 @@
           if (!ae || !ae.grantKeywordAura) continue;
           const g = ae.grantKeywordAura;
           if (!auraOk(g)) continue;
-          if (g.side === 'own') {
-            const landOwner = st.inst[id].controller;
-            if (landOwner && landOwner !== side) continue;
-          } else if (g.side === 'enemy') {
+          if (g.side === 'enemy') {
             const landOwner = st.inst[id].controller;
             if (landOwner && landOwner === side) continue;
           }
@@ -2123,10 +2119,22 @@
     if (L && (L.controller === 'A' || L.controller === 'B')) return L.controller;
     return fallback;
   }
+  /* Land ใช้ร่วม: เงื่อนไข/ผล "ฝ่ายเรา" ยึดผู้รับผลหรือผู้กด — ไม่ใช่คนที่วาง */
+  function landSharedUser(beneficiary, fallback) {
+    return (beneficiary === 'A' || beneficiary === 'B') ? beneficiary : fallback;
+  }
   function isImmuneAbilityDestroy(st, k) {
     const c = st.inst[k]; if (!c) return false;
     const z = zoneOf(st, k) || '';
-    const own = z === 'land' ? landControllerOf(st, k, 'A') : (z[0] === 'A' || z[0] === 'B' ? z[0] : ownerOf(st, k));
+    if (z === 'land') {
+      return abil(st, k, 'static').some(ab => {
+        if (!ab.immuneAbilityDestroy) return false;
+        const cond = (ab.trigger && ab.trigger.if) || '';
+        if ((cond === 'self.zone==landZone' || cond === 'self.zone==land') && z !== 'land') return false;
+        return ['A', 'B'].some(s => abilityMagicReqOk(st, s, ab));
+      });
+    }
+    const own = (z[0] === 'A' || z[0] === 'B') ? z[0] : ownerOf(st, k);
     return abil(st, k, 'static').some(ab => {
       if (!ab.immuneAbilityDestroy) return false;
       const cond = (ab.trigger && ab.trigger.if) || '';
@@ -2160,8 +2168,6 @@
     const z = zoneOf(st, k) || '';
     return (st.zones['land'] || []).some(id => {
       const L = st.inst[id]; if (!L || L.faceUp === false) return false;
-      const ctrl = landControllerOf(st, id, own);
-      if (ctrl !== own) return false;
       return abil(st, id, 'static').some(ab => {
         if (!ab.untargetableOwnNameIncludes) return false;
         if (!abilityMagicReqOk(st, own, ab)) return false;
@@ -2890,7 +2896,7 @@
             const landOk = (st.zones['land'] || []).some(id => st.inst[id] && st.inst[id].faceUp && nameMatches(st.inst[id], ab.requireLandNameIncludes));
             if (!landOk) return;
           }
-          const srcOwn = sz === 'land' ? landControllerOf(st, src, side) : (sz[0] === 'A' || sz[0] === 'B' ? sz[0] : side);
+          const srcOwn = sz === 'land' ? landSharedUser(side, landControllerOf(st, src, side)) : (sz[0] === 'A' || sz[0] === 'B' ? sz[0] : side);
           if (ab.onlyOwnTurn && st.active !== srcOwn) return;
           if (ab.requireOtherAvatar) {
             const hasOther = ['A', 'B'].some(s => (st.zones[s + '.avatar'] || []).some(id => id !== src && st.inst[id]));
@@ -3078,7 +3084,7 @@
       // มือ + สนามฝ่ายเรา (อวตาร/คอนสตรัค/เวท/แลนด์) — ไปเลยมอนตี้ ฯลฯ
       case 'ownSide': {
         let n = cnt([owner + '.hand', owner + '.avatar', owner + '.construct', owner + '.magic']);
-        n += (st.zones.land || []).filter(k => k !== excludeK && landControllerOf(st, k, null) === owner).length;
+        n += (st.zones.land || []).filter(k => k !== excludeK).length;
         return n;
       }
       case 'oppField': return cnt([opp + '.avatar', opp + '.construct']);
@@ -10574,7 +10580,6 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 if (A.symbol !== ac.ifAttackerSymbol) return;
               } else if (ac.ifAttackerNameIncludes) {
                 if (!nameMatches(A, ac.ifAttackerNameIncludes)) return;
-                if (oa !== landControllerOf(st, lid, oa)) return;
               } else return;
               st.buffs.push({ k: a.atk, amt: ac.amount || 0, until: ac.duration === 'combat' ? 'combat' : 'endOfTurn', from: lid });
               addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, lid)}: ${A.name} POWER +${ac.amount || 0} จนจบการต่อสู้`);
@@ -10757,7 +10762,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           return deny(`"${c.name}" เลือกปฏิบัติไปแล้วในเทิร์นนี้`);
         const opt = ab && ab.options && ab.options[idx];
         {
-          const ownCheck = owner === 'S' ? (c.controller || by || 'A') : owner;
+          const ownCheck = owner === 'S' ? landSharedUser(by, c.controller || 'A') : owner;
           const optDeny2 = chooseModeOptionDeny(st, a.k, ownCheck, opt);
           if (optDeny2) {
             if (chooseModeOptionAlreadyUsed(st, a.k, opt)) return deny(optDeny2);
@@ -10768,9 +10773,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           }
           claimChooseModeOption(st, a.k, opt);
         }
-        if (opt && opt.requireNoModUsed && st.magicUsed && st.magicUsed[owner === 'S' ? by : owner] && st.magicUsed[owner === 'S' ? by : owner]['Modification'])
+        if (opt && opt.requireNoModUsed && st.magicUsed && st.magicUsed[owner === 'S' ? landSharedUser(by, owner) : owner] && st.magicUsed[owner === 'S' ? landSharedUser(by, owner) : owner]['Modification'])
           return deny('เทิร์นนี้ใช้ Modification Magic ไปแล้ว — เลือกข้อนี้ไม่ได้');
-        const own = owner === 'S' ? (c.controller || by || 'A') : owner;
+        const own = owner === 'S' ? landSharedUser(by, c.controller || 'A') : owner;
         const kz = zoneOf(st, a.k) || '';
         if (kz.endsWith('.avatar') && abilitiesNullified(st, a.k))
           return deny(overdoseLocksAbilities(st, a.k)
@@ -11008,7 +11013,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if ((sub === 'Normal' || sub === 'React') && !magicStaysOnMagicZone(c))
             return deny(`"${c.name}" ใช้ตอนเล่นจากมือเท่านั้น — ไม่สั่งใช้ซ้ำจาก Magic Zone`);
         }
-        const owner = z === 'land' ? (c.controller || by) : z[0];
+        // Land กลางสนาม: สั่งใช้ได้ทั้งสองฝ่าย — คอส/ผลยึดฝ่ายที่กด (by) ไม่ใช่คนที่วาง
+        const owner = z === 'land'
+          ? ((by === 'A' || by === 'B') ? by : (c.controller || 'A'))
+          : z[0];
         if (!owner || (owner !== 'A' && owner !== 'B')) return deny('ไม่ทราบเจ้าของ Land');
         if (strict && isPlayer && owner !== by) return deny('สั่งใช้ได้เฉพาะการ์ดฝั่งตัวเอง');
         // ไพรมอล: สั่งใช้ตอนโจมตี (เซ่นแล้วตื่น) — อนุญาตนอก Main ถ้า whenAttacking
@@ -11160,8 +11168,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if (avail.length < need) return deny(need > 1 ? `ไม่มีมือตรงเงื่อนไขให้เนรเทศครบ ${need}` : 'ไม่มีมือตรงเงื่อนไขให้เนรเทศ');
           }
         }
-        if (ab.oncePerTurn && !claimOncePerTurn(st, a.k, 'activated'))
-          return deny(`"${c.name}" ใช้ความสามารถไปแล้วในเทิร์นนี้`);
+        if (ab.oncePerTurn) {
+          // Land: ล็อกต่อใบ (instance) ไม่ล็อกชื่อ/ทั้งเทิร์น
+          // ใช้ของอีกฝ่ายแล้วลงใบตัวเอง → สั่งใช้ใบใหม่ได้ในเทิร์นเดียวกัน
+          if (!claimOncePerTurn(st, a.k, z === 'land' ? ('landAct:' + owner) : 'activated'))
+            return deny(`"${c.name}" ใช้ความสามารถไปแล้วในเทิร์นนี้`);
+        }
         addLog(st, owner, `⚡ สั่งใช้ ${c.name}`);
         // จ่ายคอสก่อน แล้วค่อยให้เชาว์ปัญญาลิงขัด (คอสไม่คืน) — ไม่มีคอสจึงถามเชาว์ก่อนรันผล
         if (!(costList && costList.length) && z.endsWith('.avatar') && offerAbilityReact(st, fx, owner, a.k, {
@@ -11171,7 +11183,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           break;
         }
         if (ab.countsAsModification) consumeCountsAsModification(st, owner);
-        payCostAndRunActivated(st, fx, owner, a.k, costList, ab.actions || [], rng, ab.oncePerTurn ? 'activated' : null);
+        payCostAndRunActivated(st, fx, owner, a.k, costList, ab.actions || [], rng,
+          ab.oncePerTurn ? (z === 'land' ? ('landAct:' + owner) : 'activated') : null);
         fx.snd = fx.snd || 'place';
         break;
       }

@@ -2908,7 +2908,7 @@
       ...(st.zones['B.avatar'] || []),
       ...(st.zones['B.construct'] || []),
       ...(st.zones['B.magic'] || []),
-      ...(st.zones['land'] || []).filter(k => st.inst[k] && st.inst[k].controller === 'B'),
+      ...(st.zones['land'] || []),
       ...(st.zones['B.hand'] || []).filter(k => {
         const c = st.inst[k]; if (!c) return false;
         const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
@@ -3714,9 +3714,9 @@
   function applyPerspective() {
     const dropMap = {
       myAvatarZone: my + '.avatar', myMagicZone: my + '.magic', myConstructZone: my + '.construct',
-      myHell: my + '.hell', myDark: my + '.dark', myDeck: my + '.deck', myHandRow: my + '.hand',
+      myLandZone: 'land', myHell: my + '.hell', myDark: my + '.dark', myDeck: my + '.deck', myHandRow: my + '.hand',
       oppAvatarZone: opp + '.avatar', oppMagicZone: opp + '.magic', oppConstructZone: opp + '.construct',
-      oppHell: opp + '.hell', oppDark: opp + '.dark', oppDeck: opp + '.deck',
+      oppLandZone: 'land', oppHell: opp + '.hell', oppDark: opp + '.dark', oppDeck: opp + '.deck',
     };
     for (const id in dropMap) { const el = byId(id); if (el) el.dataset.drop = dropMap[id]; }
     byId('myDeck').dataset.deck = my; byId('oppDeck').dataset.deck = opp;
@@ -3983,6 +3983,12 @@
     return `<div class="${classes.join(' ')}" data-cid="${k}">${inner}${ctr}${gem}${pw}${att}${buddy}${od}${inh}${tok}${order}${scoutBadge}${qa}</div>`;
   }
   const zoneHTML = (z, cls) => (st.zones[z] || []).map(k => cardHTML(k, cls)).join('');
+  /* Land กลางสนาม 1 ใบ — โชว์บนเสื่อฝั่งคนที่วาง (controller) ให้ลาก/สั่งใช้ได้ทั้งสองฝ่าย */
+  const landCtrlOf = k => {
+    const c = st.inst[k];
+    return (c && (c.controller === 'A' || c.controller === 'B')) ? c.controller : 'A';
+  };
+  const landHTML = side => (st.zones['land'] || []).filter(k => landCtrlOf(k) === side).map(k => cardHTML(k, 'land')).join('');
   const topHTML = id => { const a = st.zones[id] || []; return a.length ? `<div class="pile-top" data-cid="${a[a.length - 1]}" style="background-image:url('${esc(st.inst[a[a.length - 1]].img)}')"></div>` : ''; };
 
   function render() {
@@ -4338,7 +4344,9 @@
     byId('myAvatar').innerHTML = zoneHTML(my + '.avatar', 'avatar');
     byId('myMagic').innerHTML = zoneHTML(my + '.magic', 'magic');
     byId('myConstruct').innerHTML = zoneHTML(my + '.construct', 'construct');
-    byId('land').innerHTML = zoneHTML('land', 'land');
+    byId('land').innerHTML = landHTML(my);
+    const oppLandEl = byId('oppLand');
+    if (oppLandEl) oppLandEl.innerHTML = landHTML(opp);
     byId('oppLife').innerHTML = zoneHTML(opp + '.life', 'life');
     byId('myLife').innerHTML = zoneHTML(my + '.life', 'life');
     const crit = p => { const l = st.zones[p + '.life'] || []; return l.length && l.every(k => st.inst[k].faceUp) ? '· สาหัส!' : ''; };
@@ -4811,7 +4819,8 @@
     if (!st || !st.inst[k] || !canControl(k)) return false;
     if (!cardHasActivatedAbility(k)) return false;
     const own = BoTEngine.ownerOf(st, k);
-    sendAction({ type: 'activateAbility', k, by: mode === 'solo' ? (own === 'S' ? my : own) : undefined });
+    const zAct = BoTEngine.zoneOf(st, k) || '';
+    sendAction({ type: 'activateAbility', k, by: mode === 'solo' ? (zAct === 'land' ? st.active : (own === 'S' ? my : own)) : undefined });
     return true;
   }
   function cardHasUnityKw(k) {
@@ -4867,7 +4876,7 @@
     // เหลือเฉพาะสั่งใช้ + ความสามารถของการ์ด (สามัคคี / แทงหลัง / โล่มนุษย์ / สวมใส่ / คู่หู) — ไม่มีแมนนวล
     const entries = [
       ...(hasActivated
-        ? [{ label: 'สั่งใช้ความสามารถ', html: `${BotUtil.kwHtml('สั่งใช้')} สั่งใช้ความสามารถ`, act: { type: 'activateAbility', k, by: mode === 'solo' ? own : undefined } }]
+        ? [{ label: 'สั่งใช้ความสามารถ', html: `${BotUtil.kwHtml('สั่งใช้')} สั่งใช้ความสามารถ`, act: { type: 'activateAbility', k, by: mode === 'solo' ? (kzMenu === 'land' ? st.active : own) : undefined } }]
         : []),
       ...(canUseUnity(k)
         ? [{ label: 'สามัคคี', html: `${BotUtil.kwHtml('สามัคคี')} สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)`, fn: () => startAnnounce(k, 'unity') }] : []),
@@ -5777,7 +5786,8 @@
         const from = BoTEngine.zoneOf(st, d.k) || '';
         const c0 = st.inst[d.k];
         if (from.endsWith('.hand') && c0 && c0.type === 'Magic') {
-          const onMyMat = el.closest('.mat-my') || el.closest('#myLandZone') || el.closest('#board');
+          const onMyMat = el.closest('.mat-my') || el.closest('.mat-opp')
+            || el.closest('#myLandZone') || el.closest('#oppLandZone') || el.closest('#board');
           if (onMyMat) {
             sendAction({ type: 'playMagic', k: d.k, by: mode === 'solo' ? from[0] : undefined });
             return;
