@@ -152,6 +152,43 @@ const BY_SET = {
       ],
       parseStatus: 'auto',
       note: 'สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]'
+    },
+    'BT09-052': {
+      code: 'BT09-052',
+      name: 'ผจญภัยด้วยกัน',
+      abilities: [{
+        trigger: { on: 'activated' },
+        actions: [{
+          op: 'chooseMode',
+          optional: false,
+          options: [
+            {
+              label: 'มีเพมมุ → อัญเชิญสไปรท์จากเด็ค แล้วสับ',
+              requireOwnNameIncludes: 'เพมมุ',
+              actions: [{
+                op: 'deckPick',
+                filter: { type: 'Avatar', nameIncludes: ['สไปรท์'] },
+                dest: 'avatar',
+                paidCost: false,
+                shuffleAfter: true
+              }]
+            },
+            {
+              label: 'มีสไปรท์ → อัญเชิญเพมมุจากเด็ค แล้วสับ',
+              requireOwnNameIncludes: 'สไปรท์',
+              actions: [{
+                op: 'deckPick',
+                filter: { type: 'Avatar', nameIncludes: ['เพมมุ'] },
+                dest: 'avatar',
+                paidCost: false,
+                shuffleAfter: true
+              }]
+            }
+          ]
+        }]
+      }],
+      parseStatus: 'auto',
+      note: 'เลือกปฏิบัติ: มีเพมมุบนสนาม → อัญเชิญสไปรท์จากเด็ค · มีสไปรท์บนสนาม → อัญเชิญเพมมุจากเด็ค'
     }
   },
   'effects-bt10.json': {
