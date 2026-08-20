@@ -1072,9 +1072,7 @@
     const hint = byId('roomShareHint');
     const qr = byId('roomQr');
     if (hint) {
-      hint.textContent = netKind === 'lan'
-        ? 'ห้อง LAN — ส่งรหัส/QR ให้เพื่อน · ใช้ Wi‑Fi หรือฮอตสปอตเดียวกัน (ตอนจับคู่ต้องมีเน็ต)'
-        : 'แชร์รหัสนี้ให้เพื่อน';
+      hint.textContent = 'ส่งรหัสหรือ QR ให้เพื่อน — อยู่คนละที่ก็เล่นด้วยกันได้';
     }
     if (qr) {
       if (netKind === 'lan' && room && typeof BotLAN !== 'undefined') {
@@ -1884,11 +1882,11 @@
       updateRoomShareUI();
       if (lobbyMsg) lobbyMsg.textContent = '';
       if (lanAutoMatch) toast('รอคู่ท้าเข้าห้อง…', 2500);
-      else toast('สร้างห้อง LAN ' + room + ' แล้ว — ส่งรหัสให้เพื่อน', 4000);
+      else toast('สร้างห้อง ' + room + ' แล้ว — ส่งรหัสให้เพื่อน', 4000);
       return api;
     }).catch(err => {
-      if (lobbyMsg) lobbyMsg.textContent = (err && err.message) || 'สร้างห้อง LAN ไม่สำเร็จ';
-      toast((err && err.message) || 'สร้างห้อง LAN ไม่สำเร็จ');
+      if (lobbyMsg) lobbyMsg.textContent = (err && err.message) || 'สร้างห้องไม่สำเร็จ';
+      toast((err && err.message) || 'สร้างห้องไม่สำเร็จ');
       lanAutoMatch = false;
       throw err;
     });
@@ -1902,7 +1900,7 @@
       toast('รหัสห้องต้องมี 6 ตัวอักษร');
       return;
     }
-    if (lobbyMsg) lobbyMsg.textContent = 'กำลังเข้าห้อง LAN…';
+    if (lobbyMsg) lobbyMsg.textContent = 'กำลังเข้าห้อง…';
     realMode = false;
     lanExpectClose = false;
     BotLAN.join(clean, {
@@ -1938,11 +1936,11 @@
       renderRoom();
       updateRoomShareUI();
       if (lobbyMsg) lobbyMsg.textContent = '';
-      toast(lanAutoMatch ? 'เข้าแมตช์แล้ว — กำลังเตรียมเด็ค…' : 'เข้าห้อง LAN แล้ว', 2500);
+      toast(lanAutoMatch ? 'เข้าแมตช์แล้ว — กำลังเตรียมเด็ค…' : 'เข้าห้องแล้ว', 2500);
       maybeLanAutoReady();
     }).catch(err => {
-      if (lobbyMsg) lobbyMsg.textContent = (err && err.message) || 'เข้าห้อง LAN ไม่สำเร็จ';
-      toast((err && err.message) || 'เข้าห้อง LAN ไม่สำเร็จ', 4500);
+      if (lobbyMsg) lobbyMsg.textContent = (err && err.message) || 'เข้าห้องไม่สำเร็จ';
+      toast((err && err.message) || 'เข้าห้องไม่สำเร็จ', 4500);
       lanAutoMatch = false;
     });
   }
@@ -6696,22 +6694,15 @@
   byId('btnBack').onclick = goBackNotebook;
   const mnuOnline = byId('mnuOnline');
   if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
-  const mnuLan = byId('mnuLan');
-  if (mnuLan) mnuLan.onclick = () => {
-    // เข้าโหมด LAN → เลือกเด็คในล็อบบี้ แล้วค่อยท้า/จับคู่
-    ensurePlayReady().catch(() => { });
-    openLanHall();
-  };
-  byId('btnLanHallBack').onclick = () => {
+  const btnLanHallBack = byId('btnLanHallBack');
+  if (btnLanHallBack) btnLanHallBack.onclick = () => {
     stopPresence();
     showScreen('menu');
   };
-  byId('btnLanByCode').onclick = () => {
-    // คง presence ไว้ได้ แต่ไปหน้าสร้าง/เข้าด้วยรหัส
+  const btnLanByCode = byId('btnLanByCode');
+  if (btnLanByCode) btnLanByCode.onclick = () => {
     ensurePlayReady().catch(() => { });
     showScreen('lobby');
-    const msg = byId('lobbyMsg');
-    if (msg) msg.textContent = 'โหมด LAN ด้วยรหัส — กด "สร้างห้อง LAN" หรือใส่รหัสแล้วกด "เข้า LAN"';
   };
   const lanPeerList = byId('lanPeerList');
   if (lanPeerList) lanPeerList.addEventListener('click', (e) => {
@@ -6912,7 +6903,6 @@
     showScreen('menu');
   };
   byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; startLanHost(); };
-  byId('btnCreateLan').onclick = () => startLanHost();
   function joinRoom(as) {
     const code = byId('inpRoom').value.trim().toUpperCase();
     if (code.length !== 6) { byId('lobbyMsg').textContent = 'รหัสห้องต้องมี 6 ตัวอักษร'; return; }
@@ -6920,7 +6910,6 @@
     connect(() => wsSend({ t: 'join', room: code, nick: myNick(), as, uid: myUid() }));
   }
   byId('btnJoin').onclick = () => joinLanRoom(byId('inpRoom').value);
-  byId('btnJoinLan').onclick = () => joinLanRoom(byId('inpRoom').value);
   byId('btnSpec').onclick = () => joinRoom('spec');
   byId('btnInviteRoom').onclick = copyInvite;
   byId('selDeck').onchange = () => {
@@ -7168,7 +7157,7 @@
     const hash = (location.hash || '').replace(/^#/, '');
     if (['decks', 'deckbuilder', 'gallery', 'howto', 'lobby', 'lanHall'].includes(hash)) {
       if (hash === 'howto') ensureHowto().then(() => showScreen('howto', true));
-      else if (hash === 'lanHall') openLanHall(true);
+      else if (hash === 'lanHall') showScreen('lobby', true);
       else if (hash === 'decks' || hash === 'deckbuilder' || hash === 'gallery') {
         ensureTools().then(() => {
           showScreen(hash, true);
@@ -7194,7 +7183,7 @@
       byId('inpRoom').value = data.room.toUpperCase();
       if (data.netKind === 'lan') {
         // โฮสต์รีเฟรช = ต้องสร้างห้องใหม่ (Peer ID เดิมใช้ต่อไม่ได้ชัวร์)
-        byId('lobbyMsg').textContent = 'ห้อง LAN หลุดหลังรีเฟรช — สร้างห้องใหม่หรือเข้าด้วยรหัสโฮสต์';
+        byId('lobbyMsg').textContent = 'ห้องหลุดหลังรีเฟรช — สร้างห้องใหม่หรือเข้าด้วยรหัสโฮสต์';
         return true;
       }
       byId('lobbyMsg').textContent = 'กำลังกลับเข้าห้อง ' + data.room.toUpperCase() + '…';
@@ -7230,7 +7219,7 @@
   if (!restored && qLan && String(qLan).length === 6) {
     showScreen('lobby', true);
     byId('inpRoom').value = String(qLan).toUpperCase();
-    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง LAN ' + String(qLan).toUpperCase() + '…';
+    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + String(qLan).toUpperCase() + '…';
     ensurePlayReady().then(() => joinLanRoom(qLan)).catch(() => joinLanRoom(qLan));
   } else if (!restored && qRoom && qRoom.length === 6) {
     showScreen('lobby', true);

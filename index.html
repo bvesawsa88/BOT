@@ -53,9 +53,6 @@
     <div id="menuPlayModes">
       <div class="menu-group-label">เลือกโหมดเล่น</div>
       <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
-      <!-- LAN — ซ่อนไว้ก่อน (อย่าลบ)
-      <button id="mnuLan" class="btn-dark big">📱 LAN — เห็นใครออน / ท้าสู้</button>
-      -->
       <button id="mnuBot" class="btn-dark big">🤖 เล่นกับบอท</button>
       <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
       <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง — ซ่อนไว้ก่อน (อย่าลบ)
@@ -161,16 +158,12 @@
       <input id="inpNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off">
       <div class="panel-note">สร้างห้องแล้วส่งรหัสให้เพื่อน — อยู่คนละที่ คนละเน็ตก็เล่นด้วยกันได้</div>
       <button id="btnCreate" class="btn-primary big">สร้างห้องออนไลน์</button>
-      <button id="btnCreateLan" class="btn-dark big hidden">📱 สร้างห้อง LAN (โฮสต์)</button>
     </div>
     <div class="lobby-or">หรือ</div>
     <div class="panel">
       <div class="panel-title">เข้าห้องเพื่อน</div>
       <input id="inpRoom" class="code-input" maxlength="6" placeholder="รหัสห้อง เช่น K7M2QF" autocomplete="off">
-      <div class="row-2">
-        <button id="btnJoin" class="btn-primary">เข้าห้อง</button>
-        <button id="btnJoinLan" class="btn-dark hidden">เข้า LAN</button>
-      </div>
+      <button id="btnJoin" class="btn-primary big">เข้าห้อง</button>
       <button id="btnSpec" class="btn-ghost hidden" style="width:100%">เข้าดูออนไลน์ (ผู้ชม)</button>
       <div id="lobbyMsg" class="lobby-msg"></div>
     </div>
@@ -408,9 +401,9 @@
           <div class="hw-c"><b>ซ้อมมือคนเดียว</b>
             <p>คุมทั้งสองฝั่งบนเครื่องเดียว เห็นมือทั้งคู่ เลือกเด็คฝั่ง A vs B ได้ — เหมาะกับลองคอมโบ</p>
             <p class="hw-dim">กด ⇄ สลับฝั่ง เพื่อย้ายมือฝั่งที่เล่นอยู่มาด้านล่าง</p></div>
-          <div class="hw-c"><b>📱 LAN — เห็นใครออน / ท้าสู้</b>
-            <p>รัน <b>node server.js</b> บนเครื่องโฮสต์ ให้เพื่อนเปิดผ่าน IP นั้น (Wi‑Fi / ฮอตสปอตเดียวกัน) → เห็นรายชื่อคนออน เลือกเด็ค แล้วกดท้าสู้</p>
-            <p class="hw-dim">ต้องเลือกเด็คก่อนท้าหรือรับคำท้า · เข้าด้วยรหัสห้องแบบเดิมได้จากปุ่มในหน้าล็อบบี้ LAN</p></div>
+          <div class="hw-c"><b>เล่นออนไลน์</b>
+            <p>กดสร้างห้อง แล้วส่งรหัส 6 ตัวให้เพื่อน — อยู่คนละที่ คนละเน็ตก็เล่นด้วยกันได้</p>
+            <p class="hw-dim">ทั้งคู่เปิด URL เดียวกัน เช่น bot-5uph.onrender.com · คนหนึ่งสร้างห้อง อีกคนกรอกรหัสแล้วเข้า</p></div>
           <div class="hw-c"><b>🎴 เล่นกับคนที่ใช้การ์ดจริง</b>
             <p>คู่ต่อสู้เล่นการ์ดจริงบนโต๊ะ เราเล่นบนเว็บ — ซ่อนสนามฝั่งตรงข้ามให้อัตโนมัติ สนามเราเลยใหญ่ขึ้น</p>
             <p class="hw-dim">ดูวิธีใช้กับ Discord ที่หัวข้อ 8</p></div>
@@ -1188,7 +1181,7 @@
 <script src="js/skins.js?v=20260820w"></script>
 <script src="js/carddb.js?v=20260818d"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260820h"></script>
+<script src="js/game.js?v=20260820i"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>
