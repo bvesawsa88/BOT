@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820aa">
+<link rel="stylesheet" href="css/style.css?v=20260820ab">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -27,7 +27,7 @@
 <div id="menu" class="screen">
   <div id="userBar">
     <button id="btnLogin" class="btn-ghost">🔑 เข้าสู่ระบบ / สมัคร</button>
-    <span id="userChip" class="hidden">👤 <b id="userName"></b> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
+    <span id="userChip" class="hidden">👤 <b id="userName"></b> · <a id="btnAdmin" class="link-btn hidden" href="/admin" style="margin:0">ตั้งค่า</a> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
   </div>
   <div class="float-card f1"><img src="https://cdn.bangbon.app/cards/SD01-001.png" alt=""></div>
   <div class="float-card f2"><img src="https://cdn.bangbon.app/cards/SD01-015.png" alt=""></div>
@@ -35,6 +35,7 @@
   <img id="menuLogo" class="menu-logo" src="https://cdn.bangbon.app/assets/bottcg/logo_full_white.png" alt="Battle of Talingchan">
   <div id="menuTitleFallback" class="menu-title" style="display:none">BATTLE OF<br>TALINGCHAN</div>
 
+  <div id="menuNotice" class="menu-notice hidden"></div>
   <!-- เมนูหลัก: เลือกหน้า — โหมดเล่นอยู่ในเมนูย่อยแยก -->
   <div id="menuHome" class="menu-btns">
     <button id="mnuPlay" class="btn-primary big">เล่นเกม</button>
@@ -119,7 +120,10 @@
     </div>
   </div>
 
-  <div class="menu-copy">© PASULOL Co.,Ltd / Lion House Co.,Ltd · Rule Book Ver. 3.2</div>
+  <div class="menu-copy">
+    © PASULOL Co.,Ltd / Lion House Co.,Ltd · Rule Book Ver. 3.2
+    <a class="menu-copy-link" href="https://bottcg.com/" target="_blank" rel="noopener noreferrer">เว็บทางการ bottcg.com</a>
+  </div>
 </div>
 
 <!-- ═══ ล็อบบี้ LAN: เห็นใครออน + ท้าสู้ ═══ -->
@@ -896,12 +900,12 @@
     <div class="dc-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
       <div>
         <div class="dc-title">สกินโต๊ะ</div>
-        <div class="dc-sub">ธรรมดา = ชุดทางการ · Custom ยังไม่พร้อมใช้งาน · บอทใช้สกินสปอนเซอร์</div>
+        <div class="dc-sub">ธรรมดา = ชุดทางการ · สนามกระดาษลังเลือกได้อิสระ · Custom เซฟตามบัญชี · บอทใช้สกินสปอนเซอร์</div>
       </div>
       <button type="button" id="skinModalClose" class="dc-x">✕</button>
     </div>
     <div id="skinSlots" class="skin-slots"></div>
-    <p class="skin-import-hint">ธรรมดา = ชุดทางการ · Custom ยังไม่พร้อมใช้งาน · ฝั่งบอทใช้ชุดสปอนเซอร์เสมอ</p>
+    <p class="skin-import-hint">Custom ต้องล็อกอิน — รูปและชุดที่เลือกเซฟตามบัญชี · ฝั่งบอทใช้ชุดสปอนเซอร์เสมอ</p>
     <button type="button" id="skinModalDone" class="btn-primary big">ใช้สกินนี้</button>
   </div>
 </div>
@@ -910,7 +914,7 @@
 <div id="authModal" class="hidden">
   <div class="dc-modal" style="max-width:380px">
     <div class="dc-head">
-      <div><div class="dc-title" id="authTitle">เข้าสู่ระบบ</div><div class="dc-sub">ล็อกอินเพื่อเก็บเด็คไว้บนบัญชี — เล่นเครื่องอื่นก็ใช้เด็คเดิมได้ (ไม่บังคับ)</div></div>
+      <div><div class="dc-title" id="authTitle">เข้าสู่ระบบ</div><div class="dc-sub">ล็อกอินเพื่อเก็บเด็คและสกิน Custom ไว้บนบัญชี — เล่นเครื่องอื่นก็ใช้ของเดิมได้ (ไม่บังคับ)</div></div>
       <button id="authClose" class="dc-x">✕</button>
     </div>
     <div class="dc-body">
@@ -1192,11 +1196,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260820login"></script>
-<script src="js/skins.js?v=20260820w"></script>
+<script src="js/util.js?v=20260820custom"></script>
+<script src="js/skins.js?v=20260820custom"></script>
 <script src="js/carddb.js?v=20260820login"></script>
 <script src="js/lan.js?v=20260820e"></script>
-<script src="js/game.js?v=20260820login"></script>
+<script src="js/game.js?v=20260820admin"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

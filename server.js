@@ -288,10 +288,14 @@ function authCors(res) {
   res.setHeader('Cache-Control', 'no-store');
 }
 
+function isAdminUser(u) {
+  return !!(u && u.role === 'admin');
+}
+
 function issueSession(user) {
   user.token = newToken();
   user.tokenExp = Date.now() + TOKEN_TTL_MS;
-  return { ok: true, token: user.token, username: user.username };
+  return { ok: true, token: user.token, username: user.username, admin: isAdminUser(user) };
 }
 
 async function handleAuth(req, res, urlPath) {
@@ -324,6 +328,9 @@ async function handleAuth(req, res, urlPath) {
     try {
       const out = await mutateUsers(async (users) => {
         if (isReg) {
+          if (key === 'admin' || (users[key] && isAdminUser(users[key]))) {
+            return { status: 409, body: { ok: false, error: 'ชื่อนี้ใช้ไม่ได้' } };
+          }
           if (users[key]) return { status: 409, body: { ok: false, error: 'ชื่อนี้มีคนใช้แล้ว' } };
           const salt = crypto.randomBytes(16).toString('hex');
           const hash = await scryptHash(password, salt);
@@ -363,7 +370,7 @@ async function handleAuth(req, res, urlPath) {
 
     if (route === '/auth/me') {
       if (req.method !== 'GET') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
-      json(res, 200, { ok: true, username: hit.user.username });
+      json(res, 200, { ok: true, username: hit.user.username, admin: isAdminUser(hit.user) });
       return;
     }
 
@@ -394,6 +401,415 @@ async function handleAuth(req, res, urlPath) {
     return;
   }
 
+  if (route === '/auth/skins' || route === '/auth/skins/upload') {
+    await handleAuthSkins(req, res, route);
+    return;
+  }
+
+  json(res, 404, { ok: false, error: 'not found' });
+}
+
+/* ── ตั้งค่าเว็บ (สปอนเซอร์ / ประกาศ) — แก้จากหน้าแอดมิน ไม่ต้องแตะโค้ด ── */
+const SETTINGS_FILE = path.join(ROOT, 'data', 'site-settings.json');
+const UPLOAD_DIR = path.join(ROOT, 'data', 'uploads');
+const SKINS_FILE = path.join(ROOT, 'data', 'skins.json');
+const SPONSOR_SLOTS = ['cardBack', 'lifeBack', 'playmat', 'playmatOpp'];
+
+function loadBaseSkins() {
+  try {
+    const obj = JSON.parse(fs.readFileSync(SKINS_FILE, 'utf8'));
+    if (obj && typeof obj === 'object') return obj;
+  } catch (e) { }
+  return {
+    defaultPack: 'official', fallbackPack: 'official', sponsorPack: 'tinny',
+    packs: [],
+  };
+}
+
+function defaultSponsorFromSkins() {
+  const skins = loadBaseSkins();
+  const id = skins.sponsorPack || 'tinny';
+  const sp = (skins.packs || []).find((p) => p.id === id)
+    || (skins.packs || []).find((p) => p.tier === 'sponsor')
+    || null;
+  if (!sp) {
+    return {
+      id: 'tinny', name: 'TINNY', label: 'สปอน · TINNY Cafe',
+      cardBack: 'assets/skins/tinny/card-back.png',
+      lifeBack: 'assets/skins/tinny/life-back.png',
+      playmat: 'assets/skins/tinny/playmat.png',
+      playmatOpp: 'assets/skins/tinny/playmat-opp.png',
+    };
+  }
+  return {
+    id: sp.id,
+    name: sp.name || sp.id,
+    label: sp.label || sp.name || sp.id,
+    cardBack: sp.cardBack || '',
+    lifeBack: sp.lifeBack || '',
+    playmat: sp.playmat || '',
+    playmatOpp: sp.playmatOpp || '',
+  };
+}
+
+function defaultSiteSettings() {
+  const skins = loadBaseSkins();
+  return {
+    sponsorEnabled: true,
+    sponsorPack: skins.sponsorPack || 'tinny',
+    notice: '',
+    promptpay: '',
+    truemoney: '',
+    sponsor: defaultSponsorFromSkins(),
+  };
+}
+
+function loadSiteSettings() {
+  const base = defaultSiteSettings();
+  try {
+    const raw = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
+    if (!raw || typeof raw !== 'object') return base;
+    return {
+      sponsorEnabled: raw.sponsorEnabled !== false,
+      sponsorPack: String(raw.sponsorPack || base.sponsorPack),
+      notice: String(raw.notice || ''),
+      promptpay: String(raw.promptpay || ''),
+      truemoney: String(raw.truemoney || ''),
+      sponsor: Object.assign({}, base.sponsor, raw.sponsor || {}),
+    };
+  } catch (e) {
+    return base;
+  }
+}
+
+function saveSiteSettings(s) {
+  const dir = path.dirname(SETTINGS_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const tmp = SETTINGS_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(s, null, 2), 'utf8');
+  try { fs.renameSync(tmp, SETTINGS_FILE); }
+  catch (e) {
+    try { fs.unlinkSync(SETTINGS_FILE); } catch (e2) { }
+    fs.renameSync(tmp, SETTINGS_FILE);
+  }
+}
+
+function safeImgPath(p, fallback) {
+  const s = String(p || '').trim().split('?')[0];
+  if (!s || s.includes('..') || s.includes('\\')) return fallback;
+  if (/^assets\/[A-Za-z0-9._\-\/]+$/.test(s)) return s;
+  if (/^\/?data\/uploads\/[A-Za-z0-9._-]+$/.test(s)) return s.charAt(0) === '/' ? s : '/' + s;
+  return fallback;
+}
+
+function publicSkins() {
+  const skins = loadBaseSkins();
+  const set = loadSiteSettings();
+  const sp = set.sponsor || defaultSponsorFromSkins();
+  const packs = (skins.packs || []).map((p) => {
+    if (p.id !== sp.id) return p;
+    return Object.assign({}, p, {
+      name: clip(sp.name || p.name, 24),
+      label: clip(sp.label || p.label || p.name, 60),
+      cardBack: safeImgPath(sp.cardBack, p.cardBack),
+      lifeBack: safeImgPath(sp.lifeBack, p.lifeBack),
+      playmat: safeImgPath(sp.playmat, p.playmat),
+      playmatOpp: safeImgPath(sp.playmatOpp, p.playmatOpp || ''),
+      tier: 'sponsor',
+    });
+  });
+  const sponsorId = set.sponsorEnabled ? (sp.id || set.sponsorPack || 'tinny') : (skins.fallbackPack || 'official');
+  return {
+    defaultPack: skins.defaultPack || 'official',
+    fallbackPack: skins.fallbackPack || 'official',
+    sponsorPack: sponsorId,
+    packs,
+  };
+}
+
+function publicSite() {
+  const set = loadSiteSettings();
+  return {
+    ok: true,
+    notice: clip(set.notice, 200),
+    promptpay: String(set.promptpay || '').replace(/\D/g, '').slice(0, 15),
+    truemoney: clip(set.truemoney, 200),
+  };
+}
+
+function requireAdmin(req) {
+  const hit = findByToken(loadUsers(), bearer(req));
+  if (!hit || !isAdminUser(hit.user)) return null;
+  return hit;
+}
+
+function sniffImage(buf) {
+  if (!buf || buf.length < 12) return null;
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return { ext: '.png' };
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return { ext: '.jpg' };
+  if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') return { ext: '.webp' };
+  return null;
+}
+
+const SKIN_SLOTS = ['cardBack', 'lifeBack', 'playmat'];
+const USER_SKIN_PATH_RE = /^\/data\/uploads\/user-[a-f0-9]{16}-(cardBack|lifeBack|playmat)\.(jpg|png|webp)$/;
+
+function userSkinFileId(key) {
+  return crypto.createHash('sha1').update('bot-skin:' + String(key)).digest('hex').slice(0, 16);
+}
+
+function allowedPlayerSkinIds() {
+  const ids = ['custom'];
+  const skins = loadBaseSkins();
+  const sid = skins.sponsorPack || 'tinny';
+  for (const p of skins.packs || []) {
+    if (!p || !p.id) continue;
+    if (p.tier === 'shop' || p.tier === 'sponsor' || p.id === sid) continue;
+    ids.push(p.id);
+  }
+  return ids;
+}
+
+function sanitizeSkinSel(raw) {
+  const d = { cardBack: 'official', lifeBack: 'official', playmat: 'official' };
+  const allowed = new Set(allowedPlayerSkinIds());
+  const packs = (loadBaseSkins().packs || []);
+  if (!raw || typeof raw !== 'object') return d;
+  for (const slot of SKIN_SLOTS) {
+    const id = String(raw[slot] || '');
+    if (!allowed.has(id)) continue;
+    const p = packs.find((x) => x.id === id);
+    if (p && p.playmatOnly && slot !== 'playmat') continue;
+    d[slot] = id;
+  }
+  return d;
+}
+
+function readUserCustom(user) {
+  const out = {};
+  const c = user && user.customSkins;
+  if (!c || typeof c !== 'object') return out;
+  const uploadRoot = path.resolve(path.join(ROOT, 'data', 'uploads'));
+  for (const slot of SKIN_SLOTS) {
+    const p = String(c[slot] || '').split('?')[0];
+    if (!USER_SKIN_PATH_RE.test(p)) continue;
+    const fp = path.resolve(path.join(ROOT, p.replace(/^\//, '').replace(/\//g, path.sep)));
+    if (fp !== uploadRoot && fp.indexOf(uploadRoot + path.sep) !== 0) continue;
+    try {
+      if (fs.existsSync(fp)) out[slot] = p;
+    } catch (e) { }
+  }
+  return out;
+}
+
+async function handleAuthSkins(req, res, route) {
+  const token = bearer(req);
+  const hit0 = findByToken(loadUsers(), token);
+  if (!hit0) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+
+  if (route === '/auth/skins') {
+    if (req.method === 'GET') {
+      json(res, 200, {
+        ok: true,
+        sel: sanitizeSkinSel(hit0.user.skins),
+        custom: readUserCustom(hit0.user),
+      });
+      return;
+    }
+    if (req.method === 'PUT') {
+      let body;
+      try { body = JSON.parse(await readBody(req, 8192) || '{}'); }
+      catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      try {
+        const saved = await mutateUsers((users2) => {
+          const h = findByToken(users2, token);
+          if (!h) return { ok: false };
+          h.user.skins = sanitizeSkinSel(body.sel);
+          return { ok: true, sel: h.user.skins };
+        });
+        if (!saved || !saved.ok) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+        json(res, 200, { ok: true, sel: saved.sel });
+      } catch (e) {
+        console.error('[auth]', e.message || e);
+        json(res, 500, { ok: false, error: 'server error' });
+      }
+      return;
+    }
+    json(res, 405, { ok: false, error: 'method not allowed' });
+    return;
+  }
+
+  if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+  let body;
+  try { body = JSON.parse(await readBody(req, 600000) || '{}'); }
+  catch (e) { json(res, 400, { ok: false, error: 'รูปใหญ่เกินไปหรือไฟล์ไม่ถูกต้อง' }); return; }
+  const slot = String(body.slot || '');
+  if (!SKIN_SLOTS.includes(slot)) { json(res, 400, { ok: false, error: 'ช่องรูปไม่ถูกต้อง' }); return; }
+  let raw = String(body.data || '');
+  const dm = raw.match(/^data:image\/[a-zA-Z0-9+.-]+;base64,(.+)$/);
+  if (dm) raw = dm[1];
+  let buf;
+  try { buf = Buffer.from(raw, 'base64'); }
+  catch (e) { json(res, 400, { ok: false, error: 'ไฟล์ไม่ถูกต้อง' }); return; }
+  if (!buf.length || buf.length > 400000) { json(res, 400, { ok: false, error: 'รูปใหญ่เกินไป' }); return; }
+  const kind = sniffImage(buf);
+  if (!kind) { json(res, 400, { ok: false, error: 'ใช้ได้เฉพาะ PNG / JPG / WEBP' }); return; }
+  const fileId = userSkinFileId(hit0.key);
+  if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  ['.png', '.jpg', '.webp'].forEach((ext) => {
+    try { fs.unlinkSync(path.join(UPLOAD_DIR, 'user-' + fileId + '-' + slot + ext)); } catch (e) { }
+  });
+  const filename = 'user-' + fileId + '-' + slot + kind.ext;
+  fs.writeFileSync(path.join(UPLOAD_DIR, filename), buf);
+  const url = '/data/uploads/' + filename;
+  try {
+    const saved = await mutateUsers((users2) => {
+      const h = findByToken(users2, token);
+      if (!h) return { ok: false };
+      h.user.skins = sanitizeSkinSel(Object.assign({}, h.user.skins, { [slot]: 'custom' }));
+      h.user.customSkins = Object.assign({}, h.user.customSkins || {}, { [slot]: url });
+      return { ok: true, url, sel: h.user.skins, custom: readUserCustom(h.user) };
+    });
+    if (!saved || !saved.ok) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+    json(res, 200, { ok: true, url: saved.url, sel: saved.sel, custom: saved.custom });
+  } catch (e) {
+    console.error('[auth]', e.message || e);
+    json(res, 500, { ok: false, error: 'server error' });
+  }
+}
+
+function genAdminPass() {
+  const chars = 'abcdefghijkmnpqrstuvwxyz23456789';
+  let s = '';
+  for (let i = 0; i < 10; i++) s += chars[crypto.randomInt(chars.length)];
+  return s;
+}
+
+async function ensureAdmin() {
+  const users = loadUsers();
+  if (Object.values(users).some(isAdminUser)) return { created: false };
+  if (users.admin && users.admin.hash) {
+    users.admin.role = 'admin';
+    saveUsers(users);
+    return { created: false, promoted: true };
+  }
+  const fromEnv = String(process.env.BOT_ADMIN_PASSWORD || '').trim();
+  const password = fromEnv || genAdminPass();
+  if (password.length < 6) return { created: false, error: 'BOT_ADMIN_PASSWORD สั้นเกินไป' };
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = await scryptHash(password, salt);
+  users.admin = {
+    username: 'admin',
+    salt,
+    hash,
+    role: 'admin',
+    decks: {},
+    createdAt: new Date().toISOString(),
+  };
+  saveUsers(users);
+  return { created: true, password: fromEnv ? '' : password };
+}
+
+function serveAdminPage(res) {
+  fs.readFile(path.join(ROOT, 'admin.html'), (err, data) => {
+    if (err) { json(res, 404, { ok: false, error: 'admin.html missing' }); return; }
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end(data);
+  });
+}
+
+async function handleAdminApi(req, res, urlPath) {
+  authCors(res);
+  if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+  const route = urlPath.replace(/\/+$/, '') || '/';
+  const admin = requireAdmin(req);
+  if (!admin) { json(res, 401, { ok: false, error: 'ต้องเป็นแอดมิน' }); return; }
+
+  if (route === '/admin/settings') {
+    if (req.method === 'GET') { json(res, 200, { ok: true, settings: loadSiteSettings() }); return; }
+    if (req.method !== 'PUT') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+    let body;
+    try { body = JSON.parse(await readBody(req, 65536) || '{}'); }
+    catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+    const cur = loadSiteSettings();
+    const spIn = body.sponsor && typeof body.sponsor === 'object' ? body.sponsor : {};
+    const next = {
+      sponsorEnabled: body.sponsorEnabled !== false,
+      sponsorPack: cur.sponsorPack,
+      notice: clip(body.notice, 200),
+      promptpay: String(body.promptpay || '').replace(/\D/g, '').slice(0, 15),
+      truemoney: clip(body.truemoney, 200),
+      sponsor: {
+        id: cur.sponsor.id,
+        name: clip(spIn.name != null ? spIn.name : cur.sponsor.name, 24),
+        label: clip(spIn.label != null ? spIn.label : cur.sponsor.label, 60),
+        cardBack: safeImgPath(spIn.cardBack, cur.sponsor.cardBack),
+        lifeBack: safeImgPath(spIn.lifeBack, cur.sponsor.lifeBack),
+        playmat: safeImgPath(spIn.playmat, cur.sponsor.playmat),
+        playmatOpp: safeImgPath(spIn.playmatOpp, cur.sponsor.playmatOpp),
+      },
+    };
+    saveSiteSettings(next);
+    json(res, 200, { ok: true, settings: next });
+    return;
+  }
+
+  if (route === '/admin/upload') {
+    if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+    let body;
+    try { body = JSON.parse(await readBody(req, 3500000) || '{}'); }
+    catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+    const slot = String(body.slot || '');
+    if (!SPONSOR_SLOTS.includes(slot)) { json(res, 400, { ok: false, error: 'ช่องรูปไม่ถูกต้อง' }); return; }
+    let buf;
+    try { buf = Buffer.from(String(body.data || ''), 'base64'); }
+    catch (e) { json(res, 400, { ok: false, error: 'ไฟล์ไม่ถูกต้อง' }); return; }
+    if (!buf.length || buf.length > 2500000) { json(res, 400, { ok: false, error: 'รูปใหญ่เกินไป (สูงสุด ~2MB)' }); return; }
+    const kind = sniffImage(buf);
+    if (!kind) { json(res, 400, { ok: false, error: 'ใช้ได้เฉพาะ PNG / JPG / WEBP' }); return; }
+    if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    ['.png', '.jpg', '.webp'].forEach((ext) => {
+      try { fs.unlinkSync(path.join(UPLOAD_DIR, 'sponsor-' + slot + ext)); } catch (e) { }
+    });
+    const filename = 'sponsor-' + slot + kind.ext;
+    fs.writeFileSync(path.join(UPLOAD_DIR, filename), buf);
+    const url = '/data/uploads/' + filename + '?t=' + Date.now();
+    const set = loadSiteSettings();
+    set.sponsor[slot] = url.split('?')[0];
+    saveSiteSettings(set);
+    json(res, 200, { ok: true, url, settings: set });
+    return;
+  }
+
+  if (route === '/admin/password') {
+    if (req.method !== 'PUT') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+    let body;
+    try { body = JSON.parse(await readBody(req, 4096) || '{}'); }
+    catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+    const cur = String(body.password || '');
+    const next = String(body.next || '');
+    if (next.length < 6 || next.length > 64) { json(res, 400, { ok: false, error: 'รหัสใหม่ต้องอย่างน้อย 6 ตัว' }); return; }
+    try {
+      const out = await mutateUsers(async (users) => {
+        const hit = findByToken(users, bearer(req));
+        if (!hit || !isAdminUser(hit.user)) return { status: 401, body: { ok: false, error: 'ต้องเป็นแอดมิน' } };
+        const hash = await scryptHash(cur, hit.user.salt);
+        let ok = false;
+        try { ok = crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(String(hit.user.hash), 'hex')); }
+        catch (e) { ok = false; }
+        if (!ok) return { status: 401, body: { ok: false, error: 'รหัสผ่านปัจจุบันไม่ถูกต้อง' } };
+        hit.user.salt = crypto.randomBytes(16).toString('hex');
+        hit.user.hash = await scryptHash(next, hit.user.salt);
+        return { status: 200, body: issueSession(hit.user) };
+      });
+      json(res, out.status, out.body);
+    } catch (e) {
+      console.error('[admin]', e.message || e);
+      json(res, 500, { ok: false, error: 'server error' });
+    }
+    return;
+  }
+
   json(res, 404, { ok: false, error: 'not found' });
 }
 
@@ -409,6 +825,25 @@ const server = http.createServer((req, res) => {
   if (urlPath === '/auth' || urlPath.indexOf('/auth/') === 0) {
     handleAuth(req, res, urlPath).catch((err) => {
       console.error('[auth]', err);
+      if (!res.headersSent) json(res, 500, { ok: false, error: 'server error' });
+    });
+    return;
+  }
+  if (urlPath === '/api/skins') {
+    json(res, 200, publicSkins());
+    return;
+  }
+  if (urlPath === '/api/site') {
+    json(res, 200, publicSite());
+    return;
+  }
+  if (urlPath === '/admin' || urlPath === '/admin/') {
+    serveAdminPage(res);
+    return;
+  }
+  if (urlPath.indexOf('/admin/') === 0) {
+    handleAdminApi(req, res, urlPath).catch((err) => {
+      console.error('[admin]', err);
       if (!res.headersSent) json(res, 500, { ok: false, error: 'server error' });
     });
     return;
@@ -849,5 +1284,16 @@ server.listen(PORT, '0.0.0.0', () => {
   }
   console.log(`   จับคู่ออนไลน์: WebSocket /signal`);
   console.log(`   แจ้งบัค: GET/POST /feedback` + (FEEDBACK_WEBHOOK ? ' → Discord ✓' : ' (ตั้ง DISCORD_FEEDBACK_WEBHOOK)'));
-  console.log(`   Press Ctrl+C to stop.\n`);
+  ensureAdmin().then((info) => {
+    console.log(`   แอดมิน:     http://localhost:${PORT}/admin`);
+    if (info && info.created && info.password) {
+      console.log(`   บัญชีแอดมิน: admin / ${info.password}  (ครั้งแรก — เปลี่ยนได้ที่ /admin)`);
+    } else if (info && info.created) {
+      console.log(`   บัญชีแอดมิน: admin (รหัสจาก BOT_ADMIN_PASSWORD)`);
+    }
+    console.log(`   Press Ctrl+C to stop.\n`);
+  }).catch((err) => {
+    console.error('[admin] สร้างบัญชีแอดมินไม่สำเร็จ', err);
+    console.log(`   Press Ctrl+C to stop.\n`);
+  });
 });

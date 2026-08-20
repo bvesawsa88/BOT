@@ -54,6 +54,7 @@ const filesToDownload = [
   'assets/skins/tinny/life-back.png',
   'assets/skins/tinny/playmat.png',
   'assets/skins/tinny/playmat-opp.png',
+  'assets/skins/cardboard/playmat.png',
   'assets/icon-192.png',
   'assets/icon-512.png',
   'assets/bottcg/logo_full_white.png'

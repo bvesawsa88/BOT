@@ -14,6 +14,16 @@
       "playmatOpp": "assets/mat-a.png"
     },
     {
+      "id": "cardboard",
+      "name": "กระดาษลัง",
+      "label": "เพลย์แมทกระดาษลังวาดมือ",
+      "tier": "free",
+      "playmatOnly": true,
+      "cardBack": "assets/card-back.png",
+      "lifeBack": "assets/life-card-back.png",
+      "playmat": "assets/skins/cardboard/playmat.png"
+    },
+    {
       "id": "tinny",
       "name": "TINNY",
       "label": "สปอน · TINNY Cafe",
