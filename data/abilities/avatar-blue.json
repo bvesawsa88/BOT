@@ -225,8 +225,45 @@
       "codes": [
         "PRMO-116"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameMatchAny": [
+                  "ครุฑ",
+                  "ขนมณี แฟลร์"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ครุฑ"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatarZone",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ ทิ้ง Avatar ครุฑ/ขนมณี แฟลร์ จากมือ: อัญเชิญ Avatar ครุฑ Cost≤4 จาก Deck"
     },
     {
       "name": "ครุฑปรเมศวร เจ้าสมบัติ",
@@ -709,7 +746,11 @@
         "CC01-009"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "nameAliases": [
+        "รัททาทุย นางพญา"
+      ],
+      "parseStatus": "auto",
+      "note": "ถ้าเคยอัญเชิญรัททาทุย นางพญา ในเกมนี้ → นับชื่อเป็น รัททาทุย นางพญา บน AZ"
     },
     {
       "name": "ซันนี่",
@@ -856,7 +897,8 @@
         "ODY1-037"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความ effect — Vanilla"
     },
     {
       "name": "เดออง อัศวินเฟมบอย",
@@ -1255,8 +1297,64 @@
       "codes": [
         "CC01-006"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellSummonMulti",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "totalCostMax": 7,
+              "dest": "avatarZone",
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "ปลา",
+                "excludeSelf": true
+              }
+            },
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "ปลา",
+                "excludeSelf": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: อัญเชิญ Symbol ปลา จากนรก Cost รวมไม่เกิน 7; ต่อเนื่อง: Symbol ปลา ฝ่ายเรา POWER+1 + สามัคคี"
     },
     {
       "name": "ทาโกะจัง พนักงานดีเด่น",
@@ -1590,8 +1688,43 @@
       "codes": [
         "PRMO-058"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "destroyEnemyAvatarByCombat",
+            "if": "source==self"
+          },
+          "condition": {
+            "landZone": {
+              "nameIncludes": "บึงทมิฬ"
+            }
+          },
+          "actions": [
+            {
+              "op": "activated",
+              "cost": [
+                {
+                  "op": "discard",
+                  "from": "hand",
+                  "count": 1
+                }
+              ],
+              "then": [
+                {
+                  "op": "changeStatus",
+                  "status": "awake",
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถ้ามีบึงทมิฬบน Land MZ; เมื่อทำลาย Avatar ตรงข้ามสำเร็จ → ทิ้งมือ1 กลับมาตื่น"
     },
     {
       "name": "บึงทมิฬ  People - คุณดีไมส์ (ปลาดาบ)",
@@ -1688,8 +1821,32 @@
       "codes": [
         "CC02-009"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "landZone": {
+              "nameIncludes": "บึงทมิฬ"
+            }
+          },
+          "actions": [
+            {
+              "op": "limitAvatarZone",
+              "filter": {
+                "symbolNot": "ปลา"
+              },
+              "maxCount": 1,
+              "player": "both"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ถ้ามีบึงทมิฬบน Land MZ: ทั้ง 2 ฝ่ายควบคุม Avatar ที่ไม่ใช่ Symbol ปลา ได้สูงสุด 1 ใบ"
     },
     {
       "name": "บึงทมิฬ  People - คุณพยาบาล",
@@ -2607,8 +2764,38 @@
       "codes": [
         "PRMO-075"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "destroyLand",
+              "target": {
+                "select": "choose",
+                "type": "Magic",
+                "subtype": "Land",
+                "count": 1
+              }
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "subtype": "Land"
+              },
+              "dest": "landZone",
+              "count": 1,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ทำลาย Land MZ → นำ Land จาก Deck เล่น Land MZ แล้วสับ"
     },
     {
       "name": "แมลงปอนา",
@@ -2828,7 +3015,8 @@
         "PRMO-055"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความ effect — Vanilla"
     },
     {
       "name": "รัททาทุย ผู้พิทักษ์ราชีนี",
@@ -3600,8 +3788,77 @@
       "codes": [
         "CC01-007"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย"
+                ]
+              },
+              "count": 1
+            },
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "ฮอล"
+                ]
+              },
+              "count": 1
+            },
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "นาย"
+                ]
+              },
+              "count": 1
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "afterAttackSuccess",
+            "if": "source==self"
+          },
+          "condition": {
+            "selfAttached": {
+              "allNameIncludes": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "sendSelfToGrave"
+            },
+            {
+              "op": "summonFromHandOrDeck",
+              "filter": {
+                "nameIncludes": [
+                  "วีรบุรุษปากซอย"
+                ]
+              },
+              "paidCost": true,
+              "shuffleAfterIfDeck": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: แนบ กุ่ย/ฮอล/นาย จากนรก; หลังโจมตีสำเร็จมีทั้ง 3 → ส่งตัวเองนรก อัญเชิญวีรบุรุษปากซอย"
     },
     {
       "name": "ไวรัสแห่งการช่วงชิง โทรจัน",
@@ -3970,8 +4227,66 @@
       "codes": [
         "CC02-010"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "ฟ้า"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "type": "Avatar",
+                        "costMax": 3
+                      },
+                      "dest": "avatarZone",
+                      "paidCost": false,
+                      "restTo": "deck",
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "pick": 1,
+                      "dest": "hand",
+                      "restTo": "deck",
+                      "shuffleAfter": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดง Avatar ฟ้าจากมือ: 1) สอดแนม5 อัญเชิญ Avatar Cost≤3; 2) สอดแนม5 นำ Avatar 1 ขึ้นมือ"
     },
     {
       "name": "หัวหน้าทหารหิมะ โจว",
@@ -4376,8 +4691,46 @@
       "codes": [
         "CC02-007"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5
+              },
+              "pick": 1,
+              "destIfCostMax": {
+                "cost": 2,
+                "dest": "avatarZone",
+                "paidCost": false
+              },
+              "dest": "hand",
+              "restTo": "deck",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ เซ่น Avatar สัตว์: สอดแนม7 เอา Avatar Cost≤5 ขึ้นมือ; ถ้า Cost≤2 → อัญเชิญแทน"
     },
     {
       "name": "ไอ้ดำ",

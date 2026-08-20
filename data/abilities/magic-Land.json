@@ -356,8 +356,39 @@
       "codes": [
         "CC02-049"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "min": 2,
+                "allDistinctSymbols": true
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land ต่อเนื่อง: ถ้า AZ ฝ่ายเรามี Avatar 2+ ใบ Symbol ไม่ซ้ำ → Avatar ทุกใบ POWER+1"
     },
     {
       "name": "ถ้ำนาคา",
@@ -548,8 +579,22 @@
       "codes": [
         "PRMO-029"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "allowBothLandPlay"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land ของอีกฝ่าย"
     },
     {
       "name": "ประตูนรก",
@@ -1129,8 +1174,43 @@
       "codes": [
         "CC02-050"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "changeStatus",
+              "status": "sleep",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "zone": "avatarZone",
+                "symbol": "ปลา",
+                "count": 1
+              }
+            },
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "symbol": "ปลา"
+              },
+              "pick": 1,
+              "dest": "hand",
+              "restTo": "grave"
+            }
+          ]
+        }
+      ],
+      "nameAliases": [
+        "บึงทมิฬ"
+      ],
+      "parseStatus": "auto",
+      "note": "Land นับเป็น บึงทมิฬ; สั่งใช้: เปลี่ยน Avatar ปลาเป็นนอน → สอดแนม3 เอา Symbol ปลา 1 ขึ้นมือ ที่เหลือลงนรก"
     },
     {
       "name": "เวทีแห่งความฝัน",
@@ -1255,8 +1335,51 @@
       "codes": [
         "CC01-051"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "mainPhase"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "เสามงคล"
+                ]
+              },
+              "dest": "avatarZone",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "beforeMainPhase"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "countPer": "ownNameOnField",
+              "nameIncludes": "เสามงคล",
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land: ทิ้งมือ1 → อัญเชิญเสามงคลจาก Deck; ก่อน Main Phase: จั่วตามจำนวนเสามงคลบนสนาม"
     },
     {
       "name": "สมาคมผู้รู้ความจริง",
@@ -1328,8 +1451,23 @@
       "codes": [
         "PRMO-039"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "forceExactGemPay",
+              "player": "both"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land: ทุกคนต้องทิ้ง GEM พอดี Cost"
     },
     {
       "name": "หมู่บ้านเห็ด",
@@ -1598,8 +1736,56 @@
       "codes": [
         "CC01-050"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "cost": [
+                    {
+                      "op": "discard",
+                      "from": "hand",
+                      "count": 1
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 3,
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "dest": "magicZone",
+                      "restTo": "deckBottom"
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "summonFromMagicZone",
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "dest": "avatarZone",
+                      "paidCost": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land เทิร์นละครั้ง: 1) ทิ้งมือ → สอดแนม3 นำ Avatar วางMagicZone; 2) Avatar ในMZ → อัญเชิญขึ้น AZ"
     }
   ]
 }

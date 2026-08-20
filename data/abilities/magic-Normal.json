@@ -943,8 +943,51 @@
       "codes": [
         "CC01-044"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "condition": {
+            "opponent": {
+              "avatarZone": {
+                "min": 1
+              }
+            },
+            "own": {
+              "avatarZone": {
+                "count": 0
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "hellSummon",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ],
+                "cost": 3
+              },
+              "dest": "avatarZone",
+              "paidCost": false
+            },
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "Tank Ranger"
+                ],
+                "cost": 3
+              },
+              "attachTo": "lastSummoned",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ฝ่ายตรงข้ามมี Avatar แต่เราไม่มี: เลือกรถถัง+Tank Ranger Cost 3 จากนรก อัญเชิญรถถัง+สวมTank Ranger"
     },
     {
       "name": "ซุปเปอร์สแน็ค !!",
@@ -1149,9 +1192,27 @@
       "codes": [
         "ODY1-065"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "destroyed",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "untilOpponentNextTurnEnd",
+              "layer": 4,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทำลายในสภาพสวมใส่: Avatar ที่เคยสวมใส่ POWER +2 จนจบเทิร์นถัดไปของฝ่ายตรงข้าม"
     },
     {
       "name": "ทะลวงส้วม",
@@ -1418,9 +1479,23 @@
       "codes": [
         "KD00-00B"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "randomHandCompare",
+              "costCompare": true,
+              "loserBanish": 1,
+              "winnerRetrieveExile": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สุ่มหยิบมือเทียบ Cost ผู้แพ้เนรเทศ 1 ใบ / ผู้ชนะนำการ์ดจากมิติมืดคืนใต้เด็ค"
     },
     {
       "name": "แบงค์ Portal",
@@ -2565,8 +2640,25 @@
       "codes": [
         "CC01-043"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "returnControlToOwner",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "filter": "changedControl"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "นำ Avatar ที่ถูก changeControl ทั้งหมดกลับเจ้าของเดิม"
     },
     {
       "name": "ล้มโต๊ะ",
@@ -3257,9 +3349,28 @@
       "codes": [
         "ODY1-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "ifTargetNameIncludes": "ทาโกะ"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "attackTarget"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ทาโกะ ตกเป็นเป้าการโจมตี: Avatar นั้น POWER +2 จนจบเทิร์น"
     },
     {
       "name": "โอน้อยออกแห่งโชคชะตา",

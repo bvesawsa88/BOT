@@ -43,7 +43,8 @@
         "ODY1-038"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความ effect — Vanilla"
     },
     {
       "name": "กัฟแดน ผู้อำนวยการจอมเวทย์",
@@ -583,8 +584,42 @@
       "codes": [
         "CC01-013"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "anyEndPhase"
+          },
+          "actions": [
+            {
+              "op": "rollDie",
+              "results": {
+                "4": [
+                  {
+                    "op": "destroySelf"
+                  },
+                  {
+                    "op": "revealTopLife",
+                    "count": 1,
+                    "player": "controller"
+                  }
+                ],
+                "other": [
+                  {
+                    "op": "changeControl",
+                    "target": {
+                      "select": "self"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "cannotAttack": true,
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง โจมตีไม่ได้; ทุก End Phase: ลูกเต๋า 4→ทำลาย+หงาย Life, อื่น→เปลี่ยนการควบคุม"
     },
     {
       "name": "เจ๊หมวย เจ้าของร้านหม่าล่า",
@@ -845,8 +880,51 @@
       "codes": [
         "CC02-013"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "retrieveFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "ม่วง",
+                "symbol": "ต่างชาติ",
+                "nameNotExact": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช"
+              },
+              "count": 1,
+              "dest": "hand",
+              "grantCostReduce": {
+                "amount": 3,
+                "until": "endOfTurn"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyAvatarChangeStatus",
+            "if": "ownTurn"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำขุนพลม่วงต่างชาติจากนรกขึ้นมือ Cost-3; อัตโนมัติ เทิร์นละครั้ง เมื่อ Avatar ตรงข้ามเปลี่ยนสภาพ: จั่ว1"
     },
     {
       "name": "ตันก๋ง กุนซือคู่กายเทพสงคราม",
@@ -1033,8 +1111,58 @@
       "codes": [
         "CC02-012"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "filter": {
+                  "nameIncludes": [
+                    "ขุนพล"
+                  ],
+                  "color": "ม่วง",
+                  "symbol": "ต่างชาติ"
+                },
+                "min": 1
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "setCannotBeAttackTarget",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "changeStatus",
+              "status": "awake",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "opponent",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ถ้ามีขุนพลม่วง Symbol ต่างชาติ ฝ่ายเรา → โจมตีไม่ได้; สั่งใช้: Avatar ฝ่ายตรงข้ามทั้งหมดตื่น"
     },
     {
       "name": "ทนายกิ๊บ",
@@ -2070,8 +2198,47 @@
       "codes": [
         "CC01-011"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "grantNameInGrave",
+              "filter": {
+                "symbol": "นรก"
+              },
+              "grantName": "นายนิรยบาล",
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellSummon",
+              "filter": {
+                "nameIncludes": [
+                  "นายนิรบาล"
+                ]
+              },
+              "dest": "avatarZone",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "only": "สุวาน",
+      "parseStatus": "auto",
+      "note": "only สุวาน; ต่อเนื่อง: Symbol นรก ในนรก = นายนิรยบาล; สั่งใช้: อัญเชิญนายนิรบาลจากนรก"
     },
     {
       "name": "พระอีสาน",
@@ -2517,8 +2684,40 @@
       "codes": [
         "PRMO-052"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "retrieveFromGrave",
+              "filter": {},
+              "from": "opponentGrave",
+              "count": 1,
+              "dest": "opponentDeckBottom",
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": -2,
+                  "duration": "endOfTurn",
+                  "layer": 4,
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "opponent",
+                    "zone": "avatarZone",
+                    "count": 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออัญเชิญ: เลือกการ์ดจากนรกตรงข้าม → ไว้ใต้ Deck ตรงข้าม; ถ้าสำเร็จ POWER-2 Avatar ตรงข้าม 1"
     },
     {
       "name": "แม่นีโม่ขยับไม่ได้",
@@ -2592,8 +2791,44 @@
       "codes": [
         "CC01-016"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "changeControl",
+              "target": {
+                "select": "self"
+              },
+              "toOpponent": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "blockDraw",
+              "sources": [
+                "Avatar",
+                "Magic"
+              ],
+              "player": "controller"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อมีการอัญเชิญ Avatar: เปลี่ยนการควบคุมไปฝ่ายตรงข้าม; ต่อเนื่อง: ผู้ควบคุมดึงจาก Avatar/Magic ไม่ได้"
     },
     {
       "name": "ไมค์ตี้ทอยแมน",
@@ -3416,8 +3651,73 @@
       "codes": [
         "CC02-015"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "ม่วง"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 2
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "hellSummon",
+                      "filter": {
+                        "type": "Avatar",
+                        "powerMax": 2,
+                        "notOnly": true
+                      },
+                      "dest": "avatarZone",
+                      "paidCost": false
+                    }
+                  ]
+                },
+                {
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 2
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "retrieveFromGrave",
+                      "filter": {
+                        "notOnly": true
+                      },
+                      "count": 1,
+                      "dest": "deckBottom"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดงม่วง: 1) ธรณีสูบ2 → อัญเชิญจากนรก POWER≤2; 2) ธรณีสูบ2 → นำจากนรกใต้ Deck"
     },
     {
       "name": "อาม่อน No.7",
@@ -4034,8 +4334,26 @@
       "codes": [
         "CC01-015"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "pick": 1,
+              "dest": "hand",
+              "restTo": "deckTopOrBottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: สอดแนม 2 เอา 1 ขึ้นมือ ที่เหลือเลือกวางบน/ล่าง Deck"
     },
     {
       "name": "YaiMakMak",

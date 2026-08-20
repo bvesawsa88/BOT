@@ -2089,9 +2089,24 @@
       "codes": [
         "PRE0-004"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัญเชิญได้เฉพาะทิ้ง GEM 1 จำนวน 5 ใบ + จุติถามจำนวน Avatar/Magic/Only ในเด็คศัตรู — กลไกใหม่หลายทาง"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "inspectDeckCounts",
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "exactGemPay": true,
+      "parseStatus": "auto",
+      "note": "ทิ้ง GEM 1 จำนวน 5 ใบเท่านั้น · จุติ: ดูสถิติจำนวนการ์ดในเด็คคู่ต่อสู้"
     },
     {
       "name": "ผู้เล่นเหลี่ยม",
@@ -2761,8 +2776,70 @@
       "codes": [
         "CC02-017"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "filter": {
+                  "nameIncludes": [
+                    "Overdose"
+                  ]
+                },
+                "distinctNames": {
+                  "min": 4
+                }
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "blockMagicTypes",
+              "types": [
+                "React",
+                "Normal"
+              ],
+              "player": "opponent"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "revealLife",
+              "count": 1,
+              "player": "owner"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellSummonAny",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "from": "anyGrave"
+              },
+              "dest": "ownersAvatarZone",
+              "paidCost": false,
+              "ifOpponentAvatar": {
+                "blockAbilities": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง Overdose≥4 ชื่อไม่ซ้ำ→ ฝ่ายตรงข้ามใช้ Magic ไม่ได้; สั่งใช้ หงาย LIFE: อัญเชิญจากนรกใดก็ได้"
     },
     {
       "name": "มาโกะ มารดาแห่งภาคีมะม่วง",
@@ -3992,8 +4069,65 @@
       "codes": [
         "CC02-020"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "เขียว"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "actions": [
+                    {
+                      "op": "grantImmunity",
+                      "immunity": "combatDestroy",
+                      "duration": "untilOpponentNextTurnEnd",
+                      "target": {
+                        "select": "choose",
+                        "type": "Avatar",
+                        "side": "any",
+                        "count": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "grantImmunity",
+                      "immunity": "opponentMagic",
+                      "duration": "untilOpponentNextTurnEnd",
+                      "target": {
+                        "select": "choose",
+                        "type": "Avatar",
+                        "side": "any",
+                        "count": 1
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดงเขียว: 1) Avatar 1 ใบ ไม่ถูกทำลายจากต่อสู้; 2) Avatar 1 ใบ ไม่รับผล Magic ตรงข้าม — จนจบเทิร์นถัดไปตรงข้าม"
     },
     {
       "name": "หุ่นพิฆาต 300%",

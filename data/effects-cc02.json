@@ -95,8 +95,50 @@
     {
       "code": "CC02-003",
       "name": "คุณโดม ผู้จัดการทีมการ์ด",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "rollDie",
+              "results": {
+                "any": [
+                  {
+                    "op": "modifyPower",
+                    "amountFromDie": true,
+                    "duration": "endOfTurn",
+                    "layer": 4,
+                    "target": {
+                      "select": "self"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "returnFromGraveToDeck",
+              "target": {
+                "select": "self"
+              },
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ เทิร์นละครั้ง: ทอยลูกเต๋า POWER +ผล จนจบเทิร์น; คำสั่งเสีย: นำตัวเองจากนรกเข้า Deck"
     },
     {
       "code": "CC02-024",
@@ -147,8 +189,32 @@
     {
       "code": "CC02-004",
       "name": "นักดาบตะวันแดง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "surviveAttack",
+            "if": "target==self"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "opponent",
+                "zone": "avatarZone",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "extraSymbols": [
+        "หุ่นยนต์"
+      ],
+      "note": "นับเป็น Symbol หุ่นยนต์ด้วย; อัตโนมัติ เมื่อรอดจากถูกโจมตี: ทำลาย Avatar ฝ่ายตรงข้าม 1"
     },
     {
       "code": "CC02-023",
@@ -173,8 +239,40 @@
     {
       "code": "CC02-002",
       "name": "บัมเบิ้ลแบงค์",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "from": "grave"
+          },
+          "oncePerTurn": true,
+          "condition": {
+            "ownField": {
+              "nameOnField": {
+                "name": "บัมเบิ้ลแบงค์",
+                "count": 0
+              }
+            }
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellSummonSelf",
+              "dest": "avatarZone",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ จากนรก: ถ้า AZ ไม่มีชื่อนี้ ทิ้งมือ1 → อัญเชิญตัวเองจากนรก"
     },
     {
       "code": "CC02-021",
@@ -203,14 +301,139 @@
     {
       "code": "CC02-001",
       "name": "มหาราชาสีนิล",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enterCombat",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "willBeDestroyedByCombat",
+            "if": "target==self"
+          },
+          "actions": [
+            {
+              "op": "discardAttachedAll",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "then": [
+                {
+                  "op": "preventDestroy",
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "ลูกฮึด",
+        "โล่มนุษย์"
+      ],
+      "note": "ลูกฮึด โล่มนุษย์; อัตโนมัติ ต่อสู้: POWER+2; จะถูกทำลาย → ทิ้ง Modification ทั้งหมด ป้องกัน; คำสั่งเสีย: ฝ่ายเรา POWER+1"
     },
     {
       "code": "CC02-005",
       "name": "หมีบราซิล",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "แดง"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "type": "Avatar",
+                        "side": "own",
+                        "zone": "avatarZone",
+                        "count": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "draw",
+                      "count": 2,
+                      "player": "owner"
+                    },
+                    {
+                      "op": "discard",
+                      "from": "hand",
+                      "count": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดง Avatar แดงจากมือ: 1) POWER+2, 2) จั่ว2 ทิ้ง1"
     },
     {
       "code": "CC02-058",
@@ -315,8 +538,34 @@
     {
       "code": "CC02-046",
       "name": "กาจอก",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "duringCombat"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroyIfOpponentCombatAvatarIsAwake",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "filter": "inCombat",
+                "count": 1
+              },
+              "then": [
+                {
+                  "op": "destroyCombatOpponent"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: เลือก Avatar เราในต่อสู้ → ถ้า Avatar คู่ต่อสู้ตื่น: ทำลาย Avatar คู่ต่อสู้"
     },
     {
       "code": "CC02-055",
@@ -370,8 +619,29 @@
     {
       "code": "CC02-047",
       "name": "เราจะตายแล้วท่านหยุดเถอะ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyAttackLife"
+          },
+          "react": true,
+          "condition": {
+            "thisOwnTurn": {
+              "ownAvatarDestroyedByCombat": {
+                "min": 1
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "preventLifeDamage"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: เมื่อ Avatar ตรงข้ามโจมตีเข้า LIFE และเทิร์นนี้ Avatar เราถูกทำลายจากต่อสู้: ป้องกันความเสียหาย LIFE"
     },
     {
       "code": "CC02-056",
@@ -748,8 +1018,39 @@
     {
       "code": "CC02-049",
       "name": "ดินแดนแห่งความหลากหลาย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "min": 2,
+                "allDistinctSymbols": true
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land ต่อเนื่อง: ถ้า AZ ฝ่ายเรามี Avatar 2+ ใบ Symbol ไม่ซ้ำ → Avatar ทุกใบ POWER+1"
     },
     {
       "code": "CC02-060",
@@ -763,8 +1064,43 @@
     {
       "code": "CC02-050",
       "name": "วิหารเจ้าสมุทร",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "changeStatus",
+              "status": "sleep",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "zone": "avatarZone",
+                "symbol": "ปลา",
+                "count": 1
+              }
+            },
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "symbol": "ปลา"
+              },
+              "pick": 1,
+              "dest": "hand",
+              "restTo": "grave"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "nameAliases": [
+        "บึงทมิฬ"
+      ],
+      "note": "Land นับเป็น บึงทมิฬ; สั่งใช้: เปลี่ยน Avatar ปลาเป็นนอน → สอดแนม3 เอา Symbol ปลา 1 ขึ้นมือ ที่เหลือลงนรก"
     },
     {
       "code": "CC02-027",
@@ -888,8 +1224,32 @@
     {
       "code": "CC02-009",
       "name": "บึงทมิฬ  People - คุณปลาชด",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "landZone": {
+              "nameIncludes": "บึงทมิฬ"
+            }
+          },
+          "actions": [
+            {
+              "op": "limitAvatarZone",
+              "filter": {
+                "symbolNot": "ปลา"
+              },
+              "maxCount": 1,
+              "player": "both"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ถ้ามีบึงทมิฬบน Land MZ: ทั้ง 2 ฝ่ายควบคุม Avatar ที่ไม่ใช่ Symbol ปลา ได้สูงสุด 1 ใบ"
     },
     {
       "code": "CC02-030",
@@ -959,14 +1319,110 @@
     {
       "code": "CC02-010",
       "name": "หมีขาว",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "ฟ้า"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "type": "Avatar",
+                        "costMax": 3
+                      },
+                      "dest": "avatarZone",
+                      "paidCost": false,
+                      "restTo": "deck",
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 5,
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "pick": 1,
+                      "dest": "hand",
+                      "restTo": "deck",
+                      "shuffleAfter": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดง Avatar ฟ้าจากมือ: 1) สอดแนม5 อัญเชิญ Avatar Cost≤3; 2) สอดแนม5 นำ Avatar 1 ขึ้นมือ"
     },
     {
       "code": "CC02-007",
       "name": "ไอ้ชนหมา",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "สัตว์"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5
+              },
+              "pick": 1,
+              "destIfCostMax": {
+                "cost": 2,
+                "dest": "avatarZone",
+                "paidCost": false
+              },
+              "dest": "hand",
+              "restTo": "deck",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ เซ่น Avatar สัตว์: สอดแนม7 เอา Avatar Cost≤5 ขึ้นมือ; ถ้า Cost≤2 → อัญเชิญแทน"
     },
     {
       "code": "CC02-034",
@@ -990,8 +1446,51 @@
     {
       "code": "CC02-013",
       "name": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "retrieveFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "ม่วง",
+                "symbol": "ต่างชาติ",
+                "nameNotExact": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช"
+              },
+              "count": 1,
+              "dest": "hand",
+              "grantCostReduce": {
+                "amount": 3,
+                "until": "endOfTurn"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyAvatarChangeStatus",
+            "if": "ownTurn"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำขุนพลม่วงต่างชาติจากนรกขึ้นมือ Cost-3; อัตโนมัติ เทิร์นละครั้ง เมื่อ Avatar ตรงข้ามเปลี่ยนสภาพ: จั่ว1"
     },
     {
       "code": "CC02-011",
@@ -1056,8 +1555,58 @@
     {
       "code": "CC02-012",
       "name": "เตียวเสียน จันทร์หลบโฉมสุดา",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "filter": {
+                  "nameIncludes": [
+                    "ขุนพล"
+                  ],
+                  "color": "ม่วง",
+                  "symbol": "ต่างชาติ"
+                },
+                "min": 1
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "setCannotBeAttackTarget",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "changeStatus",
+              "status": "awake",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "opponent",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ถ้ามีขุนพลม่วง Symbol ต่างชาติ ฝ่ายเรา → โจมตีไม่ได้; สั่งใช้: Avatar ฝ่ายตรงข้ามทั้งหมดตื่น"
     },
     {
       "code": "CC02-014",
@@ -1168,8 +1717,73 @@
     {
       "code": "CC02-015",
       "name": "หมีดำ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "ม่วง"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 2
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "hellSummon",
+                      "filter": {
+                        "type": "Avatar",
+                        "powerMax": 2,
+                        "notOnly": true
+                      },
+                      "dest": "avatarZone",
+                      "paidCost": false
+                    }
+                  ]
+                },
+                {
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 2
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "retrieveFromGrave",
+                      "filter": {
+                        "notOnly": true
+                      },
+                      "count": 1,
+                      "dest": "deckBottom"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดงม่วง: 1) ธรณีสูบ2 → อัญเชิญจากนรก POWER≤2; 2) ธรณีสูบ2 → นำจากนรกใต้ Deck"
     },
     {
       "code": "CC02-035",
@@ -1267,8 +1881,70 @@
     {
       "code": "CC02-017",
       "name": "มอร์ฟีน Overdose",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "filter": {
+                  "nameIncludes": [
+                    "Overdose"
+                  ]
+                },
+                "distinctNames": {
+                  "min": 4
+                }
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "blockMagicTypes",
+              "types": [
+                "React",
+                "Normal"
+              ],
+              "player": "opponent"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "revealLife",
+              "count": 1,
+              "player": "owner"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellSummonAny",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "from": "anyGrave"
+              },
+              "dest": "ownersAvatarZone",
+              "paidCost": false,
+              "ifOpponentAvatar": {
+                "blockAbilities": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง Overdose≥4 ชื่อไม่ซ้ำ→ ฝ่ายตรงข้ามใช้ Magic ไม่ได้; สั่งใช้ หงาย LIFE: อัญเชิญจากนรกใดก็ได้"
     },
     {
       "code": "CC02-037",
@@ -1336,8 +2012,65 @@
     {
       "code": "CC02-020",
       "name": "หมีเหลือง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "เขียว"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "actions": [
+                    {
+                      "op": "grantImmunity",
+                      "immunity": "combatDestroy",
+                      "duration": "untilOpponentNextTurnEnd",
+                      "target": {
+                        "select": "choose",
+                        "type": "Avatar",
+                        "side": "any",
+                        "count": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "grantImmunity",
+                      "immunity": "opponentMagic",
+                      "duration": "untilOpponentNextTurnEnd",
+                      "target": {
+                        "select": "choose",
+                        "type": "Avatar",
+                        "side": "any",
+                        "count": 1
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดงเขียว: 1) Avatar 1 ใบ ไม่ถูกทำลายจากต่อสู้; 2) Avatar 1 ใบ ไม่รับผล Magic ตรงข้าม — จนจบเทิร์นถัดไปตรงข้าม"
     },
     {
       "code": "CC02-018",

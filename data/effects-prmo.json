@@ -172,8 +172,33 @@
     {
       "code": "PRMO-063",
       "name": "นางลักษมี",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "usedAsCostFor",
+            "filter": {
+              "nameIncludes": [
+                "พระนารายณ์"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "เทพ",
+      "note": "ใช้เป็น Cost ได้เฉพาะ Symbol เทพ; ถ้าใช้เป็น Cost อัญเชิญพระนารายณ์ → POWER+3"
     },
     {
       "code": "PRMO-032",
@@ -454,8 +479,51 @@
     {
       "code": "PRMO-078",
       "name": "หุ่นนักรบผู้กล้า ไมเกรน",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ]
+              },
+              "pick": 1,
+              "dest": "hand",
+              "restTo": "deckBottom"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "magicPlayed",
+            "filter": {
+              "subtype": "Modification",
+              "nameIncludes": [
+                "อาวุธหุ่นนักรบผู้กล้า"
+              ]
+            }
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: สอดแนม5 เลือกอาวุธหุ่นนักรบผู้กล้า ขึ้นมือ; อัตโนมัติ เมื่อใช้ Modification อาวุธนั้น: จั่ว1"
     },
     {
       "code": "PRMO-0562",
@@ -1395,8 +1463,22 @@
     {
       "code": "PRMO-029",
       "name": "แบ่งแยกดินแดน",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "allowBothLandPlay"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land ของอีกฝ่าย"
     },
     {
       "code": "PRMO-031",
@@ -1485,32 +1567,107 @@
     {
       "code": "PRMO-039",
       "name": "หมู่บ้านพอดี",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "forceExactGemPay",
+              "player": "both"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land: ทุกคนต้องทิ้ง GEM พอดี Cost"
     },
     {
       "code": "PRMO-080",
       "name": "ไม่นะ ผู้เล่น TOP 32!",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "code": "PRMO-098",
       "name": "ไม่นะฟุจัง!!",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "code": "PRMO-097",
       "name": "ไม่นะโอคุง!!",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "code": "PRMO-099",
       "name": "ไม่นะ Judge!!!",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "code": "PRMO-065",
@@ -1544,8 +1701,45 @@
     {
       "code": "PRMO-116",
       "name": "ครุฑ เกล - ครุฑสัจจะ เจ้าแห่งแสง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "nameMatchAny": [
+                  "ครุฑ",
+                  "ขนมณี แฟลร์"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ครุฑ"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatarZone",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ ทิ้ง Avatar ครุฑ/ขนมณี แฟลร์ จากมือ: อัญเชิญ Avatar ครุฑ Cost≤4 จาก Deck"
     },
     {
       "code": "PRMO-042",
@@ -1727,8 +1921,43 @@
     {
       "code": "PRMO-058",
       "name": "บึงทมิฬ  People - คุณดีไมส์",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "destroyEnemyAvatarByCombat",
+            "if": "source==self"
+          },
+          "condition": {
+            "landZone": {
+              "nameIncludes": "บึงทมิฬ"
+            }
+          },
+          "actions": [
+            {
+              "op": "activated",
+              "cost": [
+                {
+                  "op": "discard",
+                  "from": "hand",
+                  "count": 1
+                }
+              ],
+              "then": [
+                {
+                  "op": "changeStatus",
+                  "status": "awake",
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถ้ามีบึงทมิฬบน Land MZ; เมื่อทำลาย Avatar ตรงข้ามสำเร็จ → ทิ้งมือ1 กลับมาตื่น"
     },
     {
       "code": "PRMO-030",
@@ -1841,8 +2070,38 @@
     {
       "code": "PRMO-075",
       "name": "แมลงปอแจ๊ค",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "destroyLand",
+              "target": {
+                "select": "choose",
+                "type": "Magic",
+                "subtype": "Land",
+                "count": 1
+              }
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "subtype": "Land"
+              },
+              "dest": "landZone",
+              "count": 1,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ทำลาย Land MZ → นำ Land จาก Deck เล่น Land MZ แล้วสับ"
     },
     {
       "code": "PRMO-048",
@@ -1886,7 +2145,8 @@
       "code": "PRMO-055",
       "name": "รัททาทุย ผู้พิทักษ์ราชินี",
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความ effect — Vanilla"
     },
     {
       "code": "PRMO-136",
@@ -2473,8 +2733,40 @@
     {
       "code": "PRMO-052",
       "name": "แม่นาค พระปะแดง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "retrieveFromGrave",
+              "filter": {},
+              "from": "opponentGrave",
+              "count": 1,
+              "dest": "opponentDeckBottom",
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": -2,
+                  "duration": "endOfTurn",
+                  "layer": 4,
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "opponent",
+                    "zone": "avatarZone",
+                    "count": 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออัญเชิญ: เลือกการ์ดจากนรกตรงข้าม → ไว้ใต้ Deck ตรงข้าม; ถ้าสำเร็จ POWER-2 Avatar ตรงข้าม 1"
     },
     {
       "code": "PRMO-125",

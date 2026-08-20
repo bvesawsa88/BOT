@@ -272,8 +272,50 @@
       "codes": [
         "CC02-003"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "rollDie",
+              "results": {
+                "any": [
+                  {
+                    "op": "modifyPower",
+                    "amountFromDie": true,
+                    "duration": "endOfTurn",
+                    "layer": 4,
+                    "target": {
+                      "select": "self"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "returnFromGraveToDeck",
+              "target": {
+                "select": "self"
+              },
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ เทิร์นละครั้ง: ทอยลูกเต๋า POWER +ผล จนจบเทิร์น; คำสั่งเสีย: นำตัวเองจากนรกเข้า Deck"
     },
     {
       "name": "เคย์ อัศวินโต๊ะกลมแห่งความหลักแหลม",
@@ -1671,8 +1713,32 @@
       "codes": [
         "CC02-004"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "surviveAttack",
+            "if": "target==self"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "opponent",
+                "zone": "avatarZone",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "หุ่นยนต์"
+      ],
+      "parseStatus": "auto",
+      "note": "นับเป็น Symbol หุ่นยนต์ด้วย; อัตโนมัติ เมื่อรอดจากถูกโจมตี: ทำลาย Avatar ฝ่ายตรงข้าม 1"
     },
     {
       "name": "น้ากบ",
@@ -1742,8 +1808,33 @@
       "codes": [
         "PRMO-063"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "usedAsCostFor",
+            "filter": {
+              "nameIncludes": [
+                "พระนารายณ์"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "costOnlyForSymbol": "เทพ",
+      "parseStatus": "auto",
+      "note": "ใช้เป็น Cost ได้เฉพาะ Symbol เทพ; ถ้าใช้เป็น Cost อัญเชิญพระนารายณ์ → POWER+3"
     },
     {
       "name": "นางอัปสร",
@@ -1846,8 +1937,40 @@
       "codes": [
         "CC02-002"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "from": "grave"
+          },
+          "oncePerTurn": true,
+          "condition": {
+            "ownField": {
+              "nameOnField": {
+                "name": "บัมเบิ้ลแบงค์",
+                "count": 0
+              }
+            }
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellSummonSelf",
+              "dest": "avatarZone",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ จากนรก: ถ้า AZ ไม่มีชื่อนี้ ทิ้งมือ1 → อัญเชิญตัวเองจากนรก"
     },
     {
       "name": "บ่าวแสม ซามูไรปักษ์ใต้",
@@ -2056,8 +2179,41 @@
       "codes": [
         "CC01-005"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownFaceDownLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "leavesField"
+          },
+          "actions": [
+            {
+              "op": "revealTopLife",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: POWER +1 ต่อ Life คว่ำ; ออกจากสนาม: หงาย Life บนสุด 1"
     },
     {
       "name": "ผู้เล่นมั่ว",
@@ -2186,8 +2342,38 @@
       "codes": [
         "CC01-003"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "condition": {
+            "ownGrave": {
+              "distinctNames": {
+                "min": 5
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummonAll",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "distinctNames": true
+              },
+              "dest": "avatarZone",
+              "restTo": "deckBottom",
+              "shuffleAfter": true,
+              "uncancellable": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ถ้านรกมี Avatar ชื่อไม่ซ้ำ 5+, สอดแนม 7 นำ Avatar ชื่อไม่ซ้ำลง AZ ทั้งหมด"
     },
     {
       "name": "พระพิฆเนศ",
@@ -2896,8 +3082,75 @@
       "codes": [
         "CC02-001"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enterCombat",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "willBeDestroyedByCombat",
+            "if": "target==self"
+          },
+          "actions": [
+            {
+              "op": "discardAttachedAll",
+              "filter": {
+                "subtype": "Modification"
+              },
+              "then": [
+                {
+                  "op": "preventDestroy",
+                  "target": {
+                    "select": "self"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "ลูกฮึด",
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "auto",
+      "note": "ลูกฮึด โล่มนุษย์; อัตโนมัติ ต่อสู้: POWER+2; จะถูกทำลาย → ทิ้ง Modification ทั้งหมด ป้องกัน; คำสั่งเสีย: ฝ่ายเรา POWER+1"
     },
     {
       "name": "มิสทรอม่า",
@@ -4024,8 +4277,66 @@
       "codes": [
         "CC02-005"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "reveal",
+              "from": "hand",
+              "filter": {
+                "type": "Avatar",
+                "color": "แดง"
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "type": "Avatar",
+                        "side": "own",
+                        "zone": "avatarZone",
+                        "count": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "draw",
+                      "count": 2,
+                      "player": "owner"
+                    },
+                    {
+                      "op": "discard",
+                      "from": "hand",
+                      "count": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ แสดง Avatar แดงจากมือ: 1) POWER+2, 2) จั่ว2 ทิ้ง1"
     },
     {
       "name": "หุ่นนักรบผู้กล้าปีศาจ : อีวิลไมเกรน",
@@ -4148,8 +4459,51 @@
       "codes": [
         "PRMO-078"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ]
+              },
+              "pick": 1,
+              "dest": "hand",
+              "restTo": "deckBottom"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "magicPlayed",
+            "filter": {
+              "subtype": "Modification",
+              "nameIncludes": [
+                "อาวุธหุ่นนักรบผู้กล้า"
+              ]
+            }
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: สอดแนม5 เลือกอาวุธหุ่นนักรบผู้กล้า ขึ้นมือ; อัตโนมัติ เมื่อใช้ Modification อาวุธนั้น: จั่ว1"
     },
     {
       "name": "หุ่นสนับสนุนผู้กล้า Dเพรส",

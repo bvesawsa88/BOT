@@ -552,8 +552,23 @@
       "codes": [
         "PRMO-080"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "name": "ไม่นะ พญายม !",
@@ -650,8 +665,23 @@
       "codes": [
         "PRMO-098"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "name": "ไม่นะ มณโท !",
@@ -1030,8 +1060,23 @@
       "codes": [
         "PRMO-097"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "name": "ไม่นะ ไอ้ดำ !",
@@ -1083,8 +1128,23 @@
       "codes": [
         "PRMO-099"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Life: ใน Main Phase ถัดไป จั่ว 1"
     },
     {
       "name": "ลูก เมีย กู!!!",

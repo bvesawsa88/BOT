@@ -807,9 +807,27 @@
     {
       "code": "ODY1-065",
       "name": "ถุงเกราะโอเดนย่า",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "destroyed",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "untilOpponentNextTurnEnd",
+              "layer": 4,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทำลายในสภาพสวมใส่: Avatar ที่เคยสวมใส่ POWER +2 จนจบเทิร์นถัดไปของฝ่ายตรงข้าม"
     },
     {
       "code": "ODY1-089",
@@ -948,9 +966,28 @@
     {
       "code": "ODY1-064",
       "name": "โอเดนย่า อร่อยมัก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "ifTargetNameIncludes": "ทาโกะ"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "attackTarget"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ทาโกะ ตกเป็นเป้าการโจมตี: Avatar นั้น POWER +2 จนจบเทิร์น"
     },
     {
       "code": "ODY1-090",
@@ -1126,7 +1163,8 @@
       "code": "ODY1-037",
       "name": "เด็กหนวด โอเดนย่า",
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความ effect — Vanilla"
     },
     {
       "code": "ODY1-004",
@@ -1392,7 +1430,8 @@
       "code": "ODY1-038",
       "name": "กัปตันโซเดียม",
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความ effect — Vanilla"
     },
     {
       "code": "ODY1-053",

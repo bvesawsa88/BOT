@@ -152,8 +152,41 @@
     {
       "code": "CC01-005",
       "name": "ปื๊ดเปรตกังฟู",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownFaceDownLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "leavesField"
+          },
+          "actions": [
+            {
+              "op": "revealTopLife",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: POWER +1 ต่อ Life คว่ำ; ออกจากสนาม: หงาย Life บนสุด 1"
     },
     {
       "code": "CC01-002",
@@ -170,8 +203,38 @@
     {
       "code": "CC01-003",
       "name": "พระพรหม เทพผู้สร้าง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "condition": {
+            "ownGrave": {
+              "distinctNames": {
+                "min": 5
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummonAll",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "distinctNames": true
+              },
+              "dest": "avatarZone",
+              "restTo": "deckBottom",
+              "shuffleAfter": true,
+              "uncancellable": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ถ้านรกมี Avatar ชื่อไม่ซ้ำ 5+, สอดแนม 7 นำ Avatar ชื่อไม่ซ้ำลง AZ ทั้งหมด"
     },
     {
       "code": "CC01-004",
@@ -351,14 +414,84 @@
     {
       "code": "CC01-045",
       "name": "กฎร้าน",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "anyWindow"
+          },
+          "reactAnyWindow": true,
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "min": 1
+              }
+            },
+            "opponent": {
+              "avatarZone": {
+                "min": 1
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "revealDeckBottomBoth",
+              "compareField": "cost",
+              "winnerChooses": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "opponent",
+                    "count": 1
+                  }
+                },
+                {
+                  "op": "returnToDeck",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "any",
+                    "count": 1
+                  },
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: ทั้ง 2 ฝ่ายมี Avatar → เปิดล่างสุด Deck เทียบ Cost; ฝ่าย Cost สูงกว่าเลือก: ทำลาย1 หรือ นำ Avatar กลับเด็ค"
     },
     {
       "code": "CC01-046",
       "name": "ขอให้ทั้งตัวมีแต่---",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "duringCombat"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "setPrintedPower",
+              "amount": 0,
+              "duration": "endOfBattlePhase",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "filter": "inCombat",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: เลือก Avatar ที่กำลังต่อสู้ → ปรับ POWER ตั้งต้นเป็น 0 จนจบ Battle Phase"
     },
     {
       "code": "CC01-058",
@@ -432,8 +565,51 @@
     {
       "code": "CC01-044",
       "name": "ซ่อมบำรุงประจำปี",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "condition": {
+            "opponent": {
+              "avatarZone": {
+                "min": 1
+              }
+            },
+            "own": {
+              "avatarZone": {
+                "count": 0
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "hellSummon",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ],
+                "cost": 3
+              },
+              "dest": "avatarZone",
+              "paidCost": false
+            },
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "Tank Ranger"
+                ],
+                "cost": 3
+              },
+              "attachTo": "lastSummoned",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ฝ่ายตรงข้ามมี Avatar แต่เราไม่มี: เลือกรถถัง+Tank Ranger Cost 3 จากนรก อัญเชิญรถถัง+สวมTank Ranger"
     },
     {
       "code": "CC01-042",
@@ -538,8 +714,25 @@
     {
       "code": "CC01-043",
       "name": "รู้สึกเหมือนโดนแย่งเมีย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "returnControlToOwner",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "filter": "changedControl"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "นำ Avatar ที่ถูก changeControl ทั้งหมดกลับเจ้าของเดิม"
     },
     {
       "code": "CC01-060",
@@ -609,8 +802,51 @@
     {
       "code": "CC01-051",
       "name": "สมชายห้องเช่าพันล้าน",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "mainPhase"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "เสามงคล"
+                ]
+              },
+              "dest": "avatarZone",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "beforeMainPhase"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "countPer": "ownNameOnField",
+              "nameIncludes": "เสามงคล",
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land: ทิ้งมือ1 → อัญเชิญเสามงคลจาก Deck; ก่อน Main Phase: จั่วตามจำนวนเสามงคลบนสนาม"
     },
     {
       "code": "CC01-049",
@@ -643,8 +879,56 @@
     {
       "code": "CC01-050",
       "name": "SD Plaza สายเหนือเก่า",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "choose",
+              "options": [
+                {
+                  "cost": [
+                    {
+                      "op": "discard",
+                      "from": "hand",
+                      "count": 1
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "scout",
+                      "count": 3,
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "dest": "magicZone",
+                      "restTo": "deckBottom"
+                    }
+                  ]
+                },
+                {
+                  "actions": [
+                    {
+                      "op": "summonFromMagicZone",
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "dest": "avatarZone",
+                      "paidCost": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Land เทิร์นละครั้ง: 1) ทิ้งมือ → สอดแนม3 นำ Avatar วางMagicZone; 2) Avatar ในMZ → อัญเชิญขึ้น AZ"
     },
     {
       "code": "CC01-008",
@@ -675,7 +959,14 @@
       "code": "CC01-009",
       "name": "ชู้รักรัททาทุย",
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "auto",
+      "nameAliases": [
+        "รัททาทุย นางพญา"
+      ],
+      "aliasCondition": {
+        "ifOwnSummonedThisGame": "รัททาทุย นางพญา"
+      },
+      "note": "ถ้าเคยอัญเชิญรัททาทุย นางพญา ในเกมนี้ → นับชื่อเป็น รัททาทุย นางพญา บน AZ"
     },
     {
       "code": "CC01-037",
@@ -687,8 +978,64 @@
     {
       "code": "CC01-006",
       "name": "ไตรตัน เจ้าสมุทร",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellSummonMulti",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "totalCostMax": 7,
+              "dest": "avatarZone",
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "ปลา",
+                "excludeSelf": true
+              }
+            },
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "ปลา",
+                "excludeSelf": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: อัญเชิญ Symbol ปลา จากนรก Cost รวมไม่เกิน 7; ต่อเนื่อง: Symbol ปลา ฝ่ายเรา POWER+1 + สามัคคี"
     },
     {
       "code": "CC01-027",
@@ -815,8 +1162,77 @@
     {
       "code": "CC01-007",
       "name": "วีรบุรุษสุดซอย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย"
+                ]
+              },
+              "count": 1
+            },
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "ฮอล"
+                ]
+              },
+              "count": 1
+            },
+            {
+              "op": "attachFromGrave",
+              "filter": {
+                "nameIncludes": [
+                  "นาย"
+                ]
+              },
+              "count": 1
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "afterAttackSuccess",
+            "if": "source==self"
+          },
+          "condition": {
+            "selfAttached": {
+              "allNameIncludes": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "sendSelfToGrave"
+            },
+            {
+              "op": "summonFromHandOrDeck",
+              "filter": {
+                "nameIncludes": [
+                  "วีรบุรุษปากซอย"
+                ]
+              },
+              "paidCost": true,
+              "shuffleAfterIfDeck": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: แนบ กุ่ย/ฮอล/นาย จากนรก; หลังโจมตีสำเร็จมีทั้ง 3 → ส่งตัวเองนรก อัญเชิญวีรบุรุษปากซอย"
     },
     {
       "code": "CC01-039",
@@ -833,8 +1249,42 @@
     {
       "code": "CC01-013",
       "name": "เจนนี่",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "anyEndPhase"
+          },
+          "actions": [
+            {
+              "op": "rollDie",
+              "results": {
+                "4": [
+                  {
+                    "op": "destroySelf"
+                  },
+                  {
+                    "op": "revealTopLife",
+                    "count": 1,
+                    "player": "controller"
+                  }
+                ],
+                "other": [
+                  {
+                    "op": "changeControl",
+                    "target": {
+                      "select": "self"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "cannotAttack": true,
+      "note": "ต่อเนื่อง โจมตีไม่ได้; ทุก End Phase: ลูกเต๋า 4→ทำลาย+หงาย Life, อื่น→เปลี่ยนการควบคุม"
     },
     {
       "code": "CC01-028",
@@ -935,8 +1385,47 @@
     {
       "code": "CC01-011",
       "name": "พญายม With The Shotgun",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "grantNameInGrave",
+              "filter": {
+                "symbol": "นรก"
+              },
+              "grantName": "นายนิรยบาล",
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "hellSummon",
+              "filter": {
+                "nameIncludes": [
+                  "นายนิรบาล"
+                ]
+              },
+              "dest": "avatarZone",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "only": "สุวาน",
+      "note": "only สุวาน; ต่อเนื่อง: Symbol นรก ในนรก = นายนิรยบาล; สั่งใช้: อัญเชิญนายนิรบาลจากนรก"
     },
     {
       "code": "CC01-012",
@@ -965,14 +1454,68 @@
     {
       "code": "CC01-016",
       "name": "แมวนิค",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "changeControl",
+              "target": {
+                "select": "self"
+              },
+              "toOpponent": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "blockDraw",
+              "sources": [
+                "Avatar",
+                "Magic"
+              ],
+              "player": "controller"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อมีการอัญเชิญ Avatar: เปลี่ยนการควบคุมไปฝ่ายตรงข้าม; ต่อเนื่อง: ผู้ควบคุมดึงจาก Avatar/Magic ไม่ได้"
     },
     {
       "code": "CC01-015",
       "name": "HR ผู้รู้ความจริง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "pick": 1,
+              "dest": "hand",
+              "restTo": "deckTopOrBottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: สอดแนม 2 เอา 1 ขึ้นมือ ที่เหลือเลือกวางบน/ล่าง Deck"
     },
     {
       "code": "CC01-034",

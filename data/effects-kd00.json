@@ -46,9 +46,23 @@
     {
       "code": "KD00-00B",
       "name": "เบียดเบียนผู้อื่น",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "randomHandCompare",
+              "costCompare": true,
+              "loserBanish": 1,
+              "winnerRetrieveExile": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สุ่มหยิบมือเทียบ Cost ผู้แพ้เนรเทศ 1 ใบ / ผู้ชนะนำการ์ดจากมิติมืดคืนใต้เด็ค"
     },
     {
       "code": "KD00-00C",

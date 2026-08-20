@@ -8,8 +8,56 @@
       "codes": [
         "CC01-045"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "anyWindow"
+          },
+          "reactAnyWindow": true,
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "min": 1
+              }
+            },
+            "opponent": {
+              "avatarZone": {
+                "min": 1
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "revealDeckBottomBoth",
+              "compareField": "cost",
+              "winnerChooses": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "opponent",
+                    "count": 1
+                  }
+                },
+                {
+                  "op": "returnToDeck",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "any",
+                    "count": 1
+                  },
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: ทั้ง 2 ฝ่ายมี Avatar → เปิดล่างสุด Deck เทียบ Cost; ฝ่าย Cost สูงกว่าเลือก: ทำลาย1 หรือ นำ Avatar กลับเด็ค"
     },
     {
       "name": "กระแสสิริมงคล",
@@ -58,8 +106,34 @@
       "codes": [
         "CC02-046"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "duringCombat"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroyIfOpponentCombatAvatarIsAwake",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "filter": "inCombat",
+                "count": 1
+              },
+              "then": [
+                {
+                  "op": "destroyCombatOpponent"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: เลือก Avatar เราในต่อสู้ → ถ้า Avatar คู่ต่อสู้ตื่น: ทำลาย Avatar คู่ต่อสู้"
     },
     {
       "name": "ขอจบรายการแต่เพียงเท่านี้",
@@ -103,8 +177,30 @@
       "codes": [
         "CC01-046"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "duringCombat"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "setPrintedPower",
+              "amount": 0,
+              "duration": "endOfBattlePhase",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "filter": "inCombat",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: เลือก Avatar ที่กำลังต่อสู้ → ปรับ POWER ตั้งต้นเป็น 0 จนจบ Battle Phase"
     },
     {
       "name": "ขึ้นมาเร็ว ไอ้ลูกลิง !!",
@@ -1164,8 +1260,29 @@
       "codes": [
         "CC02-047"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyAttackLife"
+          },
+          "react": true,
+          "condition": {
+            "thisOwnTurn": {
+              "ownAvatarDestroyedByCombat": {
+                "min": 1
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "preventLifeDamage"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React: เมื่อ Avatar ตรงข้ามโจมตีเข้า LIFE และเทิร์นนี้ Avatar เราถูกทำลายจากต่อสู้: ป้องกันความเสียหาย LIFE"
     },
     {
       "name": "ลงกาโพรเทคชั่น",
