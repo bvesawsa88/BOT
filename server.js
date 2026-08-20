@@ -678,34 +678,45 @@ async function handleAuthSkins(req, res, route) {
   }
 }
 
-function genAdminPass() {
-  const chars = 'abcdefghijkmnpqrstuvwxyz23456789';
-  let s = '';
-  for (let i = 0; i < 10; i++) s += chars[crypto.randomInt(chars.length)];
-  return s;
+/* ครั้งแรก / เว็บที่ยังไม่เคยตั้งรหัส = 123456 · ถ้าเคยเปลี่ยนใน /admin แล้วจะไม่ถูกทับ
+   ตั้ง BOT_ADMIN_PASSWORD บนโฮสต์ถ้ายกเลิกรหัสเริ่มต้น */
+const ADMIN_PASS_REV = 1;
+const DEFAULT_ADMIN_PASSWORD = '123456';
+
+async function writeAdminPassword(user, password) {
+  user.salt = crypto.randomBytes(16).toString('hex');
+  user.hash = await scryptHash(password, user.salt);
+  user.role = 'admin';
+  user.username = user.username || 'admin';
+  user.passRev = ADMIN_PASS_REV;
+  delete user.token;
+  delete user.tokenExp;
 }
 
 async function ensureAdmin() {
-  const users = loadUsers();
-  if (Object.values(users).some(isAdminUser)) return { created: false };
-  if (users.admin && users.admin.hash) {
-    users.admin.role = 'admin';
-    saveUsers(users);
-    return { created: false, promoted: true };
-  }
   const fromEnv = String(process.env.BOT_ADMIN_PASSWORD || '').trim();
-  const password = fromEnv || genAdminPass();
+  const password = fromEnv || DEFAULT_ADMIN_PASSWORD;
   if (password.length < 6) return { created: false, error: 'BOT_ADMIN_PASSWORD สั้นเกินไป' };
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = await scryptHash(password, salt);
+  const users = loadUsers();
+  let admin = Object.values(users).find(isAdminUser) || users.admin || null;
+  if (admin && admin.hash) {
+    admin.role = 'admin';
+    const force = !!fromEnv;
+    const stale = !admin.passRev || admin.passRev < ADMIN_PASS_REV;
+    if (!force && !stale) {
+      saveUsers(users);
+      return { created: false };
+    }
+    await writeAdminPassword(admin, password);
+    saveUsers(users);
+    return { created: false, reset: true, password: fromEnv ? '' : password };
+  }
   users.admin = {
     username: 'admin',
-    salt,
-    hash,
-    role: 'admin',
     decks: {},
     createdAt: new Date().toISOString(),
   };
+  await writeAdminPassword(users.admin, password);
   saveUsers(users);
   return { created: true, password: fromEnv ? '' : password };
 }
@@ -798,8 +809,7 @@ async function handleAdminApi(req, res, urlPath) {
         try { ok = crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(String(hit.user.hash), 'hex')); }
         catch (e) { ok = false; }
         if (!ok) return { status: 401, body: { ok: false, error: 'รหัสผ่านปัจจุบันไม่ถูกต้อง' } };
-        hit.user.salt = crypto.randomBytes(16).toString('hex');
-        hit.user.hash = await scryptHash(next, hit.user.salt);
+        await writeAdminPassword(hit.user, next);
         return { status: 200, body: issueSession(hit.user) };
       });
       json(res, out.status, out.body);
@@ -1286,9 +1296,9 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`   แจ้งบัค: GET/POST /feedback` + (FEEDBACK_WEBHOOK ? ' → Discord ✓' : ' (ตั้ง DISCORD_FEEDBACK_WEBHOOK)'));
   ensureAdmin().then((info) => {
     console.log(`   แอดมิน:     http://localhost:${PORT}/admin`);
-    if (info && info.created && info.password) {
-      console.log(`   บัญชีแอดมิน: admin / ${info.password}  (ครั้งแรก — เปลี่ยนได้ที่ /admin)`);
-    } else if (info && info.created) {
+    if (info && (info.created || info.reset) && info.password) {
+      console.log(`   บัญชีแอดมิน: admin / ${info.password}  (เปลี่ยนได้ที่ /admin)`);
+    } else if (info && (info.created || info.reset)) {
       console.log(`   บัญชีแอดมิน: admin (รหัสจาก BOT_ADMIN_PASSWORD)`);
     }
     console.log(`   Press Ctrl+C to stop.\n`);
