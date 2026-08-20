@@ -1,0 +1,35 @@
+{
+  "BT02-005": {
+    "abilities": [
+      {
+        "keyword": "อัตโนมัติ",
+        "trigger": {
+          "on": "declareAttack",
+          "if": "source==self"
+        },
+        "oncePerTurn": true,
+        "cost": [
+          {
+            "op": "discard",
+            "from": "hand",
+            "count": 1
+          }
+        ],
+        "actions": [
+          {
+            "op": "scout",
+            "count": 3,
+            "thenPickToHand": {
+              "filter": {
+                "symbol": "เครื่องจักร"
+              },
+              "count": 1
+            },
+            "restUnder": true
+          }
+        ]
+      }
+    ],
+    "parseStatus": "verified"
+  }
+}

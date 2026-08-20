@@ -3540,6 +3540,7 @@
       || ac.op === 'summonSelfFromHell' || ac.op === 'summonSelfFromMagic'
       || ac.op === 'summonSelfFromHandFree' || ac.op === 'summonSelfFromHandPaying'
       || ac.op === 'summonSelfFromDark') return true;
+    if (ac.op === 'scout' || ac.op === 'deckPick') return false;
     return ac.dest === 'avatar' || ac.dest === 'multiAvatar';
   }
   function summonQuotaDummy(st, ac, srcK) {

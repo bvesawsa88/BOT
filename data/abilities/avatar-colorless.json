@@ -8,16 +8,58 @@
       "codes": [
         "BT09-021"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "moveAvatarToMagicZone",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "powerMin": 8,
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ ทิ้งมือ 1 : ย้าย Avatar ศัตรู Power >= 8 ไป Magic Zone"
     },
     {
       "name": "จ่ายุทธ ทหารรักชาติ",
       "codes": [
         "BT09-040"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self,targetSymbol:ต่างชาติ"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อโจมตี Avatar Symbol ต่างชาติ : ทำลายเป้าหมาย"
     },
     {
       "name": "โดมรัททาทุย",
@@ -98,8 +140,22 @@
       "codes": [
         "BT09-028"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self,targetColor:red"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ศัตรูสีแดงห้ามเลือกใบนี้เป็นเป้าโจมตี / โจมตี Avatar สีแดง -> ส่งศัตรูลงนรก"
     },
     {
       "name": "ผีเสื้อของเดซี่",
@@ -195,16 +251,50 @@
       "codes": [
         "BT09-015"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 2
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
     },
     {
       "name": "มิสเตอร์โบโบ้",
       "codes": [
         "BT09-027"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,podi"
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummonGodOrMill",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "พอดี จุติ : สอดแนม 1 ใบ ถ้าเป็น เทพ อัญเชิญ จุติ ถ้าไม่ใช่ ลงนรก"
     },
     {
       "name": "รัททาทุยกินซาก",
@@ -346,16 +436,57 @@
       "codes": [
         "BT09-032"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemySummonCountMinThisTurn",
+            "min": 3
+          },
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "enemyChoosesOneAvatarWipeRestToHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
     },
     {
       "name": "สกินวอคเกอร์",
       "codes": [
         "BT09-033"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "podi"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "copyEnemyAvatarStats",
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "พอดี สั่งใช้ : ก๊อปปี้ stats ศัตรู 1 ใบจนจบเทิร์น"
     },
     {
       "name": "สตางค์น้องชายแบงค์ ตัวเขียว",
@@ -363,7 +494,11 @@
         "BT09-029"
       ],
       "abilities": [],
-      "parseStatus": "manual"
+      "keywords": [
+        "สามัคคี"
+      ],
+      "parseStatus": "auto",
+      "note": "สามัคคี / ศัตรูสีเขียวห้ามเลือกใบนี้เป็นเป้าโจมตี"
     }
   ]
 }

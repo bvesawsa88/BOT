@@ -8,33 +8,132 @@
       "codes": [
         "BT06-070"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownDrawPhase"
+          },
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "unrevealOwnLifeChoose",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ ในช่วง Draw Phase ทำลายการ์ดนี้ : คว่ำ LIFE Card 1 ใบ"
     },
     {
       "name": "บัลลังก์ตั๊กแตนศตวรรษ",
       "codes": [
         "BT07-073"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self",
+              "targetFilter": {
+                "nameIncludes": [
+                  "ตั๊กแตน"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auraPower": 1,
+      "auraNameIncludes": [
+        "ตั๊กแตน"
+      ],
+      "hostCannotAttack": true,
+      "parseStatus": "auto",
+      "note": "สวม ตั๊กแตน / POWER +2 / โจมตีไม่ได้ / ให้ตั๊กแตนอื่น POWER +1"
     },
     {
       "name": "แป้นสกุล อิเล็กทรอนิกส์",
       "codes": [
         "BT11-074"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ : สอดแนม 5 ใบ เลือก Avatar \"เครื่องใช้ไฟฟ้า\" 1 ใบ มาวางที่ Magic Zone เรา การ์ดที่เหลือนำกลับ Deck"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เครื่องใช้ไฟฟ้า"
+                ]
+              },
+              "dest": "magic",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone,ownRevealedLifeMoreThanEnemy"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สอดแนม 5 ใบ เอา เครื่องใช้ไฟฟ้า ไว้ Magic Zone / LIFE หงายเยอะกว่าศัตรู ไม่ตกเป็นเป้าโจมตี"
     },
     {
       "name": "หุบเขา 3 พลเอก",
       "codes": [
         "BT06-069"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone"
+          },
+          "actions": [
+            {
+              "op": "modifyCardEffect",
+              "targetName": "ใบดำใบแดง"
+            },
+            {
+              "op": "ignoreMagicOncePerTurn",
+              "targetName": "ใบดำใบแดง"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เปลี่ยนผล ใบดำใบแดง เป็น สอดแนม 3 ใบ และใช้ได้กี่ใบก็ได้"
     }
   ]
 }

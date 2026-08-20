@@ -54,8 +54,7 @@ function drainReact(st, seed) {
 function summonPrincess(st, seed) {
   const av = put(st, 'A.hand', 'BT09-011');
   const g1 = put(st, 'A.hand', 'SD01-006');
-  const g2 = put(st, 'A.hand', 'SD01-006');
-  const fx = apply(st, { type: 'summon', k: av, to: 'A.avatar', payIds: [g1, g2], by: 'A', seed: seed || 7 });
+  const fx = apply(st, { type: 'summon', k: av, to: 'A.avatar', payIds: [g1], by: 'A', seed: seed || 7 });
   if (fx.deny) fail('summon deny: ' + fx.deny);
   drainReact(st, seed || 7);
   return av;

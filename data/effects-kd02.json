@@ -39,7 +39,7 @@
           ]
         }
       ],
-      "parseStatus": "verified",
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากมือ ถ้าในนรกฝ่ายเรา มี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 7 ชื่อขึ้นไป ทั้งการ์ดจากบนมือ 2 ใบ : อัญเ",
       "noPaidSummon": true,
       "addToHandWhenScoutedByNameIncludes": "สุวรรณ"
@@ -71,7 +71,7 @@
           ]
         }
       ],
-      "parseStatus": "verified",
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในนรกฝ่ายเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 4 ใบขึ้นไป เนรเทศ การ์ดในนรกฝ่ายเรา ",
       "nameAliases": [
         "นายนิรยบาล"
@@ -327,7 +327,7 @@
           ]
         }
       ],
-      "parseStatus": "verified",
+      "parseStatus": "auto",
       "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์",
       "milledOptional": {
         "actions": [

@@ -8,8 +8,33 @@
       "codes": [
         "BT09-074"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyDestroyedEnemyInBattle",
+            "filter": {
+              "nameIncludes": [
+                "ริกกี้"
+              ]
+            }
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "returnFromHellToDeck",
+              "filter": {
+                "nameIncludes": [
+                  "หนังมนุษย์ ชุดแก้แค้น"
+                ]
+              },
+              "count": 1,
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ ริกกี้ ทำลายศัตรูจากการต่อสู้ : เอา หนังมนุษย์ ชุดแก้แค้น จากนรกเข้า Deck"
     },
     {
       "name": "บ่อหมัก รัททาทุย",
@@ -51,8 +76,23 @@
       "codes": [
         "BT09-072"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:ผู้รู้ความจริง"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "swapHandCardWithDeckTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ (มี ผู้รู้ความจริง) : สลับการ์ดบนมือ 1 ใบ กับใบบนสุด Deck"
     },
     {
       "name": "รังรักรัททาทุย",
@@ -141,24 +181,83 @@
       "codes": [
         "BT09-073"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "magicActivated",
+            "if": "magicSymbol:ฤษี"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อมีการใช้ Magic ฤษี : จั่ว 1"
     },
     {
       "name": "หอสมุดจอมเวทย์",
       "codes": [
         "BT10-072"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "allowExtraNormalMagicFilter",
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone,ownAvatarNameIncludes:จอมเวทย์"
+          },
+          "actions": [
+            {
+              "op": "cannotBeTargetedByEnemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ : ใช้ คาถา เพิ่มได้อีก 1 ใบ / มี จอมเวทย์ ศัตรูห้ามเลือกเป็นเป้าโจมตี/ความสามารถ"
     },
     {
       "name": "ห้างโรงเกลือ",
       "codes": [
         "BT09-075"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyEnemyAvatarCost",
+              "amount": -1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar ทุกใบบน Avatar Zone ฝ่ายตรงข้าม Cost -1"
     }
   ]
 }

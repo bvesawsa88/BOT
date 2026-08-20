@@ -596,8 +596,25 @@
     {
       "code": "ODY1-087",
       "name": "เคี้ยวเพื่อนเธอซะ",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เคี้ยวเพื่อนเธอซะ — React อัญเชิญ: เซ่นหลายใบแล้วอัญเชิญจากมือตาม GEM"
     },
     {
@@ -683,7 +700,7 @@
           ]
         }
       ],
-      "parseStatus": "verified",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -1343,9 +1360,33 @@
     {
       "code": "ODY1-035",
       "name": "กัปตัน ไกร",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "กัปตัน ไกร — ทิ้งมือทั้งหมดแล้วเอา Avatar ศัตรูขึ้นมือ"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discardHandAll"
+            }
+          ],
+          "actions": [
+            {
+              "op": "bounce",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : ทิ้งการ์ดทั้งหมดบนมือ นำ Avatar ศัตรู 1 ใบกลับขึ้นมือ"
     },
     {
       "code": "ODY1-038",
@@ -1561,11 +1602,24 @@
               "shuffleAfter": true
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTargetIfAllySymbolOnField",
+              "symbol": "ผี"
+            }
+          ]
         }
       ],
       "parseStatus": "auto",
       "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
-      "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual"
+      "note": "จุติ : เรียก ผี จาก Deck / ตราบเท่าที่มี ผี อื่น ศัตรูห้ามเลือกเป็นเป้าโจมตี"
     },
     {
       "code": "ODY1-033",

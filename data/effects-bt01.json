@@ -420,10 +420,23 @@
               "shuffleAfter": true
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTargetIfAllySymbolOnField",
+              "symbol": "ผี"
+            }
+          ]
         }
       ],
       "parseStatus": "auto",
-      "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual",
+      "note": "จุติ : เรียก ผี จาก Deck / ตราบเท่าที่มี ผี อื่น ศัตรูห้ามเลือกเป็นเป้าโจมตี",
       "name": "ศาลพระภูมิ",
       "cannotBeAttackTargetIfOwnSymbolOther": "ผี"
     },
@@ -649,7 +662,7 @@
           ]
         }
       ],
-      "parseStatus": "verified",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย",
       "name": "หมอมาแล้วววว"
     },

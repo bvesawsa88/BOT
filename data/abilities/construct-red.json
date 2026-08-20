@@ -75,8 +75,30 @@
       "codes": [
         "BT10-073"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "นครทิเนนทอล",
@@ -163,16 +185,80 @@
       "codes": [
         "BT06-065"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "beforeNormalDraw"
+          },
+          "actions": [
+            {
+              "op": "scoutReplaceDraw",
+              "count": 2,
+              "filter": {
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Draw Phase : สอดแนม 2 ใบ เอา เทพ 1 ใบขึ้นมือ แทนการจั่วปกติ"
     },
     {
       "name": "เรือรบโบราณ",
       "codes": [
         "BT08-066"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "options": [
+            {
+              "label": "สอดแนม 5 ใบ หยิบ/อัญเชิญ พลเดินทัพ/ขุนพล ต่างชาติ Power <= 2",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "symbol": "ต่างชาติ",
+                    "nameIncludes": [
+                      "พลเดินทัพ",
+                      "ขุนพล"
+                    ],
+                    "powerMax": 2
+                  },
+                  "dest": "handOrAvatar",
+                  "pickCount": 1,
+                  "restTo": "bottom"
+                }
+              ]
+            },
+            {
+              "label": "นำ พลเดินทัพ จากนรกเข้า Deck",
+              "actions": [
+                {
+                  "op": "returnFromHellToDeck",
+                  "filter": {
+                    "nameIncludes": [
+                      "พลเดินทัพ"
+                    ]
+                  },
+                  "count": 1,
+                  "shuffle": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือก สอดแนม 5 เอา พลเดินทัพ/ขุนพล ต่างชาติ Power <= 2 ขึ้นมือ/ลงสนาม หรือ นำ พลเดินทัพ จากนรกเข้า Deck"
     },
     {
       "name": "วัดคู่บ้านคู่เมือง",
@@ -189,24 +275,88 @@
       "codes": [
         "BT06-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "สนามของนักวิ่งตัวจริง",
       "codes": [
         "BT08-067"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "เสาธง",
       "codes": [
         "BT07-071"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "ลูกฮึด",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
+      "grantKeywordAura": "ลูกฮึด",
+      "parseStatus": "auto",
+      "note": "Avatar ทุกใบฝ่ายเราได้รับ ลูกฮึด"
     }
   ]
 }

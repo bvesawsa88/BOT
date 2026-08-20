@@ -8,9 +8,22 @@
       "codes": [
         "BT02-023"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "40ดีกรีแมน — อีกฝ่ายเลือกเป้าโจมตีแทน"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "enemyChoosesAttackTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อโจมตี : อีกฝ่ายเลือกเป้าหมายการโจมตีแทน"
     },
     {
       "name": "กระเป๋าเครื่องบิน Super Air",
@@ -147,8 +160,31 @@
       "codes": [
         "BT08-036"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "enemyActivateMagic",
+            "if": "ownAvatarNameIncludes:เล่าปี่,allOtherAvatarsGreenForeignKhunphon"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "negateMagic"
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto",
+      "note": "มี เล่าปี่ + ขุนพล ศัตรูใช้ Magic ทิ้งมือ 1 ยกเลิก"
     },
     {
       "name": "ขวัญตา เรื่องราว ครุฑเจ้าเวหา",
@@ -360,18 +396,84 @@
       "codes": [
         "BT11-039"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "โล่มนุษย์ สั่งใช้ จาก Magic Zone ทิ้งการ์ดบนมือ 2 ใบ : อัญเชิญ Avatar ใบนี้ลง Avatar Zone เรา คำสั่งเสีย : ถ้าถูกทำลายจา"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyedByEnemyEffectOrBattle"
+          },
+          "actions": [
+            {
+              "op": "moveToMagicZoneFromHell"
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ / สั่งใช้ จาก Magic ทิ้ง 2 -> อัญเชิญ / คำสั่งเสีย ไปวางบน Magic Zone"
     },
     {
       "name": "เครื่องใช้ไฟฟ้า เฟเธอร์",
       "codes": [
         "BT11-038"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ลูกฮึด สั่งใช้ จาก Magic Zone ทิ้งการ์ดบนมือ 2 ใบ : อัญเชิญ Avatar ใบนี้ลง Avatar Zone เรา คำสั่งเสีย : ถ้าถูกทำลายจากกา"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyedByEnemyEffectOrBattle"
+          },
+          "actions": [
+            {
+              "op": "moveToMagicZoneFromHell"
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "parseStatus": "auto",
+      "note": "ลูกฮึด / สั่งใช้ จาก Magic ทิ้ง 2 -> อัญเชิญ / คำสั่งเสีย ไปวางบน Magic Zone"
     },
     {
       "name": "โคลัมแบงค์",
@@ -379,8 +481,10 @@
         "BT11-045"
       ],
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Gem ของ Avatar \"แบงค์\" ทุกใบบนมือ จะกลายเป็น Gem ไร้สี #สามารถใช้ Gem สีใดก็ได้ในการทิ้ง Cost เพื่ออัญเชิญการ์"
+      "gemAsCostForNameIncludes": "แบงค์",
+      "gemAsCostColor": "colorless",
+      "parseStatus": "auto",
+      "note": "Gem ของ Avatar แบงค์ ทุกใบบนมือ กลายเป็น Gem ไร้สี"
     },
     {
       "name": "จอมเวทย์ดอคู่",
@@ -473,8 +577,29 @@
       "codes": [
         "BT06-035"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Construct"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 5 ใบ เอา Construct 1 ใบขึ้นมือ ที่เหลือใต้ Deck"
     },
     {
       "name": "จ่ามะนาว Tank Ranger",
@@ -525,16 +650,87 @@
         "BT05-041",
         "PRMO-077"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost",
+            "ownAvatarNameIncludes": [
+              "รถถัง"
+            ]
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "ต่างชาติ",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self",
+              "targetFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "hostBattleVsEnemySymbol",
+            "symbol": "ต่างชาติ"
+          },
+          "actions": [
+            {
+              "op": "sendOpponentCombatantToBottomDeck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ (ถ้ามีรถถัง) ทำลายต่างชาติ 1 ใบ / สวมใส่รถถัง / เมื่อรถถังที่สวมสู้กับต่างชาติ เอาเข้าใต้ Deck"
     },
     {
       "name": "จ่าอเวจี ทหารครูฝึก",
       "codes": [
         "BT08-040"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "grantAliasNameToMatchingAllies",
+              "filter": {
+                "symbol": "คน",
+                "color": "green"
+              },
+              "alias": "ทหาร"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar คน สีเขียว ได้รับชื่อ ทหาร"
     },
     {
       "name": "จูล่ง ขุนพลสุภาพบุรุษแห่งจ๊กก๊ก",
@@ -542,8 +738,49 @@
         "BT08-037",
         "PRMO-113"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,noOtherOwnAvatarOnField"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "color": "green",
+                "symbol": "ต่างชาติ",
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "exceptSelfName": true
+              },
+              "dest": "avatar"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "allyDestroyedInZone",
+            "filter": {
+              "nameIncludes": [
+                "จ๊กก๊ก"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ (ไม่มีตัวอื่น) เรียก ขุนพล จากนรก / จ๊กก๊ก ถูกทำลาย อัญเชิญจากมือ"
     },
     {
       "name": "เจ้าของร้านปลาทูน่า",
@@ -607,8 +844,30 @@
         "BT08-032",
         "PRMO-094"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ช่างตัดเสื้อ อาณาจักรของแพง",
@@ -643,17 +902,54 @@
       "codes": [
         "BT10-050"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "podi"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "swapCostAndBasePower",
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "พอดี สั่งใช้ : สลับ Cost กับ POWER ตั้งต้น ของอวตาร 1 ใบจนจบเทิร์น"
     },
     {
       "name": "ชุ่ย โจรสุสาน",
       "codes": [
         "BT02-026"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ชุ่ย โจรสุสาน — ทั้งสองฝ่ายคืนนรกอีกฝ่าย 5 ใบเข้าเด็ค"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "bothChooseEnemyHellToDeck",
+              "count": 5,
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : ผู้เล่นทุกคนเลือกการ์ดจากนรกอีกฝ่าย 5 ใบ กลับเข้า Deck"
     },
     {
       "name": "ซินแส",
@@ -721,8 +1017,50 @@
         "BT10-048",
         "PRMO-135"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "usedSamakkee"
+          },
+          "actions": [
+            {
+              "op": "grantAbilityToTarget",
+              "grantedAbility": {
+                "keyword": "อัตโนมัติ",
+                "trigger": {
+                  "on": "destroyedInBattleBySelf"
+                },
+                "actions": [
+                  {
+                    "op": "unrevealTopEnemyLife",
+                    "count": 1
+                  }
+                ]
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "discardOrRevealLife",
+              "discardCount": 3,
+              "revealLifeCount": 1
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "parseStatus": "auto",
+      "note": "สามัคคี / ให้เป้าหมายหงาย LIFE ศัตรูเมื่อสู้ชนะ / คำสั่งเสีย ทิ้งมือ 3 หรือ หงาย LIFE 1"
     },
     {
       "name": "ดยุกแห่งภาคีมะม่วง",
@@ -846,16 +1184,89 @@
       "codes": [
         "BT07-037"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerPerRevealedLifeIfAlly",
+              "allyName": "ตั๊กแตนหยิน",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "grantKeywordsIfSahat",
+              "keywords": [
+                "ลูกฮึด",
+                "โล่มนุษย์"
+              ],
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "symbol": "แมลง"
+      },
+      "parseStatus": "auto",
+      "note": "มีตั๊กแตนหยิน POWER เพิ่มตาม LIFE หงาย / สาหัส ได้รับ ลูกฮึด + โล่มนุษย์ / สวมใส่ได้แค่แมลง"
     },
     {
       "name": "ตั๊กแตนหยิน",
       "codes": [
         "BT07-036"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            },
+            {
+              "op": "unrevealOwnLifeChoose",
+              "count": 1,
+              "ignoreSahat": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownFieldHas:บัลลังก์ตั๊กแตนศตวรรษ"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "triggerRevealedLifeEffectNow"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : หงาย 1 คว่ำ 1 / มีบัลลังก์ตั๊กแตน ทิ้งมือ 1 สั่งใช้ผล LIFE ที่หงาย"
     },
     {
       "name": "ตำรวจนอกเครื่องแบบ ไซเฮย์",
@@ -896,8 +1307,22 @@
       "codes": [
         "BT10-046"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "afterCombatSelfAttacked"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "guessEnemyDeckTopTypeAndMillOrUntap"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จบการต่อสู้ที่โจมตี : ทายประเภทใบบนสุด Deck ศัตรู -> ถ้าถูก ตื่น + ส่งลงนรก"
     },
     {
       "name": "ตำรวจไฟแรง เอนโว่",
@@ -934,8 +1359,40 @@
       "codes": [
         "BT08-030"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "chooseMode",
+            "if": "ownLifeHas:อ่อ กระต่ายตาย"
+          },
+          "options": [
+            {
+              "label": "ทำลาย Avatar ศัตรู ที่ POWER น้อยกว่า",
+              "actions": [
+                {
+                  "op": "destroyEnemyWithLowerPowerThanSelf"
+                }
+              ]
+            },
+            {
+              "label": "ติด เนยถั่ว จาก Deck",
+              "actions": [
+                {
+                  "op": "deckPickAndAttachSelf",
+                  "filter": {
+                    "nameIncludes": [
+                      "เนยถั่ว"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ (มี อ่อ กระต่ายตาย หงาย) : เลือกทำลายศัตรูที่ Power น้อยกว่า หรือ สวม เนยถั่ว"
     },
     {
       "name": "เตียวหุย ขุนพลจอมบุกแห่งจ๊กก๊ก",
@@ -1275,25 +1732,127 @@
       "codes": [
         "BT09-035"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "afterCombatSelfAttackedOrDefended"
+          },
+          "actions": [
+            {
+              "op": "reduceSelfPowerByCombatantPower"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "static",
+            "if": "self.power<=0"
+          },
+          "actions": [
+            {
+              "op": "destroySelf"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "uniqueOnField": true,
+      "parseStatus": "auto",
+      "note": "คุมใบอื่นไม่ได้ / จบการต่อสู้ Power ลดตามศัตรูที่สู้ / Power 0 ทำลาย / คำสั่งเสีย หงาย LIFE 1"
     },
     {
       "name": "บัวนิด วานรแห่งสวนสัตว์",
       "codes": [
         "BT07-042"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "checkAttackCondition",
+              "requireOtherOwnAvatarNameIncludes": [
+                "วานร"
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โจมตีได้เมื่อคุม วานร ใบอื่น"
     },
     {
       "name": "เบเซอร์ โหมด ฟรีซเซอร์",
       "codes": [
         "BT11-041"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากบนมือ เมื่อเริ่มต้น Battle Phase ของฝ่ายตรงข้าม เลือก Avatar \"มนุษย์เครื่องใช้ไฟฟ้า เบเซอร์\" และ \"เครื่องใช้ไ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "enemyBattlePhaseStartFromHand"
+          },
+          "cost": [
+            {
+              "op": "returnFromMagicToDeck",
+              "filter": {
+                "nameIncludes": [
+                  "มนุษย์เครื่องใช้ไฟฟ้า เบเซอร์",
+                  "เครื่องใช้ไฟฟ้า ฟรีซเซอร์"
+                ]
+              },
+              "count": 2,
+              "shuffle": true
+            }
+          ],
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": false
+            },
+            {
+              "op": "grantKeyword",
+              "keyword": "โล่มนุษย์",
+              "target": {
+                "select": "self"
+              },
+              "duration": "whileOnField"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone,self.tapped"
+          },
+          "actions": [
+            {
+              "op": "forceEnemyAttackTargetSelfExcept",
+              "exceptName": "เบเซอร์ โหมด ฟรีซเซอร์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ จากมือ : เอา เบเซอร์ + ฟรีซเซอร์ เข้า Deck -> อัญเชิญ + ให้โล่มนุษย์ + ถ้านอน บังคับศัตรูโจมตีตัวเอง"
     },
     {
       "name": "เบเซอร์ โหมด เฟเธอร์",
@@ -1348,16 +1907,72 @@
       "codes": [
         "BT09-034"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "grantKeywords",
+              "keywords": [
+                "ลูกฮึด",
+                "โล่มนุษย์"
+              ],
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "แห่หัว"
+                ],
+                "count": 1
+              },
+              "duration": "untilNextEnemyTurnEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เนรเทศนรก 1 ใบ -> ให้ ลูกฮึด + โล่มนุษย์ แก่ แห่หัว 1 ใบ"
     },
     {
       "name": "ปีศาจวานร",
       "codes": [
         "BT08-042"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "destroyedInBattleBySelf",
+            "if": "otherOwnAvatarNameIncludes:วานร"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "untapSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทำลายศัตรูจากการต่อสู้สำเร็จ (มีวานรอื่น) ทิ้งมือ 1 เปลี่ยนเป็นตื่น"
     },
     {
       "name": "ผู้กองอึ่งอ่าง",
@@ -1578,9 +2193,22 @@
       "codes": [
         "BT02-027"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พยาบาล เอ๋ — ไม่ถูกทำลายจากการถูกโจมตี: สุ่มคว่ำ LIFE 1"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "survivedBattle"
+          },
+          "actions": [
+            {
+              "op": "unrevealRandomOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อไม่ถูกทำลายจากการถูกโจมตี : สุ่มคว่ำ LIFE Card ฝ่ายเรา 1 ใบ"
     },
     {
       "name": "พระถังซัมจั๋ง",
@@ -1782,8 +2410,33 @@
       "codes": [
         "BT06-032"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self",
+              "targetFilter": {
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "grantKeywordAura": "โล่มนุษย์",
+      "auraPower": 1,
+      "auraNameIncludes": [
+        "เครื่องบิน Super Air"
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ สวม เครื่องบิน Super Air / ให้โล่มนุษย์ + POWER +1"
     },
     {
       "name": "พุ่มไม้กินคน",
@@ -1798,8 +2451,32 @@
       "codes": [
         "BT08-031"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "destroyedEnemyWithKeyword",
+            "keywords": [
+              "จุติ",
+              "คำสั่งเสีย"
+            ]
+          },
+          "actions": [
+            {
+              "op": "unrevealRandomOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "จุติ",
+        "คำสั่งเสีย"
+      ],
+      "overdoseLockOwnAbilities": true,
+      "parseStatus": "auto",
+      "note": "LIFE หงาย >= 3 เข้า Overdose ล็อค จุติ/คำสั่งเสีย ศัตรู / ทำลายตัวมี จุติ/คำสั่งเสีย คว่ำ LIFE 1"
     },
     {
       "name": "แฟรงกี้ พนักงานอาบน้ำสัตว์",
@@ -2193,17 +2870,63 @@
       "codes": [
         "BT10-049"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleStart",
+            "if": "self.inBattle"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownEndPhase",
+            "if": "noOtherOwnAvatarMatching:color=green,symbol=ต่างชาติ,nameIncludes=ขุนพล"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อต่อสู้ POWER +2 / End Phase ถ้าไม่มี ขุนพล สีเขียว ต่างชาติ ใบอื่น กลับขึ้นมือ"
     },
     {
       "name": "มาดามทาบิ",
       "codes": [
         "BT11-044"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Construct เรา ทุกใบ ไม่ถูกทำลายจาก ความสามารถของการ์ด"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "immuneAllyConstructsEffectDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง Construct ฝ่ายเราทุกใบ ไม่ถูกทำลายด้วยความสามารถ"
     },
     {
       "name": "มาติเนซ Tank Ranger",
@@ -2300,7 +3023,9 @@
         "BT06-038"
       ],
       "abilities": [],
-      "parseStatus": "manual"
+      "cannotAttack": true,
+      "parseStatus": "auto",
+      "note": "ไม่สามารถโจมตีได้ / ไม่สามารถสวมใส่ Mod Magic"
     },
     {
       "name": "แมรี่ พนักงานต้อนรับ",
@@ -2308,8 +3033,28 @@
         "BT07-043",
         "PRMO-109"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownEndPhase"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "diceRollScout",
+              "filter": {
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "End Phase : ทอยเต๋าสอดแนมตามแต้ม เอา Avatar ขึ้นมือ 1 ใบ"
     },
     {
       "name": "แมลงปอ บรรพบุรุษ",
@@ -2344,8 +3089,47 @@
       "codes": [
         "BT06-040"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "อัญเชิญ แมวมัทฉะ จากนรก",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "nameIncludes": [
+                      "แมวมัทฉะ"
+                    ]
+                  },
+                  "dest": "avatar"
+                }
+              ]
+            },
+            {
+              "label": "นำ คาเฟ่หมาแมว จาก Deck ขึ้นมือ (ต้องมีหมา/แมว 2+ ใบ)",
+              "actions": [
+                {
+                  "op": "deckPickIfOtherDogCat2",
+                  "filter": {
+                    "nameIncludes": [
+                      "คาเฟ่หมาแมว"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : เลือก อัญเชิญแมวมัทฉะ หรือ (ถ้ามีหมาแมว 2+) หยิบคาเฟ่หมาแมวขึ้นมือ"
     },
     {
       "name": "แมวมัทฉะ",
@@ -2361,8 +3145,32 @@
       "codes": [
         "BT10-043"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "costMax": 3,
+                "vanilla": true
+              },
+              "count": 2,
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : อัญเชิญ Avatar {Symbol ยักษ์} 2 ใบ Cost <= 3 ไม่มี Text Box จาก Deck"
     },
     {
       "name": "ยักษ์หินแผ่นดินใหญ่",
@@ -2382,7 +3190,13 @@
         "BT08-043"
       ],
       "abilities": [],
-      "parseStatus": "manual"
+      "attachOnly": {
+        "nameIncludes": [
+          "Tank Ranger"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "ไม่มีอวตารสวม >= 2 ใบ โจมตีไม่ได้ / สวมใส่ได้เฉพาะ Tank Ranger"
     },
     {
       "name": "รถถัง A003",
@@ -2400,8 +3214,9 @@
         "CC02-037"
       ],
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "รถถัง B66 — ต้องมีคนสวมถึงโจมตีได้"
+      "uniqueAttachedNames": true,
+      "parseStatus": "auto",
+      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่"
     },
     {
       "name": "รถถัง \"Tank Ranger\"",
@@ -2419,8 +3234,61 @@
       "codes": [
         "BT10-044"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "นำ บัลลังก์ตั๊กแตนศตวรรษ จากนรก มาสวมใส่",
+              "actions": [
+                {
+                  "op": "hellPickAndAttachSelf",
+                  "filter": {
+                    "nameIncludes": [
+                      "บัลลังก์ตั๊กแตนศตวรรษ"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "หงาย LIFE 1 + นำ บัลลังก์ตั๊กแตนศตวรรษ จาก Deck ขึ้นมือ",
+              "actions": [
+                {
+                  "op": "revealOwnLife",
+                  "count": 1
+                },
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "nameIncludes": [
+                      "บัลลังก์ตั๊กแตนศตวรรษ"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "ownMainPhaseStart",
+            "if": "self.attachedName:บัลลังก์ตั๊กแตนศตวรรษ"
+          },
+          "actions": [
+            {
+              "op": "triggerRevealedLifeEffectNow"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สวม บัลลังก์ตั๊กแตนศตวรรษ หรือ เอาขึ้นมือ / เมื่อสวม ใช้ผล LIFE หงายตอนเริ่ม Main Phase"
     },
     {
       "name": "ราชาใบก้อน",
@@ -2465,8 +3333,59 @@
       "codes": [
         "BT08-039"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "avatarSummonedToField",
+            "filter": {
+              "nameIncludes": [
+                "ทหาร",
+                "รด."
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน",
+                "nameIncludes": [
+                  "ทหาร",
+                  "รด."
+                ],
+                "exceptSelfName": true
+              },
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทหาร/รด. เข้ามา POWER +1 / สอดแนม 2 อัญเชิญ ทหาร/รด."
     },
     {
       "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
@@ -2555,8 +3474,33 @@
       "codes": [
         "BT08-035"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "จ๊กก๊ก"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "โลทัน",
@@ -2622,8 +3566,28 @@
       "codes": [
         "BT07-038"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,ownAvatarNameIncludes:ตั๊กแตน,ownRevealedLifeMin:2"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ตั๊กแตน"
+                ]
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ (มีตั๊กแตน + LIFE หงาย >= 2) : เอา ตั๊กแตน จากนรกขึ้นมือ"
     },
     {
       "name": "วีรชนชีวภาพ",
@@ -2652,8 +3616,24 @@
       "codes": [
         "BT08-041"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownEndPhase",
+            "if": "ownAvatarCountNameIncludes:วานร>=3"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto",
+      "note": "End Phase (มี วานร >= 3) : จั่ว 2 ใบ"
     },
     {
       "name": "สตีฟ Tank Ranger",
@@ -2661,17 +3641,60 @@
         "BT02-028",
         "PRMO-013"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สตีฟ Tank Ranger — สวมใส่รถถัง / +2 / บังคับโจมตี"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self",
+              "targetFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "auraPower": 2,
+      "auraNameIncludes": [
+        "รถถัง"
+      ],
+      "hostMustAttack": true,
+      "parseStatus": "auto",
+      "note": "สั่งใช้ สวมให้รถถัง / รถถังที่สวม POWER +2 และต้องโจมตีใน Battle Phase"
     },
     {
       "name": "สว นาโนแมชชีน",
       "codes": [
         "BT06-037"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "battleImmuneVsLowerPower",
+              "powerMax": 9
+            },
+            {
+              "op": "immuneMagicDestroy"
+            }
+          ]
+        }
+      ],
+      "controlImmune": true,
+      "parseStatus": "auto",
+      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Power < 10 / ไม่ถูกทำลายจากเวท / กันเปลี่ยนการควบคุม"
     },
     {
       "name": "สห ไล่จับเด็ก",
@@ -2687,16 +3710,79 @@
       "codes": [
         "BT06-036"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyWithCostLowerThanChosenAlly",
+              "allyFilter": {
+                "nameIncludes": [
+                  "ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : เลือก พระเจ้านิโคไล -> ทำลายศัตรูที่ Cost ต่ำกว่า"
     },
     {
       "name": "เสาซินแสมงคล",
       "codes": [
         "BT06-033"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPickToMagic",
+              "filter": {
+                "nameIncludes": [
+                  "เสามงคล"
+                ]
+              },
+              "max": 3
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "aboutToLeaveField"
+          },
+          "actions": [
+            {
+              "op": "protectReplace",
+              "replaceTarget": {
+                "nameIncludes": [
+                  "เสามงคล"
+                ],
+                "exceptSelf": true
+              }
+            }
+          ]
+        }
+      ],
+      "sacrificeSummon": {
+        "names": [
+          "ซินแส",
+          "เสามงคล"
+        ]
+      },
+      "abilitiesFromMagicZone": "เสามงคล",
+      "parseStatus": "auto",
+      "note": "เซ่น ซินแส+เสามงคล อัญเชิญ / จุติ: เอา เสามงคล 3 ใบจากนรกไป Magic Zone / เสามงคลใช้ความสามารถจาก Magic ได้ / สละเสามงคลแทนได้"
     },
     {
       "name": "เสามงคล",
@@ -2773,8 +3859,33 @@
       "codes": [
         "BT06-034"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "ผู้เจริญ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "เสามงคล ทรงโรมัน",
@@ -2839,8 +3950,22 @@
       "codes": [
         "BT07-040"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "sendCardFromDeckToHellAndReturnAt2ndDrawPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : โยนการ์ดจาก Deck ลงนรก แล้วเอาขึ้นมือตอน Draw Phase ที่ 2"
     },
     {
       "name": "หมาเครื่องบิน Super Air",
@@ -2928,23 +4053,38 @@
       ],
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "declareAttack"
+            "on": "declareAttack",
+            "if": "source==self"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
               "duration": "endOfTurn",
+              "layer": 4,
               "target": {
                 "select": "self"
               }
             }
           ]
+        },
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "redirectAttackToSelf"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "+1 ตอนโจมตีชัด · สั่งใช้ย้ายเป้าโจมตียังไม่ทำ"
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อโจมตี POWER +1 / ย้ายเป้าโจมตีมาที่ตัวเอง"
     },
     {
       "name": "อาเมอร์ ทศกัณท์",
@@ -2963,17 +4103,45 @@
               "op": "scout",
               "count": 5,
               "filter": {
-                "nameIncludes": [
-                  "ทศกัณท์"
-                ]
+                "type": "Avatar",
+                "matchSymbolPowerOrName": {
+                  "symbol": "ยักษ์",
+                  "power": 3,
+                  "nameIncludes": [
+                    "ทศกัณฐ์"
+                  ]
+                }
               },
-              "dest": "hand",
-              "restTo": "bottom"
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerIfAllySymbolOrNameElse",
+              "symbol": "ยักษ์",
+              "name": "มณโฑ",
+              "amountIf": 2,
+              "amountElse": -2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 5 ใบ อัญเชิญ ยักษ์ P3 หรือ ทศกัณฐ์ / มี ยักษ์ อื่น หรือ มณโฑ P+2 / ไม่มี P-2"
     },
     {
       "name": "อินาริ โอคามิ แห่งการเก็บเกี่ยว",
@@ -3064,8 +4232,32 @@
       "codes": [
         "BT08-034"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 7,
+              "filter": {
+                "nameIncludes": [
+                  "โดนใจ"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 7 ใบ เอา โดนใจ 1 ใบขึ้นมือ"
     },
     {
       "name": "MEGA ROR.DOR",

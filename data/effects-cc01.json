@@ -87,9 +87,37 @@
     {
       "code": "CC01-023",
       "name": "ตำรวจไซบอร์ค จ่าคอป",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ตำรวจไซบอร์ค จ่าคอป — โจมตี+ทิ้งมือ: สอดแนม 3 เอาเครื่องจักรขึ้นมือ (ต้องมี discard-on-attack)"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "symbol": "เครื่องจักร"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อ Avatar ใบนี้ประกาศโจมตี ทิ้งการ์ดบนมือ 1 ใบ : สอดแนม 3 ใบ นำการ์ด Symbol เครื่องจักร 1 ใบขึ้นมือ ที่เหลือไว้ใต้ Deck"
     },
     {
       "code": "CC01-036",
@@ -895,15 +923,14 @@
             {
               "op": "scout",
               "count": 3,
-              "filter": {},
-              "dest": "reorder",
-              "restTo": "top"
+              "dest": "top",
+              "reorder": true
             }
-          ],
-          "note": "สอดแนม 3 เรียงตามใจ — dest reorder ยัง partial ใช้ scout ปกติพัก"
+          ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 3 ใบ เรียงลำดับตามใจชอบ"
     },
     {
       "code": "CC01-011",

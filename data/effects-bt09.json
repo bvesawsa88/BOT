@@ -2,53 +2,166 @@
   "cards": [
     {
       "code": "BT09-001",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "พระอิศวร วีลแชร์"
-    },
-    {
-      "code": "BT09-002",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "เนอร์เกิ้ล เนียร์ สมาชิกลัทธิแห่หัว"
-    },
-    {
-      "code": "BT09-003",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "นางฟ้าลูกซอง"
-    },
-    {
-      "code": "BT09-004",
       "abilities": [
         {
+          "keyword": "จุติ",
           "trigger": {
-            "on": "lifeRevealedByAttack"
+            "on": "summoned",
+            "if": "paidCost"
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "powerMax": 4,
+                "count": 1
+              }
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "name": "DJ ปีโป้"
+      "name": "พระอิศวร วีลแชร์",
+      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่มี POWER <= 4"
+    },
+    {
+      "code": "BT09-002",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "แห่หัว"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เนอร์เกิ้ล เนียร์ สมาชิกลัทธิแห่หัว"
+    },
+    {
+      "code": "BT09-003",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "ทหาร"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "นางฟ้าลูกซอง",
+      "note": "ต่อเนื่อง Avatar ทหาร ทุกใบ POWER +1"
+    },
+    {
+      "code": "BT09-004",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "symbols": [
+                  "ผี",
+                  "เปรต"
+                ],
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "DJ ปีโป้",
+      "note": "คำสั่งเสีย : ทำลาย Avatar ศัตรู Symbol ผี หรือ เปรต 1 ใบ"
     },
     {
       "code": "BT09-005",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battlePhaseStart",
+            "if": "self.power>=7"
+          },
+          "actions": [
+            {
+              "op": "grantSummonNagaOnBattleDestroy",
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "กัณหา นาคเกล็ดดำ"
     },
     {
       "code": "BT09-006",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ลูเซีย โพลีกอน"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ลูเซีย โพลีกอน",
+      "note": "อัตโนมัติ เมื่อโจมตี POWER +2 จนจบการต่อสู้"
     },
     {
       "code": "BT09-007",
@@ -95,41 +208,16 @@
       "code": "BT09-008",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "summoned",
+            "if": "paidCost"
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 2,
-              "layer": 3,
-              "target": {
-                "select": "self",
-                "requireAttached": true
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "countsAsModification": true,
-          "actions": [
-            {
-              "op": "attach",
-              "from": "deck",
-              "host": "self",
-              "shuffleAfter": true,
-              "filter": {
-                "nameIncludes": [
-                  "อาวุธของเพมมุ"
-                ]
-              }
+              "op": "damageLife",
+              "count": 1,
+              "target": "enemy"
             }
           ]
         }
@@ -137,7 +225,7 @@
       "parseStatus": "auto",
       "name": "เพมมุ ยอดมนุษย์",
       "hostAttachNameIncludes": "อาวุธของเพมมุ",
-      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
+      "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
     },
     {
       "code": "BT09-009",
@@ -179,43 +267,28 @@
         {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "ownAvatarFights"
+            "on": "activated"
           },
-          "requireFighterNameAny": [
-            "เพมมุ",
-            "สไปรท์"
-          ],
-          "requireOwnDarkNameMissing": "เมย์ แวมไพร์โกธิค",
           "cost": [
             {
-              "op": "exileSelf"
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              }
             }
           ],
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "endOfTurn",
+              "op": "destroy",
               "target": {
-                "select": "combatOwn"
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "requireOwnNameIncludes": "เจ้าหญิงรวงข้าว",
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 3,
-              "layer": 3,
-              "target": {
-                "select": "self"
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
               }
             }
           ]
@@ -224,7 +297,7 @@
       "parseStatus": "auto",
       "name": "เมย์ แวมไพร์โกธิค",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+      "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> ทำลาย Avatar ศัตรู 1 ใบ"
     },
     {
       "code": "BT09-011",
@@ -323,27 +396,105 @@
     },
     {
       "code": "BT09-012",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "กุ่ย หน้าตาดี"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "millSelf",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "กุ่ย หน้าตาดี",
+      "note": "คำสั่งเสีย : ธรณีสูบ 3 ใบ"
     },
     {
       "code": "BT09-013",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ฮอล หน้าตาดี"
     },
     {
       "code": "BT09-014",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "นาย หน้าตาดี"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,podi"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล"
+                ]
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "นาย หน้าตาดี",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless"
     },
     {
       "code": "BT09-015",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "เพนกวินหิมะ เหลียง"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 2
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เพนกวินหิมะ เหลียง",
+      "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
     },
     {
       "code": "BT09-016",
@@ -369,51 +520,278 @@
     },
     {
       "code": "BT09-017",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "options": [
+            {
+              "label": "เนรเทศ Avatar จาก Deck -> เรียก เนอร์เกิ้ลเนียร์",
+              "actions": [
+                {
+                  "op": "banishFromDeckAndSummon",
+                  "banishFilter": {
+                    "type": "Avatar"
+                  },
+                  "summonFilter": {
+                    "nameIncludes": [
+                      "เนอร์เกิ้ลเนียร์"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "เนรเทศ Magic จาก Deck -> เรียก แมวดำ",
+              "actions": [
+                {
+                  "op": "banishFromDeckAndSummon",
+                  "banishFilter": {
+                    "type": "Magic"
+                  },
+                  "summonFilter": {
+                    "nameIncludes": [
+                      "แมวดำ"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "เนรเทศ Construct จาก Deck -> เรียก ปอนด์",
+              "actions": [
+                {
+                  "op": "banishFromDeckAndSummon",
+                  "banishFilter": {
+                    "type": "Construct"
+                  },
+                  "summonFilter": {
+                    "nameIncludes": [
+                      "ปอนด์"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "พี่โปจิ เจ้าลัทธิแห่หัว"
     },
     {
       "code": "BT09-018",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ตัวอะไรสักอย่าง"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "moveEnemyAvatarToLowerPowerToMagicServant"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ตัวอะไรสักอย่าง",
+      "note": "จุติ : ย้าย Avatar ศัตรูที่มี Power ต่ำกว่าใบนี้ ไป Magic Zone เป็น ข้ารับใช้ของ มนุษย์ดาว R18"
     },
     {
       "code": "BT09-019",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "หมาป่าเดียวดาย"
     },
     {
       "code": "BT09-020",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "nameIncludes": [
+                  "ข้ารับใช้ของ มนุษย์ดาว R18"
+                ]
+              },
+              "max": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfAndBoostBasePowerPerSacrificed",
+              "per": 3,
+              "paidCost": true
+            }
+          ]
+        },
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "moveEnemyAvatarToLowerPowerToMagicServant"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "กัล มนุษย์ดาว R18"
     },
     {
       "code": "BT09-021",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "คราเค่น ปลาหมึกปีศาจ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "moveAvatarToMagicZone",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "powerMin": 8,
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "คราเค่น ปลาหมึกปีศาจ",
+      "note": "สั่งใช้ ทิ้งมือ 1 : ย้าย Avatar ศัตรู Power >= 8 ไป Magic Zone"
     },
     {
       "code": "BT09-022",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "โซน่า โพลีกอน"
     },
     {
       "code": "BT09-023",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "count": 1,
+                "side": "any"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ริน บันนี่เกิร์ล"
     },
     {
       "code": "BT09-024",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ธอร์ บุตรแห่งโอดิน"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "destroyedInBattleBySelf"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyCostScaledByHellOrRevealLife"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ธอร์ บุตรแห่งโอดิน",
+      "note": "Link โลกิ / เมื่อทำลายศัตรูจากการต่อสู้ : ทำลาย Avatar Cost ตามจำนวนนรก หรือ หงาย LIFE ศัตรู 1"
     },
     {
       "code": "BT09-025",
@@ -471,57 +849,252 @@
     },
     {
       "code": "BT09-027",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "มิสเตอร์โบโบ้"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,podi"
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummonGodOrMill",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "มิสเตอร์โบโบ้",
+      "note": "พอดี จุติ : สอดแนม 1 ใบ ถ้าเป็น เทพ อัญเชิญ จุติ ถ้าไม่ใช่ ลงนรก"
     },
     {
       "code": "BT09-028",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "แบงค์ ตัวแดง"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self,targetColor:red"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "แบงค์ ตัวแดง",
+      "note": "ศัตรูสีแดงห้ามเลือกใบนี้เป็นเป้าโจมตี / โจมตี Avatar สีแดง -> ส่งศัตรูลงนรก",
+      "cannotBeAttackTargetIfEnemyColor": "red"
     },
     {
       "code": "BT09-029",
       "abilities": [],
-      "parseStatus": "manual",
-      "name": "สตางค์น้องชายแบงค์ ตัวเขียว"
+      "parseStatus": "auto",
+      "name": "สตางค์น้องชายแบงค์ ตัวเขียว",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "note": "สามัคคี / ศัตรูสีเขียวห้ามเลือกใบนี้เป็นเป้าโจมตี",
+      "cannotBeAttackTargetIfEnemyColor": "green"
     },
     {
       "code": "BT09-030",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ลาพิเน่ โพลีกอน"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handDiscardedByAllyEffectFromHell"
+          },
+          "cost": [
+            {
+              "op": "banishSelfFromHell"
+            },
+            {
+              "op": "millSelf",
+              "count": 3
+            }
+          ],
+          "actions": [
+            {
+              "op": "drawAndPickPolygonOrSummonLucene"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ลาพิเน่ โพลีกอน",
+      "note": "จากนรก เมื่อมีการทิ้งมือ เนรเทศใบนี้ + ธรณีสูบ 3 : จั่ว 1 (เอา โพลีกอน ขึ้นมือ/เรียก ลูเซเน่)",
+      "extraSymbols": [
+        "สัตว์วิเศษ"
+      ]
     },
     {
       "code": "BT09-031",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ลูเซเน่ โพลีกอน"
     },
     {
       "code": "BT09-032",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "วินดิโก้"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemySummonCountMinThisTurn",
+            "min": 3
+          },
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "enemyChoosesOneAvatarWipeRestToHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "วินดิโก้",
+      "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
     },
     {
       "code": "BT09-033",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "สกินวอคเกอร์"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "podi"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "copyEnemyAvatarStats",
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "สกินวอคเกอร์",
+      "note": "พอดี สั่งใช้ : ก๊อปปี้ stats ศัตรู 1 ใบจนจบเทิร์น"
     },
     {
       "code": "BT09-034",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ปอนด์ สมาชิกลัทธิแห่หัว"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "grantKeywords",
+              "keywords": [
+                "ลูกฮึด",
+                "โล่มนุษย์"
+              ],
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "แห่หัว"
+                ],
+                "count": 1
+              },
+              "duration": "untilNextEnemyTurnEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ปอนด์ สมาชิกลัทธิแห่หัว",
+      "note": "เนรเทศนรก 1 ใบ -> ให้ ลูกฮึด + โล่มนุษย์ แก่ แห่หัว 1 ใบ"
     },
     {
       "code": "BT09-035",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "เนฟิล ยักษ์ตัวสุดท้าย"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "afterCombatSelfAttackedOrDefended"
+          },
+          "actions": [
+            {
+              "op": "reduceSelfPowerByCombatantPower"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "static",
+            "if": "self.power<=0"
+          },
+          "actions": [
+            {
+              "op": "destroySelf"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "เนฟิล ยักษ์ตัวสุดท้าย",
+      "note": "คุมใบอื่นไม่ได้ / จบการต่อสู้ Power ลดตามศัตรูที่สู้ / Power 0 ทำลาย / คำสั่งเสีย หงาย LIFE 1",
+      "uniqueOnField": true,
+      "blockModification": true
     },
     {
       "code": "BT09-036",
@@ -609,9 +1182,23 @@
     },
     {
       "code": "BT09-040",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "จ่ายุทธ ทหารรักชาติ"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self,targetSymbol:ต่างชาติ"
+          },
+          "actions": [
+            {
+              "op": "destroyTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "จ่ายุทธ ทหารรักชาติ",
+      "note": "อัตโนมัติ เมื่อโจมตี Avatar Symbol ต่างชาติ : ทำลายเป้าหมาย"
     },
     {
       "code": "BT09-041",
@@ -850,9 +1437,23 @@
     },
     {
       "code": "BT09-046",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ตัวอะไรสักอย่าง"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "moveEnemyAvatarToLowerPowerToMagicServant"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ตัวอะไรสักอย่าง",
+      "note": "จุติ : ย้าย Avatar ศัตรูที่มี Power ต่ำกว่าใบนี้ ไป Magic Zone เป็น ข้ารับใช้ของ มนุษย์ดาว R18"
     },
     {
       "code": "BT09-047",
@@ -869,20 +1470,60 @@
     {
       "code": "BT09-049",
       "abilities": [],
-      "parseStatus": "manual",
-      "name": "ขอโทษสังคม"
+      "parseStatus": "auto",
+      "name": "ขอโทษสังคม",
+      "note": "ใช้ทิ้งเป็น Cost ได้เฉพาะ DJ ปีโป้",
+      "costOnlyForNameIncludes": "DJ ปีโป้"
     },
     {
       "code": "BT09-050",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "บลัดดี้แมรี่"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "rollDoubleEvenBanishEvilSpirit"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "static",
+            "if": "banishedEvilSpiritMin:3"
+          },
+          "actions": [
+            {
+              "op": "instantWin"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "บลัดดี้แมรี่",
+      "note": "วางบน Magic / สั่งใช้ ทอยเต๋า 2 ครั้ง ออกคู่ทั้งคู่ -> เนรเทศ วิญญาณร้าย / เนรเทศครบ 3 ใบ ชนะเกม"
     },
     {
       "code": "BT09-051",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ไม้กวาดปีกปักษา"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "destroyAllEnemyFaceUpMagicAndDrawPer2"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ไม้กวาดปีกปักษา",
+      "note": "ทำลาย Magic ศัตรูที่หงายอยู่ทั้งหมด / ทุกๆ 2 ใบ จั่ว 1"
     },
     {
       "code": "BT09-052",
@@ -943,9 +1584,28 @@
     },
     {
       "code": "BT09-053",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ขอให้ตีนไม่ติดพื้น"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarSymbol:ฤษี"
+          },
+          "actions": [
+            {
+              "op": "bounce",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ขอให้ตีนไม่ติดพื้น",
+      "note": "ใช้ได้เมื่อมี ฤษี : เด้ง Avatar ศัตรู 1 ใบกลับขึ้นมือ"
     },
     {
       "code": "BT09-054",
@@ -970,9 +1630,23 @@
     },
     {
       "code": "BT09-055",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "คาถา เสกควายเข้าท้อง"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:จอมเวทย์"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyAvatarsPowerSumMax",
+              "powerSumMax": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "คาถา เสกควายเข้าท้อง",
+      "note": "ใช้ได้เมื่อมี จอมเวทย์ : ทำลาย Avatar ศัตรูกี่ใบก็ได้ที่ Power รวม <= 4"
     },
     {
       "code": "BT09-056",
@@ -1090,9 +1764,54 @@
     },
     {
       "code": "BT09-058",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "Ah-ah, ah!"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 5
+            }
+          ],
+          "options": [
+            {
+              "label": "อัญเชิญ โลกิ จากนรก (ถ้ามี ธอร์)",
+              "actions": [
+                {
+                  "op": "hellPickIfAllyOnField",
+                  "allyName": "ธอร์",
+                  "filter": {
+                    "nameIncludes": [
+                      "โลกิ"
+                    ]
+                  },
+                  "dest": "avatar"
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญ ธอร์ จากนรก (ถ้ามี โลกิ)",
+              "actions": [
+                {
+                  "op": "hellPickIfAllyOnField",
+                  "allyName": "โลกิ",
+                  "filter": {
+                    "nameIncludes": [
+                      "ธอร์"
+                    ]
+                  },
+                  "dest": "avatar"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "Ah-ah, ah!",
+      "note": "ธรณีสูบ 5 ใบ : เลือก เรียก โลกิ หรือ เรียก ธอร์ จากนรก"
     },
     {
       "code": "BT09-059",
@@ -1155,26 +1874,85 @@
     },
     {
       "code": "BT09-061",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ทะลุบ้านทะลุโกศ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "combatAllyDestroyedEnemy",
+            "if": "allyPowerMin:8"
+          },
+          "actions": [
+            {
+              "op": "unrevealTopEnemyLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ทะลุบ้านทะลุโกศ",
+      "note": "เมื่อ Avatar Power >= 8 ทำลายศัตรูจากการต่อสู้ : หงาย LIFE ศัตรู 1"
     },
     {
       "code": "BT09-062",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ตัดเน็ต"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battlePhaseStart"
+          },
+          "actions": [
+            {
+              "op": "suppressAllAvatarAbilities",
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ตัดเน็ต",
+      "note": "เมื่อเข้าสู่ Battle Phase : ปลดความสามารถ Avatar ทั้งสองฝ่ายทั้งหมดจนจบเทิร์น"
     },
     {
       "code": "BT09-063",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ลงกาโพรเทคชั่น"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyBattleStart",
+            "if": "allySymbol:ยักษ์"
+          },
+          "actions": [
+            {
+              "op": "tapOtherAllySymbolAndAddPower",
+              "symbol": "ยักษ์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ลงกาโพรเทคชั่น",
+      "note": "เมื่อ Avatar ยักษ์ ฝ่ายเราต่อสู้ : นอน ยักษ์ ใบอื่น เอา POWER มาเพิ่ม"
     },
     {
       "code": "BT09-064",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "ค้อนโยเนียร์"
     },
     {
@@ -1188,8 +1966,26 @@
     },
     {
       "code": "BT09-066",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "หอกศักดิ์สิทธิ์ เอ็ดดา"
     },
     {
@@ -1217,15 +2013,47 @@
     },
     {
       "code": "BT09-068",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "กระบองตำรวจ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDestroyedEnemyInBattle"
+          },
+          "actions": [
+            {
+              "op": "moveEnemyHellCardToDeckTop",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "กระบองตำรวจ",
+      "note": "สวม ตำรวจ / ทำลายศัตรูจากการต่อสู้ -> นำการ์ดในนรกศัตรู 1 ใบ ไว้บนสุด Deck",
+      "attachOnly": {
+        "nameIncludes": [
+          "ตำรวจ"
+        ]
+      }
     },
     {
       "code": "BT09-069",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ด่านตรวจเข้าเมือง"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "limitAvatarSummonPerTurnAll",
+              "limit": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ด่านตรวจเข้าเมือง",
+      "note": "ผู้เล่นทุกคน อัญเชิญ Avatar ได้เพียง 2 ครั้งต่อเทิร์น"
     },
     {
       "code": "BT09-070",
@@ -1291,27 +2119,95 @@
     },
     {
       "code": "BT09-072",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "โพเดียมสมาคมผู้รู้ความจริง"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:ผู้รู้ความจริง"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "swapHandCardWithDeckTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "โพเดียมสมาคมผู้รู้ความจริง",
+      "note": "สั่งใช้ (มี ผู้รู้ความจริง) : สลับการ์ดบนมือ 1 ใบ กับใบบนสุด Deck"
     },
     {
       "code": "BT09-073",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "สำนักภฤคุ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "magicActivated",
+            "if": "magicSymbol:ฤษี"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "สำนักภฤคุ",
+      "note": "เมื่อมีการใช้ Magic ฤษี : จั่ว 1"
     },
     {
       "code": "BT09-074",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ตู้เสื้อผ้าของริกกี้"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyDestroyedEnemyInBattle",
+            "filter": {
+              "nameIncludes": [
+                "ริกกี้"
+              ]
+            }
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "returnFromHellToDeck",
+              "filter": {
+                "nameIncludes": [
+                  "หนังมนุษย์ ชุดแก้แค้น"
+                ]
+              },
+              "count": 1,
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ตู้เสื้อผ้าของริกกี้",
+      "note": "เมื่อ ริกกี้ ทำลายศัตรูจากการต่อสู้ : เอา หนังมนุษย์ ชุดแก้แค้น จากนรกเข้า Deck"
     },
     {
       "code": "BT09-075",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ห้างโรงเกลือ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyEnemyAvatarCost",
+              "amount": -1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ห้างโรงเกลือ",
+      "note": "Avatar ทุกใบบน Avatar Zone ฝ่ายตรงข้าม Cost -1"
     }
   ]
 }

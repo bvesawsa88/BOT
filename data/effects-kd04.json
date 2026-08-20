@@ -296,7 +296,7 @@
       "abilities": [
         {
           "trigger": {
-            "on": "activated"
+            "on": "playMagic"
           },
           "actions": [
             {

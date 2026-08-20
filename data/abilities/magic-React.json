@@ -66,8 +66,37 @@
       "codes": [
         "BT07-061"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "allyAboutToBeDestroyed",
+            "filter": {
+              "nameIncludes": [
+                "พี่หน่วง"
+              ]
+            }
+          },
+          "cost": [
+            {
+              "op": "destroyConstruct",
+              "filter": {
+                "nameIncludes": [
+                  "ยานรายการ เถียงทันหน่วง"
+                ]
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "bounceTargetToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ พี่หน่วง จะถูกทำลาย : ส่ง ยานรายการ เถียงทันหน่วง ลงนรก เอาพี่หน่วงขึ้นมือแทน"
     },
     {
       "name": "ขอให้ทั้งตัวมีแต่---",
@@ -153,16 +182,68 @@
       "codes": [
         "BT10-066"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyBattleStart",
+            "if": "allyNameIncludes:จอมเวทย์"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerPerHellNameCount",
+              "nameIncludes": [
+                "คาถา"
+              ],
+              "per": 2,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "allyCombatant"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ จอมเวทย์ ต่อสู้ : POWER +2 ต่อจำนวน คาถา ในนรก"
     },
     {
       "name": "คาถา สตอปปุ",
       "codes": [
         "BT07-060"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "targetedByAttack",
+            "targetFilter": {
+              "nameIncludes": [
+                "จอมเวทย์"
+              ]
+            }
+          },
+          "cost": [
+            {
+              "op": "returnFromHellToDeck",
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              },
+              "pos": "bottom",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ จอมเวทย์ ตกเป็นเป้าโจมตี : เอา คาถา จากนรกเข้าใต้ Deck ยกเลิกการโจมตี"
     },
     {
       "name": "เคี้ยวเพื่อนเธอซะ",
@@ -170,9 +251,25 @@
         "BT02-050",
         "ODY1-087"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เคี้ยวเพื่อนเธอซะ — React อัญเชิญ: เซ่นหลายใบแล้วอัญเชิญจากมือตาม GEM"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarSummoned",
+            "if": "any"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "triggerSource"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "งับ",
@@ -297,16 +394,49 @@
       "codes": [
         "BT08-054"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "redirectAttackToAlly",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออีกฝ่ายโจมตี : ย้ายเป้าหมายการโจมตีไปอวตารฝ่ายเราที่เลือก"
     },
     {
       "name": "ช่างมาแล้วววว",
       "codes": [
         "BT06-050"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "constructAboutToBeDestroyed"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "preventDestruction"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Construct จะถูกทำลาย : Construct ใบนั้นจะไม่ถูกทำลาย"
     },
     {
       "name": "ชายจากอนาคต",
@@ -363,25 +493,70 @@
       "codes": [
         "BT09-062"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battlePhaseStart"
+          },
+          "actions": [
+            {
+              "op": "suppressAllAvatarAbilities",
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อเข้าสู่ Battle Phase : ปลดความสามารถ Avatar ทั้งสองฝ่ายทั้งหมดจนจบเทิร์น"
     },
     {
       "name": "ถวาย",
       "codes": [
         "BT02-051"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ถวาย — กันทำลายโดยทิ้งมือทั้งหมด"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarAboutToBeDestroyed"
+          },
+          "react": true,
+          "cost": [
+            {
+              "op": "discardHandAll"
+            }
+          ],
+          "actions": [
+            {
+              "op": "preventDestruction"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar จะถูกทำลาย ทิ้งการ์ดทั้งหมดบนมือ : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
       "name": "ทะลุบ้านทะลุโกศ",
       "codes": [
         "BT09-061"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "combatAllyDestroyedEnemy",
+            "if": "allyPowerMin:8"
+          },
+          "actions": [
+            {
+              "op": "unrevealTopEnemyLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar Power >= 8 ทำลายศัตรูจากการต่อสู้ : หงาย LIFE ศัตรู 1"
     },
     {
       "name": "ทำไมถึงเอาแต่ดูละครับ ?!",
@@ -392,24 +567,61 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "avatarSummoned",
-            "if": "any"
+            "on": "enemyDeclareAttack"
           },
-          "react": true,
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "actions": [
+            {
+              "op": "redirectAttackToAlly",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "requireLink": true,
+                "count": 1
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "chosenAlly"
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "เมื่อฝ่ายตรงข้ามโจมตี : เลือก Avatar 1 ใบบน Avatar Zone ฝ่ายเรา ที่อยู่ในสถานะ ["
+      "gemAsCostColor": "colorless",
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูโจมตี : ย้ายเป้าโจมตีไปอวตาร Link ฝ่ายเรา + POWER +3 / ใช้ทิ้ง cost เรียก Link มี Gem 4 ไร้สี"
     },
     {
       "name": "ธาตุไฟแตก ๆ",
       "codes": [
         "BT06-051"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrificeSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "diceRollDestroy",
+              "evenCount": 2,
+              "oddCount": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ส่งตัวเองลงนรก + ทอยเต๋า : คู่ ทำลายศัตรู 2 ใบ / คี่ ทำลายฝ่ายเรา 1 ใบ"
     },
     {
       "name": "น้ำวนชักโครก",
@@ -554,8 +766,22 @@
       "codes": [
         "BT08-055"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyTriggerKeyword",
+            "keyword": "คำสั่งเสีย"
+          },
+          "actions": [
+            {
+              "op": "negateTriggeredAbility"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออีกฝ่ายใช้ คำสั่งเสีย : ยกเลิกความสามารถนั้น"
     },
     {
       "name": "แผนการ : เพดานถล่ม",
@@ -647,8 +873,38 @@
       "codes": [
         "BT07-059"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "cost": [
+            {
+              "op": "destroyAlly",
+              "filter": {
+                "nameIncludes": [
+                  "ครุฑ"
+                ]
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "max": 2
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออีกฝ่ายโจมตี : ทำลาย ครุฑ ฝ่ายเรา 1 ใบ แล้วทำลายศัตรูสูงสุด 2 ใบ"
     },
     {
       "name": "เพื่อชาติ",
@@ -686,9 +942,23 @@
       "codes": [
         "BT02-053"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ฟ้องครู — นอนใบอื่นฝ่ายเรา ยก POWER ให้เป้าที่ถูกตี"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "transferPowerFromOtherAllyToTarget",
+              "duration": "endOfCombat"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออีกฝ่ายโจมตี : เลือก Avatar ใบอื่นที่ไม่ใช่เป้าหมาย นำ POWER มาบวกให้เป้าหมาย"
     },
     {
       "name": "ไม่เจ้ายังไม่พร้อม",
@@ -902,8 +1172,22 @@
       "codes": [
         "BT09-063"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyBattleStart",
+            "if": "allySymbol:ยักษ์"
+          },
+          "actions": [
+            {
+              "op": "tapOtherAllySymbolAndAddPower",
+              "symbol": "ยักษ์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ยักษ์ ฝ่ายเราต่อสู้ : นอน ยักษ์ ใบอื่น เอา POWER มาเพิ่ม"
     },
     {
       "name": "ลดราคาล้นตลาด",
@@ -1177,7 +1461,7 @@
           ]
         }
       ],
-      "parseStatus": "verified",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
@@ -1185,9 +1469,35 @@
       "codes": [
         "BT11-062"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อ Avatar เราถูกทำลาย ถ้า Avatar ใบนั้น เป็นใบที่ 2 ที่ถูกทำลายในเทิร์นนี้ โดยการ เนรเทศการ์ดในนรกเรา 1 ใบ : เลือก Av"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyDestroyedSecondThisTurn"
+          },
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 8,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออวตารเราถูกทำลาย (ตัวที่ 2 ในเทิร์น) เนรเทศนรก 1 ใบ : POWER +8"
     },
     {
       "name": "เหน็บกินมือ",
@@ -1199,17 +1509,18 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "enemyDrawFromDeckByEffect"
+            "on": "enemySearchDeckToHand"
           },
+          "react": true,
           "actions": [
             {
-              "op": "negate"
+              "op": "cancelSearchDeck"
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ยกเลิกขึ้นมือจากเด็คด้วยเอฟเฟกต์ — ต้องมี hook ตอน draw-by-effect"
+      "parseStatus": "auto",
+      "note": "เมื่อฝ่ายตรงข้ามจะนำการ์ดจาก Deck ขึ้นมือด้วยความสามารถ : ยกเลิกผลความสามารถนั้น"
     },
     {
       "name": "แหม่อ้ายก็~~~",
@@ -1239,9 +1550,40 @@
       "codes": [
         "BT11-061"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อเริ่มต้น Battle Phase ของฝ่ายตรงข้าม เลือก Avatar ของฝ่ายตรงข้าม 1 ใบ : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ A"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyBattlePhaseStart"
+          },
+          "actions": [
+            {
+              "op": "grantAbilityToTarget",
+              "grantedAbility": {
+                "keyword": "อัตโนมัติ",
+                "trigger": {
+                  "on": "declareAttack",
+                  "if": "source==self"
+                },
+                "actions": [
+                  {
+                    "op": "drawOpponent",
+                    "count": 1
+                  }
+                ]
+              },
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เริ่ม Battle Phase ศัตรู : เลือกศัตรู 1 ใบ เมื่อโจมตี ให้เราจั่ว 1"
     },
     {
       "name": "อย่าให้มีครั้งที่ 2",
@@ -1446,9 +1788,39 @@
       "codes": [
         "BT11-060"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อ Avatar อีกฝ่ายโจมตี เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 1 ใบ : ปรับ POWER ตั้งต้นของ Avatar ที่โจมตีให้กลายเป"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "ไวรัส"
+                ],
+                "exceptOnly": true
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "setBasePower",
+              "value": 0,
+              "layer": 1,
+              "target": {
+                "select": "attacker"
+              },
+              "duration": "endOfCombat"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูโจมตี เนรเทศ ไวรัส จากนรก 1 ใบ : ปรับ POWER ตั้งต้นศัตรูที่โจมตีเป็น 0"
     },
     {
       "name": "Skill : Hypersense",

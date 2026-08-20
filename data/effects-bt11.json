@@ -6,16 +6,43 @@
       "keywords": [
         "สามัคคี"
       ],
-      "abilities": [],
-      "parseStatus": "partial",
-      "note": "สามัคคี — keyword"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "magicActivated",
+            "if": "magicSymbol:ฤษี"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "destroyEnemyOrBuffAndGrantSamakkeeAllySymbol",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "BT11-002",
       "name": "ไอ้นัท คนข้ามเวลา",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar \"ไอ้นัท\" 1 ใบ ที่ไม่ใช่ ไอ้นัท คนข้ามเวลา จากนรกเรา มาสวมใส่การ์ดใบนี้"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย : จั่วการ์ด 1 ใบ"
     },
     {
       "code": "BT11-003",
@@ -30,41 +57,21 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
+              "amount": 2,
               "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
+                "select": "choose",
+                "type": "Construct",
                 "side": "own",
-                "zone": "avatarZone"
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "จุติ : เลือก Construct ฝ่ายเรา 1 ใบ POWER +2"
     },
     {
       "code": "BT11-004",
@@ -73,24 +80,24 @@
       "uniqueAttachedNames": true,
       "abilities": [
         {
+          "keyword": "คำสั่งเสีย",
           "trigger": {
-            "on": "afterAttackCombat"
+            "on": "destroyed"
           },
-          "oncePerTurn": true,
-          "optional": true,
-          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
           "actions": [
             {
-              "op": "exileAttachedThenAttachFromDark",
-              "attachedNameIncludes": "อาวุธนคร",
-              "darkNameIncludes": "อาวุธนคร",
-              "thenUntap": true
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              },
+              "dest": "hand"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จบการต่อสู้ที่โจมตี: เนรเทศอาวุธนครที่สวม แล้วสวมใบชื่อต่างจากมิติมืด แล้วตื่น (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้ · สนามได้ 1 ใบ"
+      "note": "คำสั่งเสีย : นำ Avatar Symbol เทพ 1 ใบ จากนรกขึ้นมือ"
     },
     {
       "code": "BT11-005",
@@ -103,24 +110,21 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "subtype": "Modification",
-                "nameIncludes": [
-                  "อาวุธนคร"
-                ]
-              },
-              "dest": "dark",
-              "shuffleAfter": true
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 2
+              }
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติถ้ามีนครทิเนนทอล: เนรเทศอาวุธนครจากเด็คลงมิติมืดแล้วสับ · สวมอาวุธนครชื่อซ้ำไม่ได้"
+      "note": "จุติ : ทำลาย Avatar ศัตรู 2 ใบ"
     },
     {
       "code": "BT11-006",
@@ -128,53 +132,26 @@
       "uniqueAttachedNames": true,
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "declareAttack",
+            "if": "source==self"
           },
           "actions": [
             {
-              "op": "deckOrHellPick",
-              "filter": {
-                "type": "Construct",
-                "nameIncludes": [
-                  "นครทิเนนทอล"
-                ]
-              },
-              "dest": "buildConstructFree",
-              "shuffleAfterIfFromDeck": true
-            }
-          ]
-        },
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "requireOwnConstructNameIncludes": "นครทิเนนทอล",
-          "cost": [
-            {
-              "op": "exileHand",
-              "filter": {
-                "nameIncludes": [
-                  "อาวุธนคร"
-                ]
-              },
-              "count": 1
-            }
-          ],
-          "actions": [
-            {
-              "op": "draw",
-              "count": 2,
-              "player": "owner"
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ: ก่อสร้างนครทิเนนทอลจากเด็ค/นรก · สั่งใช้เนรเทศอาวุธนครจากมือแล้วจั่ว 2 (ต้องมีนครทิเนนทอล) · สวมชื่อซ้ำไม่ได้"
+      "note": "อัตโนมัติ เมื่อโจมตี POWER +3 จนจบการต่อสู้"
     },
     {
       "code": "BT11-007",
@@ -186,12 +163,20 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {},
+              "dest": "hand",
+              "pickBy": "enemyRandom",
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ : สอดแนม 3 ใบ แล้วให้ฝ่ายตรงข้าม สุ่มเลือกการ์ด 1 ใบ จากที่ สอดแนม แสดงการ์ดใบที่เลือก และนำขึ้"
+      "parseStatus": "auto"
     },
     {
       "code": "BT11-008",
@@ -219,9 +204,53 @@
     {
       "code": "BT11-009",
       "name": "นักฆ่าแม่เหล็ก มอนซี",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด Avatar จากบนมือ 1 ใบ : เลือก Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ POWER - 4 จนจบเทิร์น"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "หุ่นยนต์"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -4,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone,otherOwnAvatarSymbol:หุ่นยนต์"
+          },
+          "actions": [
+            {
+              "op": "immuneBattleDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "BT11-010",
@@ -539,30 +568,53 @@
       "name": "คาร์ร่า หน่วยรบ XVI",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "activated"
+            "on": "summoned"
           },
-          "oncePerTurn": true,
           "actions": [
             {
-              "op": "scout",
-              "count": 3,
-              "filter": {
-                "nameIncludes": [
-                  "หน่วยรบ XVI"
-                ],
-                "excludeOnly": true
-              },
-              "dest": "avatar",
-              "paidCost": true,
-              "restTo": "hell"
+              "op": "millAll",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milledByCardName",
+            "names": [
+              "ไวรัส"
+            ]
+          },
+          "actions": [
+            {
+              "op": "banishSelfFromHell"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromDarkDimension",
+            "if": "darkDimensionCountNameIncludes:ไวรัส>=5"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromDarkDimension"
             }
           ]
         }
       ],
-      "parseStatus": "verified",
-      "note": "เทิร์นละครั้ง สั่งใช้: สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI (ไม่ใช่ only) ที่เหลือลงนรก · เทิร์นศัตรูหน่วยรบ XVI ได้โล่มนุษย์",
+      "parseStatus": "auto",
+      "note": "เมื่ออัญเชิญ ธรณีสูบ 3 / เมื่อถูกธรณีสูบโดย ไวรัส เนรเทศ / สั่งใช้จากมิติมืด ทิ้ง 2 อัญเชิญ",
       "grantKeywordAura": {
         "keyword": "โล่มนุษย์",
         "side": "own",
@@ -654,37 +706,231 @@
     {
       "code": "BT11-019",
       "name": "มีมมิ นักเรียนดีเด่น",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากนรก : นำการ์ดใบนี้ ไปสวมใส่ให้ \"ไอ้นัท\" หรือ \"เซอร์นัท\" บน Avatar Zone เรา ความสามารถนี้ ถือเป็นการใช้ Modifi"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "ไอ้นัท",
+                  "เซอร์นัท"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostBattleStart"
+          },
+          "actions": [
+            {
+              "op": "changeColor",
+              "color": "purple",
+              "duration": "endOfCombat",
+              "target": {
+                "select": "enemyCombatant"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "BT11-020",
       "name": "ไวรัสแห่งการแพร่เชื้อ บลาสเตอร์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "คำสั่งเสีย : ผู้เล่นทุกคน ธรณีสูบ 2 ใบ ถ้าการ์ดที่ถูก ธรณีสูบ ด้วยความสามารถนี้มี Avatar ตั้งแต่ 3 ใบขึ้นไป สามารถอัญเชิ"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "millAllAndSummonDarkDimensionVirusIfAvatarsMin3",
+              "count": 2,
+              "maxSummon": 2
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milledByCardName",
+            "names": [
+              "ไวรัส"
+            ]
+          },
+          "actions": [
+            {
+              "op": "banishSelfFromHell"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromDarkDimension",
+            "if": "darkDimensionCountNameIncludes:ไวรัส>=5"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromDarkDimension"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "BT11-021",
       "name": "ไวรัสแห่งการช่วงชิง โทรจัน",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญ : ผู้เล่นทุกคน ธรณีสูบ 3 ใบ ถ้าในการ์ดที่ถูก ธรณีสูบ ด้วยความสามารถนี้มี Avatar ตั้ง"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "millAllAndDebuffEnemyBuffVirusIfAvatarsMin4",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milledByCardName",
+            "names": [
+              "ไวรัส"
+            ]
+          },
+          "actions": [
+            {
+              "op": "banishSelfFromHell"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromDarkDimension",
+            "if": "darkDimensionCountNameIncludes:ไวรัส>=5"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromDarkDimension"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออัญเชิญ ธรณีสูบ 3 / เมื่อถูกธรณีสูบโดย ไวรัส เนรเทศ / สั่งใช้จากมิติมืด ทิ้ง 2 อัญเชิญ"
     },
     {
       "code": "BT11-022",
       "name": "ไวรัสแห่งความเป็นไปได้ ครีปเปอร์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : ผู้เล่นทุกคน ธรณีสูบ 3 ใบ ถ้าในการ์ดที่ถูก ธรณีสูบ ด้วยความสามารถนี้มี"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "millAllAndZeroEnemyIfAvatarsMin4",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milledByCardName",
+            "names": [
+              "ไวรัส"
+            ]
+          },
+          "actions": [
+            {
+              "op": "banishSelfFromHell"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromDarkDimension",
+            "if": "darkDimensionCountNameIncludes:ไวรัส>=5"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromDarkDimension"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อโจมตี ธรณีสูบ 3 / เมื่อถูกธรณีสูบโดย ไวรัส เนรเทศ / สั่งใช้จากมิติมืด ทิ้ง 2 อัญเชิญ"
     },
     {
       "code": "BT11-023",
       "name": "ตัวอะไรสักอย่างที่สุดเท่และเป็นนักดาบ",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ เลือก Avatar \"ตัวอะไรสักอย่าง\" ใบอื่น 1 ใบ บน Avatar Zone เรา : เพิ่ม POWER Avatar ใบนี้ ตามจำนวน "
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "copyHalfBasePowerFromAlly",
+              "targetFilter": {
+                "nameIncludes": [
+                  "ตัวอะไรสักอย่าง"
+                ],
+                "exceptSelf": true
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ : บัฟ POWER ตามครึ่งหนึ่งของ POWER ตั้งต้นของ ตัวอะไรสักอย่าง ใบอื่น"
     },
     {
       "code": "BT11-024",
@@ -742,7 +988,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "จากนรก: ถ้ามีพระถังซัมจั๋ง/ซุนหงอคง/ตือโป๊ยก่าย รวม ≥2 ชื่อ ทิ้งมือ 1 → อัญเชิญตัวเอง"
+      "note": "จากนรก: ถ้ามีพระถังซัมจั๋ง/ซุนหงอคง/ตือโป๊ยก่าย รวม ≥2 ใบ ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "code": "BT11-026",
@@ -772,9 +1018,49 @@
     {
       "code": "BT11-027",
       "name": "เจ้าแห่งความมืด",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากบนมือ ถ้าฝ่ายตรงข้ามมี Avatar บน Avatar Zone ตั้งแต่ 4 ใบขึ้นไป : ส่ง Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ "
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand",
+            "if": "enemyAvatarCountMin:4"
+          },
+          "cost": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownEndPhase"
+          },
+          "actions": [
+            {
+              "op": "halveBasePower",
+              "layer": 1,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้จากมือ (ศัตรูมี Avatar >= 4) : ส่งศัตรู 1 ใบลงนรก แล้วอัญเชิญใบนี้ / End Phase ลด POWER ครึ่งหนึ่ง"
     },
     {
       "code": "BT11-028",
@@ -786,26 +1072,100 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "สมาชม"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarCountNameIncludes:สมาชม>=2"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "destroyEnemyWithCostScaledBySamachomAllies"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ : อัญเชิญ Avatar \"สมาชม\" 1 ใบ จากใน Deck ลง Avatar Zone เราจากนั้นสับ Deck เทิรน์ละครั้ง สั่งใช"
+      "parseStatus": "auto",
+      "note": "จุติ : เรียก สมาชม จาก Deck / สั่งใช้ (มี สมาชม >= 2) : ทำลายศัตรู Cost <= 4",
+      "uniqueOnField": true,
+      "nameAliases": [
+        "สมาชม"
+      ]
     },
     {
       "code": "BT11-029",
       "name": "แอชลีย์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "แทงหลัง เทิร์นละครั้ง สั่งใช้ ถ้าบน Avatar Zone เรามี Avatar \"สมาชม\" 2 ใบขึ้นไป ทิ้งการ์ดบนมือ 1 ใบ : ฝ่ายตรงข้าม เลือก "
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarCountNameIncludes:สมาชม>=2"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "enemyChoosesEnemyHellAvatarToSummonOnAllyZoneWithEndPhaseDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แทงหลัง / สั่งใช้ (มี สมาชม >= 2) ทิ้งมือ 1 : อัญเชิญอวตารจากนรกศัตรูลงสนามฝ่ายเรา",
+      "keywords": [
+        "แทงหลัง"
+      ],
+      "uniqueOnField": true,
+      "nameAliases": [
+        "สมาชม"
+      ]
     },
     {
       "code": "BT11-030",
       "name": "น้าแมน",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ถ้าบน Avatar Zone เรามี Avatar \"สมาชม\" 2 ใบขึ้นไป เลือก Avatar บน Avatar Zone เรา และ ฝ่ายตรงข้าม อ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarCountNameIncludes:สมาชม>=2"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "toggleAvatarStateAllyAndEnemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ (มี สมาชม >= 2) : สลับสภาพอวตารฝ่ายเราและศัตรูอย่างละ 1 ใบ",
+      "uniqueOnField": true,
+      "nameAliases": [
+        "สมาชม"
+      ]
     },
     {
       "code": "BT11-031",
@@ -881,15 +1241,39 @@
         {
           "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "chooseMode"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "options": [
+            {
+              "label": "ทำลายการ์ดที่สวมใส่อยู่ 1 ใบ",
+              "actions": [
+                {
+                  "op": "destroyAttachedCard",
+                  "count": 1
+                }
+              ]
+            },
+            {
+              "label": "สอดแนม 5 ใบ เอา Modification Magic 1 ใบขึ้นมือ",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Magic",
+                    "subtype": "Modification"
+                  },
+                  "dest": "hand",
+                  "pickCount": 1,
+                  "restTo": "bottom"
+                }
+              ]
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ เลือกปฏิบัติ : 1) ทำลายการ์ดที่อยู่ในสภาพสวมใส่ 1 ใบ บน สนาม 2) สอดแนม 5 ใบ นำ Modification Mag"
+      "parseStatus": "auto",
+      "note": "จุติ : ทำลายการ์ดสวมใส่ 1 ใบ หรือ สอดแนม 5 ใบ เอา Mod 1 ใบขึ้นมือ"
     },
     {
       "code": "BT11-033",
@@ -901,19 +1285,59 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ไอ้นัท",
+                  "เซอร์นัท",
+                  "อัศวินตลิ่งชัน"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ : สอดแนม 5 ใบ นำ Avatar \"ไอ้นัท\" , \"เซอร์นัท\" หรือ \"อัศวินตลิ่งชัน\" 1 ใบ จากที่สอดแนม ขึ้นมือ ก"
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 5 ใบ เอา ไอ้นัท/เซอร์นัท/อัศวินตลิ่งชัน ขึ้นมือ",
+      "nameAliases": [
+        "เลอร์ติ๊ก เด็กไม่ชอบแดรคคูลา"
+      ]
     },
     {
       "code": "BT11-034",
       "name": "ยูนิคอร์นขี้เมา",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "คำสั่งเสีย : สอดแนม 7 ใบ เลือก Avatar ยูนิคอร์นขี้เมา 1 ใบ จากที่สอดแนม และอัญเชิญ ลงบน Avatar Zone เรา การ์ดที่เหลือนำก"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 7,
+              "filter": {
+                "nameIncludes": [
+                  "ยูนิคอร์นขี้เมา"
+                ]
+              },
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย : สอดแนม 7 ใบ อัญเชิญ ยูนิคอร์นขี้เมา 1 ใบ"
     },
     {
       "code": "BT11-035",
@@ -1021,16 +1445,82 @@
     {
       "code": "BT11-038",
       "name": "เครื่องใช้ไฟฟ้า เฟเธอร์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ลูกฮึด สั่งใช้ จาก Magic Zone ทิ้งการ์ดบนมือ 2 ใบ : อัญเชิญ Avatar ใบนี้ลง Avatar Zone เรา คำสั่งเสีย : ถ้าถูกทำลายจากกา"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyedByEnemyEffectOrBattle"
+          },
+          "actions": [
+            {
+              "op": "moveToMagicZoneFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ลูกฮึด / สั่งใช้ จาก Magic ทิ้ง 2 -> อัญเชิญ / คำสั่งเสีย ไปวางบน Magic Zone",
+      "keywords": [
+        "ลูกฮึด"
+      ]
     },
     {
       "code": "BT11-039",
       "name": "เครื่องใช้ไฟฟ้า ฟรีซเซอร์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "โล่มนุษย์ สั่งใช้ จาก Magic Zone ทิ้งการ์ดบนมือ 2 ใบ : อัญเชิญ Avatar ใบนี้ลง Avatar Zone เรา คำสั่งเสีย : ถ้าถูกทำลายจา"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyedByEnemyEffectOrBattle"
+          },
+          "actions": [
+            {
+              "op": "moveToMagicZoneFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ / สั่งใช้ จาก Magic ทิ้ง 2 -> อัญเชิญ / คำสั่งเสีย ไปวางบน Magic Zone",
+      "keywords": [
+        "โล่มนุษย์"
+      ]
     },
     {
       "code": "BT11-040",
@@ -1060,9 +1550,56 @@
     {
       "code": "BT11-041",
       "name": "เบเซอร์ โหมด ฟรีซเซอร์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สั่งใช้ จากบนมือ เมื่อเริ่มต้น Battle Phase ของฝ่ายตรงข้าม เลือก Avatar \"มนุษย์เครื่องใช้ไฟฟ้า เบเซอร์\" และ \"เครื่องใช้ไ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "enemyBattlePhaseStartFromHand"
+          },
+          "cost": [
+            {
+              "op": "returnFromMagicToDeck",
+              "filter": {
+                "nameIncludes": [
+                  "มนุษย์เครื่องใช้ไฟฟ้า เบเซอร์",
+                  "เครื่องใช้ไฟฟ้า ฟรีซเซอร์"
+                ]
+              },
+              "count": 2,
+              "shuffle": true
+            }
+          ],
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": false
+            },
+            {
+              "op": "grantKeyword",
+              "keyword": "โล่มนุษย์",
+              "target": {
+                "select": "self"
+              },
+              "duration": "whileOnField"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone,self.tapped"
+          },
+          "actions": [
+            {
+              "op": "forceEnemyAttackTargetSelfExcept",
+              "exceptName": "เบเซอร์ โหมด ฟรีซเซอร์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ จากมือ : เอา เบเซอร์ + ฟรีซเซอร์ เข้า Deck -> อัญเชิญ + ให้โล่มนุษย์ + ถ้านอน บังคับศัตรูโจมตีตัวเอง"
     },
     {
       "code": "BT11-042",
@@ -1078,18 +1615,46 @@
               "op": "scout",
               "count": 5,
               "filter": {
-                "nameIncludes": [
-                  "ทศกัณท์"
-                ]
+                "type": "Avatar",
+                "matchSymbolPowerOrName": {
+                  "symbol": "ยักษ์",
+                  "power": 3,
+                  "nameIncludes": [
+                    "ทศกัณฐ์"
+                  ]
+                }
               },
-              "dest": "hand",
-              "restTo": "bottom"
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerIfAllySymbolOrNameElse",
+              "symbol": "ยักษ์",
+              "name": "มณโฑ",
+              "amountIf": 2,
+              "amountElse": -2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "name": "อาเมอร์ ทศกัณท์"
+      "parseStatus": "auto",
+      "name": "อาเมอร์ ทศกัณท์",
+      "note": "จุติ : สอดแนม 5 ใบ อัญเชิญ ยักษ์ P3 หรือ ทศกัณฐ์ / มี ยักษ์ อื่น หรือ มณโฑ P+2 / ไม่มี P-2"
     },
     {
       "code": "BT11-043",
@@ -1127,16 +1692,31 @@
     {
       "code": "BT11-044",
       "name": "มาดามทาบิ",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Construct เรา ทุกใบ ไม่ถูกทำลายจาก ความสามารถของการ์ด"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "immuneAllyConstructsEffectDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง Construct ฝ่ายเราทุกใบ ไม่ถูกทำลายด้วยความสามารถ"
     },
     {
       "code": "BT11-045",
       "name": "โคลัมแบงค์",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Gem ของ Avatar \"แบงค์\" ทุกใบบนมือ จะกลายเป็น Gem ไร้สี #สามารถใช้ Gem สีใดก็ได้ในการทิ้ง Cost เพื่ออัญเชิญการ์"
+      "parseStatus": "auto",
+      "note": "Gem ของ Avatar แบงค์ ทุกใบบนมือ กลายเป็น Gem ไร้สี",
+      "gemAsCostForNameIncludes": "แบงค์",
+      "gemAsCostColor": "colorless"
     },
     {
       "code": "BT11-046",
@@ -1421,9 +2001,45 @@
     {
       "code": "BT11-054",
       "name": "แยกกันไปแตก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สามารถใช้ได้เมื่อบน Avatar Zone ฝ่ายเรามี Avatar \"สมาชม\" ชื่อไม่ซ้ำกัน 4 ใบ เลือกปฏิบัติ : 1) เนรเทศ Avatar \"สมาชม\" ชื่อ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode",
+            "if": "ownFieldDistinctNamesMin:สมาชม:4"
+          },
+          "cost": [
+            {
+              "op": "banishDistinctFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "สมาชม"
+                ]
+              },
+              "count": 4
+            }
+          ],
+          "options": [
+            {
+              "label": "อีกฝ่ายทิ้งการ์ดบนมือทั้งหมด",
+              "actions": [
+                {
+                  "op": "discardEnemyHandAll"
+                }
+              ]
+            },
+            {
+              "label": "ทำลาย Avatar บนสนามฝ่ายตรงข้ามทั้งหมด",
+              "actions": [
+                {
+                  "op": "destroyAllEnemyAvatars"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เนรเทศ สมาชม 4 ชื่อจากนรก : 1) ศัตรูทิ้งมือหมด 2) ทำลาย Avatar ศัตรูทั้งหมด"
     },
     {
       "code": "BT11-055",
@@ -1516,44 +2132,183 @@
     {
       "code": "BT11-057",
       "name": "สู่โลกอันเปล่งประกาย!",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เลือก \"ไอ้นัท\" หรือ \"เซอร์นัท\" 1 ใบ บน Avatar Zone เรา : อัญเชิญ Avatar \"อัศวินตลิ่งชัน\" 1 ใบ จากนรกเรา ที่มี Cost เท่าก"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "summonKnightTalingchanFromHellAndDrawIfChachaMemmi"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เรียก อัศวินตลิ่งชัน Cost <= ไอ้นัท/เซอร์นัท จากนรก (มี ชาช่า/มีมมิ จั่ว 1)"
     },
     {
       "code": "BT11-058",
       "name": "ระเบิดความเกลียดชัง",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ถ้าบน สนามของผู้เล่นทุกคน มี Avatar รวมกัน 10 ใบ หรือมากกว่า ส่งการ์ดทุกใบบนสนามผู้เล่นทุกคนลงนรก"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "allPlayersAvatarCountMin:10"
+          },
+          "actions": [
+            {
+              "op": "destroyAllAvatarsOnField"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถ้าอวตารทุกคนรวมกัน >= 10 ใบ : ส่งอวตารทุกใบบนสนามลงนรก"
     },
     {
       "code": "BT11-059",
       "name": "อินสตอล บึ้มทั้งไดรฟ์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 2 ใบ จากนั้น ถ้าใน มิติมืด มี Avatar \"ไวรัส\" ตั้งแต่ 5 ใบขึ้นไป สามารถอัญเชิญ A"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "ไวรัส"
+                ],
+                "exceptOnly": true
+              },
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonFromDarkDimensionIfVirusCountMin",
+              "filter": {
+                "nameIncludes": [
+                  "ไวรัส"
+                ]
+              },
+              "min": 5
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เนรเทศ ไวรัส จากนรก 2 ใบ -> ถ้ามิติมืดมี ไวรัส >= 5 ใบ เรียก ไวรัส จากมิติมืด"
     },
     {
       "code": "BT11-060",
       "name": "ไฮแจ็ค ไฮรีเทิร์น",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อ Avatar อีกฝ่ายโจมตี เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 1 ใบ : ปรับ POWER ตั้งต้นของ Avatar ที่โจมตีให้กลายเป"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "ไวรัส"
+                ],
+                "exceptOnly": true
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "setBasePower",
+              "value": 0,
+              "layer": 1,
+              "target": {
+                "select": "attacker"
+              },
+              "duration": "endOfCombat"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูโจมตี เนรเทศ ไวรัส จากนรก 1 ใบ : ปรับ POWER ตั้งต้นศัตรูที่โจมตีเป็น 0"
     },
     {
       "code": "BT11-061",
       "name": "ให้ข้าวฉันถ้าคุณเป็นคนดี",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อเริ่มต้น Battle Phase ของฝ่ายตรงข้าม เลือก Avatar ของฝ่ายตรงข้าม 1 ใบ : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ A"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyBattlePhaseStart"
+          },
+          "actions": [
+            {
+              "op": "grantAbilityToTarget",
+              "grantedAbility": {
+                "keyword": "อัตโนมัติ",
+                "trigger": {
+                  "on": "declareAttack",
+                  "if": "source==self"
+                },
+                "actions": [
+                  {
+                    "op": "drawOpponent",
+                    "count": 1
+                  }
+                ]
+              },
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เริ่ม Battle Phase ศัตรู : เลือกศัตรู 1 ใบ เมื่อโจมตี ให้เราจั่ว 1"
     },
     {
       "code": "BT11-062",
       "name": "เหตุผลที่ยังหายใจ",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อ Avatar เราถูกทำลาย ถ้า Avatar ใบนั้น เป็นใบที่ 2 ที่ถูกทำลายในเทิร์นนี้ โดยการ เนรเทศการ์ดในนรกเรา 1 ใบ : เลือก Av"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyDestroyedSecondThisTurn"
+          },
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 8,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออวตารเราถูกทำลาย (ตัวที่ 2 ในเทิร์น) เนรเทศนรก 1 ใบ : POWER +8"
     },
     {
       "code": "BT11-063",
@@ -1562,16 +2317,35 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "avatarSummoned",
-            "if": "any"
+            "on": "enemyDeclareAttack"
           },
-          "react": true,
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "actions": [
+            {
+              "op": "redirectAttackToAlly",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "requireLink": true,
+                "count": 1
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "chosenAlly"
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "เมื่อฝ่ายตรงข้ามโจมตี : เลือก Avatar 1 ใบบน Avatar Zone ฝ่ายเรา ที่อยู่ในสถานะ ["
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูโจมตี : ย้ายเป้าโจมตีไปอวตาร Link ฝ่ายเรา + POWER +3 / ใช้ทิ้ง cost เรียก Link มี Gem 4 ไร้สี",
+      "gemAsCostForLink": 4,
+      "gemAsCostColor": "colorless"
     },
     {
       "code": "BT11-064",
@@ -1702,9 +2476,35 @@
     {
       "code": "BT11-069",
       "name": "มัลแวร์โซน",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่่งใช้ เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 1 ใบ : อีกฝ่าย ธรณีสูบ 1 ใบ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "ไวรัส"
+                ],
+                "exceptOnly": true
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "millEnemy",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ เนรเทศ ไวรัส จากนรก 1 ใบ : อีกฝ่าย ธรณีสูบ 1 ใบ"
     },
     {
       "code": "BT11-070",
@@ -1933,9 +2733,45 @@
     {
       "code": "BT11-074",
       "name": "แป้นสกุล อิเล็กทรอนิกส์",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ : สอดแนม 5 ใบ เลือก Avatar \"เครื่องใช้ไฟฟ้า\" 1 ใบ มาวางที่ Magic Zone เรา การ์ดที่เหลือนำกลับ Deck"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เครื่องใช้ไฟฟ้า"
+                ]
+              },
+              "dest": "magic",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone,ownRevealedLifeMoreThanEnemy"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สอดแนม 5 ใบ เอา เครื่องใช้ไฟฟ้า ไว้ Magic Zone / LIFE หงายเยอะกว่าศัตรู ไม่ตกเป็นเป้าโจมตี"
     },
     {
       "code": "BT11-075",

@@ -140,8 +140,29 @@
       "codes": [
         "BT06-060"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "โคกอีสานนูน",
@@ -206,8 +227,29 @@
       "codes": [
         "BT07-070"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ฐานหุ่นนักรบผู้กล้า ซีทันยาน",
@@ -238,8 +280,22 @@
       "codes": [
         "BT09-069"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "limitAvatarSummonPerTurnAll",
+              "limit": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ผู้เล่นทุกคน อัญเชิญ Avatar ได้เพียง 2 ครั้งต่อเทิร์น"
     },
     {
       "name": "ดินแดนยุติธรรม",
@@ -271,8 +327,29 @@
         "BT07-068",
         "PRMO-103"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ดินแดนแห่งความหลากหลาย",
@@ -287,16 +364,51 @@
       "codes": [
         "BT06-062"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ทรายดูด",
       "codes": [
         "BT05-068"
       ],
-      "abilities": [],
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "destroyPowerZeroAvatars"
+            }
+          ]
+        }
+      ],
+      "destroyHostIfPower0": true,
+      "parseStatus": "auto",
+      "note": "Avatar ที่ POWER เท่ากับ 0 จะถูกทำลาย"
     },
     {
       "name": "ทุ่งนาแดนนี้(ไม่มีความหมาย)",
@@ -339,28 +451,97 @@
       "codes": [
         "BT02-059"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "แมลง",
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
       "keywords": [
         "สามัคคี"
       ],
-      "parseStatus": "partial",
-      "note": "เทศกาลแมลงปอบุก — ให้แมลงทุกใบได้สามัคคี (ตอนนี้ keyword บน Land อย่างเดียว ยังไม่กระจายให้แมลง)"
+      "parseStatus": "auto",
+      "note": "Avatar {symbol แมลง} ทุกใบได้รับสามัคคี"
     },
     {
       "name": "นรกในกรง",
       "codes": [
         "BT06-059"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "limitAvatarZoneCountAll",
+              "limit": 3
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คุม Avatar ได้แค่ 3 ใบ / เมื่อใช้ ให้ส่งลงนรกจนเหลือ 3 ใบ"
     },
     {
       "name": "บิฟร็อสต์ สะพานสายรุ้ง",
       "codes": [
         "BT08-063"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milledAny"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "milledByPurpleGodOrMagic"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHandFromHell"
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "nameAliases": [
+        "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน"
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อมีการธรณีสูบ : ให้ สามัคคี แก่อวตาร 1 ใบ / ถูกธรณีสูบด้วยเทพม่วง/เวท เอาขึ้นมือ"
     },
     {
       "name": "แบ่งแยกดินแดน",
@@ -689,9 +870,35 @@
       "codes": [
         "BT11-069"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่่งใช้ เนรเทศ Avatar \"ไวรัส\" ที่ไม่ใช่ ในนรกเรา 1 ใบ : อีกฝ่าย ธรณีสูบ 1 ใบ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "ไวรัส"
+                ],
+                "exceptOnly": true
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "millEnemy",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ เนรเทศ ไวรัส จากนรก 1 ใบ : อีกฝ่าย ธรณีสูบ 1 ใบ"
     },
     {
       "name": "เมืองลกเอี๋ยง",
@@ -888,8 +1095,34 @@
       "codes": [
         "BT08-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "magicActivated",
+            "if": "magicNameIncludes:คาถา"
+          },
+          "actions": [
+            {
+              "op": "setMagicFromHellFaceDown",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "summonMageUsingFaceDownMagicAsGem"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อใช้ คาถา วาง Magic จากนรกแบบคว่ำ / สั่งใช้ : อัญเชิญ จอมเวทย์ โดยใช้ Magic คว่ำเป็น Gem"
     },
     {
       "name": "วิหารเจ้าสมุทร",
@@ -952,8 +1185,30 @@
       "codes": [
         "BT07-069"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone",
+                "symbol": "คน"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "สภาแบงค์",
@@ -961,7 +1216,10 @@
         "BT06-061"
       ],
       "abilities": [],
-      "parseStatus": "manual"
+      "gemAsCostForNameIncludes": "แบงค์",
+      "gemAsCostColor": "colorless",
+      "parseStatus": "auto",
+      "note": "Avatar แบงค์ บนมือ Cost -1 และ Gem กลายเป็น Gem ไร้สี"
     },
     {
       "name": "สมชาย ห้องเช่าถูกๆ",
@@ -1107,8 +1365,37 @@
       "codes": [
         "BT07-066"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:เครื่องบิน Super Air"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ผู้โดยสาร Super Air"
+                ]
+              },
+              "dest": "avatar",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ (มี เครื่องบิน Super Air) ทิ้งมือ 1 : เรียก ผู้โดยสาร Super Air จากนรก/Deck"
     },
     {
       "name": "อาณาจักรของแพง",
@@ -1184,8 +1471,34 @@
       "codes": [
         "BT05-067"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachFromHand",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ],
+                "symbol": "คน"
+              },
+              "targetFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ : นำ Tank Ranger Symbol คน บนมือไปสวมให้รถถัง"
     },
     {
       "name": "Micro Plaza สะพานพลาสติก",
@@ -1223,8 +1536,29 @@
       "codes": [
         "BT10-071"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "Podcast Untitled Case",

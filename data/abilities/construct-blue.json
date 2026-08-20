@@ -8,24 +8,90 @@
       "codes": [
         "BT06-067"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "costMax": 2,
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar Cost <= 2 ทุกใบฝ่ายเราได้รับ สามัคคี"
     },
     {
       "name": "ยานสำรวจ R18",
       "codes": [
         "BT06-066"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:มนุษย์ดาว R18"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "stealEnemyHellAvatarToMagicServant",
+              "costMin": 5,
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ (ถ้าคุม R18): ดึง Avatar ศัตรู Cost >= 5 จากนรกมาไว้ Magic เป็น ข้ารับใช้ของ มนุษย์ดาว R18"
     },
     {
       "name": "ยิมทมิฬ",
       "codes": [
         "BT08-068"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "บึงทมิฬ People"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "รูปประจำบ้าน",

@@ -228,7 +228,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย : จั่วการ์ด 1 ใบ"
     },
     {
       "code": "FPRO-001",

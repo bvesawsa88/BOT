@@ -38,24 +38,95 @@
       "codes": [
         "BT08-069"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "เทพ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ป้อมยาม",
       "codes": [
         "BT06-068"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone"
+          },
+          "actions": [
+            {
+              "op": "blockDirectLifeAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ตราบเท่าที่อยู่ใน Construct Zone ฝ่ายตรงข้ามไม่สามารถโจมตี LIFE Card ได้"
     },
     {
       "name": "ยานรายการ เถียงทันหน่วง",
       "codes": [
         "BT07-072"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "ownEndPhase",
+            "if": "ownAvatarNameIncludes:พี่หน่วง,ownMagicHasEnemyAvatar"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "โล่มนุษย์",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "duration": "untilNextEnemyTurnEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "มี พี่หน่วง Cost 0 / End Phase จั่ว 1 / สั่งใช้ ให้ โล่มนุษย์"
     }
   ]
 }

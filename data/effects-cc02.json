@@ -380,17 +380,18 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "enemyDrawFromDeckByEffect"
+            "on": "enemySearchDeckToHand"
           },
+          "react": true,
           "actions": [
             {
-              "op": "negate"
+              "op": "cancelSearchDeck"
             }
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ยกเลิกขึ้นมือจากเด็คด้วยเอฟเฟกต์ — ต้องมี hook ตอน draw-by-effect"
+      "parseStatus": "auto",
+      "note": "เมื่อฝ่ายตรงข้ามจะนำการ์ดจาก Deck ขึ้นมือด้วยความสามารถ : ยกเลิกผลความสามารถนั้น"
     },
     {
       "code": "CC02-054",
@@ -439,9 +440,32 @@
     {
       "code": "CC02-051",
       "name": "ช่วยโลกใบนี้ไว้",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ช่วยโลกใบนี้ไว้ — หงาย LIFE ทั้งหมด + ให้เปรตเตะไข่/กันโล่จนจบเทิร์น"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "unrevealAllOwnLife"
+            },
+            {
+              "op": "grantKeywordAndImmuneToSummoned",
+              "filter": {
+                "symbol": "เปรต"
+              },
+              "keywords": [
+                "เตะไข่"
+              ],
+              "immuneAll": true,
+              "ignoreHumanShield": true,
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "หงาย LIFE ทั้งหมด: เปรตที่อัญเชิญเทิร์นนี้ไม่รับผลความสามารถ + เตะไข่ + ทะลุโล่มนุษย์"
     },
     {
       "code": "CC02-044",
@@ -1096,11 +1120,24 @@
               "shuffleAfter": true
             }
           ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTargetIfAllySymbolOnField",
+              "symbol": "ผี"
+            }
+          ]
         }
       ],
       "parseStatus": "auto",
       "cannotBeAttackTargetIfOwnSymbolOther": "ผี",
-      "note": "ส่วนห้ามเลือกเป็นเป้าโจมตี = manual"
+      "note": "จุติ : เรียก ผี จาก Deck / ตราบเท่าที่มี ผี อื่น ศัตรูห้ามเลือกเป็นเป้าโจมตี"
     },
     {
       "code": "CC02-033",
@@ -1237,8 +1274,9 @@
       "code": "CC02-037",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "รถถัง B66 — ต้องมีคนสวมถึงโจมตีได้"
+      "parseStatus": "auto",
+      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่",
+      "uniqueAttachedNames": true
     },
     {
       "code": "CC02-019",

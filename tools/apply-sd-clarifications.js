@@ -771,10 +771,10 @@ const SD07 = {
     abilities: [{
       trigger: { on: 'enemyDeclareAttack' },
       react: true,
-      actions: [{ op: 'bounce', from: 'own', filter: { type: 'Avatar' }, optional: false }]
+      actions: [{ op: 'bounceAttackTarget' }]
     }],
     parseStatus: 'manual',
-    note: 'นำตัวที่ถูกโจมตีขึ้นมือ — เลือก Avatar ฝ่ายเรา (ควรเป็นเป้า)'
+    note: 'เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ'
   },
   'SD07-017': {
     code: 'SD07-017', name: 'หมอมาแล้วววว',

@@ -6,16 +6,9 @@
         {
           "keyword": "พอดี",
           "trigger": {
-            "on": "summoned",
-            "if": "paidExact"
+            "on": "aboutToBeDestroyed",
+            "if": "self.podi"
           },
-          "actions": []
-        },
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "whenDestroyedPrevent": true,
           "cost": [
             {
               "op": "discard",
@@ -25,21 +18,84 @@
           ],
           "actions": [
             {
-              "op": "preventDestroySelf"
+              "op": "preventDestruction"
             }
           ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "name": "กุ่ย นักเอาตัวรอด",
       "exactGemPay": true,
-      "note": "พอดี exactGem · สั่งใช้กันทำลายตอนจะถูกทำลายยัง partial (need destroy-window activate)"
+      "note": "พอดี : สั่งใช้ เมื่อจะถูกทำลาย ทิ้งการ์ด 1 ใบ ไม่ถูกทำลาย"
     },
     {
       "code": "BT05-002",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "แมลงปอนางพญา"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "otherOwnAvatarNameIncludes",
+              "nameIncludes": [
+                "แมลงปอ"
+              ],
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "แมลงปอ"
+                ],
+                "exceptSelf": true
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "แมลงปอ"
+                ],
+                "distinctFromSacrificed": true
+              },
+              "dest": "avatar",
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "แมลงปอนางพญา",
+      "note": "Cost บนมือลดตามแมลงปอนรก / POWER เพิ่มตามแมลงปอนอกจากตัวเอง / เซ่นแมลงปอ 1 ใบ อัญเชิญแมลงปอชื่อไม่ซ้ำจากนรก",
+      "costDeltaInHandPerHell": {
+        "nameIncludes": [
+          "แมลงปอ"
+        ],
+        "amountPer": -1
+      }
     },
     {
       "code": "BT05-003",
@@ -298,10 +354,25 @@
     },
     {
       "code": "BT05-012",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "blockHellSummonAll"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "เจนนี่ อย่าบู้บี้เลขา",
-      "blockHellSummon": true
+      "blockHellSummon": true,
+      "note": "ตราบเท่าที่อยู่บน Avatar Zone ผู้เล่นทุกคนไม่สามารถอัญเชิญ Avatar จากนรกได้",
+      "noHellSummon": true
     },
     {
       "code": "BT05-013",
@@ -646,31 +717,44 @@
       "abilities": [
         {
           "trigger": {
+            "on": "milledOrAddedToHandByPurpleGod"
+          },
+          "actions": [
+            {
+              "op": "freeSummonSelfIfLandAsgardAndPurpleGod"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
             "on": "activated"
           },
           "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "millSelfChoose",
+              "max": 5
+            }
+          ],
           "actions": [
             {
-              "op": "millChooseCount",
-              "max": 5
-            },
-            {
-              "op": "modifyPower",
-              "amountPerMill": true,
+              "op": "modifyPowerPerMilled",
               "duration": "endOfTurn",
+              "layer": 4,
               "target": {
                 "select": "choose",
+                "type": "Avatar",
                 "side": "own",
-                "filter": {
-                  "symbol": "เทพ",
-                  "color": "ม่วง"
-                }
+                "symbol": "เทพ",
+                "color": "purple",
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "name": "เฮล่า เทพแอสการ์ดแห่งความตาย",
       "freeSummonWhen": {
         "drawnOrMilledBy": {
@@ -685,7 +769,7 @@
           "color": "ม่วง"
         }
       },
-      "note": "ลงฟรีเมื่อเงื่อนไข · mill+buff ยังหยาบ"
+      "note": "ถูกหยิบ/ธรณีสูบด้วยเทพม่วง + มีแลนด์แอสการ์ด + มีเทพม่วง -> อัญเชิญฟรี / ธรณีสูบ 5 ใบ บัฟ POWER เทพม่วง"
     },
     {
       "code": "BT05-027",
@@ -1089,9 +1173,61 @@
     },
     {
       "code": "BT05-041",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "จ่ายุทธ Tank Ranger"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost",
+            "ownAvatarNameIncludes": [
+              "รถถัง"
+            ]
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "symbol": "ต่างชาติ",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self",
+              "targetFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "hostBattleVsEnemySymbol",
+            "symbol": "ต่างชาติ"
+          },
+          "actions": [
+            {
+              "op": "sendOpponentCombatantToBottomDeck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "จ่ายุทธ Tank Ranger",
+      "note": "จุติ (ถ้ามีรถถัง) ทำลายต่างชาติ 1 ใบ / สวมใส่รถถัง / เมื่อรถถังที่สวมสู้กับต่างชาติ เอาเข้าใต้ Deck"
     },
     {
       "code": "BT05-042",
@@ -1136,24 +1272,39 @@
       "code": "BT05-044",
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "declareAttack"
+            "on": "declareAttack",
+            "if": "source==self"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
               "duration": "endOfTurn",
+              "layer": 4,
               "target": {
                 "select": "self"
               }
             }
           ]
+        },
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "redirectAttackToSelf"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "name": "อาจารย์หลี ปรมาจารย์มวยจีน",
-      "note": "+1 ตอนโจมตีชัด · สั่งใช้ย้ายเป้าโจมตียังไม่ทำ"
+      "note": "อัตโนมัติ เมื่อโจมตี POWER +1 / ย้ายเป้าโจมตีมาที่ตัวเอง"
     },
     {
       "code": "BT05-045",
@@ -1181,9 +1332,22 @@
     },
     {
       "code": "BT05-049",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "รับซื้อของโจร"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "stealRandomHandUntilTurnEnd",
+              "costOnly": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "รับซื้อของโจร",
+      "note": "สุ่มหยิบการ์ด 1 ใบจากมือฝ่ายตรงข้ามขึ้นมือเรา ใช้เป็น cost ได้เท่านั้น คืนเมื่อจบเทิร์น"
     },
     {
       "code": "BT05-050",
@@ -1329,9 +1493,50 @@
     },
     {
       "code": "BT05-056",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "พลังแห่งการตีพ่อตีแม่"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "สวมใส่ ตีพ่อ และ ตีแม่ ให้เปรต",
+              "actions": [
+                {
+                  "op": "deckPickAndAttach",
+                  "filter": {
+                    "nameIncludes": [
+                      "ตีพ่อ",
+                      "ตีแม่"
+                    ]
+                  },
+                  "targetFilter": {
+                    "symbol": "เปรต"
+                  }
+                }
+              ]
+            },
+            {
+              "label": "เอา Avatar เปรต จาก Deck ขึ้นมือ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbol": "เปรต"
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ],
+          "doBothIfSahat": true
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "พลังแห่งการตีพ่อตีแม่",
+      "note": "สวม ตีพ่อ ตีแม่ จาก Deck ให้เปรต หรือ เอาเปรตขึ้นมือ (สาหัส ทำทั้งคู่)"
     },
     {
       "code": "BT05-057",
@@ -1420,18 +1625,19 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "enemyDrawFromDeckByEffect"
+            "on": "enemySearchDeckToHand"
           },
+          "react": true,
           "actions": [
             {
-              "op": "negate"
+              "op": "cancelSearchDeck"
             }
           ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "name": "เหน็บกินมือ",
-      "note": "ยกเลิกขึ้นมือจากเด็คด้วยเอฟเฟกต์ — ต้องมี hook ตอน draw-by-effect"
+      "note": "เมื่อฝ่ายตรงข้ามจะนำการ์ดจาก Deck ขึ้นมือด้วยความสามารถ : ยกเลิกผลความสามารถนั้น"
     },
     {
       "code": "BT05-061",
@@ -1601,16 +1807,56 @@
     },
     {
       "code": "BT05-067",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "Hot Zone"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachFromHand",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ],
+                "symbol": "คน"
+              },
+              "targetFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "Hot Zone",
+      "note": "สั่งใช้ : นำ Tank Ranger Symbol คน บนมือไปสวมให้รถถัง"
     },
     {
       "code": "BT05-068",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "destroyPowerZeroAvatars"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ทรายดูด",
-      "destroyPowerZero": true
+      "destroyPowerZero": true,
+      "note": "Avatar ที่ POWER เท่ากับ 0 จะถูกทำลาย",
+      "destroyHostIfPower0": true
     },
     {
       "code": "BT05-069",

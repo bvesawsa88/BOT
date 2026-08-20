@@ -8,8 +8,26 @@
       "codes": [
         "BT09-068"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDestroyedEnemyInBattle"
+          },
+          "actions": [
+            {
+              "op": "moveEnemyHellCardToDeckTop",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": [
+          "ตำรวจ"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม ตำรวจ / ทำลายศัตรูจากการต่อสู้ -> นำการ์ดในนรกศัตรู 1 ใบ ไว้บนสุด Deck"
     },
     {
       "name": "กระบองแสง คทาวุธ",
@@ -47,24 +65,77 @@
       "codes": [
         "BT06-057"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostBattleStart"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "enemyCombatant"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "symbol": "ฤษี"
+      },
+      "parseStatus": "auto",
+      "note": "สวม ฤษี / เมื่อต่อสู้ ศัตรูที่สู้ด้วย POWER -1"
     },
     {
       "name": "เก้าอี้ เฟิร์สคลาส",
       "codes": [
         "BT07-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "grantAliasNameToHost",
+              "alias": "Super Air"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "Avatar ที่สวมใส่ ได้รับชื่อ Super Air"
     },
     {
       "name": "ขนมณี แฟลร์",
       "codes": [
         "BT07-062"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostAboutToLeaveFieldByEffect"
+          },
+          "actions": [
+            {
+              "op": "protectReplaceBySelfDestruct"
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": [
+          "ครุฑ"
+        ],
+        "symbol": "สัตว์มหัศจรรย์"
+      },
+      "parseStatus": "auto",
+      "note": "สวม ครุฑ สัตว์มหัศจรรย์ / เมื่อจะถูกนำออกจากสนามด้วยความสามารถ ส่งใบนี้ลงนรกแทน"
     },
     {
       "name": "ขวาน 7 สี",
@@ -199,8 +270,26 @@
       "codes": [
         "BT09-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ง้าวมังกรเขียว",
@@ -236,9 +325,21 @@
       "codes": [
         "BT02-057"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ช็อตกัน นัยนาวุธ — ทำลายด้วยการต่อสู้สำเร็จ: หงาย LIFE ศัตรู 1"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDestroyedEnemyInBattle"
+          },
+          "actions": [
+            {
+              "op": "unrevealTopEnemyLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ที่สวมใส่ทำลาย Avatar ด้วยการต่อสู้สำเร็จ : หงาย LIFE ใบบนสุดของอีกฝ่าย"
     },
     {
       "name": "ดาบใบข้าว X",
@@ -282,16 +383,107 @@
       "codes": [
         "BT06-058"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached,host.untapped"
+          },
+          "actions": [
+            {
+              "op": "immuneHostMagicDestroy"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": [
+          "อัศวินโต๊ะกลม"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม อัศวินโต๊ะกลม / ไม่ถูกทำลายด้วยผลของ Magic ถ้าตื่นอยู่ / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod"
     },
     {
       "name": "ดาบศักดิ์สิทธิ์ คาเรนต์",
       "codes": [
         "BT08-059"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDestroyedEnemyInBattle"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyMagicOnField"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attachedTo:มอเดรด"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordToHost",
+              "keyword": "เตะไข่"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": [
+          "อัศวินโต๊ะกลม"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม อัศวินโต๊ะกลม / ทำลายศัตรูจากการต่อสู้ -> ทำลาย Magic ศัตรู / สวม มอเดรด ได้ เตะไข่ / สวมจากนรกได้"
     },
     {
       "name": "ดาบศักดิ์สิทธิ์ อาลอนไดร์ท",
@@ -351,8 +543,26 @@
       "codes": [
         "BT08-060"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ดาบแห่งแสงอรุณ & นัทคาลิเบอร์",
@@ -553,22 +763,32 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.attached"
+            "on": "hostDeclareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 5,
-              "layer": 2,
+              "duration": "endOfCombat",
+              "layer": 4,
               "target": {
                 "select": "equippedAvatar"
               }
+            },
+            {
+              "op": "destroyHostAfterCombat"
             }
           ]
         }
       ],
-      "parseStatus": "partial"
+      "attachOnly": {
+        "nameIncludes": [
+          "ทหาร",
+          "รด."
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม ทหาร/รด. / เมื่อสั่งโจมตี POWER +5 จนจบการต่อสู้ แล้วทำลายตัวเอง"
     },
     {
       "name": "นวมรัททาทุย",
@@ -718,8 +938,31 @@
       "codes": [
         "BT08-062"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostBattleStart"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "duration": "endOfCombat",
+              "layer": 4,
+              "target": {
+                "select": "enemyCombatant"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": [
+          "เต่า"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม เต่า / ศัตรูที่สู้ด้วย POWER -1"
     },
     {
       "name": "ประกันชั้นต่ำ",
@@ -925,8 +1168,26 @@
       "codes": [
         "BT07-063"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ไม้เกาหลัง",
@@ -985,16 +1246,53 @@
       "codes": [
         "BT06-054"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ศาสตราวุธศักดิ์สิทธิ์ โวลุสปา",
       "codes": [
         "BT10-067"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "activateFromHell",
+              "if": "noModUsedThisTurn"
+            }
+          ]
+        }
+      ],
+      "protectReplace": true,
+      "attachOnly": {
+        "nameIncludes": [
+          "เทพธิดาแห่งวัลฮัลลา"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม เทพธิดาแห่งวัลฮัลลา / เมื่อจะถูกทำลาย ทำลายการ์ดนี้แทน / ถูกธรณีสูบ ใช้งานจากนรกได้"
     },
     {
       "name": "สายฟ้า วัชระ",
@@ -1020,8 +1318,22 @@
       "codes": [
         "BT06-055"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDeclareAttack"
+          },
+          "maxPerTurn": 4,
+          "actions": [
+            {
+              "op": "millSelfAndUntapHostIfMagicMilled",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ที่สวมโจมตี : ธรณีสูบ 2 ถ้ามี Magic ให้ตื่น (ใช้ได้ 4 ครั้ง/เทิร์น)"
     },
     {
       "name": "หนึ่งเดียวเพื่อทุกอย่าง",
@@ -1058,16 +1370,55 @@
       "codes": [
         "BT10-068"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDestroyedEnemyInBattle"
+          },
+          "actions": [
+            {
+              "op": "triggerRevealedLifeEffectNow"
+            }
+          ]
+        }
+      ],
+      "nameAliases": [
+        "ตั๊กแตน"
+      ],
+      "attachOnly": {
+        "nameIncludes": [
+          "ตั๊กแตนหยิน",
+          "ตั๊กแตนหยาง"
+        ]
+      },
+      "parseStatus": "auto",
+      "note": "สวม ตั๊กแตนหยิน/หยาง / เมื่อทำลายศัตรูจากการต่อสู้ : สั่งใช้ผล LIFE หงาย 1 ใบ"
     },
     {
       "name": "หอกศักดิ์สิทธิ์ เอ็ดดา",
       "codes": [
         "BT09-066"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "หอกแหลมแทงทุกวัน",

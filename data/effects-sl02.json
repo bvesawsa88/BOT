@@ -59,7 +59,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย : สอดแนม 5 ใบ เลือก Avatar {symbol เทพ} 1 ใบ ขึ้นมือ ที่เหลือใต้ Deck"
     },
     {
       "code": "SL02-001",
@@ -102,21 +103,20 @@
             {
               "op": "modifyPower",
               "amount": 2,
-              "until": "permanent",
+              "duration": "whileOnField",
+              "layer": 3,
               "target": {
                 "select": "choose",
+                "type": "Construct",
                 "side": "own",
-                "type": "Avatar",
-                "nameIncludes": [
-                  "นาค"
-                ],
-                "symbol": "สัตว์วิเศษ"
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "จุติ : เลือก Construct ฝ่ายเรา 1 ใบ POWER +2"
     },
     {
       "code": "SL02-008",
@@ -210,26 +210,14 @@
       "name": "เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "scout",
-              "count": 5,
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ขุนพล"
-                ],
-                "symbol": "ต่างชาติ",
-                "sameColorAsSrc": true
-              },
-              "dest": "hand",
-              "restTo": "bottom",
-              "shuffleAfter": true
+              "op": "cannotBeAttackTargetIfAllyOnField"
             }
           ]
         }
@@ -238,46 +226,44 @@
       "extraColors": [
         "ม่วง"
       ],
-      "note": "ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน"
+      "note": "ไม่ถูกเลือกเป็นเป้าหมายการโจมตีถ้ามี Avatar ใบอื่น",
+      "cannotBeAttackTargetIfOwnSymbolOther": "any"
     },
     {
       "code": "SL02-006",
       "name": "งี่เง่ากับงอแง",
       "abilities": [
         {
-          "keyword": "เลือกปฏิบัติ",
           "trigger": {
-            "on": "activated"
+            "on": "chooseMode"
           },
           "oncePerTurn": true,
-          "actions": [
+          "options": [
             {
-              "op": "chooseMode",
-              "options": [
+              "label": "เซ่นไหว้ตัวเอง จั่วการ์ด 2 ใบ",
+              "actions": [
                 {
-                  "label": "เซ่นไหว้ตัวเอง — จั่ว 2",
-                  "actions": [
-                    {
-                      "op": "sacrificeSelf"
-                    },
-                    {
-                      "op": "draw",
-                      "count": 2
-                    }
-                  ]
+                  "op": "sacrificeSelf"
                 },
                 {
-                  "label": "ได้เตะไข่จนจบเทิร์น แล้วทำลายตัวเอง End Phase",
-                  "actions": [
-                    {
-                      "op": "grantSelfKeyword",
-                      "keyword": "เตะไข่",
-                      "until": "endOfTurn"
-                    },
-                    {
-                      "op": "destroySelfAtEndPhase"
-                    }
-                  ]
+                  "op": "draw",
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "label": "ได้รับ เตะไข่ (ทำลายตัวเอง End Phase)",
+              "actions": [
+                {
+                  "op": "grantKeyword",
+                  "keyword": "เตะไข่",
+                  "target": {
+                    "select": "self"
+                  },
+                  "duration": "endOfTurn"
+                },
+                {
+                  "op": "destroySelfAtEndPhase"
                 }
               ]
             }
@@ -285,7 +271,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เทิร์นละครั้ง: กด ⚡ แล้วเลือกเทค 2 กล่อง"
+      "note": "เลือก 1) เซ่นไหว้ตัวเอง จั่ว 2 2) ได้รับ เตะไข่ แล้วทำลายตัวเองตอน End Phase"
     }
   ]
 }
