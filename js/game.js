@@ -1833,7 +1833,7 @@
   function startLanHost() {
     if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return Promise.reject(new Error('no BotLAN')); }
     const lobbyMsg = byId('lobbyMsg');
-    if (lobbyMsg) lobbyMsg.textContent = 'กำลังสร้างห้อง LAN…';
+    if (lobbyMsg) lobbyMsg.textContent = 'กำลังสร้างห้อง…';
     realMode = false;
     lanExpectClose = false;
     lanPeerLeftOk = false;
@@ -6694,7 +6694,6 @@
   byId('mnuPlay').onclick = () => showMenuPlay();
   byId('btnHome').onclick = goHomeNotebook;
   byId('btnBack').onclick = goBackNotebook;
-  // โหมดออนไลน์ / LAN — ปุ่มถูกคอมเมนต์ใน HTML ไว้ก่อน (อย่าลบ handler)
   const mnuOnline = byId('mnuOnline');
   if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
   const mnuLan = byId('mnuLan');
@@ -6912,7 +6911,7 @@
     stopPresence();
     showScreen('menu');
   };
-  byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; connect(() => wsSend({ t: 'create', nick: myNick(), uid: myUid() })); };
+  byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; startLanHost(); };
   byId('btnCreateLan').onclick = () => startLanHost();
   function joinRoom(as) {
     const code = byId('inpRoom').value.trim().toUpperCase();
@@ -6920,7 +6919,7 @@
     byId('lobbyMsg').textContent = 'กำลังเข้าห้อง…'; realMode = false;
     connect(() => wsSend({ t: 'join', room: code, nick: myNick(), as, uid: myUid() }));
   }
-  byId('btnJoin').onclick = () => joinRoom('player');
+  byId('btnJoin').onclick = () => joinLanRoom(byId('inpRoom').value);
   byId('btnJoinLan').onclick = () => joinLanRoom(byId('inpRoom').value);
   byId('btnSpec').onclick = () => joinRoom('spec');
   byId('btnInviteRoom').onclick = copyInvite;
