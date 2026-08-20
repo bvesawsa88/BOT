@@ -184,6 +184,219 @@ async function handleFeedback(req, res) {
   }
 }
 
+/* ── Auth + เก็บเด็คต่อบัญชี (ไฟล์ data/users.json ไม่ขึ้น git) ── */
+const USERS_FILE = path.join(ROOT, 'data', 'users.json');
+const USER_RE = /^[A-Za-z0-9_\u0E00-\u0E7F]{3,20}$/;
+const CODE_RE = /^[A-Za-z0-9]{2,12}-\d{2,4}$/;
+const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const MAX_DECKS = 40;
+
+function loadUsers() {
+  try {
+    const raw = fs.readFileSync(USERS_FILE, 'utf8');
+    const obj = JSON.parse(raw);
+    return obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveUsers(users) {
+  const dir = path.dirname(USERS_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const tmp = USERS_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(users), 'utf8');
+  try {
+    fs.renameSync(tmp, USERS_FILE);
+  } catch (e) {
+    try { fs.unlinkSync(USERS_FILE); } catch (e2) { }
+    fs.renameSync(tmp, USERS_FILE);
+  }
+}
+
+let userChain = Promise.resolve();
+function mutateUsers(fn) {
+  const p = userChain.then(async () => {
+    const users = loadUsers();
+    const result = await fn(users);
+    saveUsers(users);
+    return result;
+  });
+  userChain = p.catch((err) => { console.error('[auth]', err); });
+  return p;
+}
+
+function scryptHash(password, salt) {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(String(password), salt, 32, { N: 16384, r: 8, p: 1 }, (err, key) => {
+      if (err) reject(err);
+      else resolve(key.toString('hex'));
+    });
+  });
+}
+
+function newToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function bearer(req) {
+  const h = req.headers.authorization || '';
+  const m = String(h).match(/^Bearer\s+(\S+)/i);
+  return m ? m[1] : '';
+}
+
+function findByToken(users, token) {
+  if (!token) return null;
+  const now = Date.now();
+  for (const key of Object.keys(users)) {
+    const u = users[key];
+    if (u && u.token === token && u.tokenExp && u.tokenExp > now) return { key, user: u };
+  }
+  return null;
+}
+
+function sanitizeCounts(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
+  const out = {};
+  for (const [code, n] of Object.entries(obj)) {
+    const c = String(code).toUpperCase();
+    if (!CODE_RE.test(c)) continue;
+    const num = Math.max(0, Math.min(99, parseInt(n, 10) || 0));
+    if (num) out[c] = num;
+    if (Object.keys(out).length >= 80) break;
+  }
+  return out;
+}
+
+function sanitizeDecks(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out = {};
+  for (const name of Object.keys(raw).slice(0, MAX_DECKS)) {
+    const n = String(name).trim().slice(0, 40);
+    if (!n) continue;
+    const d = raw[name];
+    if (!d || typeof d !== 'object') continue;
+    out[n] = { main: sanitizeCounts(d.main), life: sanitizeCounts(d.life) };
+  }
+  return out;
+}
+
+function authCors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Cache-Control', 'no-store');
+}
+
+function issueSession(user) {
+  user.token = newToken();
+  user.tokenExp = Date.now() + TOKEN_TTL_MS;
+  return { ok: true, token: user.token, username: user.username };
+}
+
+async function handleAuth(req, res, urlPath) {
+  authCors(res);
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  const route = urlPath.replace(/\/+$/, '') || '/';
+
+  if (route === '/auth/register' || route === '/auth/login') {
+    if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+    let body;
+    try { body = JSON.parse(await readBody(req, 4096) || '{}'); }
+    catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+    const username = String(body.username || '').trim();
+    const password = String(body.password || '');
+    if (!USER_RE.test(username)) {
+      json(res, 400, { ok: false, error: 'ชื่อผู้ใช้ 3–20 ตัว (อังกฤษ ตัวเลข _ หรือไทย)' });
+      return;
+    }
+    if (password.length < 6 || password.length > 64) {
+      json(res, 400, { ok: false, error: 'รหัสผ่านอย่างน้อย 6 ตัว' });
+      return;
+    }
+    const key = username.toLowerCase();
+    const isReg = route === '/auth/register';
+    try {
+      const out = await mutateUsers(async (users) => {
+        if (isReg) {
+          if (users[key]) return { status: 409, body: { ok: false, error: 'ชื่อนี้มีคนใช้แล้ว' } };
+          const salt = crypto.randomBytes(16).toString('hex');
+          const hash = await scryptHash(password, salt);
+          users[key] = {
+            username,
+            salt,
+            hash,
+            decks: {},
+            createdAt: new Date().toISOString(),
+          };
+          return { status: 200, body: issueSession(users[key]) };
+        }
+        const u = users[key];
+        if (!u || !u.salt || !u.hash) return { status: 401, body: { ok: false, error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' } };
+        const hash = await scryptHash(password, u.salt);
+        let ok = false;
+        try {
+          ok = crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(String(u.hash), 'hex'));
+        } catch (e) { ok = false; }
+        if (!ok) return { status: 401, body: { ok: false, error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' } };
+        u.username = u.username || username;
+        return { status: 200, body: issueSession(u) };
+      });
+      json(res, out.status, out.body);
+    } catch (e) {
+      console.error('[auth]', e.message || e);
+      json(res, 500, { ok: false, error: 'server error' });
+    }
+    return;
+  }
+
+  if (route === '/auth/me' || route === '/auth/decks') {
+    const token = bearer(req);
+    const users = loadUsers();
+    const hit = findByToken(users, token);
+    if (!hit) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+
+    if (route === '/auth/me') {
+      if (req.method !== 'GET') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+      json(res, 200, { ok: true, username: hit.user.username });
+      return;
+    }
+
+    if (req.method === 'GET') {
+      json(res, 200, { ok: true, decks: hit.user.decks && typeof hit.user.decks === 'object' ? hit.user.decks : {} });
+      return;
+    }
+    if (req.method === 'PUT') {
+      let body;
+      try { body = JSON.parse(await readBody(req, 262144) || '{}'); }
+      catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      try {
+        const saved = await mutateUsers((users2) => {
+          const h = findByToken(users2, token);
+          if (!h) return { ok: false };
+          h.user.decks = sanitizeDecks(body.decks);
+          return { ok: true };
+        });
+        if (!saved || !saved.ok) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+        json(res, 200, { ok: true });
+      } catch (e) {
+        console.error('[auth]', e.message || e);
+        json(res, 500, { ok: false, error: 'server error' });
+      }
+      return;
+    }
+    json(res, 405, { ok: false, error: 'method not allowed' });
+    return;
+  }
+
+  json(res, 404, { ok: false, error: 'not found' });
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
@@ -191,6 +404,13 @@ const server = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
   if (urlPath === '/feedback') {
     handleFeedback(req, res);
+    return;
+  }
+  if (urlPath === '/auth' || urlPath.indexOf('/auth/') === 0) {
+    handleAuth(req, res, urlPath).catch((err) => {
+      console.error('[auth]', err);
+      if (!res.headersSent) json(res, 500, { ok: false, error: 'server error' });
+    });
     return;
   }
   if (urlPath === '/') urlPath = '/index.html';

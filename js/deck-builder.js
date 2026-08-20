@@ -1,5 +1,5 @@
 /* BoT — Deck Builder (จัดเด็ค)
-   ใช้ CardDB จาก js/carddb.js · BotUtil จาก js/util.js · เซฟเด็ค localStorage bot_decks_v1 */
+   ใช้ CardDB จาก js/carddb.js · BotUtil จาก js/util.js · เซฟเด็ค localStorage + บัญชีถ้าล็อกอิน */
 (function () {
   'use strict';
   const { byId, esc, asset } = BotUtil;
@@ -490,7 +490,10 @@
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }
     byId('dbName').value = name;
     DK.sel = { kind: 'saved', id: name };
-    msg(`บันทึก "${name}" แล้ว — ใช้เป็นเด็คหลักตอนเข้าห้อง/ซ้อมได้เลย`);
+    const cloud = CardDB.isLoggedIn && CardDB.isLoggedIn();
+    msg(cloud
+      ? `บันทึก "${name}" แล้วบนบัญชี — ใช้เป็นเด็คหลักได้เลย`
+      : `บันทึก "${name}" แล้วบนเครื่องนี้ — ล็อกอินเพื่อเก็บข้ามเครื่อง`);
     renderDB();
   };
   byId('dbClearDeck').onclick = () => { DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB(); };
@@ -764,6 +767,9 @@
     const savedNames = Object.keys(saved);
     const presets = Object.keys(STARTERS_DB || {}).filter(k => !STARTER_KEYS.includes(k));
     let html = `<div class="dk-sec">เด็คที่บันทึก</div>`;
+    if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
+      html += `<div class="dk-empty-mini">ยังไม่ล็อกอิน — เด็คชุดนี้อยู่บนเครื่องนี้เท่านั้น</div>`;
+    }
     if (!savedNames.length) html += `<div class="dk-empty-mini">ยังไม่มีเด็คที่บันทึก — กด «จัดเด็คใหม่» มุมบนขวา</div>`;
     else html += savedNames.map(n => itemBtn('saved', n, n, saved[n])).join('');
     html += `<div class="dk-sec">เด็คตัวอย่าง (Starter)</div>`;

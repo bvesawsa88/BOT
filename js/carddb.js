@@ -84,14 +84,50 @@
       if (db.ban.limit2.includes(c.name)) lim = Math.min(lim, 2);
       return lim;
     }
+    function authToken() {
+      try { return localStorage.getItem('bot_auth_token') || ''; }
+      catch (e) { return ''; }
+    }
+    function isLoggedIn() { return !!authToken(); }
     function savedDecks() {
       try { return JSON.parse(localStorage.getItem('bot_decks_v1') || '{}'); }
       catch (e) { return {}; }
     }
-    function saveDecks(sv) {
+    function writeLocalDecks(sv) {
       try { localStorage.setItem('bot_decks_v1', JSON.stringify(sv)); }
       catch (e) { }
     }
-    return { load, limitOf, isOnly, savedDecks, saveDecks };
+    function pushDecks(sv) {
+      const t = authToken();
+      if (!t) return;
+      fetch('/auth/decks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
+        body: JSON.stringify({ decks: sv })
+      }).catch(() => { });
+    }
+    function saveDecks(sv) {
+      writeLocalDecks(sv);
+      pushDecks(sv);
+    }
+    function pullDecks() {
+      const t = authToken();
+      if (!t) return Promise.resolve(savedDecks());
+      return fetch('/auth/decks', { headers: { Authorization: 'Bearer ' + t } })
+        .then(r => r.json())
+        .then(j => {
+          if (!j.ok) return savedDecks();
+          const local = savedDecks();
+          const remote = (j.decks && typeof j.decks === 'object') ? j.decks : {};
+          const merged = Object.assign({}, remote, local);
+          writeLocalDecks(merged);
+          try {
+            if (JSON.stringify(merged) !== JSON.stringify(remote)) pushDecks(merged);
+          } catch (e) { pushDecks(merged); }
+          return merged;
+        })
+        .catch(() => savedDecks());
+    }
+    return { load, limitOf, isOnly, savedDecks, saveDecks, pullDecks, isLoggedIn };
   })();
 })(typeof self !== 'undefined' ? self : this);

@@ -6578,10 +6578,25 @@
     if (on) { byId('userName').textContent = username; try { localStorage.setItem('bot_user', username); } catch (e) { } if (byId('inpNick') && !byId('inpNick').value) byId('inpNick').value = username; }
     if (window.BotSkins) BotSkins.setLoggedIn(on);
   }
+  async function syncCloudDecks() {
+    if (!window.CardDB || typeof CardDB.pullDecks !== 'function') return;
+    try {
+      const sv = await CardDB.pullDecks();
+      const n = Object.keys(sv || {}).length;
+      if (n) toast('📦 โหลดเด็คจากบัญชี ' + n + ' ชุด');
+      if (typeof window.openDeckList === 'function' && byId('decks') && !byId('decks').classList.contains('hidden')) {
+        window.openDeckList();
+      }
+    } catch (e) { }
+  }
   async function checkAuth() {
     const t = authToken(); if (!t) return setAuthUI(null);
-    try { const r = await fetch('/auth/me', { headers: { Authorization: 'Bearer ' + t } }); const j = await r.json(); setAuthUI(j.ok ? j.username : null); if (!j.ok) localStorage.removeItem('bot_auth_token'); }
-    catch (e) { setAuthUI(null); }
+    try {
+      const r = await fetch('/auth/me', { headers: { Authorization: 'Bearer ' + t } });
+      const j = await r.json();
+      if (j.ok) { setAuthUI(j.username); syncCloudDecks(); }
+      else { try { localStorage.removeItem('bot_auth_token'); } catch (e) { } setAuthUI(null); }
+    } catch (e) { setAuthUI(null); }
   }
   function setAuthTab() {
     const reg = authMode === 'register';
@@ -6599,7 +6614,13 @@
     try {
       const r = await fetch('/auth/' + (authMode === 'register' ? 'register' : 'login'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: pw }) });
       const j = await r.json();
-      if (j.ok) { try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { } setAuthUI(j.username); closeAuth(); toast('👤 สวัสดี ' + j.username); }
+      if (j.ok) {
+        try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+        setAuthUI(j.username);
+        closeAuth();
+        toast('👤 สวัสดี ' + j.username);
+        syncCloudDecks();
+      }
       else byId('authMsg').textContent = j.error || 'ไม่สำเร็จ';
     } catch (e) { byId('authMsg').textContent = 'เชื่อมต่อไม่ได้'; }
     byId('authSubmit').disabled = false;

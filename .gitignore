@@ -5,5 +5,7 @@ Thumbs.db
 .env
 .env.*
 data/feedback-log.json
+data/users.json
+data/users.json.tmp
 .vscode/
 .idea/
