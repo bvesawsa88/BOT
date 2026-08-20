@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820a">
+<link rel="stylesheet" href="css/style.css?v=20260820u">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -84,6 +84,9 @@
           <option value="hard">ยาก</option>
           <option value="nightmare">ฝันร้าย — ดวงดี จั่วได้ใบที่ต้องการเสมอ</option>
         </select>
+        <label class="menu-deck-lab chk-ai-debug" for="chkBotAiDebug">
+          <input type="checkbox" id="chkBotAiDebug"> แสดงเหตุผล AI (Debug)
+        </label>
       </div>
       <button type="button" id="btnBotPickDeck" class="link-btn">ใช้เด็คที่บอทเล่นเก่งสุด →</button>
       <div data-skin-mount></div>
@@ -657,6 +660,7 @@
       <button id="btnDice" class="btn-mini">🎲 ทอยเต๋า</button>
       <button id="btnCoin" class="btn-mini">🪙 โยนเหรียญ</button>
       <button id="btnEnd" class="btn-mini btn-essential" title="ประกาศจบเกม">จบเกม</button>
+      <button id="btnBotAiDebug" class="btn-mini" title="เปิด/ปิดเหตุผลที่บอทเลือก Action">🧠 AI Debug</button>
     </div>
     <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
     <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
@@ -678,6 +682,7 @@
     </div>
   </div>
 
+  <pre id="botAiDebug" class="bot-ai-debug hidden" aria-live="polite"></pre>
   <div id="phaseFlash" class="hidden"></div>
   <div id="annFlash" class="ann-flash"></div>
   <div id="main">

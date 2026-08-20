@@ -13,6 +13,7 @@
     if (playReady) return playReady;
     playReady = loadScript(asset('js/engine.js'))
       .then(() => loadScript(asset('js/bot-ai.js')))
+      .then(() => loadScript(asset('js/bot-universal.js')))
       .then(() =>
       Promise.all([
         fetch(asset('data/effects-all.json')).then(r => r.json()).catch(() => null),
@@ -1984,13 +1985,23 @@
       else sel.value = 'starter:SD01';
     } catch (e) { sel.value = 'starter:SD01'; }
   }
-  /* คะแนนว่าบอทเล่นเด็คนี้ได้ดีแค่ไหน (สีเดียว / curve / มีแลนด์ชัด / อาร์คไทป์ที่ BotAI รู้จัก) */
+  /* คะแนนว่าบอทเล่นเด็คนี้ได้ดีแค่ไหน (curve / แลนด์จาก properties / synergy — ไม่ใช้ชื่อเด็ค) */
   function scoreDeckForBot(key, deck) {
     const spec = deck && deck.spec;
     if (!spec || !spec.main) return { key, name: (deck && deck.name) || key, score: -1, why: '' };
     const db = (soloCards || (typeof CardDB !== 'undefined' && CardDB._all) || []);
     const byCode = {};
     (Array.isArray(db) ? db : []).forEach(c => { if (c && c.code) byCode[c.code] = c; });
+    const cards = [];
+    for (const [code, cnt] of Object.entries(spec.main)) {
+      const c = byCode[code]; if (!c) continue;
+      for (let i = 0; i < (+cnt || 0); i++) cards.push(c);
+    }
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    if (U && U.scoreDeck && cards.length) {
+      const r = U.scoreDeck(cards);
+      return { key, name: deck.name || key, score: r.score, why: r.why, avatars: r.profile && r.profile.avatars };
+    }
     let avatars = 0, costs = 0, powers = 0, colors = {}, land = 0, react = 0, mod = 0, activated = 0, noPaid = 0, complex = 0, n = 0;
     let isan = 0, forest = 0, swamp = 0;
     for (const [code, cnt] of Object.entries(spec.main)) {
@@ -2543,6 +2554,20 @@
   }
   function botLookaheadPick(cands) {
     if (!cands || !cands.length) return { fallback: true };
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    if (U && U.chooseAction) {
+      const hard = botLvHard();
+      const picked = U.chooseAction(st, 'B', cands, {
+        sim: hard ? botSimAction : null,
+        evalPos: hard ? botEval : null,
+        level: getBotLevel(),
+        beam: hard ? 12 : 8,
+      });
+      if (picked && picked.a) return { a: picked.a };
+      if (picked && picked.pass) return { pass: true };
+      if (picked && picked.fallback) { /* ใช้ heuristic เดิมต่อ */ }
+      else if (picked) return picked;
+    }
     const now = botEval(st);
     const ranked = cands.slice().sort((a, b) => (b.heur || 0) - (a.heur || 0)).slice(0, 16);
     let best = null;
@@ -2667,6 +2692,17 @@
   }
   function botCardVal(k) {
     const c = st.inst[k]; if (!c) return 0;
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    if (U && U.cardValue) {
+      let v = U.cardValue(st, 'B', c);
+      const AI = botAI();
+      const arch = botArch();
+      if (AI) {
+        if (AI.comboHoldScore) v += AI.comboHoldScore(st, 'B', c);
+        if (AI.isWantedLandCard(c, arch)) v += 8;
+      }
+      return v;
+    }
     const AI = botAI();
     const arch = botArch();
     const p = +c.power || 0, cost = +c.cost || 0, gem = +c.gem || 0;
@@ -3041,8 +3077,8 @@
         if (botTryPlayMagic()) return true;
       }
     }
-    // ระดับยาก: จำลองทุกตา Main แล้วเลือกกระดานที่ดีสุด (ไม่ยึดลำดับ heuristic อย่างเดียว)
-    if (botLvHard()) {
+    // ระดับปานกลางขึ้นไป: ให้ Universal เลือกจากหลาย Candidate (ยาก = จำลองตา)
+    if (lv !== 'easy') {
       const bag = [];
       botCollectMagicCands().forEach(it => { if (it.heur >= 0) bag.push(it); });
       botCollectSummonCands().forEach(it => { if (it.heur >= -20) bag.push(it); });
@@ -3050,7 +3086,6 @@
       botCollectAttachCands().forEach(it => bag.push(it));
       const pick = botLookaheadPick(bag);
       if (pick && pick.a && botSend(pick.a)) return true;
-      // อย่าพาส Main ทั้งเฟส — ถ้าจำลองบอกไม่คุ้ม ให้ heuristic เลือกต่อ
     }
     const steps = (AI && AI.mainPriority(arch, lv)) || ['attach', 'magic', 'activate', 'summon'];
     // ถ้าพร้อมเปิดเทค/เรียกจากนรก — แทรก activate ขึ้นก่อน
@@ -3526,6 +3561,16 @@
   function botMulliganIds() {
     if (getBotLevel() === 'nightmare') return [];
     if (getBotLevel() === 'easy') return [];
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    if (U && U.mulliganIds) {
+      const ids = U.mulliganIds(st, 'B', k => {
+        const c = st.inst[k];
+        if (!c || c.type !== 'Avatar') return false;
+        const cost = BoTEngine.effCost ? BoTEngine.effCost(st, k) : (+c.cost || 0);
+        return !!botBuildPay(k, cost);
+      });
+      if (ids && ids.length) return ids;
+    }
     const hand = (st.zones['B.hand'] || []).slice();
     if (hand.length < 5) return [];
     const AI = botAI();
@@ -3812,6 +3857,8 @@
     byId('stLife').textContent = lifeUp + '/' + (st.zones[my + '.life'] || []).length;
     byId('btnRematch').classList.toggle('hidden', mode === 'online' && seat === 'S');
     byId('endOv').classList.remove('hidden');
+    if (mode === 'solo' && soloBot && typeof BotUniversal !== 'undefined' && BotUniversal.recordResult)
+      BotUniversal.recordResult(st, winner);
   }
 
   /* ── render โต๊ะ ── */
@@ -4018,6 +4065,7 @@
     syncPhaseSlot();
     syncSwapSideBtns();
     syncTableNav();
+    syncBotAiDebug();
     if (lastPhaseShown !== st.phase + '|' + st.turn + '|' + st.active) {
       const prevActive = (lastPhaseShown || '').split('|')[2];
       if (pendingEndTurn && prevActive && prevActive !== st.active) pendingEndTurn = false;
@@ -4030,6 +4078,8 @@
     // ปุ่มกติกาถูกถอดออก — แมนนวล 100% ถาวร
     byId('btnRematchTop').classList.toggle('hidden', seat === 'S');
     byId('btnBot').classList.add('hidden'); // ถอดบอทออก — solo คุมสองฝั่งเอง
+    const dbgBtn = byId('btnBotAiDebug');
+    if (dbgBtn) dbgBtn.classList.toggle('hidden', !soloBot);
 
     // แถบเชน — ฝ่ายที่มีสิทธิ์ตอบโต้เห็นปุ่ม, อีกฝ่ายเห็นสถานะรอ
     const cb = byId('chainBar');
@@ -6637,6 +6687,9 @@
       st.skipLethalPlead = true;
       botFailKeys = new Set();
       botFailTurn = -1;
+      if (typeof BotUniversal !== 'undefined' && BotUniversal.beginMatch) {
+        BotUniversal.beginMatch(st, { botSide: 'B', level: getBotLevel(), debug: BotUniversal.debugEnabled() });
+      }
       if (getBotLevel() === 'nightmare') {
         const AI = typeof BotAI !== 'undefined' ? BotAI : null;
         if (AI && AI.nightmareSculptHand) AI.nightmareSculptHand(st, 'B', 5);
@@ -6669,6 +6722,39 @@
         try { localStorage.setItem('bot_opp_deck', hardBotDeckVal()); } catch (e) { }
       }
     }
+  };
+  function syncBotAiDebug() {
+    const el = byId('botAiDebug');
+    if (!el) return;
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    const on = !!(U && U.debugEnabled && U.debugEnabled() && soloBot && st);
+    el.classList.toggle('hidden', !on);
+    if (on) el.textContent = U.formatExplain ? U.formatExplain() : '';
+    const chk = byId('chkBotAiDebug');
+    if (chk && U) chk.checked = !!U.debugEnabled();
+  }
+  const chkBotAi = byId('chkBotAiDebug');
+  if (chkBotAi) {
+    try { chkBotAi.checked = localStorage.getItem('bot_ai_debug') === '1'; } catch (e) { }
+    chkBotAi.onchange = () => {
+      if (typeof BotUniversal !== 'undefined' && BotUniversal.setDebug)
+        BotUniversal.setDebug(chkBotAi.checked);
+      else {
+        try { localStorage.setItem('bot_ai_debug', chkBotAi.checked ? '1' : '0'); } catch (e) { }
+      }
+      syncBotAiDebug();
+    };
+  }
+  const btnBotAiDbg = byId('btnBotAiDebug');
+  if (btnBotAiDbg) btnBotAiDbg.onclick = () => {
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    const next = !(U && U.debugEnabled && U.debugEnabled());
+    if (U && U.setDebug) U.setDebug(next);
+    else { try { localStorage.setItem('bot_ai_debug', next ? '1' : '0'); } catch (e) { } }
+    const chk = byId('chkBotAiDebug');
+    if (chk) chk.checked = next;
+    syncBotAiDebug();
+    toast(next ? '🧠 AI Debug เปิด' : 'AI Debug ปิด', 1600);
   };
   byId('mnuSolo').onclick = () => openPlaySetup('solo');
   byId('btnSoloStart').onclick = () => startSoloMatch();

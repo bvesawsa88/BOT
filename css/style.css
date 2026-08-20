@@ -1423,3 +1423,19 @@ body.stream-win #roomInfo{opacity:.8}
 
 /* โครงหน้าเครื่องมือ (สไตล์เต็มโหลดตอนเปิด) */
 .screen-page{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--wood-bg);background-size:420px 420px}
+
+/* Universal Adaptive AI — debug overlay */
+.chk-ai-debug{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;cursor:pointer}
+.chk-ai-debug input{width:16px;height:16px}
+.bot-ai-debug{
+  position:fixed;right:10px;bottom:72px;z-index:80;
+  width:min(340px,calc(100vw - 20px));max-height:42vh;overflow:auto;
+  margin:0;padding:10px 12px;border-radius:10px;
+  background:rgba(12,12,16,.88);border:1.5px solid var(--border);
+  color:#d8d8de;font:12px/1.45 ui-monospace,Consolas,monospace;
+  white-space:pre-wrap;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.45)
+}
+@media (max-width:920px){
+  .bot-ai-debug{bottom:90px;max-height:28vh;font-size:11px}
+}
