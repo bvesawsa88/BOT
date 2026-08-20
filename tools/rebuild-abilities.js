@@ -34,7 +34,7 @@ const META_KEYS = [
   'allowOppTurnMagic', 'oncePerTurnCard', 'ignoreReactOncePerTurnLimit', 'revealDeckTops',
   'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
   'overdoseIfOwnFaceUpLifeMin', 'overdoseSuppressEnemyKeywords', 'overdoseLockOwnAbilities',
-  'uniqueAttachedNames', 'attachOnly', 'hostAttachNameIncludes', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
+  'uniqueAttachedNames', 'uniqueMagicNameIncludes', 'attachOnly', 'hostAttachNameIncludes', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
   'stackPowerOnReattach', 'reattachEnemyIfNoOwn',
   'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf',
     'noHellSummon', 'only', 'replaceFirstDrawWithSelf', 'bounceHostOnLeave',

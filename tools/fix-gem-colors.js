@@ -17,6 +17,9 @@ const BY_CODE = {
   'BT09-071': 'เขียว', // ป่าพงไพร Land — เพชรเขียว ×4
   'FPRO-005': 'แดง', // พระนารายณ์ เทพผู้พิทักษ์ — การ์ดไร้สี เพชรแดง
   'KD01-005': 'แดง', // รีปริ้นไร้สี เพชรแดงเหมือน FPRO-005
+  'BT10-070': 'แดง', // ดินแดนยุติธรรม — Land ไร้สี เพชรแดง
+  'BT09-067': 'แดง', // อาวุธของเพมมุ ปืนพกรุ่น 19
+  'BT10-069': 'แดง', // อาวุธของเพมมุ ดาบมารไร้พ่าย
   'BT10-059': 'เขียว', // ศิลาหยินหยาง — Magic เพชรเขียว
   'BT11-055': 'เขียว', // Cross Vaccine
   'BT11-059': 'ฟ้า', // อินสตอล บึ้มทั้งไดรฟ์
@@ -146,8 +149,22 @@ cards.forEach(c => {
     n++;
   }
 });
+/* พิมพ์ SCR/alt ที่ color ว่าง — สืบทอดสีจากพิมพ์ปกติรหัสเดียวกัน (กันเจมกลายเป็นขาว wild) */
+const colorByCode = {};
+cards.forEach(c => {
+  if (c.color && (!colorByCode[c.code] || c.image === c.code + '.png'))
+    colorByCode[c.code] = c.color;
+});
+let nColor = 0;
+cards.forEach(c => {
+  if (!c.color && colorByCode[c.code]) {
+    c.color = colorByCode[c.code];
+    nColor++;
+  }
+});
 fs.writeFileSync(file, JSON.stringify(cards));
 console.log('updated gemColor on', n, 'rows');
+if (nColor) console.log('inherited color on', nColor, 'alt printings');
 
 const sd01Path = path.join(__dirname, '..', 'data', 'sd01.json');
 if (fs.existsSync(sd01Path)) {

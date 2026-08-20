@@ -98,6 +98,39 @@ const BY_SET = {
       parseStatus: 'auto',
       note: 'โล่มนุษย์ ลูกฮึด สามัคคี · End Phase ถ้านอน: ตื่น และ POWER +2 จน Draw Phase ถัดไปของเรา · [Link เพมมุ]'
     },
+    'BT09-010': {
+      code: 'BT09-010',
+      name: 'เมย์ แวมไพร์โกธิค',
+      protectAllyNameIncludes: 'เจ้าหญิงรวงข้าว',
+      abilities: [
+        {
+          keyword: 'สั่งใช้',
+          trigger: { on: 'ownAvatarFights' },
+          requireFighterNameAny: ['เพมมุ', 'สไปรท์'],
+          requireOwnDarkNameMissing: 'เมย์ แวมไพร์โกธิค',
+          cost: [{ op: 'exileSelf' }],
+          actions: [{
+            op: 'modifyPower',
+            amount: 4,
+            duration: 'endOfTurn',
+            target: { select: 'combatOwn' }
+          }]
+        },
+        {
+          keyword: 'ต่อเนื่อง',
+          trigger: { on: 'static', if: 'self.zone==avatarZone' },
+          requireOwnNameIncludes: 'เจ้าหญิงรวงข้าว',
+          actions: [{
+            op: 'modifyPower',
+            amount: 3,
+            layer: 3,
+            target: { select: 'self' }
+          }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]'
+    },
     'BT09-011': {
       code: 'BT09-011',
       name: 'เจ้าหญิงรวงข้าว',
@@ -216,6 +249,21 @@ const BY_SET = {
       }],
       parseStatus: 'auto',
       note: 'เลือกปฏิบัติ: มีเพมมุบนสนาม → อัญเชิญสไปรท์จากเด็ค · มีสไปรท์บนสนาม → อัญเชิญเพมมุจากเด็ค'
+    },
+    'BT09-067': {
+      code: 'BT09-067',
+      name: 'อาวุธของเพมมุ ปืนพกรุ่น 19',
+      attachOnly: { nameIncludes: 'เพมมุ' },
+      uniqueMagicNameIncludes: 'อาวุธของเพมมุ',
+      abilities: [
+        {
+          trigger: { on: 'battleDestroy' },
+          ifDestroyedPowerDiffGte: 2,
+          actions: [{ op: 'revealOppLifeTop' }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'สวมได้เฉพาะเพมมุ · ฆ่าแล้วถ้าเหยื่อ POWER น้อยกว่าโฮสต์ตั้งแต่ 2 ขึ้นไป หงาย LIFE บนสุดศัตรู · Magic Zone มีอาวุธของเพมมุได้ 1 ใบ'
     }
   },
   'effects-bt10.json': {
@@ -278,6 +326,38 @@ const BY_SET = {
       parseStatus: 'auto',
       note: 'จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]'
     },
+    'BT10-009': {
+      code: 'BT10-009',
+      name: 'K-BO ยอดหุ่นยนต์',
+      abilities: [
+        {
+          keyword: 'สั่งใช้',
+          trigger: { on: 'activatedFromHand' },
+          cost: [{
+            op: 'sendMagicToHell',
+            count: 1,
+            filter: { nameIncludes: ['อาวุธของเพมมุ'] }
+          }],
+          actions: [{ op: 'summonSelfFromHandFree', bySelfAbility: true }]
+        },
+        {
+          keyword: 'อัตโนมัติ',
+          trigger: { on: 'summoned', if: 'bySelfAbility' },
+          actions: [{
+            op: 'grantSelfAbilities',
+            abilities: [{
+              keyword: 'สั่งใช้',
+              trigger: { on: 'activated' },
+              until: 'endOfTurn',
+              cost: [{ op: 'exileSelf' }],
+              actions: [{ op: 'armPemuSpriteCombatLock' }]
+            }]
+          }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'จากมือ ส่งอาวุธของเพมมุบน Magic Zone ลงนรก แล้วอัญเชิญตัวเอง · ได้รับสั่งใช้ในเทิร์นนี้: เนรเทศตัวเอง แล้วเมื่อเพมมุ/สไปรท์โจมตี Avatar ศัตรู ฝ่ายตรงข้ามใช้ React/ความสามารถไม่ได้จนกว่าจะจบการต่อสู้ และกันทำลายหลังปะทะไม่ได้'
+    },
     'BT10-070': {
       code: 'BT10-070',
       name: 'ดินแดนยุติธรรม',
@@ -293,6 +373,46 @@ const BY_SET = {
       ],
       parseStatus: 'auto',
       note: 'ตราบเท่าที่เพมมุหรือสไปรท์อยู่ใน Link: Avatar ฝ่ายเราที่มี "เพมมุ" ในชื่อหรือข้อความ ไม่ถูกนำออกจากสนามโดยความสามารถ/ผู้เล่นฝ่ายตรงข้าม (ยกเว้นต่อสู้)'
+    },
+    'BT10-069': {
+      code: 'BT10-069',
+      name: 'อาวุธของเพมมุ ดาบมารไร้พ่าย',
+      attachOnly: { nameIncludes: 'เพมมุ' },
+      uniqueMagicNameIncludes: 'อาวุธของเพมมุ',
+      abilities: [
+        {
+          keyword: 'ต่อเนื่อง',
+          trigger: { on: 'static', if: 'self.attached' },
+          actions: [{
+            op: 'modifyPower',
+            amount: 1,
+            layer: 2,
+            target: { select: 'equippedAvatar' }
+          }]
+        },
+        {
+          trigger: { on: 'battleDestroy' },
+          actions: [
+            {
+              op: 'destroy',
+              target: { select: 'choose', side: 'enemy', type: 'Avatar', printedPowerLteDestroyed: true }
+            },
+            {
+              op: 'chooseMode',
+              optional: true,
+              options: [{
+                label: 'ทำลายดาบแล้วเปลี่ยนสภาพเพมมุ',
+                actions: [
+                  { op: 'destroy', target: { select: 'self' } },
+                  { op: 'toggleTap', filter: { nameIncludes: ['เพมมุ'] } }
+                ]
+              }]
+            }
+          ]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'สวมได้เฉพาะเพมมุ · โฮสต์ POWER +1 · ฆ่าจากการต่อสู้แล้วทำลาย Avatar ศัตรูที่ POWER ตั้งต้น ≤ POWER เหยื่อ จากนั้นเลือกทำลายดาบแล้วเปลี่ยนสภาพเพมมุ · Magic Zone มีอาวุธของเพมมุได้ 1 ใบ'
     }
   },
   'effects-bt11.json': {
@@ -337,10 +457,69 @@ const BY_SET = {
             layer: 3,
             target: { select: 'self' }
           }]
+        },
+        {
+          keyword: 'จุติ',
+          trigger: { on: 'summoned', if: 'paidCost' },
+          actions: [
+            { op: 'chooseDestroy', zones: ['land'], side: 'enemy', optional: true },
+            {
+              op: 'deckPick',
+              filter: { nameIncludes: ['ดินแดนยุติธรรม'], subtype: 'Land' },
+              dest: 'playLandFromDeck',
+              shuffleAfter: true,
+              optional: true
+            },
+            { op: 'lockOppLandPlay' }
+          ]
         }
       ],
-      parseStatus: 'partial',
-      note: 'ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ (ทำลาย Land ศัตรู / วางดินแดนยุติธรรม / ล็อก Land) ยังไม่ทำ'
+      parseStatus: 'auto',
+      note: 'ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ: ทำลาย Land ศัตรู 1 ใบ แล้วเล่นดินแดนยุติธรรมจากเด็ค สับ ฝ่ายตรงข้ามใช้ Land ไม่ได้จนจบเทิร์นถัดไปของฝ่ายตรงข้าม'
+    }
+  },
+  'effects-cc01.json': {
+    'CC01-042': {
+      code: 'CC01-042',
+      name: 'พรของอิศวร',
+      abilities: [
+        {
+          keyword: 'เลือกปฏิบัติ',
+          trigger: { on: 'activated' },
+          actions: [{
+            op: 'chooseMode',
+            optional: false,
+            options: [
+              {
+                label: 'จั่วให้มือครบ 5',
+                actions: [{ op: 'draw', untilHand: 5 }]
+              },
+              {
+                label: 'ทำลาย Avatar ศัตรูไม่เกิน 2',
+                actions: [{
+                  op: 'chooseDestroy',
+                  side: 'enemy',
+                  filter: { type: 'Avatar' },
+                  zones: ['avatar'],
+                  optional: true,
+                  count: 2
+                }]
+              },
+              {
+                label: 'นรกขึ้นมือ 2 ใบ',
+                actions: [{
+                  op: 'hellPick',
+                  dest: 'hand',
+                  optional: true,
+                  multiMax: 2
+                }]
+              }
+            ]
+          }]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'เลือกปฏิบัติ 1 ข้อ: จั่วให้มือครบ 5 / ทำลาย Avatar ศัตรูไม่เกิน 2 / นรกเราขึ้นมือ 2 ใบ ประเภทใดก็ได้ · Only #1'
     }
   }
 };

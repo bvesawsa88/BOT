@@ -336,9 +336,65 @@
     },
     {
       "code": "BT10-009",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "K-BO ยอดหุ่นยนต์"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cost": [
+            {
+              "op": "sendMagicToHell",
+              "count": 1,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธของเพมมุ"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "bySelfAbility": true
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "สั่งใช้",
+                  "trigger": {
+                    "on": "activated"
+                  },
+                  "until": "endOfTurn",
+                  "cost": [
+                    {
+                      "op": "exileSelf"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "armPemuSpriteCombatLock"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "K-BO ยอดหุ่นยนต์",
+      "note": "จากมือ ส่งอาวุธของเพมมุบน Magic Zone ลงนรก แล้วอัญเชิญตัวเอง · ได้รับสั่งใช้ในเทิร์นนี้: เนรเทศตัวเอง แล้วเมื่อเพมมุ/สไปรท์โจมตี Avatar ศัตรู ฝ่ายตรงข้ามใช้ React/ความสามารถไม่ได้จนกว่าจะจบการต่อสู้ และกันทำลายหลังปะทะไม่ได้"
     },
     {
       "code": "BT10-010",
@@ -1291,9 +1347,73 @@
     },
     {
       "code": "BT10-069",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "อาวุธของเพมมุ ดาบมารไร้พ่าย"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "side": "enemy",
+                "type": "Avatar",
+                "printedPowerLteDestroyed": true
+              }
+            },
+            {
+              "op": "chooseMode",
+              "optional": true,
+              "options": [
+                {
+                  "label": "ทำลายดาบแล้วเปลี่ยนสภาพเพมมุ",
+                  "actions": [
+                    {
+                      "op": "destroy",
+                      "target": {
+                        "select": "self"
+                      }
+                    },
+                    {
+                      "op": "toggleTap",
+                      "filter": {
+                        "nameIncludes": [
+                          "เพมมุ"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "อาวุธของเพมมุ ดาบมารไร้พ่าย",
+      "attachOnly": {
+        "nameIncludes": "เพมมุ"
+      },
+      "uniqueMagicNameIncludes": "อาวุธของเพมมุ",
+      "note": "สวมได้เฉพาะเพมมุ · โฮสต์ POWER +1 · ฆ่าจากการต่อสู้แล้วทำลาย Avatar ศัตรูที่ POWER ตั้งต้น ≤ POWER เหยื่อ จากนั้นเลือกทำลายดาบแล้วเปลี่ยนสภาพเพมมุ · Magic Zone มีอาวุธของเพมมุได้ 1 ใบ"
     },
     {
       "code": "BT10-070",

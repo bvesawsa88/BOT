@@ -331,10 +331,42 @@
               }
             }
           ]
+        },
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "zones": [
+                "land"
+              ],
+              "side": "enemy",
+              "optional": true
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ดินแดนยุติธรรม"
+                ],
+                "subtype": "Land"
+              },
+              "dest": "playLandFromDeck",
+              "shuffleAfter": true,
+              "optional": true
+            },
+            {
+              "op": "lockOppLandPlay"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ (ทำลาย Land ศัตรู / วางดินแดนยุติธรรม / ล็อก Land) ยังไม่ทำ"
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ: ทำลาย Land ศัตรู 1 ใบ แล้วเล่นดินแดนยุติธรรมจากเด็ค สับ ฝ่ายตรงข้ามใช้ Land ไม่ได้จนจบเทิร์นถัดไปของฝ่ายตรงข้าม"
     },
     {
       "code": "BT11-012",

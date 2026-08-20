@@ -168,4 +168,89 @@ function skipReacts(st, seed) {
   ok(st.inst[boy].power === 1, 'boy printed still 1 on own turn: ' + st.inst[boy].power);
 }
 
+/* 9) ทำลายแบบ pick dest=destroy ก็เลือกเพมมุที่ถูกกันไม่ได้ */
+{
+  const st = emptyState({ phase: 'Main', active: 'B' });
+  put(st, 'land', 'BT10-070', { controller: 'A', faceUp: true });
+  const pem = put(st, 'A.avatar', 'BT09-008');
+  put(st, 'A.avatar', 'BT09-009');
+  const other = put(st, 'A.avatar', 'SD01-003');
+  const src = put(st, 'B.avatar', 'FPRO-004');
+  const pr = { kind: 'pick', from: 'enemyAvatars', dest: 'destroy', chooser: 'B', src };
+  const cands = BoT.promptCandidates(st, pr);
+  ok(!cands.includes(pem), 'pick dest destroy skips pemu');
+  ok(cands.includes(other), 'pick dest destroy still hits other');
+}
+
+/* 10) Land ของฝ่ายตรงข้ามไม่กันเพมมุเรา */
+{
+  const st = emptyState({ phase: 'Main', active: 'B' });
+  put(st, 'land', 'BT10-070', { controller: 'B', faceUp: true });
+  const pem = put(st, 'A.avatar', 'BT09-008');
+  put(st, 'A.avatar', 'BT09-009');
+  const ish = put(st, 'B.avatar', 'FPRO-004');
+  let fx = apply(st, { type: 'activateAbility', k: ish, by: 'B', seed: 60 });
+  if (fx.deny) fail('ishvar3 activate deny: ' + fx.deny);
+  skipReacts(st, 61);
+  const pr = (st.prompts || [])[0];
+  ok(pr && pr.kind === 'chooseDestroy', 'ishvar3 chooseDestroy');
+  const cands = BoT.promptCandidates(st, pr);
+  ok(cands.includes(pem), 'opp land does not protect our pemu');
+}
+
+/* 11) จุติมิสทรอม่า: เล่นดินแดนยุติธรรมจากเด็ค แล้วล็อก Land ศัตรู */
+{
+  const st = emptyState({ phase: 'Main', active: 'A' });
+  const mist = put(st, 'A.hand', 'BT11-011');
+  const pay = put(st, 'A.hand', 'SD01-006');
+  const justice = put(st, 'A.deck', 'BT10-070');
+  put(st, 'A.deck', 'SD01-006');
+  put(st, 'A.deck', 'SD01-006');
+  put(st, 'B.deck', 'SD01-006');
+  put(st, 'B.deck', 'SD01-006');
+  const oppLand = put(st, 'land', 'BT09-070', { controller: 'B', faceUp: true });
+  let fx = apply(st, { type: 'summon', k: mist, to: 'A.avatar', payIds: [pay], by: 'A', seed: 70 });
+  if (fx.deny) fail('summon mistroma deny: ' + fx.deny);
+  skipReacts(st, 71);
+  ok(st.blockLandPlayFor && st.blockLandPlayFor.B, 'opp land play locked after juti');
+  let pr = (st.prompts || [])[0];
+  if (pr && pr.kind === 'chooseDestroy') {
+    const cands = BoT.promptCandidates(st, pr);
+    ok(cands.includes(oppLand), 'juti can destroy opp land');
+    fx = apply(st, { type: 'chooseTarget', k: oppLand, by: 'A', seed: 72 });
+    if (fx.deny) fail('juti destroy land deny: ' + fx.deny);
+    skipReacts(st, 73);
+    pr = (st.prompts || [])[0];
+  }
+  ok(pr && pr.kind === 'pick', 'juti deckPick justice: ' + (pr && pr.kind));
+  const deckCands = BoT.promptCandidates(st, pr);
+  ok(deckCands.includes(justice), 'justice in deck pick');
+  fx = apply(st, { type: 'chooseTarget', k: justice, by: 'A', seed: 74 });
+  if (fx.deny) fail('play justice from deck deny: ' + fx.deny);
+  ok(zone(st, justice) === 'land', 'justice on land: ' + zone(st, justice));
+  ok(st.inst[justice].controller === 'A', 'justice controller A');
+  st.prompts = [];
+  st.pending = null;
+  fx = apply(st, { type: 'endTurn', by: 'A', seed: 76 });
+  if (fx.deny) fail('A endTurn deny: ' + fx.deny);
+  skipReacts(st, 77);
+  ok(st.blockLandPlayFor && st.blockLandPlayFor.B, 'lock lasts through our end turn');
+  st.phase = 'Main';
+  const bLand = put(st, 'B.hand', 'BT05-068');
+  fx = apply(st, { type: 'playMagic', k: bLand, by: 'B', seed: 75 });
+  ok(!!fx.deny, 'opp cannot play land while locked: ' + fx.deny);
+  fx = apply(st, { type: 'endTurn', by: 'B', seed: 78 });
+  if (fx.deny) fail('B endTurn deny: ' + fx.deny);
+  skipReacts(st, 79);
+  ok(!(st.blockLandPlayFor && st.blockLandPlayFor.B), 'lock clears at opp next end');
+}
+
+/* 12) สีเจมดินแดนยุติธรรมเป็นแดง */
+{
+  const land = byCode('BT10-070');
+  ok(BoT.gemColorOf(land) === 'แดง', 'justice gemColor red: ' + BoT.gemColorOf(land));
+  const pemScr = cards.find(c => c.code === 'BT09-008' && /SCR|SEC/.test(c.rarity || ''));
+  if (pemScr) ok(BoT.gemColorOf(pemScr) === 'แดง', 'pemu SCR gem red: ' + BoT.gemColorOf(pemScr));
+}
+
 console.log('ALL PASS');

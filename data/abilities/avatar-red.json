@@ -426,9 +426,56 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner"
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "เมย์จากมิติมืดกลับเด็ค แล้วสับ จั่ว 1",
+                  "actions": [
+                    {
+                      "op": "darkPick",
+                      "dest": "deck",
+                      "shuffleAfter": true,
+                      "optional": true,
+                      "filter": {
+                        "nameIncludes": [
+                          "เมย์ แวมไพร์โกธิค"
+                        ]
+                      },
+                      "then": [
+                        {
+                          "op": "draw",
+                          "count": 1,
+                          "player": "owner"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "อาวุธของเพมมุจากนรกกลับเด็ค แล้วสับ จั่ว 1",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "dest": "deck",
+                      "shuffleAfter": true,
+                      "optional": true,
+                      "filter": {
+                        "nameIncludes": [
+                          "อาวุธของเพมมุ"
+                        ]
+                      },
+                      "then": [
+                        {
+                          "op": "draw",
+                          "count": 1,
+                          "player": "owner"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -459,8 +506,8 @@
           ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่อยู่ในสถานะ Link POWER +2 · จุติยังคืนเด็คไม่ครบ (จั่ว 1)"
+      "parseStatus": "auto",
+      "note": "จุติ: เลือกเมย์จากมิติมืด หรืออาวุธของเพมมุจากนรก กลับเด็คแล้วสับ จากนั้นจั่ว 1 · ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่ Link แล้ว POWER +2"
     },
     {
       "name": "โจอี้ นักบอลขาหัก",
@@ -2382,10 +2429,42 @@
               }
             }
           ]
+        },
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "zones": [
+                "land"
+              ],
+              "side": "enemy",
+              "optional": true
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ดินแดนยุติธรรม"
+                ],
+                "subtype": "Land"
+              },
+              "dest": "playLandFromDeck",
+              "shuffleAfter": true,
+              "optional": true
+            },
+            {
+              "op": "lockOppLandPlay"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ (ทำลาย Land ศัตรู / วางดินแดนยุติธรรม / ล็อก Land) ยังไม่ทำ"
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: มี Avatar ใน Link แล้ว POWER +1 · ถ้าเพมมุและสไปรท์อยู่ใน Link POWER +2 แทน · จุติ: ทำลาย Land ศัตรู 1 ใบ แล้วเล่นดินแดนยุติธรรมจากเด็ค สับ ฝ่ายตรงข้ามใช้ Land ไม่ได้จนจบเทิร์นถัดไปของฝ่ายตรงข้าม"
     },
     {
       "name": "มือปืนนคร ชานน",
@@ -2508,8 +2587,55 @@
       "codes": [
         "BT09-010"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
+          "requireOwnDarkNameMissing": "เมย์ แวมไพร์โกธิค",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireOwnNameIncludes": "เจ้าหญิงรวงข้าว",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
+      "parseStatus": "auto",
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
     },
     {
       "name": "เมียพระอิศวร",
@@ -3870,8 +3996,64 @@
       "codes": [
         "BT10-009"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cost": [
+            {
+              "op": "sendMagicToHell",
+              "count": 1,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธของเพมมุ"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "bySelfAbility": true
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "สั่งใช้",
+                  "trigger": {
+                    "on": "activated"
+                  },
+                  "until": "endOfTurn",
+                  "cost": [
+                    {
+                      "op": "exileSelf"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "armPemuSpriteCombatLock"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จากมือ ส่งอาวุธของเพมมุบน Magic Zone ลงนรก แล้วอัญเชิญตัวเอง · ได้รับสั่งใช้ในเทิร์นนี้: เนรเทศตัวเอง แล้วเมื่อเพมมุ/สไปรท์โจมตี Avatar ศัตรู ฝ่ายตรงข้ามใช้ React/ความสามารถไม่ได้จนกว่าจะจบการต่อสู้ และกันทำลายหลังปะทะไม่ได้"
     }
   ]
 }

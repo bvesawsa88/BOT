@@ -410,8 +410,61 @@
     {
       "code": "CC01-042",
       "name": "พรของอิศวร",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "จั่วให้มือครบ 5",
+                  "actions": [
+                    {
+                      "op": "draw",
+                      "untilHand": 5
+                    }
+                  ]
+                },
+                {
+                  "label": "ทำลาย Avatar ศัตรูไม่เกิน 2",
+                  "actions": [
+                    {
+                      "op": "chooseDestroy",
+                      "side": "enemy",
+                      "filter": {
+                        "type": "Avatar"
+                      },
+                      "zones": [
+                        "avatar"
+                      ],
+                      "optional": true,
+                      "count": 2
+                    }
+                  ]
+                },
+                {
+                  "label": "นรกขึ้นมือ 2 ใบ",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "dest": "hand",
+                      "optional": true,
+                      "multiMax": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือกปฏิบัติ 1 ข้อ: จั่วให้มือครบ 5 / ทำลาย Avatar ศัตรูไม่เกิน 2 / นรกเราขึ้นมือ 2 ใบ ประเภทใดก็ได้ · Only #1"
     },
     {
       "code": "CC01-057",

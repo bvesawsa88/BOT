@@ -1133,16 +1133,97 @@
       "codes": [
         "BT10-069"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "side": "enemy",
+                "type": "Avatar",
+                "printedPowerLteDestroyed": true
+              }
+            },
+            {
+              "op": "chooseMode",
+              "optional": true,
+              "options": [
+                {
+                  "label": "ทำลายดาบแล้วเปลี่ยนสภาพเพมมุ",
+                  "actions": [
+                    {
+                      "op": "destroy",
+                      "target": {
+                        "select": "self"
+                      }
+                    },
+                    {
+                      "op": "toggleTap",
+                      "filter": {
+                        "nameIncludes": [
+                          "เพมมุ"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "uniqueMagicNameIncludes": "อาวุธของเพมมุ",
+      "attachOnly": {
+        "nameIncludes": "เพมมุ"
+      },
+      "parseStatus": "auto",
+      "note": "สวมได้เฉพาะเพมมุ · โฮสต์ POWER +1 · ฆ่าจากการต่อสู้แล้วทำลาย Avatar ศัตรูที่ POWER ตั้งต้น ≤ POWER เหยื่อ จากนั้นเลือกทำลายดาบแล้วเปลี่ยนสภาพเพมมุ · Magic Zone มีอาวุธของเพมมุได้ 1 ใบ"
     },
     {
       "name": "อาวุธของเพมมุ ปืนพกรุ่น 19",
       "codes": [
         "BT09-067"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "ifDestroyedPowerDiffGte": 2,
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "uniqueMagicNameIncludes": "อาวุธของเพมมุ",
+      "attachOnly": {
+        "nameIncludes": "เพมมุ"
+      },
+      "parseStatus": "auto",
+      "note": "สวมได้เฉพาะเพมมุ · ฆ่าแล้วถ้าเหยื่อ POWER น้อยกว่าโฮสต์ตั้งแต่ 2 ขึ้นไป หงาย LIFE บนสุดศัตรู · Magic Zone มีอาวุธของเพมมุได้ 1 ใบ"
     },
     {
       "name": "อาวุธนคร ดินสอ 5H",
