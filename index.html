@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260818l">
+<link rel="stylesheet" href="css/style.css?v=20260820a">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -41,6 +41,10 @@
     <button id="mnuDeck" class="btn-dark big">เด็คของฉัน</button>
     <button id="mnuGallery" class="btn-dark big">ดูการ์ด / เปิดซอง</button>
     <button id="mnuHowTo" class="btn-dark big">📖 วิธีเล่น / วิธีจัดเด็ค</button>
+    <div class="menu-links">
+      <button type="button" id="btnFeedbackMenu" class="link-btn">🐞 เจอบัคโปรดแจ้ง</button>
+      <a class="link-btn" href="https://discord.gg/8PeHV4Ebyq" target="_blank" rel="noopener noreferrer">💬 แจ้งใน Discord</a>
+    </div>
   </div>
 
   <!-- เมนูย่อย: เลือกโหมดก่อน → แล้วค่อยเลือกเด็คตามโหมด -->
@@ -50,11 +54,14 @@
       <!-- โหมดออนไลน์ — ซ่อนไว้ก่อน (อย่าลบ)
       <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
       -->
+      <!-- LAN — ซ่อนไว้ก่อน (อย่าลบ)
       <button id="mnuLan" class="btn-dark big">📱 LAN — เห็นใครออน / ท้าสู้</button>
+      -->
       <button id="mnuBot" class="btn-primary big">🤖 เล่นกับบอท</button>
       <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
-      <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง (คุยผ่าน Discord) — preset: สนามฝั่งเดียว + ชวนเปิดบานสนาม -->
+      <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง — ซ่อนไว้ก่อน (อย่าลบ)
       <button id="mnuReal" class="btn-dark big">🎴 เล่นกับคนที่ใช้การ์ดจริง</button>
+      -->
     </div>
 
     <!-- เล่นกับบอท: เลือกเด็คคุณ vs บอท + ระดับความยาก -->
@@ -379,6 +386,7 @@
       <a href="#hw-build">7 · จัดเด็ค</a>
       <a href="#hw-real">8 · เล่นกับการ์ดจริง</a>
       <a href="#hw-keys">9 · คีย์ลัด</a>
+      <a href="#hw-bug">เจอบัคโปรดแจ้ง</a>
     </nav>
     <article class="hw-body">
 
@@ -609,6 +617,11 @@
         <p class="hw-dim">คีย์ลัดจะไม่ทำงานตอนกำลังพิมพ์ในช่องแชท</p>
       </section>
 
+      <section id="hw-bug">
+        <h2>เจอบัคโปรดแจ้ง</h2>
+        <p>เจออะไรผิด เล่นแล้วงง หรืออยากให้ปรับตรงไหน — กด <b>🐞 เจอบัคโปรดแจ้ง</b> ได้ทั้งในเมนูหลักและบนโต๊ะ หรือคุยใน <a href="https://discord.gg/8PeHV4Ebyq" target="_blank" rel="noopener noreferrer">กลุ่ม Discord</a></p>
+      </section>
+
     </article>
   </div>
 </div>
@@ -633,6 +646,7 @@
       <button id="btnBot" class="btn-mini hidden"></button>
       <button id="btnRematchTop" class="btn-mini">รีแมตช์</button>
       <button id="btnHowToTop" class="btn-mini" title="เปิดคู่มือวิธีเล่น (แท็บใหม่)">📖 วิธีเล่น</button>
+      <button id="btnFeedbackTop" class="btn-mini" title="เจอบัคโปรดแจ้ง">🐞 เจอบัคโปรดแจ้ง</button>
       <button id="btnFull" class="btn-mini" title="สลับเต็มจอ (กด F)">⛶ เต็มจอ</button>
       <button id="btnClean" class="btn-mini" title="ซ่อน/แสดง UI สำหรับถ่ายรูป/สตรีม (กด H)">🖼 ซ่อน UI</button>
       <button id="btnOneSide" class="btn-mini" title="ซ่อนสนามฝั่งตรงข้าม เหลือสนามเราใบเดียวแบบใหญ่ — เหมาะตอนคู่ต่อสู้ใช้การ์ดจริง">⬍ สนามฝั่งเดียว</button>
@@ -1058,6 +1072,30 @@
   </div>
 </div>
 
+<!-- modal เจอบัคโปรดแจ้ง -->
+<div id="fbModal" class="hidden">
+  <div class="fb-card">
+    <div class="fb-head">
+      <div>
+        <div class="fb-title">🐞 เจอบัคโปรดแจ้ง</div>
+        <div class="fb-sub">เจออะไรผิด เล่นแล้วงงตรงไหน หรืออยากให้ปรับอะไร — พิมพ์บอกได้เลย</div>
+      </div>
+      <button type="button" id="fbClose" class="fb-x" aria-label="ปิด">✕</button>
+    </div>
+    <div class="fb-body">
+      <label class="fb-label" for="fbText">รายละเอียด (เจอที่การ์ด/จังหวะไหน จะช่วยให้แก้ตรงจุด)</label>
+      <textarea id="fbText" spellcheck="false" placeholder="เช่น: การ์ด X ตอนอัญเชิญแล้วเอฟเฟกต์ไม่ทำงาน / ปุ่ม Y กดแล้วไม่มีอะไรเกิด / อยากให้ตรงนี้เข้าใจง่ายกว่านี้…"></textarea>
+      <label class="fb-check"><input type="checkbox" id="fbIncludeLog" checked> แนบสถานะเกม + log ล่าสุด (ช่วยให้ผมหาบั๊กเจอเร็วขึ้น)</label>
+      <div id="fbMsg" class="fb-msg"></div>
+      <a class="fb-discord" href="https://discord.gg/8PeHV4Ebyq" target="_blank" rel="noopener noreferrer">💬 หรือแจ้งในกลุ่ม Discord</a>
+    </div>
+    <div class="fb-foot">
+      <button type="button" id="fbCancel" class="btn-dark">ปิด</button>
+      <button type="button" id="fbSend" class="btn-primary">ส่ง</button>
+    </div>
+  </div>
+</div>
+
 <!-- overlay ต่างๆ -->
 <div id="ctxMenu" class="hidden"></div>
 <div id="clash" class="hidden"></div>
@@ -1082,7 +1120,7 @@
 <script src="js/skins.js?v=20260816a"></script>
 <script src="js/carddb.js?v=20260818d"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260818l"></script>
+<script src="js/game.js?v=20260820b"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

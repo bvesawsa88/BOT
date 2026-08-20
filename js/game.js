@@ -6316,6 +6316,58 @@
     if (logo.complete && logo.naturalWidth === 0) logo.dispatchEvent(new Event('error'));
   })();
 
+  /* ── เจอบัคโปรดแจ้ง ── */
+  function openFeedback() {
+    const msg = byId('fbMsg');
+    const text = byId('fbText');
+    const modal = byId('fbModal');
+    if (msg) msg.textContent = '';
+    if (text) text.value = '';
+    if (modal) modal.classList.remove('hidden');
+    setTimeout(() => { if (text) text.focus(); }, 60);
+  }
+  function closeFeedback() {
+    const modal = byId('fbModal');
+    if (modal) modal.classList.add('hidden');
+  }
+  const btnFeedbackTop = byId('btnFeedbackTop');
+  const btnFeedbackMenu = byId('btnFeedbackMenu');
+  if (btnFeedbackTop) btnFeedbackTop.onclick = openFeedback;
+  if (btnFeedbackMenu) btnFeedbackMenu.onclick = openFeedback;
+  const fbClose = byId('fbClose');
+  const fbCancel = byId('fbCancel');
+  const fbModal = byId('fbModal');
+  if (fbClose) fbClose.onclick = closeFeedback;
+  if (fbCancel) fbCancel.onclick = closeFeedback;
+  if (fbModal) fbModal.addEventListener('click', e => { if (e.target.id === 'fbModal') closeFeedback(); });
+  const fbSend = byId('fbSend');
+  if (fbSend) fbSend.onclick = () => {
+    const textEl = byId('fbText');
+    const msg = byId('fbMsg');
+    const text = textEl ? textEl.value.trim() : '';
+    if (!text) { if (msg) msg.textContent = '✗ พิมพ์รายละเอียดก่อนส่งนะครับ'; return; }
+    const onTable = byId('table') && !byId('table').classList.contains('hidden');
+    const screen = SCREENS.find(s => byId(s) && !byId(s).classList.contains('hidden')) || (onTable ? 'table' : '?');
+    const payload = { text, screen, mode: mode || 'menu', room: room || '', ua: navigator.userAgent, url: location.href };
+    if (byId('fbIncludeLog') && byId('fbIncludeLog').checked && st) {
+      payload.turn = st.turn; payload.phase = st.phase; payload.active = st.active;
+      payload.log = (st.log || []).slice(-15).map(l => `${l.p}: ${l.t}`);
+      payload.zones = {};
+      ['A.avatar', 'A.hand', 'B.avatar', 'land', 'A.land', 'B.land'].forEach(z => {
+        const ids = st.zones && st.zones[z];
+        if (!ids) return;
+        payload.zones[z] = ids.map(k => (st.inst[k] && st.inst[k].name) || k);
+      });
+    }
+    fbSend.disabled = true;
+    if (msg) msg.textContent = 'กำลังส่ง…';
+    fetch('/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(() => { if (msg) msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ!'; if (textEl) textEl.value = ''; setTimeout(closeFeedback, 1200); })
+      .catch(() => { if (msg) msg.textContent = '✗ ส่งจากเว็บไม่สำเร็จ — กดลิงก์ Discord ด้านล่างได้เลย'; })
+      .finally(() => { fbSend.disabled = false; });
+  };
+
   /* ── ล็อกอิน / สมัครสมาชิก ── */
   let authMode = 'login';
   const authToken = () => { try { return localStorage.getItem('bot_auth_token') || ''; } catch (e) { return ''; } };
@@ -6462,10 +6514,11 @@
   byId('mnuPlay').onclick = () => showMenuPlay();
   byId('btnHome').onclick = goHomeNotebook;
   byId('btnBack').onclick = goBackNotebook;
-  // โหมดออนไลน์ — ปุ่มถูกคอมเมนต์ใน HTML ไว้ก่อน (อย่าลบ handler)
+  // โหมดออนไลน์ / LAN — ปุ่มถูกคอมเมนต์ใน HTML ไว้ก่อน (อย่าลบ handler)
   const mnuOnline = byId('mnuOnline');
   if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
-  byId('mnuLan').onclick = () => {
+  const mnuLan = byId('mnuLan');
+  if (mnuLan) mnuLan.onclick = () => {
     // เข้าโหมด LAN → เลือกเด็คในล็อบบี้ แล้วค่อยท้า/จับคู่
     ensurePlayReady().catch(() => { });
     openLanHall();
@@ -6634,8 +6687,11 @@
       toast(`🎴 โหมดการ์ดจริง · ใช้เด็ค "${act.name}" — กด 📺 บานสนาม แล้วแชร์เฉพาะหน้าต่างนั้นใน Discord`, 11000);
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   }
-  byId('mnuReal').onclick = () => openPlaySetup('real');
-  byId('btnRealStart').onclick = () => startRealMatch();
+  // 🎴 โหมดการ์ดจริง — ปุ่มถูกคอมเมนต์ใน HTML ไว้ก่อน (อย่าลบ handler)
+  const mnuReal = byId('mnuReal');
+  if (mnuReal) mnuReal.onclick = () => openPlaySetup('real');
+  const btnRealStart = byId('btnRealStart');
+  if (btnRealStart) btnRealStart.onclick = () => startRealMatch();
   byId('btnLobbyBack').onclick = () => {
     stopPresence();
     showScreen('menu');
