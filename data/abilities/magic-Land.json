@@ -412,8 +412,36 @@
       "codes": [
         "BT06-063"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "dest": "hand",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 2 : เลือกเทพธิดาแห่งวัลฮัลลาในนรกเราขึ้นมือ"
     },
     {
       "name": "ปราสาทแดรก",

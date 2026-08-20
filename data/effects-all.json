@@ -5274,8 +5274,33 @@
     {
       "code": "BT05-027",
       "name": "บรุนฮิลด์  เทพธิดาแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "offerSummonSelfFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → ถามอัญเชิญตัวเองจากนรก"
     },
     {
       "code": "BT05-028",
@@ -6561,20 +6586,106 @@
     {
       "code": "BT06-027",
       "name": "สกัลด์ เทพธิดาแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "dest": "avatar",
+              "paidCost": false,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ],
+                "costMax": 4,
+                "nameNotEquals": "สกัลด์ เทพธิดาแห่งวัลฮัลลา"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดยเทพม่วง/Magic → อัญเชิญเทพธิดาวัลฮัลลา Cost≤4 ที่ไม่ใช่สกัลด์จากนรก"
     },
     {
       "code": "BT06-028",
       "name": "โอลรุน เทพธิดาแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → กลับขึ้นมือ"
     },
     {
       "code": "BT06-029",
       "name": "ซีกรุน เทพธิดาแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 3 : POWER +1 จนกว่าออกจากสนาม"
     },
     {
       "code": "BT06-030",
@@ -6764,8 +6875,65 @@
     {
       "code": "BT06-052",
       "name": "เสียงเรียกแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireCritical": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 5,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "hellPick",
+              "dest": "avatar",
+              "paidCost": false,
+              "multiMax": 4,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สาหัสเท่านั้น เมื่อถูกประกาศโจมตี ธรณีสูบ 5 ยกเลิกโจมตี แล้วอัญเชิญเทพธิดาวัลฮัลลาสูงสุด 4 จากนรก · โดนธรณีสูบโดยเทพม่วง/Magic → กลับขึ้นมือ"
     },
     {
       "code": "BT06-053",
@@ -6864,8 +7032,36 @@
     {
       "code": "BT06-063",
       "name": "ประตูวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 2,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "dest": "hand",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 2 : เลือกเทพธิดาแห่งวัลฮัลลาในนรกเราขึ้นมือ"
     },
     {
       "code": "BT06-064",
@@ -20992,8 +21188,33 @@
     {
       "code": "PRMO-047",
       "name": "บรุนฮิลด์  เทพธิดาแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "offerSummonSelfFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → ถามอัญเชิญตัวเองจากนรก"
     },
     {
       "code": "PRMO-048",
@@ -22428,8 +22649,34 @@
     {
       "code": "PRMO-131",
       "name": "ซีกรุน เทพธิดาแห่งวัลฮัลลา",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 3 : POWER +1 จนกว่าออกจากสนาม"
     },
     {
       "code": "PRMO-132",

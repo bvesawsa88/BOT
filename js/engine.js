@@ -1737,7 +1737,24 @@
     else { addLog(st, 'S', 'ไม่มี Avatar ให้ทำลาย'); hellSrc(); }
   }
 
-  /* ธรณีสูบ: เด็คบนสุด → นรก + trigger milled (เต๋า/นีโม่)
+  /* วัลฮัลลา ฯลฯ: โดนธรณีสูบเฉพาะเมื่อต้นทางเป็น Avatar เทพม่วง หรือ Magic */
+  function millSourceOk(st, srcK, ab) {
+    const req = ab && ab.requireMillSource;
+    if (!req) return true;
+    if (!srcK || !st.inst[srcK]) return false;
+    const opts = req.anyOf || [req];
+    return opts.some(f => matchFilterEx(st, srcK, f));
+  }
+  function isMilledBuiltinOp(ac) {
+    if (!ac) return false;
+    if (ac.op === 'mill' && ac.who === 'both') return true;
+    if (ac.op === 'returnSelfToDeck' || ac.op === 'returnSelfToHand') return true;
+    if (ac.op === 'offerSummonSelfFromHell') return true;
+    if (ac.op === 'returnToHand' && (ac.target === 'self' || (ac.target && ac.target.select === 'self'))) return true;
+    return false;
+  }
+
+  /* ธรณีสูบ: เด็คบนสุด → นรก + trigger milled (เต๋า/นีโม่ / เทพธิดาวัลฮัลลา)
      srcK = การ์ดต้นทางที่สั่งสูบ (อ้วนไม่โบนัสการสูบของตัวเอง) */
   function mill(st, fx, player, count, rng, depth, srcK) {
     depth = depth || 0; if (depth > 5) return [];
@@ -1782,30 +1799,38 @@
           addLog(st, player, `เอฟเฟกต์ ${nameOf(st, k)}: โดนธรณีสูบ — จะใช้ผลพิเศษไหม? (ข้ามได้)`);
         }
       }
-      abilitiesOf(st.inst[k].code, 'milled').forEach(ab => (ab.actions || []).forEach(ac => {
-        if (ac.op === 'mill' && ac.who === 'both') {
-          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, k)}: ทั้งสองฝ่ายธรณีสูบ ${ac.count} ใบ`);
-          mill(st, fx, 'A', ac.count, rng, depth + 1, k);
-          mill(st, fx, 'B', ac.count, rng, depth + 1, k);
-        }
-        if (ac.op === 'returnSelfToDeck') {
-          st.zones[player + '.hell'] = st.zones[player + '.hell'].filter(x => x !== k);
-          st.zones[player + '.deck'].push(k);
-          if (ac.shuffle) seededShuffle(st.zones[player + '.deck'], rng);
-          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, k)}: กลับเข้าเด็คแล้วสับ`);
-        }
-        if (ac.op === 'offerSummonSelfFromHell') {
-          const qd = quotaDeny(st, player + '.avatar', st.inst[k]);
-          if (qd) addLog(st, 'S', `แว่น: ลงสนามไม่ได้ (${qd})`);
-          else {
-            st.prompts.push({
-              kind: 'milledOptional', src: k, chooser: player, optional: true,
-              actions: [{ op: 'summonSelfFromHell' }]
-            });
-            addLog(st, player, `เอฟเฟกต์ ${nameOf(st, k)}: โดนธรณีสูบ — จะอัญเชิญจากนรกไหม?`);
-          }
-        }
-      }));
+      abilitiesOf(st.inst[k].code, 'milled', (st.inst[k] || {}).name).forEach(ab => {
+        if (!millSourceOk(st, srcK, ab)) return;
+        const rest = [];
+        (ab.actions || []).forEach(ac => {
+          if (ac.op === 'mill' && ac.who === 'both') {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, k)}: ทั้งสองฝ่ายธรณีสูบ ${ac.count} ใบ`);
+            mill(st, fx, 'A', ac.count, rng, depth + 1, k);
+            mill(st, fx, 'B', ac.count, rng, depth + 1, k);
+          } else if (ac.op === 'returnSelfToDeck') {
+            st.zones[player + '.hell'] = st.zones[player + '.hell'].filter(x => x !== k);
+            st.zones[player + '.deck'].push(k);
+            if (ac.shuffle) seededShuffle(st.zones[player + '.deck'], rng);
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, k)}: กลับเข้าเด็คแล้วสับ`);
+          } else if (ac.op === 'returnSelfToHand' || (ac.op === 'returnToHand' && (ac.target === 'self' || (ac.target && ac.target.select === 'self')))) {
+            if ((zoneOf(st, k) || '') === player + '.hell') {
+              doMove(st, k, player + '.hand', null, fx);
+              addLog(st, player, `เอฟเฟกต์ ${nameOf(st, k)}: โดนธรณีสูบ — กลับขึ้นมือ`);
+            }
+          } else if (ac.op === 'offerSummonSelfFromHell') {
+            const qd = quotaDeny(st, player + '.avatar', st.inst[k]);
+            if (qd) addLog(st, 'S', `${nameOf(st, k)}: ลงสนามไม่ได้ (${qd})`);
+            else {
+              st.prompts.push({
+                kind: 'milledOptional', src: k, chooser: player, optional: true,
+                actions: [{ op: 'summonSelfFromHell' }]
+              });
+              addLog(st, player, `เอฟเฟกต์ ${nameOf(st, k)}: โดนธรณีสูบ — จะอัญเชิญจากนรกไหม?`);
+            }
+          } else if (!isMilledBuiltinOp(ac)) rest.push(ac);
+        });
+        if (rest.length) runActions(st, fx, rest, { src: k, owner: player, rng: rng || (fx && fx._rng) });
+      });
       // THE END / เมฟิสโตถูกสอดแนม — handled elsewhere; milled→hand for THE END
       if (ce && ce.addToHandWhenMilledOrScoutedByNameIncludes) {
         /* only when milled by migraine scout — skip generic mill */
@@ -2115,6 +2140,7 @@
     if (ab.requireTargetNameIncludes && opts.targetK) {
       if (!nameMatches(st.inst[opts.targetK], ab.requireTargetNameIncludes)) return false;
     }
+    if (ab.requireCritical && !inCritical(st, owner)) return false;
     return true;
   }
   function hasOwnConstructNameIncludes(st, owner, needle) {
@@ -3158,6 +3184,17 @@
         const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], ab.requireOwnNameIncludes));
         if (!ok) return `ใช้ "${cardName}" ไม่ได้ — ต้องมี Avatar ชื่อมี "${ab.requireOwnNameIncludes}" บนสนาม`;
       }
+      if (ab.requireCritical && !inCritical(st, owner))
+        return `ใช้ "${cardName}" ได้เมื่ออยู่ในสถานะสาหัสเท่านั้น`;
+      {
+        const millCost = (normalizeAbilityCost(ab.cost) || []).find(c => c && c.op === 'mill');
+        if (millCost) {
+          const n = millCost.count || 1;
+          const who = millCost.who === 'opp' ? other(owner) : owner;
+          if ((st.zones[who + '.deck'] || []).length < n)
+            return `ใช้ "${cardName}" ไม่ได้ — เด็คไม่พอธรณีสูบ ${n} ใบ`;
+        }
+      }
       if (!sacrificeCostOk(st, owner, ab.cost, null)) {
         return `ใช้ "${cardName}" ไม่ได้ — ไม่มี "${abilitySacrificeNeed(ab.cost)}" ให้เซ่นไหว้`;
       }
@@ -3980,6 +4017,11 @@
       } else if (costOp.op === 'mill') {
         const n = costOp.count || 1;
         const who = costOp.who === 'opp' ? other(owner) : owner;
+        if ((st.zones[who + '.deck'] || []).length < n) {
+          addLog(st, 'S', `จ่ายค่าไม่ได้ — เด็คไม่พอธรณีสูบ ${n} ใบ`);
+          if (actCtx.onceTag) unclaimOncePerTurn(st, srcK, actCtx.onceTag);
+          return;
+        }
         mill(st, fx, who, n, rng, 0, srcK);
         addLog(st, owner, `จ่ายค่า: ธรณีสูบ ${n} ใบ`);
         continueAfterPaidCost(st, fx, contBase, rng);
@@ -7907,6 +7949,17 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               (ab.actions || []).forEach(ac => acts.push(ac));
             });
             doMove(st, a.k, owner + '.magic', null, fx); c.faceUp = true;
+            if (costList && costList[0] && costList[0].op === 'mill') {
+              const n = costList[0].count || 1;
+              const who = costList[0].who === 'opp' ? other(owner) : owner;
+              if ((st.zones[who + '.deck'] || []).length < n) {
+                addLog(st, 'S', `ใช้ "${c.name}" ไม่ได้ — เด็คไม่พอธรณีสูบ ${n} ใบ`);
+                doMove(st, a.k, owner + '.hell', null, fx);
+                fx.snd = 'clash'; break;
+              }
+              mill(st, fx, who, n, rng, 0, a.k);
+              addLog(st, owner, `การ์ดสวน "${c.name}": จ่ายค่าธรณีสูบ ${n} ใบ`);
+            }
             if (costList && costList[0] && costList[0].op === 'sacrifice') {
               const p = {
                 kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner,
@@ -11232,6 +11285,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const filt = costOp.filter || {};
             const avail = (st.zones[owner + '.hand'] || []).filter(x => x !== a.k && matchFilterEx(st, x, filt));
             if (avail.length < need) return deny(need > 1 ? `ไม่มีมือตรงเงื่อนไขให้เนรเทศครบ ${need}` : 'ไม่มีมือตรงเงื่อนไขให้เนรเทศ');
+          } else if (costOp.op === 'mill') {
+            const n = costOp.count || 1;
+            const who = costOp.who === 'opp' ? other(owner) : owner;
+            if ((st.zones[who + '.deck'] || []).length < n)
+              return deny(`เด็คไม่พอธรณีสูบ ${n} ใบ`);
           }
         }
         if (ab.oncePerTurn) {

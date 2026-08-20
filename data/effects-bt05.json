@@ -689,7 +689,31 @@
     },
     {
       "code": "BT05-027",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "offerSummonSelfFromHell"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "บรุนฮิลด์  เทพธิดาแห่งวัลฮัลลา",
       "freeSummonFromHellWhen": {
@@ -705,7 +729,8 @@
             }
           ]
         }
-      }
+      },
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → ถามอัญเชิญตัวเองจากนรก"
     },
     {
       "code": "BT05-028",

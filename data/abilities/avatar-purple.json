@@ -523,8 +523,34 @@
         "BT06-029",
         "PRMO-131"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 3 : POWER +1 จนกว่าออกจากสนาม"
     },
     {
       "name": "ซีเกิร์ด ผู้ปราบมังกรฟาฟเนียร์",
@@ -1274,8 +1300,33 @@
         "BT05-027",
         "PRMO-047"
       ],
-      "abilities": [],
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "offerSummonSelfFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → ถามอัญเชิญตัวเองจากนรก"
     },
     {
       "name": "บัลเดอร์ เทพแสง แห่งแอสการ์ด",
@@ -2370,8 +2421,43 @@
       "codes": [
         "BT06-027"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "dest": "avatar",
+              "paidCost": false,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ],
+                "costMax": 4,
+                "nameNotEquals": "สกัลด์ เทพธิดาแห่งวัลฮัลลา"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดยเทพม่วง/Magic → อัญเชิญเทพธิดาวัลฮัลลา Cost≤4 ที่ไม่ใช่สกัลด์จากนรก"
     },
     {
       "name": "สารวัตร ตำรวจสัมภเวสี",
@@ -2817,8 +2903,33 @@
       "codes": [
         "BT06-028"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → กลับขึ้นมือ"
     },
     {
       "name": "ไอ้ดำ จากนรก",
