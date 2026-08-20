@@ -1,6 +1,7 @@
 {
   "defaultPack": "official",
   "fallbackPack": "official",
+  "sponsorPack": "tinny",
   "packs": [
     {
       "id": "official",
@@ -16,7 +17,7 @@
       "id": "tinny",
       "name": "TINNY",
       "label": "สปอน · TINNY Cafe",
-      "tier": "free",
+      "tier": "sponsor",
       "cardBack": "assets/skins/tinny/card-back.png",
       "lifeBack": "assets/skins/tinny/life-back.png",
       "playmat": "assets/skins/tinny/playmat.png",

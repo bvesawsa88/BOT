@@ -3823,7 +3823,9 @@
     pileView = null; byId('pileView').classList.add('hidden');
     byId('btnInvite').classList.toggle('hidden', mode !== 'online');
     if (window.BotSkins) {
-      const oppSkins = (mode === 'online' && roomSt && roomSt[opp]) ? roomSt[opp].skins : null;
+      let oppSkins = null;
+      if (mode === 'online' && roomSt && roomSt[opp]) oppSkins = roomSt[opp].skins;
+      else if (mode === 'solo' && soloBot) oppSkins = BotSkins.sponsorIds();
       BotSkins.applyMatch(null, oppSkins);
     }
     if (!STREAM) applyOneSide();   // ⬍ ตั้งสนามฝั่งเดียว/สองฝั่งตามโหมด ก่อนวัดขนาดใน onResize
@@ -6002,7 +6004,13 @@
   window.addEventListener('resize', () => { if (st) syncEndTurnUi(); });
   window.addEventListener('orientationchange', () => { setTimeout(() => { if (st) { syncPhaseSlot(); syncEndTurnUi(); } }, 200); });
   // btnStrict ถูกถอดออกจากหน้า (แมนนวล 100%)
-  byId('btnBot').onclick = () => { soloBot = !soloBot; toast(soloBot ? '🤖 เปิดบอท — B เล่นเอง' : 'ปิดบอท — คุณคุมทั้งสองฝั่ง'); render(); scheduleBot(); };
+  byId('btnBot').onclick = () => {
+    soloBot = !soloBot;
+    toast(soloBot ? '🤖 เปิดบอท — B เล่นเอง' : 'ปิดบอท — คุณคุมทั้งสองฝั่ง');
+    if (window.BotSkins) BotSkins.applyMatch(null, soloBot ? BotSkins.sponsorIds() : null);
+    render();
+    scheduleBot();
+  };
   byId('btnChainPass').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainPass', by: mode === 'solo' ? st.chainPri : undefined }); };
   byId('btnChainNegate').onclick = () => { if (st && st.chain && st.chain.length) sendAction({ type: 'chainNegate', by: mode === 'solo' ? st.chainPri : undefined }); };
   const promptBy = () => { const p = st && (st.prompts || [])[0]; return (p && mode === 'solo') ? p.chooser : undefined; };
@@ -6383,14 +6391,132 @@
   const btnFeedbackTop = byId('btnFeedbackTop');
   const btnFeedbackMenu = byId('btnFeedbackMenu');
   if (btnFeedbackTop) btnFeedbackTop.onclick = openFeedback;
-  if (btnFeedbackMenu) btnFeedbackMenu.onclick = openFeedback;
+  if (btnFeedbackMenu) btnFeedbackMenu.onclick = () => { location.href = '/feedback'; };
   const fbClose = byId('fbClose');
   const fbCancel = byId('fbCancel');
   const fbModal = byId('fbModal');
   if (fbClose) fbClose.onclick = closeFeedback;
   if (fbCancel) fbCancel.onclick = closeFeedback;
   if (fbModal) fbModal.addEventListener('click', e => { if (e.target.id === 'fbModal') closeFeedback(); });
+  if (location.hash === '#feedback') {
+    location.replace('/feedback');
+  }
   const fbSend = byId('fbSend');
+  /* ── เลี้ยงกาแฟผู้สร้าง ── */
+  const DONATE_QR_IMG = 'assets/donate-qr.png';
+  let donateAmt = '';
+  function promptPayIdDigits() {
+    const modal = byId('donateModal');
+    return String((modal && modal.getAttribute('data-promptpay')) || '').replace(/\D/g, '');
+  }
+  function trueMoneyUrl() {
+    const modal = byId('donateModal');
+    return (modal && modal.getAttribute('data-truemoney')) || '';
+  }
+  function emvTag(id, value) {
+    const v = String(value);
+    return id + String(v.length).padStart(2, '0') + v;
+  }
+  function crc16ccitt(s) {
+    let crc = 0xFFFF;
+    for (let i = 0; i < s.length; i++) {
+      crc ^= s.charCodeAt(i) << 8;
+      for (let b = 0; b < 8; b++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+    return crc.toString(16).toUpperCase().padStart(4, '0');
+  }
+  function promptPayPayload(id, amount) {
+    const digits = String(id).replace(/\D/g, '');
+    const acc = digits.length === 10 && digits[0] === '0'
+      ? ('0000000000000' + ('66' + digits.slice(1))).slice(-13)
+      : digits;
+    const accTag = acc.length === 13 ? '01' : acc.length === 15 ? '03' : '02';
+    const merchant = emvTag('00', 'A000000677010111') + emvTag(accTag, acc);
+    const amt = amount ? Number(amount).toFixed(2) : '';
+    let p = emvTag('00', '01') + emvTag('01', amt ? '12' : '11') + emvTag('29', merchant)
+      + emvTag('53', '764') + emvTag('58', 'TH');
+    if (amt) p += emvTag('54', amt);
+    p += '6304';
+    return p + crc16ccitt(p);
+  }
+  function formatThaiPhone(id) {
+    if (id.length === 10) return id.slice(0, 3) + '-' + id.slice(3, 6) + '-' + id.slice(6);
+    return id;
+  }
+  function donateQrUrl(amount) {
+    const id = promptPayIdDigits();
+    if (amount && id.length >= 10) {
+      const payload = promptPayPayload(id, amount);
+      return 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&ecc=M&data=' + encodeURIComponent(payload);
+    }
+    return asset(DONATE_QR_IMG);
+  }
+  function refreshDonateUi() {
+    const id = promptPayIdDigits();
+    const pretty = id ? formatThaiPhone(id) : '—';
+    const tmn = trueMoneyUrl();
+    document.querySelectorAll('.donate-id-text').forEach(el => { el.textContent = pretty; });
+    document.querySelectorAll('.donate-id-row, .donate-amts').forEach(el => {
+      el.classList.toggle('hidden', !id);
+    });
+    document.querySelectorAll('.donate-tmn').forEach(a => {
+      if (tmn) { a.href = tmn; a.classList.remove('hidden'); }
+      else a.classList.add('hidden');
+    });
+    document.querySelectorAll('.donate-amt').forEach(btn => {
+      btn.classList.toggle('on', (btn.getAttribute('data-amt') || '') === donateAmt);
+    });
+    const src = donateQrUrl(donateAmt);
+    document.querySelectorAll('.donate-qr-wrap').forEach(wrap => {
+      const img = wrap.querySelector('img.donate-qr');
+      if (!img) return;
+      const show = () => { wrap.classList.add('has-qr'); img.classList.remove('hidden'); };
+      const hide = () => { wrap.classList.remove('has-qr'); img.classList.add('hidden'); };
+      img.onload = show;
+      img.onerror = () => {
+        if (img.src.indexOf('donate-qr.png') === -1) img.src = asset(DONATE_QR_IMG);
+        else hide();
+      };
+      img.src = src;
+    });
+  }
+  function openDonate() {
+    donateAmt = '';
+    refreshDonateUi();
+    const modal = byId('donateModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+  function closeDonate() {
+    const modal = byId('donateModal');
+    if (modal) modal.classList.add('hidden');
+  }
+  function copyDonateId() {
+    const id = promptPayIdDigits();
+    if (!id) { toast('ยังไม่มีเลขพร้อมเพย์'); return; }
+    (navigator.clipboard ? navigator.clipboard.writeText(id) : Promise.reject()).then(
+      () => toast('คัดลอกพร้อมเพย์แล้ว'),
+      () => toast('พร้อมเพย์: ' + formatThaiPhone(id), 5000));
+  }
+  const btnDonateMenu = byId('btnDonateMenu');
+  const btnDonateTop = byId('btnDonateTop');
+  if (btnDonateMenu) btnDonateMenu.onclick = openDonate;
+  if (btnDonateTop) btnDonateTop.onclick = openDonate;
+  const donateClose = byId('donateClose');
+  const donateDone = byId('donateDone');
+  const donateModal = byId('donateModal');
+  if (donateClose) donateClose.onclick = closeDonate;
+  if (donateDone) donateDone.onclick = closeDonate;
+  if (donateModal) donateModal.addEventListener('click', e => { if (e.target.id === 'donateModal') closeDonate(); });
+  document.querySelectorAll('.donate-copy').forEach(btn => { btn.onclick = copyDonateId; });
+  document.querySelectorAll('.donate-amt').forEach(btn => {
+    btn.onclick = () => { donateAmt = btn.getAttribute('data-amt') || ''; refreshDonateUi(); };
+  });
+  refreshDonateUi();
+  if (location.hash === '#donate') {
+    openDonate();
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { location.hash = ''; }
+  }
+
   if (fbSend) fbSend.onclick = () => {
     const textEl = byId('fbText');
     const msg = byId('fbMsg');
@@ -6413,8 +6539,8 @@
     if (msg) msg.textContent = 'กำลังส่ง…';
     fetch('/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(() => { if (msg) msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ!'; if (textEl) textEl.value = ''; setTimeout(closeFeedback, 1200); })
-      .catch(() => { if (msg) msg.textContent = '✗ ส่งจากเว็บไม่สำเร็จ — กดลิงก์ Discord ด้านล่างได้เลย'; })
+      .then(() => { if (msg) msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ! รายงานถูกบันทึกบนเว็บแล้ว'; if (textEl) textEl.value = ''; })
+      .catch(() => { if (msg) msg.textContent = '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง'; })
       .finally(() => { fbSend.disabled = false; });
   };
 

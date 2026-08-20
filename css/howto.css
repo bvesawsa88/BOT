@@ -31,6 +31,15 @@
 .hw-tag.closed{background:rgba(176,51,40,.16);border-color:rgba(224,72,60,.38);color:#ffb3ab}
 .hw-pre{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:12px 15px;font-size:12.5px;line-height:1.7;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--cream2)}
 .hw-foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--cream2)}
+.hw-donate{
+  display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;margin-top:8px
+}
+.hw-donate-meta{flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.hw-donate .donate-id-row,.hw-donate .donate-amts{justify-content:flex-start}
+.hw-donate .donate-qr-wrap{flex:none}
+.hw-donate .donate-tmn{align-self:flex-start}
 @media (max-width:860px){
   .hw-main{flex-direction:column;padding:0 14px 50px}
   .hw-nav{position:static;width:100%;flex-direction:row;flex-wrap:wrap;padding:12px 0;gap:6px}

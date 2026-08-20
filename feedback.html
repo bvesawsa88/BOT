@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🐞 เจอบัคโปรดแจ้ง — Battle of Talingchan</title>
+  <link rel="stylesheet" href="css/style.css?v=20260820">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: radial-gradient(ellipse at 50% 0%, #2a1810 0%, var(--bg) 55%);
+      font-family: 'Sarabun', sans-serif;
+    }
+    .fb-page { width: 100%; max-width: 520px; }
+    .fb-back {
+      display: inline-block;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--cream2);
+      text-decoration: none;
+    }
+    .fb-back:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="fb-page">
+    <a class="fb-back" href="/">← กลับหน้าโฮม</a>
+    <div class="fb-card">
+      <div class="fb-head">
+        <div>
+          <div class="fb-title">🐞 เจอบัคโปรดแจ้ง</div>
+          <div class="fb-sub">เจออะไรผิด เล่นแล้วงงตรงไหน หรืออยากให้ปรับอะไร — พิมพ์บอกได้เลย</div>
+        </div>
+      </div>
+      <div class="fb-body">
+        <label class="fb-label" for="fbText">รายละเอียด (เจอที่การ์ด/จังหวะไหน จะช่วยให้แก้ตรงจุด)</label>
+        <textarea id="fbText" spellcheck="false" placeholder="เช่น: การ์ด X ตอนอัญเชิญแล้วเอฟเฟกต์ไม่ทำงาน / ปุ่ม Y กดแล้วไม่มีอะไรเกิด / อยากให้ตรงนี้เข้าใจง่ายกว่านี้…"></textarea>
+        <div id="fbMsg" class="fb-msg"></div>
+      </div>
+      <div class="fb-foot">
+        <a href="/" class="btn-dark" style="flex:1;padding:11px;font-size:14px;border-radius:9px;text-align:center;text-decoration:none;line-height:1.4">ปิด</a>
+        <button type="button" id="fbSend" class="btn-primary" style="flex:1">ส่ง</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('fbSend').onclick = function () {
+      var textEl = document.getElementById('fbText');
+      var msg = document.getElementById('fbMsg');
+      var btn = document.getElementById('fbSend');
+      var text = (textEl.value || '').trim();
+      if (!text) { msg.textContent = '✗ พิมพ์รายละเอียดก่อนส่งนะครับ'; return; }
+      var payload = {
+        text: text,
+        screen: 'feedback',
+        mode: 'page',
+        url: location.href,
+        ua: navigator.userAgent
+      };
+      btn.disabled = true;
+      msg.textContent = 'กำลังส่ง…';
+      fetch('/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); })
+        .then(function () {
+          msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ! รายงานถูกบันทึกบนเว็บแล้ว';
+          textEl.value = '';
+        })
+        .catch(function () {
+          msg.textContent = '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง';
+        })
+        .finally(function () { btn.disabled = false; });
+    };
+    document.getElementById('fbText').focus();
+  </script>
+</body>
+</html>

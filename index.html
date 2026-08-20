@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820u">
+<link rel="stylesheet" href="css/style.css?v=20260820y">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -41,6 +41,7 @@
     <button id="mnuDeck" class="btn-dark big">เด็คของฉัน</button>
     <button id="mnuGallery" class="btn-dark big">ดูการ์ด / เปิดซอง</button>
     <button id="mnuHowTo" class="btn-dark big">📖 วิธีเล่น / วิธีจัดเด็ค</button>
+    <button type="button" id="btnDonateMenu" class="btn-donate">☕ เลี้ยงกาแฟผู้สร้าง</button>
     <div class="menu-links">
       <button type="button" id="btnFeedbackMenu" class="link-btn">🐞 เจอบัคโปรดแจ้ง</button>
       <a class="link-btn" href="https://discord.gg/azuWHDp65" target="_blank" rel="noopener noreferrer">💬 แจ้งใน Discord</a>
@@ -390,6 +391,7 @@
       <a href="#hw-real">8 · เล่นกับการ์ดจริง</a>
       <a href="#hw-keys">9 · คีย์ลัด</a>
       <a href="#hw-bug">เจอบัคโปรดแจ้ง</a>
+      <a href="#hw-donate">เลี้ยงกาแฟผู้สร้าง</a>
     </nav>
     <article class="hw-body">
 
@@ -622,7 +624,34 @@
 
       <section id="hw-bug">
         <h2>เจอบัคโปรดแจ้ง</h2>
-        <p>เจออะไรผิด เล่นแล้วงง หรืออยากให้ปรับตรงไหน — กด <b>🐞 เจอบัคโปรดแจ้ง</b> ได้ทั้งในเมนูหลักและบนโต๊ะ หรือคุยใน <a href="https://discord.gg/azuWHDp65" target="_blank" rel="noopener noreferrer">กลุ่ม Discord</a></p>
+        <p>เจออะไรผิด เล่นแล้วงง หรืออยากให้ปรับตรงไหน — กด <b>🐞 เจอบัคโปรดแจ้ง</b> ส่งผ่านเว็บ (อยู่บนเว็บ) หรือกด <b>💬 แจ้งใน Discord</b> เพื่อเข้ากลุ่ม <a href="https://discord.gg/azuWHDp65" target="_blank" rel="noopener noreferrer">Discord</a></p>
+      </section>
+
+      <section id="hw-donate">
+        <h2>☕ เลี้ยงกาแฟผู้สร้าง</h2>
+        <p>โต๊ะนี้เล่นฟรี — ถ้าถูกใจช่วยเลี้ยงกาแฟผู้สร้างได้ตามใจ ไม่มีขั้นต่ำ</p>
+        <div class="hw-donate">
+          <div class="donate-qr-wrap">
+            <div class="donate-qr-ph" aria-hidden="true">☕</div>
+            <img class="donate-qr hidden" alt="QR พร้อมเพย์ เลี้ยงกาแฟผู้สร้าง" width="220">
+          </div>
+          <div class="hw-donate-meta">
+            <div class="donate-id-row">
+              <span class="donate-id-lab">พร้อมเพย์</span>
+              <b class="donate-id-text"></b>
+              <button type="button" class="btn-mini donate-copy">คัดลอก</button>
+            </div>
+            <div class="donate-amts" role="group" aria-label="จำนวนเงิน">
+              <button type="button" class="donate-amt on" data-amt="">ตามใจ</button>
+              <button type="button" class="donate-amt" data-amt="20">฿20</button>
+              <button type="button" class="donate-amt" data-amt="50">฿50</button>
+              <button type="button" class="donate-amt" data-amt="99">฿99</button>
+              <button type="button" class="donate-amt" data-amt="200">฿200</button>
+            </div>
+            <a class="donate-tmn" href="https://tmn.app.link/tkD1vtAoK5b" target="_blank" rel="noopener noreferrer">เปิด TrueMoney Wallet</a>
+            <p class="donate-note">สแกน QR จากแอปธนาคาร / พร้อมเพย์ หรือกดเปิด TrueMoney — เลือกจำนวนด้านบนได้</p>
+          </div>
+        </div>
       </section>
 
     </article>
@@ -649,6 +678,7 @@
       <button id="btnBot" class="btn-mini hidden"></button>
       <button id="btnRematchTop" class="btn-mini">รีแมตช์</button>
       <button id="btnHowToTop" class="btn-mini" title="เปิดคู่มือวิธีเล่น (แท็บใหม่)">📖 วิธีเล่น</button>
+      <button type="button" id="btnDonateTop" class="btn-mini" title="เลี้ยงกาแฟผู้สร้าง">☕ เลี้ยงกาแฟ</button>
       <button id="btnFeedbackTop" class="btn-mini" title="เจอบัคโปรดแจ้ง">🐞 เจอบัคโปรดแจ้ง</button>
       <button id="btnFull" class="btn-mini" title="สลับเต็มจอ (กด F)">⛶ เต็มจอ</button>
       <button id="btnClean" class="btn-mini" title="ซ่อน/แสดง UI สำหรับถ่ายรูป/สตรีม (กด H)">🖼 ซ่อน UI</button>
@@ -860,12 +890,12 @@
     <div class="dc-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
       <div>
         <div class="dc-title">สกินโต๊ะ</div>
-        <div class="dc-sub">เลือกชุดทั้งโต๊ะ หรือปรับทีละช่อง · นำเข้าไฟล์ได้ตอนล็อกอิน</div>
+        <div class="dc-sub">ธรรมดา = ชุดทางการ · Custom ยังไม่พร้อมใช้งาน · บอทใช้สกินสปอนเซอร์</div>
       </div>
       <button type="button" id="skinModalClose" class="dc-x">✕</button>
     </div>
     <div id="skinSlots" class="skin-slots"></div>
-    <p class="skin-import-hint">TINNY เป็นชุดสปอนตัวอย่าง · ธรรมดาคือชุดทางการ Battle of Talingchan</p>
+    <p class="skin-import-hint">ธรรมดา = ชุดทางการ · Custom ยังไม่พร้อมใช้งาน · ฝั่งบอทใช้ชุดสปอนเซอร์เสมอ</p>
     <button type="button" id="skinModalDone" class="btn-primary big">ใช้สกินนี้</button>
   </div>
 </div>
@@ -1092,11 +1122,46 @@
       <textarea id="fbText" spellcheck="false" placeholder="เช่น: การ์ด X ตอนอัญเชิญแล้วเอฟเฟกต์ไม่ทำงาน / ปุ่ม Y กดแล้วไม่มีอะไรเกิด / อยากให้ตรงนี้เข้าใจง่ายกว่านี้…"></textarea>
       <label class="fb-check"><input type="checkbox" id="fbIncludeLog" checked> แนบสถานะเกม + log ล่าสุด (ช่วยให้ผมหาบั๊กเจอเร็วขึ้น)</label>
       <div id="fbMsg" class="fb-msg"></div>
-      <a class="fb-discord" href="https://discord.gg/azuWHDp65" target="_blank" rel="noopener noreferrer">💬 หรือแจ้งในกลุ่ม Discord</a>
     </div>
     <div class="fb-foot">
       <button type="button" id="fbCancel" class="btn-dark">ปิด</button>
       <button type="button" id="fbSend" class="btn-primary">ส่ง</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal เลี้ยงกาแฟผู้สร้าง — ใส่เบอร์พร้อมเพย์ที่ data-promptpay -->
+<div id="donateModal" class="hidden" data-promptpay="0943951918" data-truemoney="https://tmn.app.link/tkD1vtAoK5b">
+  <div class="fb-card donate-card">
+    <div class="fb-head">
+      <div>
+        <div class="fb-title">☕ เลี้ยงกาแฟผู้สร้าง</div>
+        <div class="fb-sub">โต๊ะนี้เล่นฟรี — ถ้าถูกใจช่วยเลี้ยงกาแฟได้ตามใจ ไม่มีขั้นต่ำ</div>
+      </div>
+      <button type="button" id="donateClose" class="fb-x" aria-label="ปิด">✕</button>
+    </div>
+    <div class="fb-body donate-body">
+      <div class="donate-qr-wrap">
+        <div class="donate-qr-ph" aria-hidden="true">☕</div>
+        <img class="donate-qr hidden" alt="QR พร้อมเพย์ เลี้ยงกาแฟผู้สร้าง" width="220">
+      </div>
+      <div class="donate-id-row">
+        <span class="donate-id-lab">พร้อมเพย์</span>
+        <b class="donate-id-text"></b>
+        <button type="button" class="btn-mini donate-copy">คัดลอก</button>
+      </div>
+      <div class="donate-amts" role="group" aria-label="จำนวนเงิน">
+        <button type="button" class="donate-amt on" data-amt="">ตามใจ</button>
+        <button type="button" class="donate-amt" data-amt="20">฿20</button>
+        <button type="button" class="donate-amt" data-amt="50">฿50</button>
+        <button type="button" class="donate-amt" data-amt="99">฿99</button>
+        <button type="button" class="donate-amt" data-amt="200">฿200</button>
+      </div>
+      <a class="donate-tmn" href="https://tmn.app.link/tkD1vtAoK5b" target="_blank" rel="noopener noreferrer">เปิด TrueMoney Wallet</a>
+      <p class="donate-note">สแกน QR จากแอปธนาคาร / พร้อมเพย์ หรือกดเปิด TrueMoney — ขอบคุณที่เลี้ยงกาแฟ</p>
+    </div>
+    <div class="fb-foot">
+      <button type="button" id="donateDone" class="btn-primary">ปิด</button>
     </div>
   </div>
 </div>
@@ -1121,11 +1186,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260818l"></script>
-<script src="js/skins.js?v=20260816a"></script>
+<script src="js/util.js?v=20260820y"></script>
+<script src="js/skins.js?v=20260820w"></script>
 <script src="js/carddb.js?v=20260818d"></script>
 <script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260820b"></script>
+<script src="js/game.js?v=20260820g"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>

@@ -10,6 +10,7 @@
   let catalog = {
     defaultPack: 'official',
     fallbackPack: 'official',
+    sponsorPack: 'tinny',
     packs: [
       {
         id: 'official', name: 'ธรรมดา', label: 'ทางการ Battle of Talingchan', tier: 'free',
@@ -19,7 +20,7 @@
         playmatOpp: 'assets/mat-a.png'
       },
       {
-        id: 'tinny', name: 'TINNY', label: 'สปอน · TINNY Cafe', tier: 'free',
+        id: 'tinny', name: 'TINNY', label: 'สปอน · TINNY Cafe', tier: 'sponsor',
         cardBack: 'assets/skins/tinny/card-back.png',
         lifeBack: 'assets/skins/tinny/life-back.png',
         playmat: 'assets/skins/tinny/playmat.png',
@@ -45,13 +46,32 @@
   function fallbackPack() {
     return packById(catalog.fallbackPack) || packById('official') || packs()[0] || null;
   }
-  function defaultSel() {
-    const id = catalog.defaultPack || 'official';
-    return { cardBack: id, lifeBack: id, playmat: id };
-  }
   function officialId() {
     const d = fallbackPack();
     return d ? d.id : 'official';
+  }
+  function sponsorPackId() {
+    return catalog.sponsorPack || 'tinny';
+  }
+  function playerPacks() {
+    const sid = sponsorPackId();
+    return packs().filter(p => p.tier !== 'shop' && p.tier !== 'sponsor' && p.id !== sid);
+  }
+  function isPlayerSlot(id) {
+    if (id === 'custom') return true;
+    const p = packById(id);
+    if (!p) return false;
+    if (p.tier === 'shop' || p.tier === 'sponsor') return false;
+    if (p.id === sponsorPackId()) return false;
+    return true;
+  }
+  function clampSlot(id) {
+    const s = String(id || '');
+    return isPlayerSlot(s) ? s : officialId();
+  }
+  function defaultSel() {
+    const id = clampSlot(catalog.defaultPack || 'official');
+    return { cardBack: id, lifeBack: id, playmat: id };
   }
   function readSel() {
     try {
@@ -59,13 +79,21 @@
       if (raw && typeof raw === 'object') {
         const d = defaultSel();
         return {
-          cardBack: String(raw.cardBack || d.cardBack),
-          lifeBack: String(raw.lifeBack || d.lifeBack),
-          playmat: String(raw.playmat || d.playmat)
+          cardBack: clampSlot(raw.cardBack || d.cardBack),
+          lifeBack: clampSlot(raw.lifeBack || d.lifeBack),
+          playmat: clampSlot(raw.playmat || d.playmat)
         };
       }
     } catch (e) { }
     return defaultSel();
+  }
+  function sponsorIds() {
+    const id = packById(sponsorPackId()) ? sponsorPackId() : officialId();
+    return { cardBack: id, lifeBack: id, playmat: id };
+  }
+  function hasAnyCustom() {
+    const c = readCustom();
+    return SLOTS.some(slot => !!c[slot]);
   }
   function writeSel(sel) {
     try { localStorage.setItem(KEY, JSON.stringify(sel)); } catch (e) { }
@@ -152,13 +180,18 @@
     };
   }
   function setPack(id) {
+    if (id === 'custom') {
+      writeSel({ cardBack: 'custom', lifeBack: 'custom', playmat: 'custom' });
+      applyLocal();
+      return;
+    }
     const p = packById(id);
-    if (!p || p.tier === 'shop') return;
+    if (!p || p.tier === 'shop' || p.tier === 'sponsor') return;
     writeSel({ cardBack: id, lifeBack: id, playmat: id });
     applyLocal();
   }
   function setSlot(slot, id) {
-    if (!SLOTS.includes(slot)) return;
+    if (!SLOTS.includes(slot) || !isPlayerSlot(id)) return;
     const sel = readSel();
     sel[slot] = id;
     writeSel(sel);
@@ -225,19 +258,24 @@
   function mountHtml() {
     const sel = readSel();
     const active = packMatch(sel);
-    const btns = packs().filter(p => p.tier !== 'shop').map(p =>
+    const btns = playerPacks().map(p =>
       `<button type="button" class="skin-pack-btn${active === p.id ? ' on' : ''}" data-skin-pack="${p.id}">
         <img src="${p.cardBack}" alt="">
         <span>${p.name}</span>
       </button>`
     ).join('');
+    const customSrc = thumbFor('cardBack', 'custom');
     return `<div class="skin-setup">
       <div class="menu-deck-lab">สกินโต๊ะ</div>
       <div class="skin-pack-row">
         ${btns}
-        <button type="button" class="skin-pack-btn skin-pack-more" data-skin-customize>ปรับแต่ง</button>
+        <button type="button" class="skin-pack-btn locked" data-skin-pack="custom" title="ยังไม่พร้อมใช้งาน" aria-disabled="true">
+          <img src="${customSrc}" alt="">
+          <span>Custom</span>
+          <span class="skin-soon">ยังไม่พร้อมใช้งาน</span>
+        </button>
       </div>
-      <p class="skin-note">TINNY = สปอนเซอร์ · ธรรมดา = ชุดทางการ · นำเข้าไฟล์ได้ตอนล็อกอิน</p>
+      <p class="skin-note">ธรรมดา = ชุดทางการ · Custom ยังไม่พร้อมใช้งาน · บอทใช้สกินสปอนเซอร์เสมอ</p>
     </div>`;
   }
   function syncMounts() {
@@ -251,7 +289,7 @@
     if (!body) return;
     const sel = readSel();
     body.innerHTML = SLOTS.map(slot => {
-      const chips = packs().filter(p => p.tier !== 'shop').map(p => {
+      const chips = playerPacks().map(p => {
         const src = slot === 'playmat' ? (p.playmat || p.cardBack) : p[slot];
         const extra = slot === 'playmat' ? ' skin-chip-mat' : '';
         return `<button type="button" class="skin-chip${extra}${sel[slot] === p.id ? ' on' : ''}" data-skin-slot="${slot}" data-skin-id="${p.id}">
@@ -287,7 +325,9 @@
   document.addEventListener('click', (e) => {
     const packBtn = e.target.closest('[data-skin-pack]');
     if (packBtn) {
-      setPack(packBtn.getAttribute('data-skin-pack'));
+      const id = packBtn.getAttribute('data-skin-pack');
+      if (id === 'custom') return;
+      setPack(id);
       return;
     }
     if (e.target.closest('[data-skin-customize]')) { openModal(); return; }
@@ -314,7 +354,7 @@
     } catch (e) { }
     if (!catalog.packs || !catalog.packs.length) {
       catalog = {
-        defaultPack: 'official', fallbackPack: 'official',
+        defaultPack: 'official', fallbackPack: 'official', sponsorPack: 'tinny',
         packs: [{
           id: 'official', name: 'ธรรมดา', tier: 'free',
           cardBack: 'assets/card-back.png',
@@ -324,6 +364,7 @@
         }]
       };
     }
+    if (!catalog.sponsorPack) catalog.sponsorPack = 'tinny';
     applyLocal();
     return catalog;
   }
@@ -332,7 +373,7 @@
   else load();
 
   root.BotSkins = {
-    load, apply: applyLocal, applyMatch, exportIds, setPack, setSlot,
+    load, apply: applyLocal, applyMatch, exportIds, setPack, setSlot, sponsorIds,
     setLoggedIn(on) { loggedIn = !!on; },
     setOnNeedLogin(fn) { onNeedLogin = fn; },
     openModal, closeModal, selected: readSel, catalog: () => catalog

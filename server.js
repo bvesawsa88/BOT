@@ -4,9 +4,11 @@ const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
 
-const PORT = 3000;
+const PORT = +(process.env.PORT || 3000);
 const ROOT = __dirname;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
+const FEEDBACK_LOG = path.join(ROOT, 'data', 'feedback-log.json');
+const FEEDBACK_MAX = 500;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -34,11 +36,130 @@ function lanIPs() {
   return out;
 }
 
+function readBody(req, limit) {
+  const max = limit || 65536;
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > max) { reject(new Error('body too large')); req.destroy(); return; }
+      chunks.push(chunk);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
+}
+
+function json(res, code, obj) {
+  const body = JSON.stringify(obj);
+  res.writeHead(code, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-store',
+  });
+  res.end(body);
+}
+
+function clip(s, n) {
+  const t = String(s == null ? '' : s);
+  return t.length <= n ? t : t.slice(0, n - 1) + '…';
+}
+
+function saveFeedback(entry) {
+  return new Promise((resolve, reject) => {
+    fs.mkdir(path.dirname(FEEDBACK_LOG), { recursive: true }, (err) => {
+      if (err) { reject(err); return; }
+      fs.readFile(FEEDBACK_LOG, 'utf8', (err2, raw) => {
+        let list = [];
+        if (!err2 && raw) {
+          try {
+            list = JSON.parse(raw);
+            if (!Array.isArray(list)) list = [];
+          } catch (e) { list = []; }
+        }
+        list.push(entry);
+        if (list.length > FEEDBACK_MAX) list = list.slice(-FEEDBACK_MAX);
+        fs.writeFile(FEEDBACK_LOG, JSON.stringify(list, null, 2), 'utf8', (err3) => {
+          if (err3) reject(err3);
+          else resolve(list.length);
+        });
+      });
+    });
+  });
+}
+
+async function handleFeedback(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Cache-Control': 'no-store',
+    });
+    res.end();
+    return;
+  }
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    fs.readFile(path.join(ROOT, 'feedback.html'), (err, data) => {
+      if (err) {
+        res.writeHead(302, { Location: '/feedback', 'Cache-Control': 'no-store' });
+        res.end();
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store',
+      });
+      if (req.method === 'HEAD') res.end();
+      else res.end(data);
+    });
+    return;
+  }
+  if (req.method !== 'POST') {
+    json(res, 405, { ok: false, m: 'method not allowed' });
+    return;
+  }
+  try {
+    const raw = await readBody(req);
+    let body;
+    try { body = JSON.parse(raw || '{}'); } catch (e) { json(res, 400, { ok: false, m: 'invalid json' }); return; }
+    const text = String(body.text || '').trim();
+    if (!text) { json(res, 400, { ok: false, m: 'empty text' }); return; }
+    const entry = {
+      id: Date.now().toString(36) + crypto.randomBytes(3).toString('hex'),
+      at: new Date().toISOString(),
+      text: clip(text, 4000),
+      screen: clip(body.screen || '', 64),
+      mode: clip(body.mode || '', 64),
+      room: clip(body.room || '', 64),
+      url: clip(body.url || '', 512),
+      ua: clip(body.ua || '', 512),
+    };
+    if (body.turn != null) entry.turn = body.turn;
+    if (body.phase != null) entry.phase = body.phase;
+    if (body.active != null) entry.active = body.active;
+    if (Array.isArray(body.log)) entry.log = body.log.slice(-20);
+    if (body.zones && typeof body.zones === 'object') entry.zones = body.zones;
+    await saveFeedback(entry);
+    console.log('[feedback] saved', entry.id);
+    json(res, 200, { ok: true, id: entry.id });
+  } catch (e) {
+    console.error('[feedback]', e.message || e);
+    json(res, 500, { ok: false, m: 'save failed' });
+  }
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
   let urlPath = req.url.split('?')[0];
+  if (urlPath === '/feedback') {
+    handleFeedback(req, res);
+    return;
+  }
   if (urlPath === '/') urlPath = '/index.html';
 
   const filePath = path.join(ROOT, urlPath);
@@ -392,5 +513,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`   (ไม่พบ IP วง LAN — ตรวจ Wi‑Fi)`);
   }
   console.log(`   ล็อบบี้ท้าสู้: WebSocket /lan`);
+  console.log(`   แจ้งบัค: GET/POST /feedback → เก็บใน data/feedback-log.json`);
   console.log(`   Press Ctrl+C to stop.\n`);
 });
