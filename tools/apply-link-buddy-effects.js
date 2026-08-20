@@ -105,7 +105,34 @@ const BY_SET = {
         {
           keyword: 'จุติ',
           trigger: { on: 'summoned', if: 'paidCost' },
-          actions: [{ op: 'draw', count: 1, player: 'owner' }]
+          actions: [{
+            op: 'chooseMode',
+            optional: false,
+            options: [
+              {
+                label: 'เมย์จากมิติมืดกลับเด็ค แล้วสับ จั่ว 1',
+                actions: [{
+                  op: 'darkPick',
+                  dest: 'deck',
+                  shuffleAfter: true,
+                  optional: true,
+                  filter: { nameIncludes: ['เมย์ แวมไพร์โกธิค'] },
+                  then: [{ op: 'draw', count: 1, player: 'owner' }]
+                }]
+              },
+              {
+                label: 'อาวุธของเพมมุจากนรกกลับเด็ค แล้วสับ จั่ว 1',
+                actions: [{
+                  op: 'hellPick',
+                  dest: 'deck',
+                  shuffleAfter: true,
+                  optional: true,
+                  filter: { nameIncludes: ['อาวุธของเพมมุ'] },
+                  then: [{ op: 'draw', count: 1, player: 'owner' }]
+                }]
+              }
+            ]
+          }]
         },
         {
           keyword: 'ต่อเนื่อง',
@@ -125,8 +152,8 @@ const BY_SET = {
           }]
         }
       ],
-      parseStatus: 'partial',
-      note: 'ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่อยู่ในสถานะ Link POWER +2 · จุติยังคืนเด็คไม่ครบ (จั่ว 1)'
+      parseStatus: 'auto',
+      note: 'จุติ: เลือกเมย์จากมิติมืด หรืออาวุธของเพมมุจากนรก กลับเด็คแล้วสับ จากนั้นจั่ว 1 · ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่ Link แล้ว POWER +2'
     },
     'BT09-025': {
       code: 'BT09-025',

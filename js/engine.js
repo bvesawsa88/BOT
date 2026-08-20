@@ -4909,11 +4909,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       } else if (ac.op === 'darkPick') {
         const p = {
           kind: 'pick', from: 'dark', src: ctx.src, chooser: ctx.owner, filter: ac.filter || {},
-          dest: ac.dest || 'deck', shuffleAfter: !!ac.shuffleAfter, optional: true,
+          dest: ac.dest || 'deck', shuffleAfter: !!ac.shuffleAfter, optional: ac.optional != null ? !!ac.optional : true,
           hostFilter: ac.hostFilter || ac.attachToFilter || null,
           preferHost: ac.preferHost === 'self' ? ctx.src : (ac.preferHost || null),
           thenBuffHost: ac.thenBuffHost || null, thenUntap: !!ac.thenUntap,
           countsAsModification: !!ac.countsAsModification,
+          then: ac.then || null,
           onceTag: ctx.onceTag || null
         };
         if (promptCandidates(st, p).length) {
@@ -4922,6 +4923,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         } else {
           addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในมิติมืด — นับว่าใช้ไปแล้ว`);
           if (ac.countsAsModification || p.countsAsModification) consumeCountsAsModification(st, ctx.owner);
+          if (ac.then && ac.then.length) runActions(st, fx, ac.then, { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
         }
       } else if (ac.op === 'exileAttachedThenAttachFromDark') {
         const host = ctx.src;
@@ -6321,6 +6323,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (ac.optional === false) {
             ctx._abortActions = true;
             if (ctx.onceTag) unclaimOncePerTurn(st, ctx.src, ctx.onceTag);
+          } else if (ac.then && ac.then.length) {
+            runActions(st, fx, ac.then, { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
           }
         }
       } else if (ac.op === 'summon') {
@@ -9930,6 +9934,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           addLog(st, p.chooser, `ข้ามการเลือกเป้าของ ${nameOf(st, p.src)}${(p.countsAsModification || p.onceTag) ? ' — นับว่าใช้ไปแล้วในเทิร์นนี้' : ''}`);
           if (p.kind === 'pick' && p.from === 'ids') unlockScoutIds(st, p.ids || []);
           if (p.shuffleAfter) { seededShuffle(st.zones[p.chooser + '.deck'], rng); addLog(st, p.chooser, 'สับเด็ค'); }
+          if (p.then && p.then.length) runActions(st, fx, p.then, { src: p.src, owner: p.chooser, rng });
         }
         if (p.srcToHell && zoneOf(st, p.src)) doMove(st, p.src, p.chooser + '.hell', null, fx);
         break;
