@@ -208,9 +208,10 @@ function writeCategories(byName) {
     b.entries.sort((a, b2) => a.name.localeCompare(b2.name, 'th'));
   });
   fs.mkdirSync(ABIL_DIR, { recursive: true });
-  // ล้างไฟล์เก่าในโฟลเดอร์ abilities (เฉพาะ .json)
-  fs.readdirSync(ABIL_DIR).filter(f => f.endsWith('.json')).forEach(f => {
-    fs.unlinkSync(path.join(ABIL_DIR, f));
+  // ล้างไฟล์เก่าที่ไม่อยู่ใน buckets
+  const neededFiles = new Set(Object.keys(buckets).map(f => f + '.json'));
+  fs.readdirSync(ABIL_DIR).filter(f => f.endsWith('.json') && !neededFiles.has(f)).forEach(f => {
+    try { fs.unlinkSync(path.join(ABIL_DIR, f)); } catch (e) { /* ignore busy */ }
   });
   Object.keys(buckets).sort().forEach(file => {
     saveJson(path.join(ABIL_DIR, file + '.json'), buckets[file]);

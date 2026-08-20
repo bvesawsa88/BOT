@@ -208,16 +208,41 @@
       "code": "BT09-008",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "damageLife",
-              "count": 1,
-              "target": "enemy"
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "self",
+                "requireAttached": true
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "deck",
+              "host": "self",
+              "shuffleAfter": true,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธของเพมมุ"
+                ]
+              }
             }
           ]
         }
@@ -225,7 +250,7 @@
       "parseStatus": "auto",
       "name": "เพมมุ ยอดมนุษย์",
       "hostAttachNameIncludes": "อาวุธของเพมมุ",
-      "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
+      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
     },
     {
       "code": "BT09-009",
@@ -267,28 +292,43 @@
         {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activated"
+            "on": "ownAvatarFights"
           },
+          "requireFighterNameAny": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
+          "requireOwnDarkNameMissing": "เมย์ แวมไพร์โกธิค",
           "cost": [
             {
-              "op": "discard",
-              "from": "hand",
-              "count": 1,
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              }
+              "op": "exileSelf"
             }
           ],
           "actions": [
             {
-              "op": "destroy",
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
               "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
+                "select": "combatOwn"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireOwnNameIncludes": "เจ้าหญิงรวงข้าว",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "layer": 3,
+              "target": {
+                "select": "self"
               }
             }
           ]
@@ -297,7 +337,7 @@
       "parseStatus": "auto",
       "name": "เมย์ แวมไพร์โกธิค",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> ทำลาย Avatar ศัตรู 1 ใบ"
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
     },
     {
       "code": "BT09-011",
@@ -504,7 +544,7 @@
             "on": "ownAvatarLeftField"
           },
           "cost": {
-            "discardGemSumExact": 3
+            "discardGemSum": 3
           },
           "actions": [
             {

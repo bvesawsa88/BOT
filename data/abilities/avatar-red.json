@@ -176,22 +176,54 @@
       ],
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
           "trigger": {
-            "on": "destroyed"
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "โกเอมอน นินจาจอมโจร",
+          "allowBattleIfFaceUpLifeMin": 3,
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "โกเอมอน นินจาจอมโจร"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
           },
           "actions": [
             {
-              "op": "scout",
-              "count": 3,
-              "filter": {
-                "nameIncludes": [
-                  "ทหารหิมะ"
-                ]
-              },
-              "dest": "hand",
-              "pickCount": 1,
-              "restTo": "bottom"
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "trigger": {
+                    "on": "lifeRevealedByAttack"
+                  },
+                  "actions": [
+                    {
+                      "op": "oppHellPick",
+                      "filter": {
+                        "type": "Magic",
+                        "subtypes": [
+                          "Normal",
+                          "Modification"
+                        ]
+                      },
+                      "optional": true,
+                      "thenDiscard": 1
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -1207,29 +1239,24 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": -2,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
+              "op": "draw",
+              "count": 1,
+              "player": "opp"
+            },
+            {
+              "op": "oppHandToDeckTop"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : เลือก Avatar ฝ่ายตรงข้าม 1 ใบ POWER -2"
+      "note": "ศัตรูจั่ว 1 → เลือกใบจากมือศัตรูวางบนสุดเด็ค"
     },
     {
       "name": "ตำรวจเอไอ มุเค",
@@ -2995,23 +3022,48 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "damageLife",
-              "count": 1,
-              "target": "enemy"
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 3,
+              "target": {
+                "select": "self",
+                "requireAttached": true
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "countsAsModification": true,
+          "actions": [
+            {
+              "op": "attach",
+              "from": "deck",
+              "host": "self",
+              "shuffleAfter": true,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธของเพมมุ"
+                ]
+              }
             }
           ]
         }
       ],
       "hostAttachNameIncludes": "อาวุธของเพมมุ",
       "parseStatus": "auto",
-      "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
+      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
     },
     {
       "name": "ฟูมะ นินจาแห่งสายลม",
@@ -3332,28 +3384,43 @@
         {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activated"
+            "on": "ownAvatarFights"
           },
+          "requireFighterNameAny": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
+          "requireOwnDarkNameMissing": "เมย์ แวมไพร์โกธิค",
           "cost": [
             {
-              "op": "discard",
-              "from": "hand",
-              "count": 1,
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              }
+              "op": "exileSelf"
             }
           ],
           "actions": [
             {
-              "op": "destroy",
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
               "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
+                "select": "combatOwn"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireOwnNameIncludes": "เจ้าหญิงรวงข้าว",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "layer": 3,
+              "target": {
+                "select": "self"
               }
             }
           ]
@@ -3361,7 +3428,7 @@
       ],
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
       "parseStatus": "auto",
-      "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> ทำลาย Avatar ศัตรู 1 ใบ"
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
     },
     {
       "name": "เมียพระอิศวร",
@@ -4877,20 +4944,21 @@
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
+              "until": "permanent",
               "target": {
                 "select": "choose",
-                "type": "Construct",
                 "side": "own",
-                "count": 1
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ]
               }
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : เลือก Construct ฝ่ายเรา 1 ใบ POWER +2"
+      "note": "จุติเลือกนาค สัตว์วิเศษ ฝ่ายเรา POWER +2 ถาวร"
     },
     {
       "name": "โอเดนย่ากาย",

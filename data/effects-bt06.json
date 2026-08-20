@@ -43,6 +43,8 @@
     },
     {
       "code": "BT06-003",
+      "name": "เอรา นาคเกล็ดเขียว",
+      "parseStatus": "auto",
       "abilities": [
         {
           "keyword": "จุติ",
@@ -54,21 +56,20 @@
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
+              "until": "permanent",
               "target": {
                 "select": "choose",
-                "type": "Construct",
                 "side": "own",
-                "count": 1
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "name": "เอรา นาคเกล็ดเขียว",
-      "note": "จุติ : เลือก Construct ฝ่ายเรา 1 ใบ POWER +2"
+      "note": "จุติเลือกนาค สัตว์วิเศษ ฝ่ายเรา POWER +2 ถาวร"
     },
     {
       "code": "BT06-004",

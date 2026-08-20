@@ -568,53 +568,30 @@
       "name": "คาร์ร่า หน่วยรบ XVI",
       "abilities": [
         {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "summoned"
-          },
-          "actions": [
-            {
-              "op": "millAll",
-              "count": 3
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "milledByCardName",
-            "names": [
-              "ไวรัส"
-            ]
-          },
-          "actions": [
-            {
-              "op": "banishSelfFromHell"
-            }
-          ]
-        },
-        {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activatedFromDarkDimension",
-            "if": "darkDimensionCountNameIncludes:ไวรัส>=5"
+            "on": "activated"
           },
-          "cost": [
-            {
-              "op": "discard",
-              "from": "hand",
-              "count": 2
-            }
-          ],
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "summonSelfFromDarkDimension"
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "hell"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "เมื่ออัญเชิญ ธรณีสูบ 3 / เมื่อถูกธรณีสูบโดย ไวรัส เนรเทศ / สั่งใช้จากมิติมืด ทิ้ง 2 อัญเชิญ",
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้: สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI (ไม่ใช่ only) ที่เหลือลงนรก · เทิร์นศัตรูหน่วยรบ XVI ได้โล่มนุษย์",
       "grantKeywordAura": {
         "keyword": "โล่มนุษย์",
         "side": "own",

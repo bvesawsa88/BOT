@@ -599,27 +599,38 @@
     },
     {
       "code": "BT08-020",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "cannotBeAttackTargetIfAllyOnField"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
       "name": "เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก",
       "extraColors": [
         "ม่วง"
       ],
-      "note": "ไม่ถูกเลือกเป็นเป้าหมายการโจมตีถ้ามี Avatar ใบอื่น",
-      "cannotBeAttackTargetIfOwnSymbolOther": "any"
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "symbol": "ต่างชาติ",
+                "sameColorAsSrc": true
+              },
+              "dest": "hand",
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "note": "ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน"
     },
     {
       "code": "BT08-021",
@@ -700,31 +711,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "cost": [
-            {
-              "op": "sacrifice",
-              "filter": {
-                "type": "Avatar",
-                "exceptSelf": true
-              },
-              "count": 1
-            }
-          ],
           "actions": [
             {
-              "op": "destroy",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "exactName": "โคกอีสานนูน"
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : สังหาร Avatar ฝ่ายเรา 1 ใบ แล้วทำลาย Avatar ศัตรู 1 ใบ"
+      "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
       "code": "BT08-025",
@@ -760,19 +765,38 @@
       "code": "BT08-026",
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
           "trigger": {
-            "on": "destroyed"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน",
           "actions": [
             {
-              "op": "hellPick",
-              "filter": {
-                "nameIncludes": [
-                  "อัศวินแห่งความมืด"
-                ]
-              },
-              "dest": "avatar"
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "requireMainPhase": true,
+          "actions": [
+            {
+              "op": "revealOppLifeTop",
+              "count": 1
             }
           ]
         }
@@ -2173,28 +2197,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "cost": [
-            {
-              "op": "millSelf",
-              "count": 3
-            }
-          ],
           "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
             {
               "op": "deckOrHellPick",
               "filter": {
-                "nameIncludes": [
-                  "โคกอีสานนูน"
-                ]
+                "exactName": "โคกอีสานนูน"
               },
               "dest": "hand",
-              "shuffleAfter": true
+              "shuffleAfterIfFromDeck": true
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "ลูกฮึด / จุติ ธรณีสูบ 3 : เอา โคกอีสานนูน จาก Deck/นรก ขึ้นมือ"
+      "parseStatus": "manual",
+      "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
       "code": "PRMO-079",
@@ -2219,22 +2240,9 @@
               "shuffleAfter": true
             }
           ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "cannotBeAttackTargetIfAllySymbolOnField",
-              "symbol": "ผี"
-            }
-          ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "จุติ : เรียก ผี จาก Deck / ตราบเท่าที่มี ผี อื่น ศัตรูห้ามเลือกเป็นเป้าโจมตี"
     }
   ]

@@ -454,47 +454,24 @@
       ],
       "abilities": [
         {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "summoned"
-          },
-          "actions": [
-            {
-              "op": "millAll",
-              "count": 3
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "milledByCardName",
-            "names": [
-              "ไวรัส"
-            ]
-          },
-          "actions": [
-            {
-              "op": "banishSelfFromHell"
-            }
-          ]
-        },
-        {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activatedFromDarkDimension",
-            "if": "darkDimensionCountNameIncludes:ไวรัส>=5"
+            "on": "activated"
           },
-          "cost": [
-            {
-              "op": "discard",
-              "from": "hand",
-              "count": 2
-            }
-          ],
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "summonSelfFromDarkDimension"
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ],
+                "excludeOnly": true
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "hell"
             }
           ]
         }
@@ -507,8 +484,8 @@
         ],
         "onlyOppTurn": true
       },
-      "parseStatus": "auto",
-      "note": "เมื่ออัญเชิญ ธรณีสูบ 3 / เมื่อถูกธรณีสูบโดย ไวรัส เนรเทศ / สั่งใช้จากมิติมืด ทิ้ง 2 อัญเชิญ"
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้: สอดแนม 3 อัญเชิญจุติหน่วยรบ XVI (ไม่ใช่ only) ที่เหลือลงนรก · เทิร์นศัตรูหน่วยรบ XVI ได้โล่มนุษย์"
     },
     {
       "name": "โคลัมบัส นักท่องเรือ",
@@ -846,29 +823,6 @@
       ],
       "parseStatus": "auto",
       "note": "จุติ: เลือกการ์ดจากเด็คขึ้นมือได้ 2 ใบ แล้วสับ"
-    },
-    {
-      "name": "โซน่า โพลีกอน",
-      "codes": [
-        "BT09-022"
-      ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "draw",
-              "count": 1,
-              "player": "owner"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
     },
     {
       "name": "เด็กไม่ชอบแมลงสาบ",
@@ -1273,14 +1227,26 @@
       ],
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "summoned",
+            "if": "paidCost"
           },
           "actions": [
             {
-              "op": "cannotBeAttackTargetIfAllyOnField"
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "symbol": "ต่างชาติ",
+                "sameColorAsSrc": true
+              },
+              "dest": "hand",
+              "restTo": "bottom",
+              "shuffleAfter": true
             }
           ]
         }
@@ -1288,9 +1254,8 @@
       "extraColors": [
         "ม่วง"
       ],
-      "cannotBeAttackTargetIfOwnSymbolOther": "any",
       "parseStatus": "auto",
-      "note": "ไม่ถูกเลือกเป็นเป้าหมายการโจมตีถ้ามี Avatar ใบอื่น"
+      "note": "ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน"
     },
     {
       "name": "ไตรตัน เจ้าสมุทร",

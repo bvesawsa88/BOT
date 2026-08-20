@@ -203,30 +203,25 @@
       "code": "BT07-008",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": -2,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
+              "op": "draw",
+              "count": 1,
+              "player": "opp"
+            },
+            {
+              "op": "oppHandToDeckTop"
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "ตำรวจไซบอร์ค จ่านิ่ง",
-      "note": "จุติ : เลือก Avatar ฝ่ายตรงข้าม 1 ใบ POWER -2"
+      "note": "ศัตรูจั่ว 1 → เลือกใบจากมือศัตรูวางบนสุดเด็ค"
     },
     {
       "code": "BT07-009",

@@ -2970,25 +2970,19 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "cost": [
-            {
-              "op": "sacrifice",
-              "filter": {
-                "type": "Avatar",
-                "exceptSelf": true
-              },
-              "count": 1
-            }
-          ],
           "actions": [
             {
-              "op": "destroy",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "exactName": "โคกอีสานนูน"
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
             }
           ]
         }
@@ -2997,7 +2991,7 @@
       "keywords": [
         "ลูกฮึด"
       ],
-      "note": "จุติ : สังหาร Avatar ฝ่ายเรา 1 ใบ แล้วทำลาย Avatar ศัตรู 1 ใบ"
+      "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
       "code": "PRMO-093",

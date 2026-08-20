@@ -52,9 +52,9 @@
       "code": "BT04-003",
       "name": "ไอ้นัท - คนใจเด็ด",
       "abilities": [],
+      "controlImmune": true,
       "controlImmuneExcept": "อีช่า",
-      "parseStatus": "auto",
-      "controlImmune": true
+      "parseStatus": "auto"
     },
     {
       "code": "BT04-004",
@@ -246,10 +246,10 @@
     },
     {
       "code": "BT04-011",
-      "abilities": [],
-      "parseStatus": "auto",
       "name": "เทอราโนดอน จากต่างแดน",
+      "abilities": [],
       "scoutBonusOwnKapom": 1,
+      "parseStatus": "auto",
       "note": "กะปอมฝ่ายเราสอดแนม +1"
     },
     {

@@ -161,6 +161,7 @@
     {
       "code": "FPRO-003",
       "name": "พี่หน่วง พิธีกรผมสวย",
+      "parseStatus": "auto",
       "abilities": [
         {
           "keyword": "จุติ",
@@ -228,7 +229,6 @@
           ]
         }
       ],
-      "parseStatus": "auto",
       "note": "คำสั่งเสีย : จั่วการ์ด 1 ใบ"
     },
     {

@@ -462,9 +462,9 @@
       "code": "SD06-019",
       "name": "วัดคู่บ้านคู่เมือง",
       "abilities": [],
+      "scoutBonusConstruct": 2,
       "parseStatus": "auto",
-      "note": "Construct ฝ่ายเราสอดแนม +2",
-      "scoutBonusConstruct": 2
+      "note": "Construct ฝ่ายเราสอดแนม +2"
     },
     {
       "code": "SD06-020",

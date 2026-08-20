@@ -62,6 +62,29 @@
       "note": "อัตโนมัติ เมื่อโจมตี Avatar Symbol ต่างชาติ : ทำลายเป้าหมาย"
     },
     {
+      "name": "โซน่า โพลีกอน",
+      "codes": [
+        "BT09-022"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "โดมรัททาทุย",
       "codes": [
         "SD08-003"
@@ -333,7 +356,7 @@
             "on": "ownAvatarLeftField"
           },
           "cost": {
-            "discardGemSumExact": 3
+            "discardGemSum": 3
           },
           "actions": [
             {

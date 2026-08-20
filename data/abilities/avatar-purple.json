@@ -261,35 +261,37 @@
       "abilities": [
         {
           "trigger": {
-            "on": "chooseMode"
+            "on": "activated"
           },
           "oncePerTurn": true,
-          "options": [
+          "actions": [
             {
-              "label": "เซ่นไหว้ตัวเอง จั่วการ์ด 2 ใบ",
-              "actions": [
+              "op": "chooseMode",
+              "options": [
                 {
-                  "op": "sacrificeSelf"
+                  "label": "เซ่นไหว้ตัวเอง — จั่ว 2",
+                  "actions": [
+                    {
+                      "op": "sacrificeSelf"
+                    },
+                    {
+                      "op": "draw",
+                      "count": 2
+                    }
+                  ]
                 },
                 {
-                  "op": "draw",
-                  "count": 2
-                }
-              ]
-            },
-            {
-              "label": "ได้รับ เตะไข่ (ทำลายตัวเอง End Phase)",
-              "actions": [
-                {
-                  "op": "grantKeyword",
-                  "keyword": "เตะไข่",
-                  "target": {
-                    "select": "self"
-                  },
-                  "duration": "endOfTurn"
-                },
-                {
-                  "op": "destroySelfAtEndPhase"
+                  "label": "ได้เตะไข่จนจบเทิร์น แล้วทำลายตัวเอง End Phase",
+                  "actions": [
+                    {
+                      "op": "grantSelfKeyword",
+                      "keyword": "เตะไข่",
+                      "until": "endOfTurn"
+                    },
+                    {
+                      "op": "destroySelfAtEndPhase"
+                    }
+                  ]
                 }
               ]
             }
@@ -419,45 +421,25 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "enteredLink"
+            "on": "enterLink"
           },
           "actions": [
             {
               "op": "deckOrHellPick",
+              "dest": "buildConstructFree",
+              "shuffleAfterIfFromDeck": true,
               "filter": {
                 "type": "Construct",
                 "nameIncludes": [
                   "จอมเวทย์"
                 ]
-              },
-              "dest": "construct",
-              "shuffleAfter": true
-            }
-          ]
-        },
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "allyAboutToLeaveFieldByEnemy",
-            "filter": {
-              "nameIncludes": [
-                "จอมเวทย์"
-              ]
-            }
-          },
-          "cost": [
-            {
-              "op": "destroySelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "preventLeavingField"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial",
+      "note": "เมื่อเข้า Link: ก่อสร้าง Construct จอมเวทย์ จากเด็คหรือนรก (ถ้าจากเด็คให้สับ) · สั่งใช้เซ่นตัวเองกันจอมเวทย์ใบอื่นออกสนามยังไม่ทำ · [Link เดสสึหวา]"
     },
     {
       "name": "จอมเวทย์ดำ",
@@ -476,22 +458,80 @@
       ],
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "destroyed"
+            "on": "summoned",
+            "if": "paidCost"
           },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "anyOf": [
+                  {
+                    "nameIncludes": [
+                      "คาถา"
+                    ]
+                  },
+                  {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "จอมเวทย์"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "actions": [
             {
-              "op": "damageLife",
+              "op": "draw",
+              "count": 2,
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownPlayMagic"
+          },
+          "requireMagicNameIncludes": "คาถา",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "จอมเวทย์"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
               "count": 1,
-              "target": "enemy"
+              "player": "owner"
             }
           ]
         }
       ],
       "onlyAttackableAllyNameIncludes": "เดสสึหวา",
       "parseStatus": "auto",
-      "note": "คำสั่งเสีย : ยิง LIFE ศัตรู 1 ใบ"
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
     },
     {
       "name": "จอมเวทย์ เบล่า",
@@ -3830,25 +3870,19 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "cost": [
-            {
-              "op": "sacrifice",
-              "filter": {
-                "type": "Avatar",
-                "exceptSelf": true
-              },
-              "count": 1
-            }
-          ],
           "actions": [
             {
-              "op": "destroy",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "exactName": "โคกอีสานนูน"
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
             }
           ]
         }
@@ -3857,7 +3891,7 @@
         "ลูกฮึด"
       ],
       "parseStatus": "auto",
-      "note": "จุติ : สังหาร Avatar ฝ่ายเรา 1 ใบ แล้วทำลาย Avatar ศัตรู 1 ใบ"
+      "note": "จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ"
     },
     {
       "name": "อีสานสลิงเกอร์ ปิ่น",
@@ -3899,19 +3933,38 @@
       ],
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
           "trigger": {
-            "on": "destroyed"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน",
           "actions": [
             {
-              "op": "hellPick",
-              "filter": {
-                "nameIncludes": [
-                  "อัศวินแห่งความมืด"
-                ]
-              },
-              "dest": "avatar"
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "requireMainPhase": true,
+          "actions": [
+            {
+              "op": "revealOppLifeTop",
+              "count": 1
             }
           ]
         }

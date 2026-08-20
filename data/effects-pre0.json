@@ -123,23 +123,9 @@
     {
       "code": "PRE0-004",
       "name": "ผู้เล่นจำไม",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "inspectDeckCounts",
-              "target": "opponent"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
-      "note": "ทิ้ง GEM 1 จำนวน 5 ใบเท่านั้น · จุติ: ดูสถิติจำนวนการ์ดในเด็คคู่ต่อสู้",
+      "note": "อัญเชิญได้เฉพาะทิ้ง GEM 1 จำนวน 5 ใบ + จุติถามจำนวน Avatar/Magic/Only ในเด็คศัตรู — กลไกใหม่หลายทาง",
       "exactGemPay": true
     },
     {

@@ -15,7 +15,7 @@ function save(name, j) {
 function upsert(fileCards, entry) {
   const i = fileCards.findIndex(c => c.code === entry.code);
   if (i < 0) fileCards.push(entry);
-  else fileCards[i] = Object.assign({}, fileCards[i], entry);
+  else fileCards[i] = entry;
 }
 
 const BY_SET = {
@@ -78,6 +78,29 @@ const BY_SET = {
       parseStatus: 'auto'
     }
   },
+  'effects-bt06.json': {
+    'BT06-003': {
+      code: 'BT06-003',
+      name: 'เอรา นาคเกล็ดเขียว',
+      parseStatus: 'auto',
+      abilities: [{
+        keyword: 'จุติ',
+        trigger: { on: 'summoned', if: 'paidCost' },
+        actions: [{
+          op: 'modifyPower',
+          amount: 2,
+          until: 'permanent',
+          target: {
+            select: 'choose',
+            side: 'own',
+            type: 'Avatar',
+            nameIncludes: ['นาค']
+          }
+        }]
+      }],
+      note: 'จุติเลือกนาค สัตว์วิเศษ ฝ่ายเรา POWER +2 ถาวร'
+    }
+  },
   'effects-sd06.json': {
     'SD06-019': {
       code: 'SD06-019',
@@ -86,6 +109,32 @@ const BY_SET = {
       scoutBonusConstruct: 2,
       parseStatus: 'auto',
       note: 'Construct ฝ่ายเราสอดแนม +2'
+    }
+  },
+  'effects-bt08.json': {
+    'BT08-020': {
+      code: 'BT08-020',
+      name: 'เตียวเลี้ยว ขุนพลมือปราบแห่งวุยก๊ก',
+      extraColors: ['ม่วง'],
+      parseStatus: 'auto',
+      abilities: [{
+        keyword: 'จุติ',
+        trigger: { on: 'summoned', if: 'paidCost' },
+        actions: [{
+          op: 'scout',
+          count: 5,
+          filter: {
+            type: 'Avatar',
+            nameIncludes: ['ขุนพล'],
+            symbol: 'ต่างชาติ',
+            sameColorAsSrc: true
+          },
+          dest: 'hand',
+          restTo: 'bottom',
+          shuffleAfter: true
+        }]
+      }],
+      note: 'ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน'
     }
   },
   'effects-sd07.json': {

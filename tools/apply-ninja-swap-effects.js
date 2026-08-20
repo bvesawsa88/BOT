@@ -5,6 +5,10 @@ const ROOT = path.join(__dirname, '..');
 
 function patchEngine(src) {
   let s = src.replace(/\r\n/g, '\n');
+  if (s.includes('bounceOwnThenSummonSelf')) {
+    console.log('skip already: engine already has ninja ops');
+    return src;
+  }
   const ins = (needle, insert, label) => {
     if (s.includes(insert.trim().slice(0, 40))) {
       console.log('skip already:', label);

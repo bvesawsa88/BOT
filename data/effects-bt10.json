@@ -158,22 +158,54 @@
       "code": "BT10-004",
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
           "trigger": {
-            "on": "destroyed"
+            "on": "activatedFromHand"
+          },
+          "oncePerTurnByName": "โกเอมอน นินจาจอมโจร",
+          "allowBattleIfFaceUpLifeMin": 3,
+          "actions": [
+            {
+              "op": "bounceOwnThenSummonSelf",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นินจา"
+                ],
+                "nameNotEquals": "โกเอมอน นินจาจอมโจร"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
           },
           "actions": [
             {
-              "op": "scout",
-              "count": 3,
-              "filter": {
-                "nameIncludes": [
-                  "ทหารหิมะ"
-                ]
-              },
-              "dest": "hand",
-              "pickCount": 1,
-              "restTo": "bottom"
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "trigger": {
+                    "on": "lifeRevealedByAttack"
+                  },
+                  "actions": [
+                    {
+                      "op": "oppHellPick",
+                      "filter": {
+                        "type": "Magic",
+                        "subtypes": [
+                          "Normal",
+                          "Modification"
+                        ]
+                      },
+                      "optional": true,
+                      "thenDiscard": 1
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -906,60 +938,98 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "enteredLink"
+            "on": "enterLink"
           },
           "actions": [
             {
               "op": "deckOrHellPick",
+              "dest": "buildConstructFree",
+              "shuffleAfterIfFromDeck": true,
               "filter": {
                 "type": "Construct",
                 "nameIncludes": [
                   "จอมเวทย์"
                 ]
-              },
-              "dest": "construct",
-              "shuffleAfter": true
-            }
-          ]
-        },
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "allyAboutToLeaveFieldByEnemy",
-            "filter": {
-              "nameIncludes": [
-                "จอมเวทย์"
-              ]
-            }
-          },
-          "cost": [
-            {
-              "op": "destroySelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "preventLeavingField"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
-      "name": "จอมเวทย์ โกลเด้น"
+      "parseStatus": "partial",
+      "name": "จอมเวทย์ โกลเด้น",
+      "note": "เมื่อเข้า Link: ก่อสร้าง Construct จอมเวทย์ จากเด็คหรือนรก (ถ้าจากเด็คให้สับ) · สั่งใช้เซ่นตัวเองกันจอมเวทย์ใบอื่นออกสนามยังไม่ทำ · [Link เดสสึหวา]"
     },
     {
       "code": "BT10-026",
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "destroyed"
+            "on": "summoned",
+            "if": "paidCost"
           },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "anyOf": [
+                  {
+                    "nameIncludes": [
+                      "คาถา"
+                    ]
+                  },
+                  {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "จอมเวทย์"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "actions": [
             {
-              "op": "damageLife",
+              "op": "draw",
+              "count": 2,
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownPlayMagic"
+          },
+          "requireMagicNameIncludes": "คาถา",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "จอมเวทย์"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declaredAsAttackTarget"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
               "count": 1,
-              "target": "enemy"
+              "player": "owner"
             }
           ]
         }
@@ -967,7 +1037,7 @@
       "parseStatus": "auto",
       "name": "จอมเวทย์ เดสสึหวา",
       "onlyAttackableAllyNameIncludes": "เดสสึหวา",
-      "note": "คำสั่งเสีย : ยิง LIFE ศัตรู 1 ใบ"
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
     },
     {
       "code": "BT10-027",
@@ -2614,19 +2684,27 @@
       "name": "ตำรวจไฟแรง เอนโว่",
       "abilities": [
         {
-          "keyword": "อัตโนมัติ",
           "trigger": {
             "on": "declareAttack",
-            "if": "source==self"
+            "if": "targetIsAvatar"
           },
           "actions": [
             {
-              "op": "guessEnemyDeckTopTypeAndDestroyTarget"
+              "op": "guessOppTopType",
+              "onHit": [
+                {
+                  "op": "destroyAttackTarget"
+                },
+                {
+                  "op": "millScouted"
+                }
+              ],
+              "onMiss": []
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "เมื่อโจมตี : ทายประเภทใบบนสุด Deck ศัตรู -> ถ้าถูก ทำลายเป้าหมาย + ส่งลงนรก"
     },
     {
@@ -2634,24 +2712,22 @@
       "name": "ไปเลยมอนตี้",
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
+          "react": true,
           "actions": [
             {
               "op": "weakenAttacker",
               "per": 2,
               "count": [
-                "ownSide",
-                "ownHand"
-              ],
-              "until": "permanent"
+                "ownSide"
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "เมื่ออีกฝ่ายประกาศโจมตี : ลด POWER ศัตรูตามจำนวนการ์ดบนสนามและมือฝ่ายเรา ใบละ 2"
     },
     {
@@ -2683,42 +2759,44 @@
       "abilities": [
         {
           "trigger": {
-            "on": "chooseMode"
+            "on": "activated"
           },
           "oncePerTurn": true,
-          "options": [
+          "actions": [
             {
-              "label": "เซ่นไหว้ตัวเอง จั่วการ์ด 2 ใบ",
-              "actions": [
+              "op": "chooseMode",
+              "options": [
                 {
-                  "op": "sacrificeSelf"
+                  "label": "เซ่นไหว้ตัวเอง — จั่ว 2",
+                  "actions": [
+                    {
+                      "op": "sacrificeSelf"
+                    },
+                    {
+                      "op": "draw",
+                      "count": 2
+                    }
+                  ]
                 },
                 {
-                  "op": "draw",
-                  "count": 2
-                }
-              ]
-            },
-            {
-              "label": "ได้รับ เตะไข่ (ทำลายตัวเอง End Phase)",
-              "actions": [
-                {
-                  "op": "grantKeyword",
-                  "keyword": "เตะไข่",
-                  "target": {
-                    "select": "self"
-                  },
-                  "duration": "endOfTurn"
-                },
-                {
-                  "op": "destroySelfAtEndPhase"
+                  "label": "ได้เตะไข่จนจบเทิร์น แล้วทำลายตัวเอง End Phase",
+                  "actions": [
+                    {
+                      "op": "grantSelfKeyword",
+                      "keyword": "เตะไข่",
+                      "until": "endOfTurn"
+                    },
+                    {
+                      "op": "destroySelfAtEndPhase"
+                    }
+                  ]
                 }
               ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "เลือก 1) เซ่นไหว้ตัวเอง จั่ว 2 2) ได้รับ เตะไข่ แล้วทำลายตัวเองตอน End Phase"
     }
   ]
