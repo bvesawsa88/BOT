@@ -3553,6 +3553,15 @@
           msg = any ? 'เป้าหมายไม่รับผลจาก Magic ฝ่ายตรงข้าม' : 'อีกฝ่ายไม่มี Avatar บนสนาม';
         }
       }
+      // ฮันโซ / ชิโยเมะ / โกเอมอน — ต้องมีนินจาบนสนามก่อนสั่งใช้จากมือ (deny ก่อนเคลม once-per-turn กันบอทวน)
+      if (ac.op === 'bounceOwnThenSummonSelf') {
+        const need = ac.count || 1;
+        const filter = Object.assign({ type: 'Avatar' }, ac.filter || {});
+        const cands = (st.zones[owner + '.avatar'] || []).filter(id => matchFilterEx(st, id, filter));
+        if (cands.length < need)
+          msg = `ต้องมี Avatar ตรงเงื่อนไข ≥ ${need} ใบบนสนาม (มี ${cands.length})`;
+        return;
+      }
       // ความกล้าหาญ ฯลฯ — เลือก Avatar บนสนามฝ่ายเรา
       if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'choose') {
         const p = {

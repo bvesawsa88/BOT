@@ -866,6 +866,21 @@
           });
           if (!has) score = -999;
         }
+        if (ac.op === 'bounceOwnThenSummonSelf') {
+          const need = ac.count || 1;
+          const filter = ac.filter || {};
+          const needles = filter.nameIncludes
+            ? (Array.isArray(filter.nameIncludes) ? filter.nameIncludes : [filter.nameIncludes])
+            : [];
+          const n = zoneIds(st, side + '.avatar').filter(id => {
+            const x = st.inst[id]; if (!x) return false;
+            if (filter.type && x.type !== filter.type) return false;
+            if (needles.length && !needles.some(nm2 => nm(x, nm2))) return false;
+            if (filter.nameNotEquals && (x.name || '') === filter.nameNotEquals) return false;
+            return true;
+          }).length;
+          if (n < need) score = -999;
+        }
       });
       if (score > -150) {
         const Eng = eng();
