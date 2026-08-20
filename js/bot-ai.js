@@ -301,7 +301,8 @@
     let hit = false;
     ((e && e.abilities) || []).forEach(ab => {
       if (ab.requireOwnNameIncludes && /รถถัง/.test(String(ab.requireOwnNameIncludes))) hit = true;
-      (ab.cost || []).forEach(ac => {
+      const costList = Array.isArray(ab.cost) ? ab.cost : (ab.cost ? [ab.cost] : []);
+      costList.forEach(ac => {
         const n = ac && ac.filter && ac.filter.nameIncludes;
         const arr = Array.isArray(n) ? n : n ? [n] : [];
         if (arr.some(x => /รถถัง/.test(String(x)))) hit = true;

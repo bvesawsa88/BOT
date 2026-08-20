@@ -128,6 +128,12 @@
     });
   }
 
+  /* ability.cost ใน JSON เป็นได้ทั้ง array และ object เดี่ยว (เช่น { op:'discard' }) */
+  function abilityCostList(ab) {
+    if (!ab || ab.cost == null) return [];
+    return Array.isArray(ab.cost) ? ab.cost : [ab.cost];
+  }
+
   function tagsFromOp(op) {
     if (!op) return [];
     if (OP_TAGS[op]) return OP_TAGS[op];
@@ -223,7 +229,7 @@
         if (ab.keyword === 'โล่มนุษย์') addTag('protection', 2);
       }
       collectNeedles(ab, needles);
-      (ab.cost || []).forEach(ac => collectNeedles(ac, needles));
+      abilityCostList(ab).forEach(ac => collectNeedles(ac, needles));
       walkActions(ab.actions, ac => {
         collectNeedles(ac, needles);
         if (ac.op) {
