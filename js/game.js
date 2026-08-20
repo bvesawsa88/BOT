@@ -6538,9 +6538,13 @@
     fbSend.disabled = true;
     if (msg) msg.textContent = 'กำลังส่ง…';
     fetch('/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(() => { if (msg) msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ! รายงานถูกบันทึกบนเว็บแล้ว'; if (textEl) textEl.value = ''; })
-      .catch(() => { if (msg) msg.textContent = '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง'; })
+      .then(r => r.json().then(j => { if (!r.ok) throw j; return j; }))
+      .then(() => { if (msg) msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ! (ส่งเข้า Discord แล้ว)'; if (textEl) textEl.value = ''; })
+      .catch((e) => {
+        if (msg) msg.textContent = e && e.m === 'webhook not configured'
+          ? '✗ ยังไม่ได้ตั้ง Discord webhook บนเซิร์ฟเวอร์'
+          : '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง';
+      })
       .finally(() => { fbSend.disabled = false; });
   };
 

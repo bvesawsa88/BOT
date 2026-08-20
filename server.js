@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -7,8 +8,7 @@ const os = require('os');
 const PORT = +(process.env.PORT || 3000);
 const ROOT = __dirname;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
-const FEEDBACK_LOG = path.join(ROOT, 'data', 'feedback-log.json');
-const FEEDBACK_MAX = 500;
+const FEEDBACK_WEBHOOK = process.env.DISCORD_FEEDBACK_WEBHOOK || process.env.FEEDBACK_WEBHOOK || '';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -66,27 +66,70 @@ function clip(s, n) {
   return t.length <= n ? t : t.slice(0, n - 1) + '…';
 }
 
-function saveFeedback(entry) {
+function postJson(url, data) {
   return new Promise((resolve, reject) => {
-    fs.mkdir(path.dirname(FEEDBACK_LOG), { recursive: true }, (err) => {
-      if (err) { reject(err); return; }
-      fs.readFile(FEEDBACK_LOG, 'utf8', (err2, raw) => {
-        let list = [];
-        if (!err2 && raw) {
-          try {
-            list = JSON.parse(raw);
-            if (!Array.isArray(list)) list = [];
-          } catch (e) { list = []; }
-        }
-        list.push(entry);
-        if (list.length > FEEDBACK_MAX) list = list.slice(-FEEDBACK_MAX);
-        fs.writeFile(FEEDBACK_LOG, JSON.stringify(list, null, 2), 'utf8', (err3) => {
-          if (err3) reject(err3);
-          else resolve(list.length);
-        });
+    const u = new URL(url);
+    const body = JSON.stringify(data);
+    const req = https.request({
+      hostname: u.hostname,
+      path: u.pathname + u.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      let out = '';
+      res.on('data', (c) => { out += c; });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(out);
+        else reject(new Error('webhook HTTP ' + res.statusCode + ': ' + out));
       });
     });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
   });
+}
+
+function isDiscordWebhook(url) {
+  return /^https:\/\/(?:discord(?:app)?\.com|discordapp\.com)\/api\/webhooks\//i.test(url);
+}
+
+function buildFeedbackDiscord(body) {
+  const text = clip(body.text, 1800);
+  const fields = [
+    { name: 'หน้าจอ', value: clip(body.screen || '?', 256), inline: true },
+    { name: 'โหมด', value: clip(body.mode || '?', 256), inline: true },
+    { name: 'ห้อง', value: clip(body.room || '—', 256), inline: true },
+  ];
+  if (body.turn != null) {
+    fields.push({
+      name: 'สถานะเกม',
+      value: clip('turn ' + body.turn + ' · phase ' + (body.phase || '?') + ' · active ' + (body.active || '?'), 1024),
+      inline: false,
+    });
+  }
+  if (body.log && body.log.length) {
+    fields.push({ name: 'Log ล่าสุด', value: '```\n' + clip(body.log.join('\n'), 900) + '\n```', inline: false });
+  }
+  if (body.zones && typeof body.zones === 'object') {
+    const zLines = Object.keys(body.zones).map((z) => z + ': ' + (body.zones[z] || []).join(', '));
+    if (zLines.length) fields.push({ name: 'Zones', value: clip(zLines.join('\n'), 900), inline: false });
+  }
+  if (body.url) fields.push({ name: 'URL', value: clip(body.url, 512), inline: false });
+  if (body.ua) fields.push({ name: 'User-Agent', value: clip(body.ua, 512), inline: false });
+
+  return {
+    username: 'BoT Table — แจ้งบัค',
+    embeds: [{
+      title: '🐞 แจ้งบัค',
+      description: text,
+      color: 0xc9a227,
+      fields,
+      timestamp: new Date().toISOString(),
+    }],
+  };
 }
 
 async function handleFeedback(req, res) {
@@ -121,33 +164,23 @@ async function handleFeedback(req, res) {
     json(res, 405, { ok: false, m: 'method not allowed' });
     return;
   }
+  if (!FEEDBACK_WEBHOOK || !isDiscordWebhook(FEEDBACK_WEBHOOK)) {
+    console.warn('[feedback] ตั้ง DISCORD_FEEDBACK_WEBHOOK บน Render (Discord webhook URL)');
+    json(res, 503, { ok: false, m: 'webhook not configured' });
+    return;
+  }
   try {
     const raw = await readBody(req);
     let body;
     try { body = JSON.parse(raw || '{}'); } catch (e) { json(res, 400, { ok: false, m: 'invalid json' }); return; }
     const text = String(body.text || '').trim();
     if (!text) { json(res, 400, { ok: false, m: 'empty text' }); return; }
-    const entry = {
-      id: Date.now().toString(36) + crypto.randomBytes(3).toString('hex'),
-      at: new Date().toISOString(),
-      text: clip(text, 4000),
-      screen: clip(body.screen || '', 64),
-      mode: clip(body.mode || '', 64),
-      room: clip(body.room || '', 64),
-      url: clip(body.url || '', 512),
-      ua: clip(body.ua || '', 512),
-    };
-    if (body.turn != null) entry.turn = body.turn;
-    if (body.phase != null) entry.phase = body.phase;
-    if (body.active != null) entry.active = body.active;
-    if (Array.isArray(body.log)) entry.log = body.log.slice(-20);
-    if (body.zones && typeof body.zones === 'object') entry.zones = body.zones;
-    await saveFeedback(entry);
-    console.log('[feedback] saved', entry.id);
-    json(res, 200, { ok: true, id: entry.id });
+    await postJson(FEEDBACK_WEBHOOK, buildFeedbackDiscord(body));
+    console.log('[feedback] sent to Discord');
+    json(res, 200, { ok: true });
   } catch (e) {
     console.error('[feedback]', e.message || e);
-    json(res, 500, { ok: false, m: 'save failed' });
+    json(res, 502, { ok: false, m: 'discord send failed' });
   }
 }
 
@@ -513,6 +546,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`   (ไม่พบ IP วง LAN — ตรวจ Wi‑Fi)`);
   }
   console.log(`   ล็อบบี้ท้าสู้: WebSocket /lan`);
-  console.log(`   แจ้งบัค: GET/POST /feedback → เก็บใน data/feedback-log.json`);
+  console.log(`   แจ้งบัค: GET/POST /feedback` + (FEEDBACK_WEBHOOK ? ' → Discord ✓' : ' (ตั้ง DISCORD_FEEDBACK_WEBHOOK)'));
   console.log(`   Press Ctrl+C to stop.\n`);
 });

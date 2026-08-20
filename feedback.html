@@ -71,11 +71,13 @@
       })
         .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); })
         .then(function () {
-          msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ! รายงานถูกบันทึกบนเว็บแล้ว';
+          msg.textContent = '✓ ส่งแล้ว ขอบคุณมากครับ! (ส่งเข้า Discord แล้ว)';
           textEl.value = '';
         })
-        .catch(function () {
-          msg.textContent = '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง';
+        .catch(function (e) {
+          msg.textContent = e && e.m === 'webhook not configured'
+            ? '✗ ยังไม่ได้ตั้ง Discord webhook บนเซิร์ฟเวอร์'
+            : '✗ ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง';
         })
         .finally(function () { btn.disabled = false; });
     };
