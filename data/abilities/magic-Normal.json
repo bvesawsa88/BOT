@@ -1372,8 +1372,52 @@
       "codes": [
         "CC02-041"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "แดง"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "แดง"
+              },
+              "costReduce": 2,
+              "mustPayRemain": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "stayOnMagic": true,
+      "parseStatus": "auto",
+      "note": "สอดแนม 2 เอาแดงขึ้นมือ ค้าง Magic · เทิร์นถัดไปทำลายตัวเองอัญเชิญแดง Cost−2"
     },
     {
       "name": "เมตตาระยะยาว",
@@ -1857,16 +1901,104 @@
       "codes": [
         "CC02-042"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "ฟ้า"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "ฟ้า"
+              },
+              "costReduce": 2,
+              "mustPayRemain": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "stayOnMagic": true,
+      "parseStatus": "auto",
+      "note": "สอดแนม 2 เอาฟ้าขึ้นมือ ค้าง Magic · เทิร์นถัดไปทำลายตัวเองอัญเชิญฟ้า Cost−2"
     },
     {
       "name": "หมอนข้างมฤตยูเทวี",
       "codes": [
         "CC02-043"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "ม่วง"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "ม่วง"
+              },
+              "costReduce": 2,
+              "mustPayRemain": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "stayOnMagic": true,
+      "parseStatus": "auto",
+      "note": "สอดแนม 2 เอาม่วงขึ้นมือ ค้าง Magic · เทิร์นถัดไปทำลายตัวเองอัญเชิญม่วง Cost−2"
     },
     {
       "name": "หยุด!! นี่ตำรวจ",

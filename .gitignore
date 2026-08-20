@@ -7,5 +7,8 @@ Thumbs.db
 data/feedback-log.json
 data/users.json
 data/users.json.tmp
+data/site-settings.json
+data/site-settings.json.tmp
+data/uploads/
 .vscode/
 .idea/

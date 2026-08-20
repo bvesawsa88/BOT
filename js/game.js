@@ -6500,6 +6500,21 @@
       img.src = src;
     });
   }
+  fetch('/api/site').then(r => r.json()).then(j => {
+    if (!j || !j.ok) return;
+    const n = byId('menuNotice');
+    if (n) {
+      const t = String(j.notice || '').trim();
+      n.textContent = t;
+      n.classList.toggle('hidden', !t);
+    }
+    const modal = byId('donateModal');
+    if (modal) {
+      if (j.promptpay) modal.setAttribute('data-promptpay', j.promptpay);
+      if (j.truemoney) modal.setAttribute('data-truemoney', j.truemoney);
+    }
+    refreshDonateUi();
+  }).catch(() => { });
   function openDonate() {
     donateAmt = '';
     refreshDonateUi();
@@ -6571,10 +6586,12 @@
   /* ── ล็อกอิน / สมัครสมาชิก ── */
   let authMode = 'login';
   const authToken = () => { try { return localStorage.getItem('bot_auth_token') || ''; } catch (e) { return ''; } };
-  function setAuthUI(username) {
+  function setAuthUI(username, admin) {
     const on = !!username;
     byId('btnLogin').classList.toggle('hidden', on);
     byId('userChip').classList.toggle('hidden', !on);
+    const adm = byId('btnAdmin');
+    if (adm) adm.classList.toggle('hidden', !admin);
     if (on) { byId('userName').textContent = username; try { localStorage.setItem('bot_user', username); } catch (e) { } if (byId('inpNick') && !byId('inpNick').value) byId('inpNick').value = username; }
     if (window.BotSkins) BotSkins.setLoggedIn(on);
   }
@@ -6594,7 +6611,7 @@
     try {
       const r = await fetch('/auth/me', { headers: { Authorization: 'Bearer ' + t } });
       const j = await r.json();
-      if (j.ok) { setAuthUI(j.username); syncCloudDecks(); }
+      if (j.ok) { setAuthUI(j.username, j.admin); syncCloudDecks(); }
       else { try { localStorage.removeItem('bot_auth_token'); } catch (e) { } setAuthUI(null); }
     } catch (e) { setAuthUI(null); }
   }
@@ -6616,7 +6633,7 @@
       const j = await r.json();
       if (j.ok) {
         try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
-        setAuthUI(j.username);
+        setAuthUI(j.username, j.admin);
         closeAuth();
         toast('👤 สวัสดี ' + j.username);
         syncCloudDecks();

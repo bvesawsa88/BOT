@@ -122,8 +122,27 @@
       "codes": [
         "CC01-008"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "exactName": "แมลงปอทอด"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำ แมลงปอทอด จากเด็คขึ้นมือ แล้วสับ"
     },
     {
       "name": "ครุฑ เกล - ครุฑสัจจะ เจ้าแห่งแสง",
@@ -516,8 +535,25 @@
       "codes": [
         "CC02-006"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "dest": "hand",
+              "multiMax": 2,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: เลือกการ์ดจากเด็คขึ้นมือได้ 2 ใบ แล้วสับ"
     },
     {
       "name": "เด็กไม่ชอบแมลงสาบ",
@@ -2380,16 +2416,62 @@
       "codes": [
         "CC02-008"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            },
+            {
+              "op": "returnHandToDeck",
+              "then": [
+                {
+                  "op": "returnHandToDeck"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "exactGemPay": true,
+      "parseStatus": "auto",
+      "note": "พอดี · จุติ: จั่ว 3 แล้วนำมือ 2 ใบกลับเด็คแล้วสับ"
     },
     {
       "name": "ลุงบุญโชค",
       "codes": [
         "CC01-010"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "สมชายห้องเช่า"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำ Magic สมชายห้องเช่า จากเด็คขึ้นมือ แล้วสับ"
     },
     {
       "name": "ลูกค้าชาบู",

@@ -1686,8 +1686,26 @@
       "codes": [
         "CC01-012"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            },
+            {
+              "op": "returnHandToDeck",
+              "pos": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย: จั่ว 2 แล้วนำมือ 1 ใบไว้ล่างสุดเด็ค"
     },
     {
       "name": "เฟรย่า แม่ทุกสถาบันแอสการ์ด",
@@ -2002,8 +2020,23 @@
       "codes": [
         "CC02-014"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "anyMill"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อมีการธรณีสูบ: จั่ว 1"
     },
     {
       "name": "ลาพิเน่ โพลีกอน",

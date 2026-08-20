@@ -516,9 +516,23 @@
     {
       "code": "BT02-024",
       "name": "เสามงคล",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เสามงคล — โจมตีไม่ได้ + จั่วเพิ่ม 1 หลัง Draw Phase"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "afterNormalDraw"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โจมตีไม่ได้ · Draw Phase หลังจั่วปกติ: จั่ว 1",
+      "cannotAttack": true
     },
     {
       "code": "BT02-025",

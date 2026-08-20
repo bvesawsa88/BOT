@@ -496,8 +496,52 @@
     {
       "code": "CC02-041",
       "name": "มรดกของพระอิศวร",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "แดง"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "แดง"
+              },
+              "costReduce": 2,
+              "mustPayRemain": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "note": "สอดแนม 2 เอาแดงขึ้นมือ ค้าง Magic · เทิร์นถัดไปทำลายตัวเองอัญเชิญแดง Cost−2"
     },
     {
       "code": "CC02-053",
@@ -526,14 +570,102 @@
     {
       "code": "CC02-042",
       "name": "หนังสือเอาตัวรอดของกุ่ย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "ฟ้า"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "ฟ้า"
+              },
+              "costReduce": 2,
+              "mustPayRemain": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "note": "สอดแนม 2 เอาฟ้าขึ้นมือ ค้าง Magic · เทิร์นถัดไปทำลายตัวเองอัญเชิญฟ้า Cost−2"
     },
     {
       "code": "CC02-043",
       "name": "หมอนข้างมฤตยูเทวี",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "color": "ม่วง"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "requireTurnsOnMagicMin": 1,
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "color": "ม่วง"
+              },
+              "costReduce": 2,
+              "mustPayRemain": true,
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "stayOnMagic": true,
+      "note": "สอดแนม 2 เอาม่วงขึ้นมือ ค้าง Magic · เทิร์นถัดไปทำลายตัวเองอัญเชิญม่วง Cost−2"
     },
     {
       "code": "CC02-059",
@@ -629,8 +761,25 @@
     {
       "code": "CC02-006",
       "name": "ซุส เทพเจ้าสูงสุดแห่งโอลิมปัส",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "dest": "hand",
+              "multiMax": 2,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: เลือกการ์ดจากเด็คขึ้นมือได้ 2 ใบ แล้วสับ"
     },
     {
       "code": "CC02-028",
@@ -722,8 +871,32 @@
     {
       "code": "CC02-008",
       "name": "ลุงน้อย พ่อค้าไก่ย่าง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            },
+            {
+              "op": "returnHandToDeck",
+              "then": [
+                {
+                  "op": "returnHandToDeck"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "exactGemPay": true,
+      "note": "พอดี · จุติ: จั่ว 3 แล้วนำมือ 2 ใบกลับเด็คแล้วสับ"
     },
     {
       "code": "CC02-010",
@@ -831,8 +1004,23 @@
     {
       "code": "CC02-014",
       "name": "แร้งทึ้งศพ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "anyMill"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อมีการธรณีสูบ: จั่ว 1"
     },
     {
       "code": "CC02-036",
@@ -1083,7 +1271,9 @@
       "code": "CC02-018",
       "name": "หุ่นพิฆาต 300%",
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "auto",
+      "blockDeckSummon": true,
+      "note": "ต่อเนื่อง: ทุกคนอัญเชิญ Avatar จากเด็คไม่ได้"
     }
   ]
 }

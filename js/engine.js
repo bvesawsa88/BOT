@@ -71,11 +71,11 @@
     'ignoreNegativePower', 'auraPower', 'auraNameIncludes',
     'immuneOppMagicTarget', 'millInsteadDestroy', 'lifeBothModes', 'controlImmune',
     'addToHandWhenScoutedByNameIncludes', 'addToHandWhenMilledOrScoutedByNameIncludes',
-    'extraSymbols', 'extraColors', 'destroyHostIfPower0', 'powerAsGemForSymbol',
+    'extraSymbols', 'allSymbols', 'extraColors', 'destroyHostIfPower0', 'powerAsGemForSymbol',
     'gemAsCostForNameIncludes', 'gemAsCostValue', 'gemAsCostColor', 'costOnlyForSymbol', 'revealOppDeckTopIfOwnNameIncludes', 'cannotBeAttackTargetIf',
     'cannotBeAttackTargetIfOwnSymbolOther', 'cannotBeAttackTargetIfOwnNameIncludes', 'onlyAttackableAllyNameIncludes', 'cannotAttack', 'unityOnlyNameIncludes', 'hostSymbolReplace', 'reattachOnHostDestroy', 'reactAnyWindow',
     'costZeroIfDistinctOwnNameIncludes', 'costZeroIfOwnSymbol', 'abilitiesFromMagicZone',
-    'blockAllLandPlay', 'destroyAfterGlobalEndPhases',
+    'blockAllLandPlay', 'blockDeckSummon', 'destroyAfterGlobalEndPhases',
     'protectReplace', 'protectReplaceIfHostNameIncludes', 'protectReplaceForNameIncludes',
     'hostBlockHumanShield', 'powerOnHumanShield', 'combatSurvivePowerMinus', 'destroyPowerZero',
     'uniqueAttachedNames', 'attachOnly', 'hostAttachNameIncludes', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
@@ -1011,6 +1011,15 @@
     }
     return null;
   }
+  function deckSummonBlocked(st) {
+    for (const side of ['A', 'B']) {
+      for (const id of (st.zones[side + '.avatar'] || [])) {
+        const e = fxId(st, id);
+        if (e && e.blockDeckSummon && st.inst[id] && st.inst[id].faceUp) return st.inst[id].name;
+      }
+    }
+    return null;
+  }
   /* ไพรมอล ฯลฯ: จะออกจาก Avatar Zone → เลือกเนรเทศจากนรกเพื่อรอด (เทิร์นละครั้ง)
      resume = { type:'destroy', opts } | { type:'move', to, pos, who }
      คืน true ถ้าค้างถาม (ยังไม่ออกสนาม) */
@@ -1802,8 +1811,22 @@
         /* only when milled by migraine scout — skip generic mill */
       }
     });
+    if (milledIds.length) fireAnyMill(st, fx, rng);
     checkDeckEmptyLoss(st, fx, player);
     return milledIds;
+  }
+
+  function fireAnyMill(st, fx, rng) {
+    ['A', 'B'].forEach(side => {
+      (st.zones[side + '.avatar'] || []).slice().forEach(k => {
+        const c = st.inst[k];
+        if (!c || c.faceUp === false) return;
+        abil(st, k, 'anyMill').forEach(ab => {
+          if (ab.oncePerTurn && !claimOncePerTurn(st, k, ab.oncePerTurnTag || 'anyMill')) return;
+          runActions(st, fx, ab.actions || [], { src: k, owner: side, rng: rng || (fx && fx._rng) });
+        });
+      });
+    });
   }
 
   // จำนวน Avatar สูงสุดของฝั่งหนึ่ง — ปกติ 4; ขยายเป็น 6 ถ้ามี "พิภพรัททาทุย" (Land) บนสนาม
@@ -2499,6 +2522,10 @@
     if (c.curse && c.curse.symbol) out.push(c.curse.symbol);
     else if (c.symbol) out.push(c.symbol);
     const e = fxCard(c);
+    if (e && e.allSymbols && (zoneOf(st, k) || '').endsWith('.avatar')) {
+      const all = ['กะปอม', 'คน', 'จอมเวทย์', 'ต่างชาติ', 'ชาวต่างชาติ', 'ต้นไม้', 'ทหาร', 'นรก', 'ปลา', 'ผี', 'ยักษ์', 'รัททาทุย', 'ฤษี', 'สัตว์', 'สัตว์วิเศษ', 'สิ่งก่อสร้าง', 'หุ่นยนต์', 'เครื่องจักร', 'เทพ', 'เปรต', 'เอเลี่ยน', 'แมลง', 'ไซเบอร์'];
+      all.forEach(s => { if (!out.includes(s)) out.push(s); });
+    }
     if (e && e.extraSymbols) e.extraSymbols.forEach(s => { if (!out.includes(s)) out.push(s); });
     return out;
   }
@@ -3352,6 +3379,8 @@
         if (p.magicMax != null && st.inst[k] && st.inst[k].type === 'Magic' && (p.magicGot || 0) >= p.magicMax) return false;
         if (p.distinctNames && (p.pickedNames || []).includes((st.inst[k] && st.inst[k].name) || '')) return false;
         if (p.dest === 'avatar' && (p.from === 'hell' || p.from === 'anyHell' || p.from === 'deckOrHell') && noHellSummonCard(st, k))
+          return false;
+        if (p.dest === 'avatar' && (zoneOf(st, k) || '').endsWith('.deck') && deckSummonBlocked(st))
           return false;
         if (p.dest === 'avatar' && p.mustPayRemain && (p.costReduce || 0)) {
           const remain = Math.max(0, effCost(st, k) - (p.costReduce || 0));
@@ -4925,11 +4954,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           fx.snd = 'tap';
         }
       } else if (ac.op === 'schedule') {
+        const src = (ac.src === 'summoned' && ctx.summoned) ? ctx.summoned : ctx.src;
         st.scheduled.push({
           player: ctx.owner, when: ac.when || 'nextOwnMainPhase',
-          op: 'runActions', actions: ac.actions || [], src: ctx.src
+          op: 'runActions', actions: ac.actions || [], src
         });
-        addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: นัดทำผลใน ${ac.when || 'nextOwnMainPhase'}`);
+        addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, src)}: นัดทำผลใน ${ac.when || 'nextOwnMainPhase'}`);
       } else if (ac.op === 'revealAndActivateOwnLife') {
         /* วันชัยเปรตรุ่นพ่อ: หงาย LIFE ใบบนสุด แล้วใช้ผลทันที
            ถ้าผลระบุ "ใน Main Phase ถัดไป" ให้ทำในเทิร์นนี้ทันที */
@@ -5761,9 +5791,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีเป้า`);
       } else if (ac.op === 'returnHandToDeck') {
-        const p = { kind: 'chooseDiscard', src: ctx.src, chooser: ctx.owner, filter: ac.filter, actions: ac.then || ac.actions || [], optional: false, effectDiscard: true, toDeck: true };
+        const p = {
+          kind: 'chooseDiscard', src: ctx.src, chooser: ctx.owner, filter: ac.filter,
+          actions: ac.then || ac.actions || [], optional: false, effectDiscard: true,
+          toDeck: true, toDeckBottom: ac.pos === 'bottom'
+        };
         if (!promptCandidates(st, p).length) addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดในมือ`);
-        else { st.prompts.push(p); prompted = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกการ์ดในมือคืนเด็ค`); }
+        else {
+          st.prompts.push(p); prompted = true;
+          addLog(st, ctx.owner, ac.pos === 'bottom'
+            ? `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกการ์ดในมือวางไว้ล่างสุดเด็ค`
+            : `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกการ์ดในมือคืนเด็ค`);
+        }
       } else if (ac.op === 'pickSymbolRandomHand') {
         st.prompts.push({ kind: 'pickSymbol', src: ctx.src, chooser: ctx.owner, srcToHell: !!ctx.toHellAfter, optional: false });
         prompted = true;
@@ -6206,7 +6245,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           autoPickThenName: !!ac.autoPickThenName, autoPickOnly: !!ac.autoPickOnly,
           multiMax: ac.multiMax || null, multiGot: 0,
           costSumMax: ac.costSumMax != null ? ac.costSumMax : null, costGot: 0,
-          summonedByAvatar: (st.inst[ctx.src] && st.inst[ctx.src].type === 'Avatar') ? st.inst[ctx.src] : null
+          summonedByAvatar: (st.inst[ctx.src] && st.inst[ctx.src].type === 'Avatar') ? st.inst[ctx.src] : null,
+          then: ac.then || null
         };
         const deckCands = promptCandidates(st, p);
         if (deckCands.length) {
@@ -7461,6 +7501,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       }
     };
     const finishDrawPhaseStart = (player) => {
+      (st.zones[player + '.avatar'] || []).slice().forEach(k => {
+        abil(st, k, 'afterNormalDraw').forEach(ab => {
+          runActions(st, fx, ab.actions || [], { src: k, owner: player, rng: rng });
+        });
+      });
       refillHand(st, fx, player);
       if (!st.over) checkInstantWinDraw(st, fx, player);
       (st.zones[player + '.avatar'] || []).slice().forEach(k => {
@@ -7497,6 +7542,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const eMv = fxCard(c);
           if (eMv && (eMv.noPaidSummon || eMv.noHandSummon))
             return deny(`"${c.name}" ลงสนามแบบจ่าย GEM/ลากวางไม่ได้ — ต้องใช้ความสามารถตามเงื่อนไขบนการ์ด`);
+        }
+        if (from.endsWith('.deck') && to.endsWith('.avatar') && c.type === 'Avatar') {
+          const blkDeck = deckSummonBlocked(st);
+          if (blkDeck) return deny(`อัญเชิญ Avatar จากเด็คไม่ได้ — ${blkDeck} บล็อก`);
         }
         // Construct: ห้ามชื่อซ้ำเสมอ (แม้โต๊ะเสรี)
         if (to.endsWith('.construct')) {
@@ -7557,6 +7606,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             return deny(`"${c.name}" อัญเชิญจากนรกไม่ได้`);
           const blk = hellSummonBlocked(st);
           if (blk) return deny(`อัญเชิญจากนรกไม่ได้ — ${blk} บล็อก`);
+        }
+        if (c.type === 'Avatar' && from.endsWith('.deck')) {
+          const blkDeck = deckSummonBlocked(st);
+          if (blkDeck) return deny(`อัญเชิญ Avatar จากเด็คไม่ได้ — ${blkDeck} บล็อก`);
         }
         const eSum = fxCard(c);
         // ของขวัญ: อัญเชิญฟรีถ้ามีเจคและยังไม่มีของขวัญบนสนาม
@@ -8343,10 +8396,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           applyMagicPromptOnTarget(st, fx, p, a.k, rng);
         } else if (p.kind === 'chooseDiscard') {
           if (p.toDeck) {
-            doMove(st, a.k, p.chooser + '.deck', null, fx);
-            seededShuffle(st.zones[p.chooser + '.deck'], rng);
-            syncHeimdall(st);
-            addLog(st, p.chooser, `คืน ${nameOf(st, a.k)} เข้าเด็คแล้วสับ`);
+            doMove(st, a.k, p.chooser + '.deck', p.toDeckBottom ? 'bottom' : null, fx);
+            if (p.toDeckBottom) {
+              addLog(st, p.chooser, `วาง ${nameOf(st, a.k)} ไว้ล่างสุดเด็ค`);
+            } else {
+              seededShuffle(st.zones[p.chooser + '.deck'], rng);
+              syncHeimdall(st);
+              addLog(st, p.chooser, `คืน ${nameOf(st, a.k)} เข้าเด็คแล้วสับ`);
+            }
           } else {
             const gemAdd = +(st.inst[a.k].gem) || 0;
             doMove(st, a.k, p.chooser + '.hell', null, fx);
@@ -8536,6 +8593,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               }
               const blk = hellSummonBlocked(st);
               if (blk) { addLog(st, 'S', `อัญเชิญจากนรกไม่ได้ — ${blk} บล็อก`); break; }
+            }
+            if (fromZ.endsWith('.deck') && st.inst[a.k] && st.inst[a.k].type === 'Avatar') {
+              const blkDeck = deckSummonBlocked(st);
+              if (blkDeck) { addLog(st, 'S', `อัญเชิญ Avatar จากเด็คไม่ได้ — ${blkDeck} บล็อก`); break; }
             }
             const qd = quotaDeny(st, p.chooser + '.avatar', st.inst[a.k]);
             if (qd) {
@@ -11561,7 +11622,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if ((st.prompts || []).length) return deny('ยังมีเอฟเฟกต์ค้างเลือกอยู่ — จัดการให้จบก่อนจบเทิร์น');
             {
               const must = hostMustAttackPendingName(st, st.active);
-              if (must) return deny(`"${must}" สวมปืนจักรวุทธ ต้องโจมตีถ้าทำได้ — จบเทิร์นไม่ได้`);
+              if (must) return deny(`"${must}" ต้องโจมตีถ้าทำได้ — จบเทิร์นไม่ได้`);
             }
             // กติกา: มือเกิน 7 ใบ ต้องทิ้งให้เหลือ 7 ก่อนจบเทิร์น
             if (strict) { const h = (st.zones[st.active + '.hand'] || []).length; if (h > 7) return deny(`มือเกิน 7 ใบ (มี ${h} ใบ) — ต้องทิ้งให้เหลือ 7 ก่อนจบเทิร์น (ลากการ์ดในมือลงนรก หรือเลือกแล้วกดทิ้ง)`); }

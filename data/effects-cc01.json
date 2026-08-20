@@ -263,8 +263,28 @@
     {
       "code": "CC01-047",
       "name": "ตุ๊กตางูพันคอ",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "hostMustAttack": true,
+      "note": "สวมแล้วโฮสต์ POWER +2 และต้องโจมตีถ้าทำได้"
     },
     {
       "code": "CC01-055",
@@ -548,8 +568,27 @@
     {
       "code": "CC01-008",
       "name": "คนอีสาน ยุคครีเตเชียส",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "exactName": "แมลงปอทอด"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำ แมลงปอทอด จากเด็คขึ้นมือ แล้วสับ"
     },
     {
       "code": "CC01-009",
@@ -661,8 +700,30 @@
     {
       "code": "CC01-010",
       "name": "ลุงบุญโชค",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "สมชายห้องเช่า"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: นำ Magic สมชายห้องเช่า จากเด็คขึ้นมือ แล้วสับ"
     },
     {
       "code": "CC01-038",
@@ -800,8 +861,26 @@
     {
       "code": "CC01-012",
       "name": "เฟรนชี่",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            },
+            {
+              "op": "returnHandToDeck",
+              "pos": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย: จั่ว 2 แล้วนำมือ 1 ใบไว้ล่างสุดเด็ค"
     },
     {
       "code": "CC01-016",
@@ -942,20 +1021,73 @@
       "code": "CC01-020",
       "name": "ผู้กองอึ่งอ่าง",
       "abilities": [],
-      "parseStatus": "stub"
+      "parseStatus": "auto",
+      "allSymbols": true,
+      "note": "ต่อเนื่อง: นับเป็นทุก Symbol ขณะอยู่บน Avatar Zone"
     },
     {
       "code": "CC01-031",
       "name": "เสามงคล",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เสามงคล — โจมตีไม่ได้ + จั่วเพิ่ม 1 หลัง Draw Phase"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "afterNormalDraw"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โจมตีไม่ได้ · Draw Phase หลังจั่วปกติ: จั่ว 1",
+      "cannotAttack": true
     },
     {
       "code": "CC01-018",
       "name": "เสามงคล ทรงจีน",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ผู้เจริญ"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true,
+              "then": [
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "src": "summoned",
+                  "actions": [
+                    {
+                      "op": "returnToHand",
+                      "target": "self"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "cannotAttack": true,
+      "note": "โจมตีไม่ได้ · จุติ: อัญเชิญผู้เจริญจากเด็ค (ไม่จุติ) แล้วเด้งขึ้นมือเมื่อจบเทิร์น"
     },
     {
       "code": "CC01-019",

@@ -1343,7 +1343,9 @@
         "CC01-020"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "allSymbols": true,
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: นับเป็นทุก Symbol ขณะอยู่บน Avatar Zone"
     },
     {
       "name": "ผู้คุมกฎแห่งภาคีมะม่วง",
@@ -2681,17 +2683,68 @@
         "CC01-031",
         "PRMO-017"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เสามงคล — โจมตีไม่ได้ + จั่วเพิ่ม 1 หลัง Draw Phase"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "afterNormalDraw"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "cannotAttack": true,
+      "parseStatus": "auto",
+      "note": "โจมตีไม่ได้ · Draw Phase หลังจั่วปกติ: จั่ว 1"
     },
     {
       "name": "เสามงคล ทรงจีน",
       "codes": [
         "CC01-018"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ผู้เจริญ"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true,
+              "then": [
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "src": "summoned",
+                  "actions": [
+                    {
+                      "op": "returnToHand",
+                      "target": "self"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "cannotAttack": true,
+      "parseStatus": "auto",
+      "note": "โจมตีไม่ได้ · จุติ: อัญเชิญผู้เจริญจากเด็ค (ไม่จุติ) แล้วเด้งขึ้นมือเมื่อจบเทิร์น"
     },
     {
       "name": "เสามงคล ทรงญี่ปุ่น",
@@ -2779,7 +2832,9 @@
         "CC02-018"
       ],
       "abilities": [],
-      "parseStatus": "stub"
+      "blockDeckSummon": true,
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: ทุกคนอัญเชิญ Avatar จากเด็คไม่ได้"
     },
     {
       "name": "อนงค์ พนักงานอาบน้ำสัตว์",

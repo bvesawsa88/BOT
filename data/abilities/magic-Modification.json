@@ -445,8 +445,28 @@
       "codes": [
         "CC01-047"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "hostMustAttack": true,
+      "parseStatus": "auto",
+      "note": "สวมแล้วโฮสต์ POWER +2 และต้องโจมตีถ้าทำได้"
     },
     {
       "name": "ถาดหลุม",
