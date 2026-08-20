@@ -563,6 +563,10 @@ function handleSignalMessage(ws, m) {
     slot.host.send({ t: 'guest' });
     return;
   }
+  if (m.t === 'ping') {
+    ws.send({ t: 'pong' });
+    return;
+  }
   if (m.t === 'relay') {
     const slot = signalRooms.get(ws._sigCode);
     const other = signalOther(slot, ws);
