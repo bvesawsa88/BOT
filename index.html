@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820y">
+<link rel="stylesheet" href="css/style.css?v=20260820z">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -152,44 +152,56 @@
 
 <!-- ═══ ล็อบบี้: สร้าง/เข้าห้อง ═══ -->
 <div id="lobby" class="screen hidden">
-  <div class="lobby-flex">
-    <div class="panel">
-      <div class="panel-title">สร้างห้องใหม่</div>
-      <input id="inpNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off">
-      <div class="panel-note">สร้างห้องแล้วส่งรหัสให้เพื่อน — อยู่คนละที่ คนละเน็ตก็เล่นด้วยกันได้</div>
-      <button id="btnCreate" class="btn-primary big">สร้างห้องออนไลน์</button>
+  <div class="lobby-page">
+    <div class="lobby-head">
+      <div class="lobby-kicker">เล่นออนไลน์</div>
+      <div class="lobby-title">จับคู่กับเพื่อน</div>
     </div>
-    <div class="lobby-or">หรือ</div>
-    <div class="panel">
+    <div class="lobby-flex">
+    <div class="panel lobby-card">
+      <div class="panel-title">สร้างห้องใหม่</div>
+      <label class="lobby-lab" for="inpNick">ชื่อเล่น</label>
+      <input id="inpNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off">
+      <div class="panel-note">สร้างแล้วส่งรหัสให้เพื่อน — คนละที่ คนละเน็ตก็เล่นด้วยกันได้</div>
+      <button id="btnCreate" class="btn-primary big">สร้างห้อง</button>
+    </div>
+    <div class="lobby-or"><span>หรือ</span></div>
+    <div class="panel lobby-card">
       <div class="panel-title">เข้าห้องเพื่อน</div>
-      <input id="inpRoom" class="code-input" maxlength="6" placeholder="รหัสห้อง เช่น K7M2QF" autocomplete="off">
-      <button id="btnJoin" class="btn-primary big">เข้าห้อง</button>
+      <label class="lobby-lab" for="inpRoom">รหัสห้อง 6 ตัว</label>
+      <input id="inpRoom" class="code-input" maxlength="6" placeholder="K7M2QF" autocomplete="off">
+      <button id="btnJoin" class="btn-primary big btn-join">เข้าห้อง</button>
       <button id="btnSpec" class="btn-ghost hidden" style="width:100%">เข้าดูออนไลน์ (ผู้ชม)</button>
       <div id="lobbyMsg" class="lobby-msg"></div>
     </div>
+    </div>
+    <button id="btnLobbyBack" class="link-btn">← กลับเมนูหลัก</button>
   </div>
-  <button id="btnLobbyBack" class="link-btn">← กลับเมนูหลัก</button>
 </div>
 
 <!-- ═══ ห้องรอ ═══ -->
 <div id="room" class="screen hidden">
-  <div class="room-share" id="roomShareHint">แชร์รหัสนี้ให้เพื่อน</div>
-  <div id="roomCode" class="room-code">——————</div>
-  <img id="roomQr" class="room-qr hidden" alt="QR เข้าห้อง" width="160" height="160">
-  <button id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
-  <div class="room-cards">
-    <div class="panel me-panel">
-      <div class="player-name" id="rmMyName">คุณ</div>
-      <select id="selDeck"><option value="starter:SD01">SD01 Starter (50+5)</option></select>
-      <div data-skin-mount></div>
-      <button id="btnReady" class="btn-dark big">กดเมื่อพร้อม</button>
+  <div class="room-page">
+    <div class="room-invite">
+      <div class="room-share" id="roomShareHint">แชร์รหัสนี้ให้เพื่อน</div>
+      <div id="roomCode" class="room-code">——————</div>
+      <img id="roomQr" class="room-qr hidden" alt="QR เข้าห้อง" width="140" height="140">
+      <button id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
     </div>
-    <div class="panel opp-panel"><div id="rmOppBody" class="opp-waiting">รอผู้เล่นอีกคน…</div></div>
+    <div class="room-cards">
+      <div class="panel me-panel">
+        <div class="player-name" id="rmMyName">คุณ</div>
+        <select id="selDeck"><option value="starter:SD01">SD01 Starter (50+5)</option></select>
+        <div data-skin-mount></div>
+        <button id="btnReady" class="btn-dark big">กดเมื่อพร้อม</button>
+      </div>
+      <div class="panel opp-panel"><div id="rmOppBody" class="opp-waiting">รอผู้เล่นอีกคน…</div></div>
+    </div>
+    <div id="rmSpecs" class="room-specs"></div>
+    <button id="btnStart" class="btn-primary big start-btn hidden">เริ่มเกม ▸</button>
+    <div id="rmHint" class="room-specs"></div>
+    <button id="btnLeaveRoom" class="link-btn">ออกจากห้อง</button>
   </div>
-  <div id="rmSpecs" class="room-specs"></div>
-  <button id="btnStart" class="btn-primary big start-btn hidden">เริ่มเกม ▸</button>
-  <div id="rmHint" class="room-specs"></div>
-  <button id="btnLeaveRoom" class="link-btn">ออกจากห้อง</button>
 </div>
 
 <!-- ═══ เด็คของฉัน (ดูอย่างเดียว) ═══ -->

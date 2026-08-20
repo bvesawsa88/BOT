@@ -100,8 +100,8 @@ body.has-back .screen::after{top:50px}
 }
 .screen .lan-peer{background:rgba(255,250,240,.5);border-color:var(--ink)}
 .screen .lan-peer-name,.screen .player-name{color:var(--ink)}
-.screen .lobby-or{color:#4a433c}
-.screen .room-code{color:var(--ink);background:rgba(255,250,240,.55);border:2px dashed var(--ink)}
+.screen .lobby-or{color:#6b5e4e}
+.screen .room-code{color:var(--ink);background:transparent;border:none}
 
 /* เมนูหลัก */
 #userBar{position:absolute;top:16px;right:max(18px,calc(50% - (var(--book-w) / 2) + 18px));z-index:5;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
@@ -164,9 +164,81 @@ body.has-back .screen::after{top:50px}
 .f3{left:22%;bottom:8%;width:120px;opacity:.55;animation-duration:7s;animation-delay:.4s}.f3 img{transform:rotate(8deg)}
 
 /* ล็อบบี้ */
-.lobby-flex{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
-.lobby-or{font-family:'IBM Plex Sans Thai',sans-serif;color:#5c5347;font-weight:600}
-.lobby-msg{font-size:12px;color:var(--red-lite);min-height:14px}
+#lobby,#room{justify-content:flex-start;padding-top:56px;overflow-y:auto}
+.lobby-page,.room-page{
+  width:min(420px, calc(var(--book-w) - 56px));
+  display:flex;flex-direction:column;align-items:stretch;gap:12px;
+  padding:4px 0 18px
+}
+.lobby-head{text-align:center;margin-bottom:2px}
+.lobby-kicker{
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.18em;color:#6b5e4e;text-transform:uppercase
+}
+.lobby-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:2px}
+.lobby-lab{font-size:11.5px;font-weight:700;color:#5c5347;letter-spacing:.4px}
+.lobby-flex{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.lobby-card{width:100%!important;max-width:none;padding:16px 16px 14px;gap:8px}
+.lobby-or{
+  display:flex;align-items:center;gap:10px;
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;color:#6b5e4e;letter-spacing:.12em
+}
+.lobby-or::before,.lobby-or::after{content:'';flex:1;height:1px;background:rgba(26,22,18,.22)}
+.lobby-or span{
+  flex:none;width:36px;height:36px;border-radius:50%;
+  border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;
+  background:#f6efe0;font-size:11px;letter-spacing:0;box-shadow:1px 2px 0 rgba(26,22,18,.12)
+}
+.lobby-msg{font-size:12.5px;color:#8a3a2a;min-height:16px;text-align:center;font-weight:600}
+#lobby .btn-primary.big{
+  background:var(--ink)!important;color:#f4ead6!important;border-color:var(--ink)!important;
+  box-shadow:2px 3px 0 rgba(26,22,18,.28)!important;border-radius:12px!important
+}
+#lobby .btn-primary.big:hover{filter:none;background:#2c241c!important}
+#lobby .btn-join{
+  background:#f6efe0!important;color:var(--ink)!important;
+  box-shadow:inset 0 0 0 1.25px var(--ink), 2px 3px 0 rgba(26,22,18,.12)!important
+}
+#lobby .btn-join:hover{background:#efe4cc!important}
+
+/* ห้องรอ */
+.room-invite{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:12px 14px 14px;background:#fffaf2;border:2px solid var(--ink);
+  border-radius:16px 18px 12px 14px;box-shadow:3px 4px 0 rgba(26,22,18,.14)
+}
+.room-share{font-size:13px;color:#5c5347;text-align:center;max-width:none;line-height:1.45;padding:0}
+.room-code{
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:34px;font-weight:700;letter-spacing:.22em;
+  color:var(--ink);background:transparent;border:none;border-radius:0;padding:2px 4px 0;text-indent:0;
+  line-height:1.1
+}
+.room-qr{display:block;width:132px;height:132px;margin:2px auto 0;border-radius:10px;background:#fff;padding:6px;border:1.5px solid var(--ink);box-shadow:2px 3px 0 rgba(26,22,18,.1)}
+.room-qr.hidden{display:none}
+.room-cards{display:flex;gap:12px;margin-top:2px;flex-wrap:wrap;justify-content:center}
+.panel.me-panel,.panel.opp-panel{width:100%;flex:1 1 180px;max-width:none}
+.panel.me-panel{border-color:var(--ink)}
+.panel.opp-panel{justify-content:center;min-height:168px;border-style:dashed;background:rgba(255,250,240,.55)}
+.player-name{font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:700}
+.player-name .you{font-size:11px;color:#6b5e4e;font-weight:600}
+.player-name .on{font-size:11px;color:#2c6b4a;font-weight:600}
+.opp-waiting{text-align:center;color:#6b5e4e;font-size:13px;line-height:1.5;padding:8px 10px}
+.opp-waiting::before{content:'✦';display:block;font-size:20px;opacity:.45;margin-bottom:6px}
+.ready-yes{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:700;color:#2c6b4a}
+.ready-no{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:#6b5e4e}
+.opp-deck-line{font-size:12.5px;color:#5c5347}
+.room-specs{font-size:12.5px;color:#5c5347;min-height:16px;text-align:center;line-height:1.45}
+.btn-ready-on{background:#2c6b4a!important;color:#f4ead6!important;border-color:#1e4a34!important}
+.screen .btn-primary.big.start-btn,.start-btn{width:100%!important;padding:13px 18px!important;font-size:16px!important;border-width:2.5px!important;background:var(--ink)!important;color:#f4ead6!important}
+#room .btn-mini{
+  background:var(--ink)!important;color:#f4ead6!important;border-color:var(--ink)!important;
+  padding:8px 16px;font-size:13px;border-radius:12px!important;box-shadow:2px 3px 0 rgba(26,22,18,.2)!important
+}
+
+#lobby .panel,#room .panel{
+  background:#fffaf2;box-shadow:3px 4px 0 rgba(26,22,18,.12)
+}
+#lobby .link-btn,#room .link-btn{text-align:center;margin-top:4px}
 
 /* ล็อบบี้ LAN ท้าสู้ */
 .lan-hall-wrap{display:flex;align-items:stretch;justify-content:center;gap:18px;flex-wrap:wrap;width:min(480px,100%)}
@@ -195,25 +267,6 @@ body.has-back .screen::after{top:50px}
 .lan-challenge-sub{font-size:13.5px;line-height:1.5;color:var(--cream2)}
 .lan-challenge-actions{display:flex;gap:8px;margin-top:6px}
 .lan-challenge-actions>button{flex:1;padding:12px 10px;font-size:14px;border-radius:9px;min-height:44px}
-
-/* ห้องรอ */
-.room-share{font-size:13px;color:var(--dim);text-align:center;max-width:420px;line-height:1.45;padding:0 12px}
-.room-code{font-family:'IBM Plex Sans Thai',sans-serif;font-size:44px;font-weight:700;letter-spacing:10px;color:var(--gold);background:var(--card-ui);border:2px dashed var(--red);border-radius:14px;padding:10px 28px;text-indent:10px}
-.room-qr{display:block;width:160px;height:160px;margin:4px auto 0;border-radius:12px;background:#fff;padding:8px;border:2px solid var(--border)}
-.room-qr.hidden{display:none}
-.room-cards{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;justify-content:center}
-.panel.me-panel{width:280px;border-color:var(--red)}
-.panel.opp-panel{width:280px;justify-content:center;min-height:150px}
-.player-name{font-family:'IBM Plex Sans Thai',sans-serif;font-size:15px;font-weight:700}
-.player-name .you{font-size:11px;color:var(--gold);font-weight:600}
-.player-name .on{font-size:11px;color:#2c8f5e;font-weight:600}
-.opp-waiting{text-align:center;color:#5c5347;font-size:13px}
-.ready-yes{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:700;color:#2c8f5e}
-.ready-no{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;color:#5c5347}
-.opp-deck-line{font-size:12.5px;color:var(--dim)}
-.room-specs{font-size:12px;color:var(--dim);min-height:16px}
-.btn-ready-on{background:#2c8f5e!important;color:#fff!important}
-.screen .btn-primary.big.start-btn,.start-btn{width:auto!important;padding:13px 40px!important;font-size:17px!important;border-width:2.5px!important}
 
 /* จอจบเกม */
 #endOv{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#27272cee 0%,#111113ee 72%);display:flex;align-items:center;justify-content:center;z-index:250;padding:16px}
