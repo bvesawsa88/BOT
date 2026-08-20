@@ -949,9 +949,24 @@
     },
     {
       "code": "BT09-054",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "แผนการตู้เย็นทับ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "ownConstructs",
+              "dest": "pickTuyenConstruct",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "แผนการตู้เย็นทับ",
+      "note": "เลือก Construct เรา 1 ใบ -> เลือกทำลาย Avatar ศัตรูที่มี Power <= Construct"
     },
     {
       "code": "BT09-055",

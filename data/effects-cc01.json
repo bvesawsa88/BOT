@@ -1145,8 +1145,30 @@
     {
       "code": "CC01-019",
       "name": "หมวดเงียบ ทหารรับจ้าง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "tap",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "requireUntapped": true,
+              "untilSourceLeavesZone": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "CC01-041",

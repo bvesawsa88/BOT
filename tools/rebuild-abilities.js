@@ -37,12 +37,12 @@ const META_KEYS = [
   'uniqueAttachedNames', 'uniqueMagicNameIncludes', 'attachOnly', 'hostAttachNameIncludes', 'hostBlockReactUntilCombatEnd', 'suppressVictimDestroyed',
   'stackPowerOnReattach', 'reattachEnemyIfNoOwn',
   'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf',
-    'noHellSummon', 'only', 'replaceFirstDrawWithSelf', 'bounceHostOnLeave',
+    'noHellSummon', 'only', 'replaceFirstDrawWithSelf', 'bounceHostOnLeave', 'returnControlOnLeave', 'untilSourceLeavesZone', 'changeSrcSubtype',
     'combatImmuneVsLowerCost', 'attackIf', 'enemyCostAura', 'setPowerIfAllyNameIncludes', 'setPowerTo',
     'controlImmuneExcept', 'scoutBonusOwnKapom', 'scoutBonusConstruct', 'hostCostDelta',
     'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
     'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',
-    'drawOnSummonedByAvatarNameIncludes'
+    'drawOnSummonedByAvatarNameIncludes', 'controlImmuneOwnAvatars'
   ];
 
 function loadJson(p) {

@@ -1178,8 +1178,23 @@
       "codes": [
         "BT09-054"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "ownConstructs",
+              "dest": "pickTuyenConstruct",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือก Construct เรา 1 ใบ -> เลือกทำลาย Avatar ศัตรูที่มี Power <= Construct"
     },
     {
       "name": "แผนการ : ถอยรถชน",
@@ -1914,8 +1929,42 @@
       "codes": [
         "CC02-045"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "เซ่นไหว้",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "costMin": 3
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "takeControl",
+              "who": "opp",
+              "from": "own",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "thenAttachSrc": true,
+              "changeSrcSubtype": "Modification",
+              "until": "sourceLeavesField",
+              "returnControlOnLeave": true,
+              "keepTapped": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "สุดยอดท่าไม้ตายผู้กล้า THE END",

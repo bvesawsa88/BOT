@@ -479,9 +479,31 @@
     },
     {
       "code": "BT07-041",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "คาบู ช่วยด้วย"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "fromHand": true,
+          "requireTargetOwn": true,
+          "requireTargetSymbol": "สัตว์",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree"
+            },
+            {
+              "op": "preventDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "คาบู ช่วยด้วย",
+      "note": "เมื่อสัตว์เราจะถูกทำลาย ทิ้งมือ 1: อัญเชิญใบนี้แล้วยกเลิกการทำลาย"
     },
     {
       "code": "BT07-042",

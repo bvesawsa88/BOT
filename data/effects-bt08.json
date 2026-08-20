@@ -651,9 +651,59 @@
     },
     {
       "code": "BT08-061",
-      "abilities": [],
-      "parseStatus": "manual",
-      "name": "ขวาน 7 สี"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==แดง"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==ฟ้า"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==ม่วง"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 1
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "name": "ขวาน 7 สี",
+      "note": "สวมใส่: ทำงานตามสีโฮสต์ (แดง: Power+2 combat / ฟ้า: จั่ว 1 / ม่วง: ธรณีสูบ 1 Power+1 / เขียว: ได้รับลูกฮึด)"
     },
     {
       "code": "BT08-062",

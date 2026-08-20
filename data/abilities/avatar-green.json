@@ -300,8 +300,30 @@
       "codes": [
         "BT07-041"
       ],
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "fromHand": true,
+          "requireTargetOwn": true,
+          "requireTargetSymbol": "สัตว์",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree"
+            },
+            {
+              "op": "preventDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อสัตว์เราจะถูกทำลาย ทิ้งมือ 1: อัญเชิญใบนี้แล้วยกเลิกการทำลาย"
     },
     {
       "name": "คุณเชิดชัย Super Air",
@@ -2787,8 +2809,30 @@
       "codes": [
         "CC01-019"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "tap",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "requireUntapped": true,
+              "untilSourceLeavesZone": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "หมอเลิฟ ฟันเหยิน",

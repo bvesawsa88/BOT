@@ -1,0 +1,14 @@
+---
+description: เมื่อทำข้อมูลการ์ด ให้สีกรอบ / สีเจม / ความสามารถตรงกันตาม skill card-data
+globs: data/cards.json,data/abilities/**/*.json,data/effects*.json,tools/fix-gem-colors.js,tools/rebuild-abilities.js,tools/sync-cards-from-bottcg.js
+alwaysApply: false
+---
+
+# ข้อมูลการ์ด — สี / เจม / ความสามารถ
+
+เมื่อแก้หรือสร้างข้อมูลการ์ด (สีกรอบ · เจมสี · ความสามารถ):
+
+1. อ่าน `.cursor/skills/card-data/SKILL.md` ทันที แล้วทำตามนั้น
+2. `color` = สีกรอบ/คอส · `gemColor` = สีเพชร (คนละฟิลด์ — อย่าเดาว่าเท่ากัน)
+3. เพชรใส → `gemColor: ขาว` · ไม่รู้แน่ → ว่าง (อย่าเดาเป็นขาว)
+4. Avatar/Construct เปลี่ยนสีแล้วต้องรัน `node tools/rebuild-abilities.js` ให้ความสามารถอยู่ไฟล์ถูกสี

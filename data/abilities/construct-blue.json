@@ -33,8 +33,9 @@
         "BT11-073"
       ],
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Avatar เราจะไม่ถูกเปลี่ยนการควบคุม"
+      "controlImmuneOwnAvatars": true,
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "name": "ZeedZad Server",

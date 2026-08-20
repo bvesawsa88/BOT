@@ -1926,8 +1926,9 @@
       "code": "BT11-073",
       "name": "รูปประจำบ้าน",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Avatar เราจะไม่ถูกเปลี่ยนการควบคุม"
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม",
+      "controlImmuneOwnAvatars": true
     },
     {
       "code": "BT11-074",

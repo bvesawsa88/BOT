@@ -564,8 +564,42 @@
     {
       "code": "CC02-045",
       "name": "สิงสู่เพื่อสู่สม",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "เซ่นไหว้",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "costMin": 3
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "takeControl",
+              "who": "opp",
+              "from": "own",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "thenAttachSrc": true,
+              "changeSrcSubtype": "Modification",
+              "until": "sourceLeavesField",
+              "returnControlOnLeave": true,
+              "keepTapped": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "CC02-042",

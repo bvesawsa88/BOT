@@ -7585,8 +7585,30 @@
     {
       "code": "BT07-041",
       "name": "คาบู ช่วยด้วย",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "fromHand": true,
+          "requireTargetOwn": true,
+          "requireTargetSymbol": "สัตว์",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree"
+            },
+            {
+              "op": "preventDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อสัตว์เราจะถูกทำลาย ทิ้งมือ 1: อัญเชิญใบนี้แล้วยกเลิกการทำลาย"
     },
     {
       "code": "BT07-042",
@@ -8506,8 +8528,58 @@
     {
       "code": "BT08-061",
       "name": "ขวาน 7 สี",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==แดง"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==ฟ้า"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==ม่วง"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 1
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สวมใส่: ทำงานตามสีโฮสต์ (แดง: Power+2 combat / ฟ้า: จั่ว 1 / ม่วง: ธรณีสูบ 1 Power+1 / เขียว: ได้รับลูกฮึด)"
     },
     {
       "code": "BT08-062",
@@ -9577,8 +9649,23 @@
     {
       "code": "BT09-054",
       "name": "แผนการตู้เย็นทับ",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "ownConstructs",
+              "dest": "pickTuyenConstruct",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือก Construct เรา 1 ใบ -> เลือกทำลาย Avatar ศัตรูที่มี Power <= Construct"
     },
     {
       "code": "BT09-055",
@@ -13342,8 +13429,9 @@
       "code": "BT11-073",
       "name": "รูปประจำบ้าน",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Avatar เราจะไม่ถูกเปลี่ยนการควบคุม"
+      "parseStatus": "auto",
+      "controlImmuneOwnAvatars": true,
+      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "BT11-074",
@@ -13686,8 +13774,30 @@
     {
       "code": "CC01-019",
       "name": "หมวดเงียบ ทหารรับจ้าง",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "tap",
+              "from": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "requireUntapped": true,
+              "untilSourceLeavesZone": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "CC01-020",
@@ -15510,8 +15620,42 @@
     {
       "code": "CC02-045",
       "name": "สิงสู่เพื่อสู่สม",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "เซ่นไหว้",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "type": "Avatar",
+                "costMin": 3
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "takeControl",
+              "who": "opp",
+              "from": "own",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ],
+              "thenAttachSrc": true,
+              "changeSrcSubtype": "Modification",
+              "until": "sourceLeavesField",
+              "returnControlOnLeave": true,
+              "keepTapped": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "code": "CC02-046",
@@ -22381,8 +22525,58 @@
     {
       "code": "PRMO-095",
       "name": "ขวาน 7 สี",
-      "abilities": [],
-      "parseStatus": "manual"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==แดง"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==ฟ้า"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "declareAttack",
+            "if": "hostColor==ม่วง"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 1
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สวมใส่: ทำงานตามสีโฮสต์ (แดง: Power+2 combat / ฟ้า: จั่ว 1 / ม่วง: ธรณีสูบ 1 Power+1 / เขียว: ได้รับลูกฮึด)"
     },
     {
       "code": "PRMO-096",

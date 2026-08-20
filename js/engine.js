@@ -149,7 +149,8 @@
     'combatImmuneVsLowerCost', 'attackIf', 'controlImmuneExcept', 'scoutBonusOwnKapom',
     'scoutBonusConstruct', 'hostCostDelta', 'hostPowerIfEffCostMin',
     'destroyAnyOnSummonedByAvatarNameIncludes', 'destroyAnyOnSummonedByAvatarSymbol',
-    'extraColors', 'onlyAttackableAllyNameIncludes', 'cannotAttack', 'unityOnlyNameIncludes'
+    'extraColors', 'onlyAttackableAllyNameIncludes', 'cannotAttack', 'unityOnlyNameIncludes',
+    'controlImmuneOwnAvatars'
   ];
   function inheritMetaFromNamePeers(chosen, nm) {
     if (!chosen || !nm) return chosen;
@@ -357,7 +358,14 @@
       if (st.inst[id].attachedTo === k && st.inst[id].subtype === 'Modification') {
         const txt = st.inst[id].effect || '';
         if (kw === 'โล่มนุษย์' && /ได้รับความสามารถ\s*โล่มนุษย์|ได้รับ\s*โล่มนุษย์/.test(txt)) return true;
-        if (kw === 'ลูกฮึด' && /ได้รับ\s*ลูกฮึด|ได้รับความสามารถ\s*ลูกฮึด/.test(txt)) return true;
+        if (kw === 'ลูกฮึด' && /ได้รับ\s*ลูกฮึด|ได้รับความสามารถ\s*ลูกฮึด/.test(txt)) {
+          if (nameMatches(st.inst[id], 'ขวาน 7 สี') || nameMatches(st.inst[id], 'ขวานเจ็ดสี')) {
+            const host = st.inst[k];
+            if (host && host.color === 'เขียว') return true;
+            return false;
+          }
+          return true;
+        }
         if (kw === 'สามัคคี' && /ได้รับ\s*สามัคคี|ได้รับความสามารถ\s*สามัคคี/.test(txt)) return true;
         if (kw === 'เตะไข่' && /ได้รับ\s*เตะไข่|ได้รับความสามารถ\s*เตะไข่/.test(txt)) return true;
         if (kw === 'แทงหลัง' && /ได้รับ\s*แทงหลัง|ได้รับความสามารถ\s*แทงหลัง/.test(txt)) return true;
@@ -711,6 +719,17 @@
       const hit = check(fxCard(m), nameOf(st, targetK));
       if (hit) return hit;
     }
+    // รูปประจำบ้าน: ป้องกัน Avatar เราทั้งหมดจากการเปลี่ยนการควบคุม
+    const targetOwner = ownerOf(st, targetK);
+    if (targetOwner && targetOwner !== 'S') {
+      const protects = (st.zones[targetOwner + '.construct'] || []).some(id => {
+        const construct = st.inst[id];
+        if (!construct || construct.faceUp === false) return false;
+        const e = fxCard(construct);
+        return !!(e && e.controlImmuneOwnAvatars);
+      });
+      if (protects) return `มี "${nameOf(st, targetK)}" ที่ไม่ถูกเปลี่ยนการควบคุมจากความสามารถของ "รูปประจำบ้าน"`;
+    }
     return null;
   }
 
@@ -812,6 +831,17 @@
           doMove(st, leaveHost, orig + '.hand', null, fx || {});
           if (st.inst[leaveHost]) delete st.inst[leaveHost].originalOwner;
           delete st._bounceHostOnLeave;
+        }
+      }
+      if (leaveHost && (leaveHostFx.returnControlOnLeave || (st.inst[k] && st.inst[k].returnControlOnLeave))) {
+        if (st.inst[leaveHost] && (zoneOf(st, leaveHost) || '').endsWith('.avatar')) {
+          const orig = st.inst[leaveHost].originalOwner || ownerOf(st, leaveHost);
+          const curr = ownerOf(st, leaveHost);
+          if (orig && orig !== curr) {
+            doMove(st, leaveHost, orig + '.avatar', null, fx || {});
+            delete st.inst[leaveHost].originalOwner;
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, k)}: ออกจากสนาม — คืนการควบคุม ${nameOf(st, leaveHost)} ให้เจ้าของเดิม (${orig})`);
+          }
         }
       }
       // ใบสวมใส่: ตัดสาย + ย้ายลงนรกเจ้าของโฮสต์จริงๆ (ห้ามค้างใน Magic Zone)
@@ -940,7 +970,15 @@
   }
   function cannotChangeState(st, k) {
     const c = st.inst[k];
-    return !!(c && c.cannotChangeStateUntilEOT);
+    if (!c) return false;
+    if (c.cannotChangeStateUntilEOT) return true;
+    if (c.cannotChangeStateSourceK) {
+      const srcK = c.cannotChangeStateSourceK;
+      const srcZ = zoneOf(st, srcK);
+      if (srcZ && srcZ.endsWith('.avatar')) return true;
+      delete c.cannotChangeStateSourceK;
+    }
+    return false;
   }
   function abilitiesNullified(st, k) {
     const c = st.inst[k];
@@ -1331,6 +1369,7 @@
       kind: 'react', mode: 'preventDestroy', src: null, options, chooser, target: k,
       actions: [{ op: 'preventDestroy' }], reactTrigger: 'avatarWouldBeDestroyed',
       seconds: 10, optional: true,
+      avatarHandAbility: options.some(id => st.inst[id] && st.inst[id].type !== 'Magic'),
       label: `${c.name} จะถูกทำลาย`
     });
     addLog(st, chooser, `React พร้อมใช้ (${options.length} ใบ): ${c.name} จะถูกทำลาย — ใช้หมอมาแล้ววววเพื่อกันทำลาย หรือไม่ใช้`);
@@ -2064,8 +2103,12 @@
       if (!ok) return false;
     }
     if (f.costMax != null && effCost(st, k) > f.costMax) return false;
+    if (f.costMin != null && effCost(st, k) < f.costMin) return false;
     if (f.costLteSrc && f._srcK) {
       if (effCost(st, k) > effCost(st, f._srcK)) return false;
+    }
+    if (f.powerLteSrc && f._srcK) {
+      if (effPower(st, k) > effPower(st, f._srcK)) return false;
     }
     if (f.powerLtSrc && f._srcK) {
       if (effPower(st, k) >= effPower(st, f._srcK)) return false;
@@ -2158,6 +2201,12 @@
     if (ab.requireFromOppCard && !(opts.fromOppCard || opts.byOpp || opts.fromOppMagic)) return false;
     if (ab.requireTargetNameIncludes && opts.targetK) {
       if (!nameMatches(st.inst[opts.targetK], ab.requireTargetNameIncludes)) return false;
+    }
+    if (ab.requireTargetSymbol && opts.targetK) {
+      if (!cardSymbols(st, opts.targetK).includes(ab.requireTargetSymbol)) return false;
+    }
+    if (ab.requireTargetOwn && opts.targetK) {
+      if (ownerOf(st, opts.targetK) !== owner) return false;
     }
     if (ab.requireCritical && !inCritical(st, owner)) return false;
     return true;
@@ -3416,6 +3465,7 @@
           .concat((st.zones[p.chooser + '.hell'] || []).filter(x => x !== p.src));
       }
       else if (p.from === 'dark') pool = (st.zones[p.chooser + '.dark'] || []).filter(x => x !== p.src);
+      else if (p.from === 'ownConstructs') pool = (st.zones[p.chooser + '.construct'] || []).slice();
       else if (p.from === 'ownAvatars') pool = (st.zones[p.chooser + '.avatar'] || []).filter(x => p.includeSelf || x !== p.src);
       else if (p.from === 'enemyAvatars') pool = (st.zones[other(p.chooser) + '.avatar'] || []).slice();
       else if (p.from === 'allAvatars') pool = [...(st.zones['A.avatar'] || []), ...(st.zones['B.avatar'] || [])].filter(x => p.includeSelf || x !== p.src);
@@ -3806,7 +3856,8 @@
     const out = [];
     const consider = (m, allowFacedown) => {
       const mc = st.inst[m]; if (!mc) return;
-      if (mc.type !== 'Magic' || magicSubtype(mc) !== 'React') return;
+      const isAvatarHandReact = mc.type === 'Avatar' && abilitiesOf(mc.code, triggerOn, mc.name).some(ab => ab.keyword === 'React' && ab.fromHand);
+      if (!isAvatarHandReact && (mc.type !== 'Magic' || magicSubtype(mc) !== 'React')) return;
       if (!abilitiesOf(mc.code, triggerOn, mc.name).length) return;
       if (reactQuotaBlocks(st, owner, mc)) return;
       if (oncePerTurnCardBlocked(st, m, owner)) return;
@@ -4563,6 +4614,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       abil(st, srcK, 'declareAttack').forEach(ab => {
         const cond = (ab.trigger && ab.trigger.if) || '';
         if (cond === 'source==self' && srcK !== atkId) return;
+        if (cond === 'hostColor==แดง') {
+          const host = st.inst[srcK] && st.inst[srcK].attachedTo;
+          if (!host || st.inst[host].color !== 'แดง') return;
+        }
+        if (cond === 'hostColor==ฟ้า') {
+          const host = st.inst[srcK] && st.inst[srcK].attachedTo;
+          if (!host || st.inst[host].color !== 'ฟ้า') return;
+        }
+        if (cond === 'hostColor==ม่วง') {
+          const host = st.inst[srcK] && st.inst[srcK].attachedTo;
+          if (!host || st.inst[host].color !== 'ม่วง') return;
+        }
         const m = cond.match(/^targetSymbol:(.+)$/);
         if (m && (!defId || !st.inst[defId] || st.inst[defId].symbol !== m[1])) return;
         if (cond === 'targetIsAvatar' && (!defId || !(zoneOf(st, defId) || '').endsWith('.avatar'))) return;
@@ -4605,8 +4668,6 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const n = takeFromDeckToHand(st, own, ac.count || 1, fx).length;
             if (n) { addLog(st, own, `เอฟเฟกต์ ${label}: จั่ว ${n} ใบ`); fx.snd = 'draw'; }
           } else if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'self') {
-            // ตัวโจมตีเอง: declareBuffs ใส่ไปแล้ว — อย่าซ้ำ (พระนารายณ์ +2 สองรอบ)
-            // ใบสวมบนตัวโจมตี: ยังใส่ได้ (บัฟจาก Mod)
             if (srcK === atkId) return;
             const until = ac.duration === 'combat' ? 'combat' : 'endOfTurn';
             st.buffs.push({ k: atkId, amt: ac.amount || 0, until, from: srcK });
@@ -5829,7 +5890,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีเป้าให้นำขึ้นมือ`);
       } else if (ac.op === 'pick') {
         const chooser = ac.chooser === 'opp' ? other(ctx.owner) : ctx.owner;
-        let from = ac.from === 'own' ? 'ownAvatars' : ac.from === 'enemy' ? 'enemyAvatars' : ac.from === 'any' ? 'allAvatars' : ac.from === 'ownMagic' ? 'ownMagic' : 'ownAvatars';
+        let from = ac.from === 'own' ? 'ownAvatars' : ac.from === 'enemy' ? 'enemyAvatars' : ac.from === 'any' ? 'allAvatars' : ac.from === 'ownMagic' ? 'ownMagic' : ac.from === 'ownConstructs' ? 'ownConstructs' : 'ownAvatars';
         const p = {
           kind: 'pick', from, src: ctx.src, chooser, filter: ac.filter || {},
           dest: ac.dest || 'bounceHand', optional: !ac.required, then: ac.then || null, srcToHell: !!ctx.toHellAfter,
@@ -6500,14 +6561,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (made) { addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: อัญเชิญ Token "${ac.name || 'Token'}" (P${ac.power != null ? ac.power : (ac.amount || 0)}) ${made} ตัว`); fx.snd = 'place'; }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: อัญเชิญ Token ไม่ได้ — Avatar Zone เต็ม (รวมไม่เกิน 6)`);
       } else if (ac.op === 'takeControl') {
+        const chooser = ac.who === 'opp' ? other(ctx.owner) : ctx.owner;
+        const receiver = ctx.owner;
         const p = {
-          kind: 'pick', from: 'enemyAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter,
+          kind: 'pick', from: ac.from === 'own' ? 'ownAvatars' : 'enemyAvatars', src: ctx.src, chooser, receiver, filter: ac.filter,
           dest: 'takeControl', optional: ac.optional != null ? !!ac.optional : true,
           until: ac.until || 'endOfTurn', keepTapped: ac.keepTapped !== false,
-          thenAttachSrc: !!ac.thenAttachSrc, srcToHell: !!ctx.toHellAfter
+          thenAttachSrc: !!ac.thenAttachSrc, srcToHell: !!ctx.toHellAfter,
+          changeSrcSubtype: ac.changeSrcSubtype || null,
+          returnControlOnLeave: !!ac.returnControlOnLeave
         };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
-        else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ฝ่ายตรงข้ามให้ยึด`);
+        else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ให้ยึด`);
       } else if (ac.op === 'exile') {
         if (ac.target === 'self') { if (zoneOf(st, ctx.src)) { doMove(st, ctx.src, ctx.owner + '.dark', null, fx); addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เนรเทศตัวเองลงมิติมืด`); } }
         else { const p = { kind: 'pick', from: ac.from === 'own' ? 'ownAvatars' : ac.from === 'any' ? 'allAvatars' : 'enemyAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter, dest: 'dark', optional: true };
@@ -6548,7 +6613,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             optional: ac.optional != null ? !!ac.optional : true,
             requireUntapped: ac.op === 'tap' && ac.requireUntapped !== false,
             multiExact: need > 1 ? need : null, multiGot: 0,
-            then: ac.then || null
+            then: ac.then || null,
+            untilSourceLeavesZone: !!ac.untilSourceLeavesZone
           };
           const cands = promptCandidates(st, p);
           if (cands.length < need) {
@@ -7780,6 +7846,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             addLog(st, 'S', `เตือน: ${zLabel(to)} เกิน ${cap[suf]} ใบ (โต๊ะเสรี — ตกลงกันเอง)`);
         }
         fx.snd = 'place'; break;
+      }
+
+      case 'destroyCard': {
+        const c = st.inst[a.k]; if (!c) break;
+        destroyCard(st, fx, a.k, { ignoreProtect: !!a.ignoreProtect });
+        break;
       }
 
       case 'summon': {
@@ -9299,16 +9371,19 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const block = controlImmuneBlock(st, a.k, p.src);
             if (block) { addLog(st, 'S', block); }
             else {
-              const qd = quotaDeny(st, p.chooser + '.avatar', st.inst[a.k]);
+              const targetSide = p.receiver || p.chooser;
+              const qd = quotaDeny(st, targetSide + '.avatar', st.inst[a.k]);
               if (qd) addLog(st, 'S', `ยึดไม่ได้ (${qd})`);
               else {
                 const fromOwner = ownerOf(st, a.k);
                 if (st.inst[a.k].originalOwner == null) st.inst[a.k].originalOwner = fromOwner;
-                doMove(st, a.k, p.chooser + '.avatar', null, fx);
+                doMove(st, a.k, targetSide + '.avatar', null, fx);
                 if (p.keepTapped !== false) st.inst[a.k].tapped = true;
-                addLog(st, p.chooser, `⛓️ เอฟเฟกต์ ${nameOf(st, p.src)}: ยึดการควบคุม ${nameOf(st, a.k)} มาฝั่งเรา${p.keepTapped !== false ? ' (นอน)' : ''}`);
+                addLog(st, p.chooser, `⛓️ เอฟเฟกต์ ${nameOf(st, p.src)}: ยึดการควบคุม ${nameOf(st, a.k)} มาฝั่ง ${targetSide}${p.keepTapped !== false ? ' (นอน)' : ''}`);
+                if (p.changeSrcSubtype && st.inst[p.src]) st.inst[p.src].subtype = p.changeSrcSubtype;
                 if (p.thenAttachSrc && st.inst[p.src] && equipOnto(st, p.src, a.k))
                   addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: สวมใส่ตัวเองให้ ${nameOf(st, a.k)}`);
+                if (p.returnControlOnLeave && st.inst[p.src]) st.inst[p.src].returnControlOnLeave = true;
                 if ((p.until || 'endOfTurn') === 'endOfTurn') {
                   st.scheduled.push({
                     player: st.active, when: 'endPhase', op: 'returnControl',
@@ -9325,6 +9400,30 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             fx.snd = 'clash';
             // นรสิง ฯลฯ — นัดเปลี่ยนร่างเฉพาะเมื่อทำลายสำเร็จ
             if (p.then && p.then.length) runActions(st, fx, p.then, { src: p.src, owner: p.chooser, rng });
+          } else if (p.dest === 'pickTuyenConstruct') {
+            const constructK = a.k;
+            const constructPower = effPower(st, constructK);
+            addLog(st, p.chooser, `เลือก Construct: ${nameOf(st, constructK)} (POWER ${constructPower})`);
+            const opp = other(p.chooser);
+            const candidates = (st.zones[opp + '.avatar'] || []).filter(id => {
+              const c = st.inst[id];
+              return c && effPower(st, id) <= constructPower;
+            });
+            if (candidates.length === 0) {
+              addLog(st, 'S', `ไม่มี Avatar ฝ่ายตรงข้ามที่มี POWER ≤ ${constructPower}`);
+            } else {
+              st.prompts.unshift({
+                kind: 'pick',
+                from: 'ids',
+                ids: candidates,
+                allowAnyZone: true,
+                src: p.src,
+                chooser: p.chooser,
+                dest: 'destroy',
+                optional: false,
+                label: `ทำลาย Avatar ที่มี POWER ≤ ${constructPower}`
+              });
+            }
           } else if (p.dest === 'scoutOtaHost') {
             const host = a.k;
             const otas = (p.otaIds || []).filter(id => st.inst[id] && (zoneOf(st, id) || '').endsWith('.hand'));
@@ -9401,6 +9500,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 addLog(st, 'S', `${nameOf(st, a.k)} ไม่สามารถเปลี่ยนสภาพได้จนจบเทิร์น`);
               else {
                 st.inst[a.k].tapped = true;
+                if (p.untilSourceLeavesZone) st.inst[a.k].cannotChangeStateSourceK = p.src;
                 addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: นอน ${nameOf(st, a.k)}`);
               }
             }
@@ -12187,5 +12287,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose };
+  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove };
 });
