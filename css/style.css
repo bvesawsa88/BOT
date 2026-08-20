@@ -209,10 +209,13 @@ body.has-back .screen::after{top:50px}
 }
 .room-share{font-size:13px;color:#5c5347;text-align:center;max-width:none;line-height:1.45;padding:0}
 .room-code{
-  font-family:'IBM Plex Sans Thai',sans-serif;font-size:34px;font-weight:700;letter-spacing:.22em;
-  color:var(--ink);background:transparent;border:none;border-radius:0;padding:2px 4px 0;text-indent:0;
-  line-height:1.1
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:clamp(22px, 7.2vw, 34px);font-weight:700;
+  letter-spacing:.12em;color:var(--ink);background:transparent;border:none;border-radius:8px;
+  padding:6px 4px;text-indent:0;line-height:1.15;width:100%;max-width:100%;
+  display:block;text-align:center;white-space:nowrap;overflow:visible;cursor:pointer
 }
+.room-invite-actions{display:flex;gap:8px;width:100%;flex-wrap:wrap;justify-content:center}
+.room-invite-actions .btn-mini{flex:1 1 120px}
 .room-qr{display:block;width:132px;height:132px;margin:2px auto 0;border-radius:10px;background:#fff;padding:6px;border:1.5px solid var(--ink);box-shadow:2px 3px 0 rgba(26,22,18,.1)}
 .room-qr.hidden{display:none}
 .room-cards{display:flex;gap:12px;margin-top:2px;flex-wrap:wrap;justify-content:center}
@@ -239,6 +242,38 @@ body.has-back .screen::after{top:50px}
   background:#fffaf2;box-shadow:3px 4px 0 rgba(26,22,18,.12)
 }
 #lobby .link-btn,#room .link-btn{text-align:center;margin-top:4px}
+
+@media (max-width:920px){
+  #lobby,#room{
+    justify-content:flex-start;
+    padding-top:calc(58px + env(safe-area-inset-top, 0px));
+    padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px));
+    padding-left:12px;padding-right:12px;
+    overflow-x:hidden;overflow-y:auto;
+    -webkit-overflow-scrolling:touch
+  }
+  .lobby-page,.room-page{
+    width:min(100%, calc(var(--book-w) - 36px));
+    margin-left:12px;
+    gap:10px
+  }
+  .room-invite{
+    position:sticky;top:0;z-index:5;
+    padding:10px 10px 12px;gap:6px;
+    background:#fff8ea
+  }
+  .room-share{font-size:12px;line-height:1.35}
+  .room-code{
+    font-size:clamp(26px, 9vw, 32px);
+    letter-spacing:.1em;
+    background:#fff;border:2px solid var(--ink);border-radius:12px;
+    padding:10px 6px;margin:2px 0
+  }
+  .room-qr{width:72px;height:72px;padding:4px}
+  .panel.opp-panel{min-height:96px}
+  .opp-waiting::before{display:none}
+  #room .btn-mini{padding:10px 12px;font-size:13px;min-height:44px}
+}
 
 /* ล็อบบี้ LAN ท้าสู้ */
 .lan-hall-wrap{display:flex;align-items:stretch;justify-content:center;gap:18px;flex-wrap:wrap;width:min(480px,100%)}

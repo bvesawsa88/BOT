@@ -496,9 +496,9 @@ function handleLanMessage(p, m) {
   }
 }
 
-function onLanUpgrade(req, socket, head) {
+function wsAccept(req, socket, head) {
   const key = req.headers['sec-websocket-key'];
-  if (!key) { socket.destroy(); return; }
+  if (!key) { socket.destroy(); return null; }
   const accept = crypto.createHash('sha1').update(key + WS_GUID).digest('base64');
   socket.write(
     'HTTP/1.1 101 Switching Protocols\r\n' +
@@ -507,8 +507,82 @@ function onLanUpgrade(req, socket, head) {
     'Sec-WebSocket-Accept: ' + accept + '\r\n\r\n'
   );
   if (head && head.length) socket.unshift(head);
+  return attachWs(socket);
+}
 
-  const ws = attachWs(socket);
+/* ── สัญญาณจับคู่ออนไลน์ (WebRTC) ── */
+const signalRooms = new Map(); // code -> { host, guest }
+
+function signalOther(slot, ws) {
+  if (!slot) return null;
+  if (slot.host === ws) return slot.guest;
+  if (slot.guest === ws) return slot.host;
+  return null;
+}
+
+function leaveSignal(ws) {
+  const code = ws._sigCode;
+  if (!code) return;
+  const slot = signalRooms.get(code);
+  if (!slot) { ws._sigCode = ''; return; }
+  const other = signalOther(slot, ws);
+  if (other) other.send({ t: 'gone' });
+  if (slot.host === ws) signalRooms.delete(code);
+  else if (slot.guest === ws) slot.guest = null;
+  ws._sigCode = '';
+  ws._sigRole = '';
+}
+
+function handleSignalMessage(ws, m) {
+  if (!m || !m.t) return;
+  if (m.t === 'host') {
+    const code = String(m.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    if (code.length !== 6) { ws.send({ t: 'error', m: 'รหัสห้องไม่ถูกต้อง' }); return; }
+    const old = signalRooms.get(code);
+    if (old && old.host && old.host !== ws) {
+      ws.send({ t: 'busy' });
+      return;
+    }
+    leaveSignal(ws);
+    signalRooms.set(code, { host: ws, guest: (old && old.host === ws) ? old.guest : null });
+    ws._sigCode = code;
+    ws._sigRole = 'host';
+    ws.send({ t: 'ok', code });
+    return;
+  }
+  if (m.t === 'join') {
+    const code = String(m.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    const slot = signalRooms.get(code);
+    if (!slot || !slot.host) { ws.send({ t: 'nohost' }); return; }
+    if (slot.guest && slot.guest !== ws) { ws.send({ t: 'full' }); return; }
+    leaveSignal(ws);
+    slot.guest = ws;
+    ws._sigCode = code;
+    ws._sigRole = 'guest';
+    ws.send({ t: 'ok', code });
+    slot.host.send({ t: 'guest' });
+    return;
+  }
+  if (m.t === 'relay') {
+    const slot = signalRooms.get(ws._sigCode);
+    const other = signalOther(slot, ws);
+    if (!other) return;
+    other.send({ t: 'relay', msg: m.msg });
+  }
+}
+
+function onSignalUpgrade(req, socket, head) {
+  const ws = wsAccept(req, socket, head);
+  if (!ws) return;
+  ws._sigCode = '';
+  ws._sigRole = '';
+  ws.onMessage = (m) => handleSignalMessage(ws, m);
+  ws.onClose = () => leaveSignal(ws);
+}
+
+function onLanUpgrade(req, socket, head) {
+  const ws = wsAccept(req, socket, head);
+  if (!ws) return;
   const peer = {
     id: nextPeerId++,
     nick: 'ผู้เล่น',
@@ -531,6 +605,10 @@ server.on('upgrade', (req, socket, head) => {
     onLanUpgrade(req, socket, head);
     return;
   }
+  if (urlPath === '/signal' || urlPath === '/signal/') {
+    onSignalUpgrade(req, socket, head);
+    return;
+  }
   socket.write('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
   socket.destroy();
 });
@@ -545,7 +623,7 @@ server.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log(`   (ไม่พบ IP วง LAN — ตรวจ Wi‑Fi)`);
   }
-  console.log(`   ล็อบบี้ท้าสู้: WebSocket /lan`);
+  console.log(`   จับคู่ออนไลน์: WebSocket /signal`);
   console.log(`   แจ้งบัค: GET/POST /feedback` + (FEEDBACK_WEBHOOK ? ' → Discord ✓' : ' (ตั้ง DISCORD_FEEDBACK_WEBHOOK)'));
   console.log(`   Press Ctrl+C to stop.\n`);
 });

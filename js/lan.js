@@ -1,27 +1,14 @@
-/* BoT LAN — WebRTC P2P ผ่าน PeerJS (signaling ฟรี · เกมวิ่งเครื่องต่อเครื่อง)
-   โฮสต์ = ที่นั่ง A · แขก = B · ไม่มีเซิร์ฟเวอร์เกม */
+/* BoT online — WebRTC P2P · สัญญาณผ่านเซิร์ฟเวอร์เราเอง (/signal)
+   โฮสต์ = ที่นั่ง A · แขก = B · เกมวิ่งเครื่องต่อเครื่อง */
 (function (root) {
   'use strict';
   const PREFIX = 'botlan-';
   const CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const PEER_CDN = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
-
-  let libReady = null;
-  function ensureLib() {
-    if (root.Peer) return Promise.resolve();
-    if (libReady) return libReady;
-    const load = (root.BotUtil && root.BotUtil.loadScript)
-      ? root.BotUtil.loadScript(PEER_CDN)
-      : new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = PEER_CDN;
-        s.onload = resolve;
-        s.onerror = () => reject(new Error('โหลด PeerJS ไม่สำเร็จ — ต้องมีเน็ตตอนจับคู่'));
-        document.head.appendChild(s);
-      });
-    libReady = load.catch(err => { libReady = null; throw err; });
-    return libReady;
-  }
+  const ICE = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:global.stun.twilio.com:3478' }
+  ];
 
   function makeCode(len) {
     len = len || 6;
@@ -43,149 +30,274 @@
     return s;
   }
 
-  function openPeer(id) {
+  function signalUrl() {
+    return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/signal';
+  }
+
+  function openSignal() {
     return new Promise((resolve, reject) => {
-      const peer = id
-        ? new root.Peer(id, { debug: 0 })
-        : new root.Peer({ debug: 0 });
-      const fail = (err) => {
-        try { peer.destroy(); } catch (e) { }
-        reject(err || new Error('เปิด Peer ไม่สำเร็จ'));
-      };
-      const t = setTimeout(() => fail(new Error('จับคู่หมดเวลา — ตรวจเน็ตแล้วลองใหม่')), 20000);
-      peer.on('open', () => { clearTimeout(t); resolve(peer); });
-      peer.on('error', (err) => {
+      let done = false;
+      const ws = new WebSocket(signalUrl());
+      const t = setTimeout(() => {
+        if (done) return;
+        done = true;
+        try { ws.close(); } catch (e) { }
+        reject(new Error('เชื่อมสัญญาณไม่สำเร็จ — รีเฟรชแล้วลองใหม่'));
+      }, 10000);
+      ws.onopen = () => {
+        if (done) return;
+        done = true;
         clearTimeout(t);
-        const msg = (err && err.type === 'unavailable-id')
-          ? 'รหัสห้องซ้ำ — ลองสร้างใหม่'
-          : ((err && err.message) || 'เชื่อม Peer ไม่สำเร็จ');
-        fail(new Error(msg));
-      });
+        resolve(ws);
+      };
+      ws.onerror = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        reject(new Error('เชื่อมสัญญาณไม่สำเร็จ — ตรวจเน็ตแล้วลองใหม่'));
+      };
     });
   }
 
-  function wireConn(conn, handlers) {
-    conn.on('data', (data) => {
-      let m = data;
-      if (typeof data === 'string') {
-        try { m = JSON.parse(data); } catch (e) { return; }
+  function bindWsJson(ws, onMsg) {
+    ws.onmessage = (ev) => {
+      let m = ev.data;
+      if (typeof m === 'string') {
+        try { m = JSON.parse(m); } catch (e) { return; }
+      }
+      if (onMsg) onMsg(m);
+    };
+  }
+
+  function sendWs(ws, obj) {
+    if (!ws || ws.readyState !== 1) return false;
+    try { ws.send(JSON.stringify(obj)); return true; } catch (e) { return false; }
+  }
+
+  function makePc() {
+    return new RTCPeerConnection({ iceServers: ICE });
+  }
+
+  function wireChannel(ch, handlers) {
+    ch.onmessage = (ev) => {
+      let m = ev.data;
+      if (typeof m === 'string') {
+        try { m = JSON.parse(m); } catch (e) { return; }
       }
       if (handlers.onMessage) handlers.onMessage(m);
-    });
-    conn.on('close', () => { if (handlers.onClose) handlers.onClose(); });
-    conn.on('error', (err) => { if (handlers.onError) handlers.onError(err); });
+    };
+    ch.onclose = () => { if (handlers.onClose) handlers.onClose(); };
+    ch.onerror = (err) => { if (handlers.onError) handlers.onError(err); };
   }
 
-  /** สร้างห้องโฮสต์ — คืน { code, send, destroy } */
+  function waitOpen(ch, ms) {
+    if (ch.readyState === 'open') return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error('ต่อโฮสต์ไม่สำเร็จ — ให้โฮสต์เปิดห้องค้างไว้ แล้วลองเข้าใหม่')), ms || 20000);
+      ch.onopen = () => { clearTimeout(t); resolve(); };
+    });
+  }
+
   function host(handlers) {
     handlers = handlers || {};
-    return ensureLib().then(() => {
-      let code = makeCode(6);
-      let tries = 0;
-      function tryHost() {
-        return openPeer(peerId(code)).catch(err => {
-          if (++tries < 4 && /ซ้ำ|unavailable/i.test(err.message || '')) {
-            code = makeCode(6);
-            return tryHost();
-          }
-          throw err;
-        });
-      }
-      return tryHost().then(peer => {
-        let conn = null;
-        peer.on('connection', (c) => {
-          if (conn && conn.open) {
-            try { c.send(JSON.stringify({ t: 'error', m: 'ห้องเต็มแล้ว (รับได้ 2 คน)' })); } catch (e) { }
-            setTimeout(() => { try { c.close(); } catch (e2) { } }, 200);
+    if (typeof RTCPeerConnection === 'undefined') {
+      return Promise.reject(new Error('เบราว์เซอร์นี้เล่นออนไลน์ไม่ได้'));
+    }
+    let code = makeCode(6);
+    let tries = 0;
+    return openSignal().then(function tryHost(ws) {
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const t = setTimeout(() => {
+          if (!settled) { settled = true; reject(new Error('สร้างห้องหมดเวลา')); }
+        }, 12000);
+        bindWsJson(ws, (m) => {
+          if (settled) return;
+          if (m.t === 'ok') {
+            settled = true;
+            clearTimeout(t);
+            resolve({ ws, code });
             return;
           }
-          conn = c;
-          wireConn(c, {
-            onMessage: handlers.onMessage,
-            onClose: () => {
-              if (conn !== c) return; // connection เก่าปิดหลังมีของใหม่แล้ว
-              conn = null;
-              if (handlers.onPeerClose) handlers.onPeerClose();
-            },
-            onError: handlers.onError,
-          });
-          c.on('open', () => {
-            if (conn === c && handlers.onPeerConnect) handlers.onPeerConnect();
-          });
+          if (m.t === 'busy') {
+            if (++tries < 5) {
+              code = makeCode(6);
+              sendWs(ws, { t: 'host', code });
+              return;
+            }
+            settled = true;
+            clearTimeout(t);
+            reject(new Error('สร้างห้องไม่สำเร็จ — ลองใหม่'));
+          }
+          if (m.t === 'error') {
+            settled = true;
+            clearTimeout(t);
+            reject(new Error(m.m || 'สร้างห้องไม่สำเร็จ'));
+          }
         });
-        peer.on('disconnected', () => {
-          try { peer.reconnect(); } catch (e) { }
-        });
-        peer.on('error', (err) => {
-          if (handlers.onError) handlers.onError(err);
-        });
-        return {
-          code,
-          peerId: peerId(code),
-          send(msg) {
-            if (!conn || !conn.open) return false;
-            try { conn.send(typeof msg === 'string' ? msg : JSON.stringify(msg)); return true; }
-            catch (e) { return false; }
-          },
-          connected() { return !!(conn && conn.open); },
-          destroy() {
-            try { if (conn) conn.close(); } catch (e) { }
-            try { peer.destroy(); } catch (e2) { }
-            conn = null;
-          },
-        };
+        sendWs(ws, { t: 'host', code });
       });
+    }).then(({ ws, code }) => {
+      const pc = makePc();
+      const ch = pc.createDataChannel('bot', { ordered: true });
+      const iceBuf = [];
+      let remoteSet = false;
+      let connOpen = false;
+
+      function flushIce() {
+        if (!remoteSet) return;
+        iceBuf.splice(0).forEach((c) => { try { pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) { } });
+      }
+
+      pc.onicecandidate = (ev) => {
+        if (ev.candidate) sendWs(ws, { t: 'relay', msg: { k: 'ice', c: ev.candidate.toJSON ? ev.candidate.toJSON() : ev.candidate } });
+      };
+
+      bindWsJson(ws, (m) => {
+        if (m.t === 'guest') {
+          pc.createOffer().then((off) => pc.setLocalDescription(off)).then(() => {
+            sendWs(ws, { t: 'relay', msg: { k: 'offer', sdp: pc.localDescription } });
+          }).catch((err) => { if (handlers.onError) handlers.onError(err); });
+          return;
+        }
+        if (m.t === 'relay' && m.msg) {
+          const msg = m.msg;
+          if (msg.k === 'answer' && msg.sdp) {
+            pc.setRemoteDescription(new RTCSessionDescription(msg.sdp)).then(() => {
+              remoteSet = true;
+              flushIce();
+            }).catch((err) => { if (handlers.onError) handlers.onError(err); });
+          }
+          if (msg.k === 'ice' && msg.c) {
+            if (remoteSet) { try { pc.addIceCandidate(new RTCIceCandidate(msg.c)); } catch (e) { } }
+            else iceBuf.push(msg.c);
+          }
+        }
+        if (m.t === 'gone') {
+          connOpen = false;
+          if (handlers.onPeerClose) handlers.onPeerClose();
+        }
+      });
+
+      wireChannel(ch, {
+        onMessage: handlers.onMessage,
+        onClose: () => {
+          connOpen = false;
+          if (handlers.onPeerClose) handlers.onPeerClose();
+        },
+        onError: handlers.onError,
+      });
+      ch.onopen = () => {
+        connOpen = true;
+        if (handlers.onPeerConnect) handlers.onPeerConnect();
+      };
+
+      return {
+        code,
+        peerId: peerId(code),
+        send(msg) {
+          if (!ch || ch.readyState !== 'open') return false;
+          try { ch.send(typeof msg === 'string' ? msg : JSON.stringify(msg)); return true; }
+          catch (e) { return false; }
+        },
+        connected() { return connOpen && ch.readyState === 'open'; },
+        destroy() {
+          try { ch.close(); } catch (e) { }
+          try { pc.close(); } catch (e2) { }
+          try { ws.close(); } catch (e3) { }
+        },
+      };
     });
   }
 
-  /** เข้าห้องด้วยรหัสโฮสต์ */
   function join(code, handlers) {
     handlers = handlers || {};
     const clean = parseCode(code);
-    if (clean.length !== 6) return Promise.reject(new Error('รหัสห้อง LAN ต้องมี 6 ตัว'));
-    return ensureLib().then(() => openPeer(null)).then(peer => new Promise((resolve, reject) => {
-      const conn = peer.connect(peerId(clean), { reliable: true });
-      const t = setTimeout(() => {
-        try { peer.destroy(); } catch (e) { }
-        reject(new Error('ต่อโฮสต์ไม่สำเร็จ — ให้โฮสต์เปิดห้องค้างไว้ และอยู่ Wi‑Fi/ฮอตสปอตเดียวกัน'));
-      }, 25000);
-      wireConn(conn, {
-        onMessage: handlers.onMessage,
-        onClose: () => { if (handlers.onClose) handlers.onClose(); },
-        onError: handlers.onError,
-      });
-      conn.on('open', () => {
-        clearTimeout(t);
-        const api = {
-          code: clean,
-          peerId: peerId(clean),
-          send(msg) {
-            if (!conn.open) return false;
-            try { conn.send(typeof msg === 'string' ? msg : JSON.stringify(msg)); return true; }
-            catch (e) { return false; }
-          },
-          connected() { return !!conn.open; },
-          destroy() {
-            try { conn.close(); } catch (e) { }
-            try { peer.destroy(); } catch (e2) { }
-          },
-        };
-        peer.on('disconnected', () => {
-          try { peer.reconnect(); } catch (e) { }
+    if (clean.length !== 6) return Promise.reject(new Error('รหัสห้องต้องมี 6 ตัว'));
+    if (typeof RTCPeerConnection === 'undefined') {
+      return Promise.reject(new Error('เบราว์เซอร์นี้เล่นออนไลน์ไม่ได้'));
+    }
+    return openSignal().then(ws => new Promise((resolve, reject) => {
+      const pc = makePc();
+      const iceBuf = [];
+      let remoteSet = false;
+      let ch = null;
+      let settled = false;
+
+      function flushIce() {
+        if (!remoteSet) return;
+        iceBuf.splice(0).forEach((c) => { try { pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) { } });
+      }
+
+      function fail(err) {
+        if (settled) return;
+        settled = true;
+        try { pc.close(); } catch (e) { }
+        try { ws.close(); } catch (e2) { }
+        reject(err instanceof Error ? err : new Error(String(err && err.message || err)));
+      }
+
+      pc.onicecandidate = (ev) => {
+        if (ev.candidate) sendWs(ws, { t: 'relay', msg: { k: 'ice', c: ev.candidate.toJSON ? ev.candidate.toJSON() : ev.candidate } });
+      };
+      pc.ondatachannel = (ev) => {
+        ch = ev.channel;
+        wireChannel(ch, {
+          onMessage: handlers.onMessage,
+          onClose: () => { if (handlers.onClose) handlers.onClose(); },
+          onError: handlers.onError,
         });
-        if (handlers.onOpen) handlers.onOpen();
-        resolve(api);
+        waitOpen(ch, 18000).then(() => {
+          if (settled) return;
+          settled = true;
+          const api = {
+            code: clean,
+            peerId: peerId(clean),
+            send(msg) {
+              if (!ch || ch.readyState !== 'open') return false;
+              try { ch.send(typeof msg === 'string' ? msg : JSON.stringify(msg)); return true; }
+              catch (e) { return false; }
+            },
+            connected() { return !!(ch && ch.readyState === 'open'); },
+            destroy() {
+              try { if (ch) ch.close(); } catch (e) { }
+              try { pc.close(); } catch (e2) { }
+              try { ws.close(); } catch (e3) { }
+            },
+          };
+          if (handlers.onOpen) handlers.onOpen();
+          resolve(api);
+        }).catch(fail);
+      };
+
+      bindWsJson(ws, (m) => {
+        if (m.t === 'nohost') return fail(new Error('ไม่พบห้องนี้ — ให้โฮสต์สร้างห้องใหม่แล้วส่งรหัสล่าสุด'));
+        if (m.t === 'full') return fail(new Error('ห้องเต็มแล้ว'));
+        if (m.t === 'error') return fail(new Error(m.m || 'เข้าห้องไม่สำเร็จ'));
+        if (m.t === 'gone') {
+          if (handlers.onClose) handlers.onClose();
+          return;
+        }
+        if (m.t === 'relay' && m.msg) {
+          const msg = m.msg;
+          if (msg.k === 'offer' && msg.sdp) {
+            pc.setRemoteDescription(new RTCSessionDescription(msg.sdp)).then(() => {
+              remoteSet = true;
+              flushIce();
+              return pc.createAnswer();
+            }).then((ans) => pc.setLocalDescription(ans)).then(() => {
+              sendWs(ws, { t: 'relay', msg: { k: 'answer', sdp: pc.localDescription } });
+            }).catch(fail);
+          }
+          if (msg.k === 'ice' && msg.c) {
+            if (remoteSet) { try { pc.addIceCandidate(new RTCIceCandidate(msg.c)); } catch (e) { } }
+            else iceBuf.push(msg.c);
+          }
+        }
       });
-      conn.on('error', (err) => {
-        clearTimeout(t);
-        try { peer.destroy(); } catch (e) { }
-        reject(err || new Error('เชื่อมห้อง LAN ไม่สำเร็จ'));
-      });
-      peer.on('error', (err) => {
-        clearTimeout(t);
-        try { peer.destroy(); } catch (e) { }
-        reject(err || new Error('เชื่อมห้อง LAN ไม่สำเร็จ'));
-      });
+
+      sendWs(ws, { t: 'join', code: clean });
+      setTimeout(() => fail(new Error('ต่อโฮสต์ไม่สำเร็จ — ให้โฮสต์เปิดหน้าห้องค้างไว้ แล้วลองเข้าใหม่')), 22000);
     }));
   }
 
@@ -194,7 +306,6 @@
     return origin + '?lan=' + encodeURIComponent(parseCode(code));
   }
 
-  /** วาด QR เป็น data URL (ไม่พึ่งไลบรารี — ใช้ API สาธารณะเมื่อออนไลน์) */
   function qrDataUrl(text, size) {
     size = size || 180;
     const u = 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size
@@ -202,5 +313,5 @@
     return u;
   }
 
-  root.BotLAN = { ensureLib, makeCode, parseCode, peerId, host, join, inviteURL, qrDataUrl, PREFIX };
+  root.BotLAN = { makeCode, parseCode, peerId, host, join, inviteURL, qrDataUrl, PREFIX };
 })(typeof self !== 'undefined' ? self : this);

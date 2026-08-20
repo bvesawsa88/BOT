@@ -1062,11 +1062,33 @@
     if (netKind === 'lan' && typeof BotLAN !== 'undefined') return BotLAN.inviteURL(room);
     return location.origin + location.pathname.replace(/\/?$/, '/') + '?room=' + room;
   }
+  function copyText(text, okMsg, fallbackMsg) {
+    const done = () => toast(okMsg, 4000);
+    const fail = () => toast(fallbackMsg || text, 6000);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fail);
+      return;
+    }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      if (ok) done(); else fail();
+    } catch (e) { fail(); }
+  }
   function copyInvite() {
-    const url = inviteURL();
-    (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
-      () => toast('คัดลอกลิงก์แล้ว — ส่งให้เพื่อนเปิดได้เลย: ' + url, 4000),
-      () => toast('ลิงก์เชิญ: ' + url, 6000));
+    copyText(inviteURL(), 'คัดลอกลิงก์แล้ว — ส่งให้เพื่อนเปิดได้เลย', 'ลิงก์เชิญ: ' + inviteURL());
+  }
+  function copyRoomCode() {
+    const code = String(room || '').toUpperCase();
+    if (!code) { toast('ยังไม่มีรหัสห้อง'); return; }
+    copyText(code, 'คัดลอกรหัสแล้ว: ' + code, 'รหัสห้อง: ' + code);
   }
   function updateRoomShareUI() {
     const hint = byId('roomShareHint');
@@ -1232,9 +1254,9 @@
       if (act) act.textContent = 'รอ 3 นาที';
       if (leave) leave.textContent = 'ออกเลย';
     } else {
-      if (title) title.textContent = 'หลุดจากห้อง LAN';
+      if (title) title.textContent = 'หลุดจากห้อง';
       if (sub) sub.textContent = 'ต้องการเชื่อมต่อใหม่ไหม? มีเวลาประมาณ 3 นาทีก่อนออกจากห้อง';
-      if (msg) msg.textContent = 'โฮสต์ต้องเปิดห้องค้างไว้ และอยู่ Wi‑Fi / ฮอตสปอตเดียวกัน';
+      if (msg) msg.textContent = 'โฮสต์ต้องเปิดหน้าห้องค้างไว้';
       if (act) act.textContent = 'เชื่อมต่อใหม่';
       if (leave) leave.textContent = 'ออกเมนู';
     }
@@ -6912,6 +6934,10 @@
   byId('btnJoin').onclick = () => joinLanRoom(byId('inpRoom').value);
   byId('btnSpec').onclick = () => joinRoom('spec');
   byId('btnInviteRoom').onclick = copyInvite;
+  const btnCopyCode = byId('btnCopyCode');
+  if (btnCopyCode) btnCopyCode.onclick = copyRoomCode;
+  const roomCodeEl = byId('roomCode');
+  if (roomCodeEl) roomCodeEl.onclick = copyRoomCode;
   byId('selDeck').onchange = () => {
     try { localStorage.setItem('bot_active_deck', byId('selDeck').value); } catch (e) { }
     if (myReady) {

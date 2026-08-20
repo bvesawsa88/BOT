@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820z">
+<link rel="stylesheet" href="css/style.css?v=20260820aa">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -184,9 +184,12 @@
   <div class="room-page">
     <div class="room-invite">
       <div class="room-share" id="roomShareHint">แชร์รหัสนี้ให้เพื่อน</div>
-      <div id="roomCode" class="room-code">——————</div>
+      <button type="button" id="roomCode" class="room-code" title="แตะเพื่อคัดลอกรหัส">——————</button>
+      <div class="room-invite-actions">
+        <button type="button" id="btnCopyCode" class="btn-mini">คัดลอกรหัส</button>
+        <button type="button" id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
+      </div>
       <img id="roomQr" class="room-qr hidden" alt="QR เข้าห้อง" width="140" height="140">
-      <button id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
     </div>
     <div class="room-cards">
       <div class="panel me-panel">
@@ -1192,8 +1195,8 @@
 <script src="js/util.js?v=20260820y"></script>
 <script src="js/skins.js?v=20260820w"></script>
 <script src="js/carddb.js?v=20260818d"></script>
-<script src="js/lan.js?v=20260803b"></script>
-<script src="js/game.js?v=20260820i"></script>
+<script src="js/lan.js?v=20260820c"></script>
+<script src="js/game.js?v=20260820k"></script>
 <script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
 </body>
