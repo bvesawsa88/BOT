@@ -69,9 +69,9 @@
 
   function attachRoom(ws, code, handlers, isHost) {
     let peerOn = !isHost;
-    ws.onmessage = (ev) => {
+    function onMsg(ev) {
       const m = parseEv(ev);
-      if (!m || m.t === 'pong') return;
+      if (!m || m.t === 'pong' || m.t === 'ok' || m.t === 'busy' || m.t === 'nohost' || m.t === 'full' || m.t === 'error') return;
       if (m.t === 'guest') {
         peerOn = true;
         if (handlers.onPeerConnect) handlers.onPeerConnect();
@@ -90,7 +90,8 @@
         }
         if (handlers.onMessage) handlers.onMessage(d);
       }
-    };
+    }
+    ws.addEventListener('message', onMsg);
     ws.addEventListener('close', () => {
       if (ws._keep) clearInterval(ws._keep);
       peerOn = false;
@@ -113,88 +114,116 @@
     handlers = handlers || {};
     let code = makeCode(6);
     let tries = 0;
-    return openSignal().then(ws => new Promise((resolve, reject) => {
-      let settled = false;
-      const t = setTimeout(() => {
-        if (!settled) { settled = true; reject(new Error('สร้างห้องหมดเวลา')); }
-      }, 10000);
-      ws.onmessage = (ev) => {
-        const m = parseEv(ev);
-        if (!m || settled) return;
-        if (m.t === 'ok') {
-          settled = true;
-          clearTimeout(t);
-          resolve(attachRoom(ws, code, handlers, true));
-          return;
-        }
-        if (m.t === 'busy') {
-          if (++tries < 6) {
-            code = makeCode(6);
-            sendWs(ws, { t: 'host', code });
-          } else {
+    return openSignal().then(ws => {
+      const api = attachRoom(ws, code, handlers, true);
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const t = setTimeout(() => {
+          if (!settled) { settled = true; reject(new Error('สร้างห้องหมดเวลา')); }
+        }, 10000);
+        function onHs(ev) {
+          const m = parseEv(ev);
+          if (!m || settled) return;
+          if (m.t === 'ok') {
             settled = true;
             clearTimeout(t);
-            reject(new Error('สร้างห้องไม่สำเร็จ — ลองใหม่'));
+            ws.removeEventListener('message', onHs);
+            api.code = m.code || code;
+            api.peerId = peerId(api.code);
+            resolve(api);
+            return;
           }
-          return;
+          if (m.t === 'busy') {
+            if (++tries < 6) {
+              code = makeCode(6);
+              sendWs(ws, { t: 'host', code });
+            } else {
+              settled = true;
+              clearTimeout(t);
+              ws.removeEventListener('message', onHs);
+              reject(new Error('สร้างห้องไม่สำเร็จ — ลองใหม่'));
+            }
+            return;
+          }
+          if (m.t === 'error') {
+            settled = true;
+            clearTimeout(t);
+            ws.removeEventListener('message', onHs);
+            reject(new Error(m.m || 'สร้างห้องไม่สำเร็จ'));
+          }
         }
-        if (m.t === 'error') {
-          settled = true;
-          clearTimeout(t);
-          reject(new Error(m.m || 'สร้างห้องไม่สำเร็จ'));
+        ws.addEventListener('message', onHs);
+        sendWs(ws, { t: 'host', code });
+      });
+    });
+  }
+
+  function joinOnce(clean, handlers) {
+    return openSignal().then(ws => new Promise((resolve, reject) => {
+        let settled = false;
+        const t = setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            try { ws.close(); } catch (e) { }
+            reject(new Error('เข้าห้องไม่สำเร็จ — ลองใหม่อีกครั้ง'));
+          }
+        }, 10000);
+        function onHs(ev) {
+          const m = parseEv(ev);
+          if (!m || settled) return;
+          if (m.t === 'ok') {
+            settled = true;
+            clearTimeout(t);
+            ws.removeEventListener('message', onHs);
+            const api = attachRoom(ws, clean, handlers, false);
+            if (handlers.onOpen) handlers.onOpen();
+            resolve(api);
+            return;
+          }
+          if (m.t === 'nohost') {
+            settled = true;
+            clearTimeout(t);
+            ws.removeEventListener('message', onHs);
+            try { ws.close(); } catch (e) { }
+            reject(Object.assign(new Error('ไม่พบห้องนี้ — ให้โฮสต์สร้างใหม่แล้วส่งรหัสล่าสุด'), { code: 'nohost' }));
+            return;
+          }
+          if (m.t === 'full') {
+            settled = true;
+            clearTimeout(t);
+            ws.removeEventListener('message', onHs);
+            try { ws.close(); } catch (e) { }
+            reject(new Error('ห้องเต็มแล้ว'));
+            return;
+          }
+          if (m.t === 'error') {
+            settled = true;
+            clearTimeout(t);
+            ws.removeEventListener('message', onHs);
+            try { ws.close(); } catch (e) { }
+            reject(new Error(m.m || 'เข้าห้องไม่สำเร็จ'));
+          }
         }
-      };
-      sendWs(ws, { t: 'host', code });
-    }));
+        ws.addEventListener('message', onHs);
+        sendWs(ws, { t: 'join', code: clean });
+      }));
   }
 
   function join(code, handlers) {
     handlers = handlers || {};
     const clean = parseCode(code);
     if (clean.length !== 6) return Promise.reject(new Error('รหัสห้องต้องมี 6 ตัว'));
-    return openSignal().then(ws => new Promise((resolve, reject) => {
-      let settled = false;
-      const t = setTimeout(() => {
-        if (!settled) {
-          settled = true;
-          try { ws.close(); } catch (e) { }
-          reject(new Error('เข้าห้องไม่สำเร็จ — ลองใหม่อีกครั้ง'));
+    let n = 0;
+    function attempt() {
+      return joinOnce(clean, handlers).catch(err => {
+        if (err && err.code === 'nohost' && n < 4) {
+          n++;
+          return new Promise(r => setTimeout(r, 400 * n)).then(attempt);
         }
-      }, 10000);
-      ws.onmessage = (ev) => {
-        const m = parseEv(ev);
-        if (!m || settled) return;
-        if (m.t === 'ok') {
-          settled = true;
-          clearTimeout(t);
-          const api = attachRoom(ws, clean, handlers, false);
-          if (handlers.onOpen) handlers.onOpen();
-          resolve(api);
-          return;
-        }
-        if (m.t === 'nohost') {
-          settled = true;
-          clearTimeout(t);
-          try { ws.close(); } catch (e) { }
-          reject(new Error('ไม่พบห้องนี้ — ให้โฮสต์สร้างใหม่แล้วส่งรหัสล่าสุด'));
-          return;
-        }
-        if (m.t === 'full') {
-          settled = true;
-          clearTimeout(t);
-          try { ws.close(); } catch (e) { }
-          reject(new Error('ห้องเต็มแล้ว'));
-          return;
-        }
-        if (m.t === 'error') {
-          settled = true;
-          clearTimeout(t);
-          try { ws.close(); } catch (e) { }
-          reject(new Error(m.m || 'เข้าห้องไม่สำเร็จ'));
-        }
-      };
-      sendWs(ws, { t: 'join', code: clean });
-    }));
+        throw err;
+      });
+    }
+    return attempt();
   }
 
   function inviteURL(code) {

@@ -510,7 +510,7 @@ function wsAccept(req, socket, head) {
   return attachWs(socket);
 }
 
-/* ── สัญญาณจับคู่ออนไลน์ (WebRTC) ── */
+/* ── สัญญาณจับคู่ออนไลน์ (รีเลย์ข้อความผ่านเซิร์ฟเวอร์) ── */
 const signalRooms = new Map(); // code -> { host, guest }
 
 function signalOther(slot, ws) {
