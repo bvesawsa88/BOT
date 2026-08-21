@@ -534,21 +534,24 @@
     if (own && st.zones[own + '.hell']) return own + '.hell';
     return fallback;
   }
-  /* สีเจมตอนจ่าย Cost: gemColor บนการ์ด · ว่าง = ใช้สีการ์ด · ไร้สี/ขาว/ใส = wild ลงได้ทุกสี */
+  /* สีเจมตอนจ่าย Cost: gemColor บนการ์ด · ค่าเริ่มต้น = ขาว (ใส / wild ลงได้ทุกสี) · ถ้ามีระบุสีเฉพาะ (แดง/ฟ้า/ม่วง/เขียว) = ต้องจ่ายสีนั้น */
   function gemColorOf(c) {
     if (!c) return 'ขาว';
     const raw = c.gemColor || '';
-    if (raw === 'ขาว' || raw === 'ใส' || raw === 'ไร้สี') return 'ขาว';
-    if (raw) return raw;
-    return c.color || 'ขาว';
+    if (raw === 'ขาว' || raw === 'ใส' || raw === 'ไร้สี' || !raw) return 'ขาว';
+    return raw;
   }
   function gemPaysFor(gc, avColor) {
     if (Array.isArray(avColor)) {
       if (!avColor.length) return true; // allColors
-      return !gc || gc === 'ขาว' || avColor.includes(gc);
+      if (!gc || gc === 'ขาว' || gc === 'ใส') return true;
+      const gcList = typeof gc === 'string' ? gc.split(/[/,]/).map(s => s.trim()) : [gc];
+      return gcList.some(col => avColor.includes(col) || col === 'ขาว' || col === 'ใส');
     }
     if (!avColor) return true; // อวตารไร้สี / allColors
-    return !gc || gc === 'ขาว' || gc === avColor;
+    if (!gc || gc === 'ขาว' || gc === 'ใส') return true;
+    const gcList = typeof gc === 'string' ? gc.split(/[/,]/).map(s => s.trim()) : [gc];
+    return gcList.some(col => col === avColor || col === 'ขาว' || col === 'ใส');
   }
   function avatarCostColors(c, e) {
     e = e || fxCard(c);
@@ -3526,10 +3529,13 @@
   function walkEffectActions(actions, fn) {
     (actions || []).forEach(ac => {
       if (!ac) return;
-      fn(ac);
+      const stop = fn(ac);
+      if (stop === true) return;
       if (ac.then) walkEffectActions(Array.isArray(ac.then) ? ac.then : [ac.then], fn);
       if (ac.actions) walkEffectActions(ac.actions, fn);
-      (ac.options || []).forEach(opt => walkEffectActions(opt && opt.actions, fn));
+      if (ac.op !== 'chooseMode') {
+        (ac.options || []).forEach(opt => walkEffectActions(opt && opt.actions, fn));
+      }
     });
   }
 
@@ -3587,8 +3593,8 @@
     return msg;
   }
 
-  /** ห้ามเล่น/สั่งใช้ถ้าฮีลไม่มีไลฟ์หงาย หรือเด้งศัตรูโดยอีกฝ่ายไม่มีมอน */
-  function activatedTargetDeny(st, owner, ab, srcK) {
+  /** ห้ามเล่น/สั่งใช้ถ้าฮีลไม่มีไลฟ์หงาย หรือเด้งศัตรูโดยอีกฝ่ายไม่มีมอน หรือ chooseMode ไม่มีตัวเลือก (สำหรับการสั่งใช้) */
+  function activatedTargetDeny(st, owner, ab, srcK, isPlayMagic) {
     if (!ab || !owner) return null;
     {
       const fd = fieldSummonDeny(st, owner, ab, srcK);
@@ -3600,12 +3606,22 @@
     }
     let msg = null;
     walkEffectActions(ab.actions, ac => {
-      if (msg) return;
+      if (msg) return true;
+      if (ac.op === 'chooseMode') {
+        if (!isPlayMagic) {
+          const opts = ac.options || [];
+          if (opts.length && opts.every(opt => !!chooseModeOptionDeny(st, srcK, owner, opt))) {
+            const firstDeny = opts.map(opt => chooseModeOptionDeny(st, srcK, owner, opt)).find(Boolean);
+            msg = firstDeny || 'ไม่มีตัวเลือกที่ใช้ได้ในเทิร์นนี้';
+          }
+        }
+        return true;
+      }
       if (ac.op === 'unrevealOwnLife' || ac.op === 'unrevealMarkedLife') {
-        if (inCritical(st, owner)) { msg = 'สถานะสาหัส ฮีล LIFE ไม่ได้'; return; }
+        if (inCritical(st, owner)) { msg = 'สถานะสาหัส ฮีล LIFE ไม่ได้'; return true; }
         if ((st.zones['land'] || []).some(id => fxId(st, id) && fxId(st, id).blockLifeUnreveal)) {
           msg = 'LIFE ไม่สามารถคว่ำกลับได้';
-          return;
+          return true;
         }
         const faceUp = (st.zones[owner + '.life'] || []).filter(id => st.inst[id] && st.inst[id].faceUp);
         if (ac.op === 'unrevealMarkedLife') {
@@ -3615,7 +3631,7 @@
         } else if (!faceUp.length) {
           msg = 'ไม่มี LIFE ที่หงายให้ฮีล';
         }
-        return;
+        return true;
       }
       if (ac.optional) return;
       const bounceEnemy = (ac.op === 'bounce' || ac.op === 'returnToHand')
@@ -3639,7 +3655,7 @@
         const cands = (st.zones[owner + '.avatar'] || []).filter(id => matchFilterEx(st, id, filter));
         if (cands.length < need)
           msg = `ต้องมี Avatar ตรงเงื่อนไข ≥ ${need} ใบบนสนาม (มี ${cands.length})`;
-        return;
+        return true;
       }
       // ความกล้าหาญ ฯลฯ — เลือก Avatar บนสนามฝ่ายเรา
       if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'choose') {
@@ -8440,7 +8456,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             return deny(`ใช้ "${c.name}" ไม่ได้ — ศัตรูต้องมี Avatar ≥ ${ab.requireEnemyAvatarMin} (ตอนนี้ ${n})`);
         }
         {
-          const td = activatedTargetDeny(st, owner, ab, a.k);
+          const td = activatedTargetDeny(st, owner, ab, a.k, true);
           if (td) return deny(`ใช้ "${c.name}" ไม่ได้ — ${td}`);
         }
         if (ab.requireAvatarCountExact != null) {

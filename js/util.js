@@ -119,9 +119,8 @@
   }
   function gemPrintColor(c) {
     const raw = (c && c.gemColor) || '';
-    if (raw === 'ขาว' || raw === 'ใส' || raw === 'ไร้สี') return 'ใส';
-    if (raw) return raw;
-    return (c && c.color) || 'ใส';
+    if (raw === 'ขาว' || raw === 'ใส' || raw === 'ไร้สี' || !raw) return 'ใส';
+    return raw;
   }
   function cardMetaHtml(c) {
     if (!c) return '';
@@ -130,7 +129,14 @@
     if (c.symbol) bits.push(symHtml(c.symbol, 'meta'));
     if (c.cost !== '' && c.cost != null) bits.push('COST ' + esc(c.cost));
     if (c.power !== '' && c.power != null) bits.push('POWER ' + esc(c.power));
-    if (c.gem !== '' && c.gem != null) bits.push('GEM ' + esc(gemPrintColor(c)) + ' ' + esc(c.gem));
+    if (c.gem !== '' && c.gem != null) {
+      const gcol = gemPrintColor(c);
+      if (gcol && gcol !== 'ใส') {
+        bits.push('GEM ' + esc(gcol) + ' ' + esc(c.gem));
+      } else {
+        bits.push('GEM ' + esc(c.gem));
+      }
+    }
     return bits.filter(Boolean).join(' · ');
   }
 

@@ -668,9 +668,9 @@
   let selMap = {};          // การ์ดในมือที่เลือกนับ GEM (ใช้ร่วมกับโหมดมัลลิแกน)
   let mullMode = false;     // (เลิกใช้) โหมดเลือกการ์ดเปลี่ยนมัลลิแกน
   let mullP = null;         // ผู้เล่นที่กำลังถูกถาม "เปลี่ยนมือไหม?" ตอนเริ่มเกม (null = ตอบครบแล้ว)
-  const GEM_EMOJI = { 'แดง': '🔴', 'ฟ้า': '🔵', 'ม่วง': '🟣', 'เขียว': '🟢', 'ขาว': '⚪' }; // สีเจม/สีคอส
-  /* สีเจม: ตาม gemColor · ว่างใช้สีการ์ด · ขาว/ใส = wild (อย่า default ว่างเป็นขาว — เจมม่วงจะลงฟ้าได้ผิด) */
-  const gemColorOf = c => (BoTEngine.gemColorOf ? BoTEngine.gemColorOf(c) : (c.gemColor || c.color || 'ขาว'));
+  const GEM_EMOJI = { 'แดง': '🔴', 'ฟ้า': '🔵', 'ม่วง': '🟣', 'เขียว': '🟢', 'ขาว': '⚪', 'ใส': '⚪' }; // สีเจม/สีคอส
+  /* สีเจม: ตาม gemColor · ค่าเริ่มต้น = ขาว (ใส / wild จ่ายได้ทุกสี) · สีเฉพาะ (แดง/ฟ้า/ม่วง/เขียว) ต้องจ่ายสีนั้น */
+  const gemColorOf = c => (BoTEngine.gemColorOf ? BoTEngine.gemColorOf(c) : (((c && c.gemColor) && c.gemColor !== 'ใส' && c.gemColor !== 'ไร้สี') ? c.gemColor : 'ขาว'));
   const costColorOf = c => c.color || '';        // สีคอส = สีที่ต้องจ่ายเพื่ออัญเชิญ ('' = ไร้สี จ่ายได้ทุกสี)
   /* เดย์วัน ฯลฯ: จ่ายเป็น Cost อัญเชิญชื่อที่ตรง → นับ GEM พิเศษ (ค่าพิมพ์ยังเป็น 1) */
   function payGemInfo(payC, summonC) {
@@ -2983,10 +2983,16 @@
       // สั่งใช้จากนรก (ถ้าการ์ดรองรับ)
       ...(st.zones['B.hell'] || []).filter(k => cardHasActivatedAbility(k)),
     ];
-    return pools.slice().map(k => ({
-      a: { type: 'activateAbility', k, by: 'B' },
-      heur: AI ? AI.activateScore(st, 'B', k, arch) : botCardVal(k),
-    })).filter(it => it.heur >= -50 && cardHasActivatedAbility(it.a.k))
+    return pools.slice().map(k => {
+      const c = st.inst[k];
+      const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
+      const actAb = (e && e.abilities || []).find(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'activatedFromHand' || ab.trigger.on === 'activatedFromHell' || ab.fromHell));
+      const isDenied = actAb && BoTEngine.activatedTargetDeny && BoTEngine.activatedTargetDeny(st, 'B', actAb, k);
+      return {
+        a: { type: 'activateAbility', k, by: 'B' },
+        heur: isDenied ? -999 : (AI ? AI.activateScore(st, 'B', k, arch) : botCardVal(k)),
+      };
+    }).filter(it => it.heur >= -50 && cardHasActivatedAbility(it.a.k))
       .sort((a, b) => b.heur - a.heur);
   }
   function botTryActivate() {
@@ -4805,23 +4811,33 @@
     const body = byId('pvBody');
     const c = previewId && st && st.inst[previewId];
     if (!c) { body.innerHTML = `<div class="pv-empty">ชี้เมาส์หรือแตะการ์ดใบไหนก็ได้<br>เพื่อดูภาพเต็ม + ความสามารถ</div>`; return; }
-    const pill = col => col
+    const costPill = col => col
       ? `<span class="cpill">${GEM_EMOJI[col] || ''} ${esc(col)}</span>`
       : `<span class="cpill none">ไร้สี</span>`;
+    const gemPill = col => {
+      if (!col || col === 'ขาว' || col === 'ใส' || col === 'ไร้สี')
+        return `<span class="cpill none">⚪ ใส</span>`;
+      if (typeof col === 'string' && (col.includes('/') || col.includes(','))) {
+        const parts = col.split(/[/,]/).map(p => p.trim());
+        const em = parts.map(p => GEM_EMOJI[p] || '').filter(Boolean).join('/');
+        return `<span class="cpill">${em} ${esc(col)}</span>`;
+      }
+      return `<span class="cpill">${GEM_EMOJI[col] || ''} ${esc(col)}</span>`;
+    };
     const rows = [];
     if (c.cost !== '' && c.cost != null) {
       const onFieldCost = previewId && st && ['.avatar', '.construct'].some(z => (BoTEngine.zoneOf(st, previewId) || '').endsWith(z));
       const eff = onFieldCost && BoTEngine.effCost ? BoTEngine.effCost(st, previewId) : +c.cost;
       const costDisp = eff !== +c.cost ? `${c.cost} → ${eff}` : String(c.cost);
-      rows.push(`<div class="pv-row"><span class="pv-lbl">คอส (จ่ายสี)</span><b>${costDisp}</b> ${pill(costColorOf(c))}</div>`);
+      rows.push(`<div class="pv-row"><span class="pv-lbl">คอส (จ่ายสี)</span><b>${costDisp}</b> ${costPill(costColorOf(c))}</div>`);
     }
     if (c.gem !== '' && c.gem != null) {
       const h = payGemHint(c);
       if (h) {
-        rows.push(`<div class="pv-row"><span class="pv-lbl">ให้เจม (สี)</span><b>${h.printed}</b> ${pill(gemColorOf(c))}</div>`);
-        rows.push(`<div class="pv-row"><span class="pv-lbl">เป็น Cost 「${esc(h.name)}」</span><b>GEM ${h.v}</b> ${pill(h.col)}</div>`);
+        rows.push(`<div class="pv-row"><span class="pv-lbl">ให้เจม (สี)</span><b>${h.printed}</b> ${gemPill(gemColorOf(c))}</div>`);
+        rows.push(`<div class="pv-row"><span class="pv-lbl">เป็น Cost 「${esc(h.name)}」</span><b>GEM ${h.v}</b> ${gemPill(h.col)}</div>`);
       } else {
-        rows.push(`<div class="pv-row"><span class="pv-lbl">ให้เจม (สี)</span><b>${+c.gem || 0}</b> ${pill(gemColorOf(c))}</div>`);
+        rows.push(`<div class="pv-row"><span class="pv-lbl">ให้เจม (สี)</span><b>${+c.gem || 0}</b> ${gemPill(gemColorOf(c))}</div>`);
       }
     }
     if (c.power !== '' && c.power != null) {

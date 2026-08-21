@@ -960,7 +960,7 @@
     const usable = [];
     hand.forEach(k => {
       const x = st.inst[k]; if (!x) return;
-      const gc = (E && E.gemColorOf) ? E.gemColorOf(x) : (x.gemColor || x.color || 'ขาว');
+      const gc = (E && E.gemColorOf) ? E.gemColorOf(x) : (((x && x.gemColor) && x.gemColor !== 'ใส' && x.gemColor !== 'ไร้สี') ? x.gemColor : 'ขาว');
       const ok = E && E.gemPaysFor ? E.gemPaysFor(gc, avColor) : (!avColor || gc === 'ขาว' || gc === avColor);
       const g = +x.gem || 0;
       if (ok && g > 0) usable.push({ k, g, keep: cardValue(st, side, x) });
@@ -1011,7 +1011,10 @@
     pools.forEach(k => {
       const e = effectOf(st.inst[k]);
       const abs = (e && e.abilities) || [];
-      if (!abs.some(ab => ab.trigger && ab.trigger.on === 'activated')) return;
+      const actAb = abs.find(ab => ab.trigger && ab.trigger.on === 'activated');
+      if (!actAb) return;
+      const E = eng();
+      if (E && E.activatedTargetDeny && E.activatedTargetDeny(st, side, actAb, k)) return;
       out.push({ a: { type: 'activateAbility', k, by: side }, heur: 12 });
     });
     const mods = zoneIds(st, side + '.magic').filter(k => {

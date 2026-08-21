@@ -153,4 +153,19 @@ function choose(st, city, opt, seed) {
   ok(!!play.deny && /Modification/.test(play.deny), 'cannot play another Modification after tech 2: ' + (play.deny || 'no deny'));
 }
 
+{
+  // เมื่อเทค 1 ใช้แล้ว และไม่มีมือปืนในสนาม (เทค 2 ใช้ไม่ได้) -> สั่งใช้ต้อง deny ทันที ไม่เปิด prompt ลูป
+  const st = emptyState();
+  const city = put(st, 'B.construct', 'BT11-072');
+  st.active = 'B';
+  const fx1 = BoT.applyAction(st, { type: 'activateAbility', k: city, by: 'B', seed: 1 });
+  ok(!fx1.deny, 'first activate ok: ' + (fx1.deny || 'ok'));
+  const ch1 = BoT.applyAction(st, { type: 'chooseMode', k: city, opt: 0, by: 'B', seed: 2 });
+  ok(!ch1.deny, 'tech 1 scout ok: ' + (ch1.deny || 'ok'));
+
+  const fx2 = BoT.applyAction(st, { type: 'activateAbility', k: city, by: 'B', seed: 3 });
+  ok(!!fx2.deny, 'second activate denied because tech 1 used and no gunman on field: ' + (fx2.deny || 'none'));
+  ok(!(st.prompts || []).length, 'no prompt opened on denied activate');
+}
+
 console.log('all tinentol skip tests passed');

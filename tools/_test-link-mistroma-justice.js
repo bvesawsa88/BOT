@@ -245,12 +245,10 @@ function skipReacts(st, seed) {
   ok(!(st.blockLandPlayFor && st.blockLandPlayFor.B), 'lock clears at opp next end');
 }
 
-/* 12) สีเจมดินแดนยุติธรรมเป็นแดง */
+/* 12) สีเจมดินแดนยุติธรรมเป็นเจมใส (ขาว) */
 {
   const land = byCode('BT10-070');
-  ok(BoT.gemColorOf(land) === 'แดง', 'justice gemColor red: ' + BoT.gemColorOf(land));
-  const pemScr = cards.find(c => c.code === 'BT09-008' && /SCR|SEC/.test(c.rarity || ''));
-  if (pemScr) ok(BoT.gemColorOf(pemScr) === 'แดง', 'pemu SCR gem red: ' + BoT.gemColorOf(pemScr));
+  ok(BoT.gemColorOf(land) === 'ขาว', 'justice gemColor clear: ' + BoT.gemColorOf(land));
 }
 
 console.log('ALL PASS');
