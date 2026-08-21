@@ -126,6 +126,23 @@ function promptDest(st) {
   ok(st.inst[life].faceUp === true, 'gun revealed opp LIFE');
 }
 
+/* ปืน: ฆ่าแล้วมี React ป้องกันทำลาย แต่เลือกไม่ใช้ (reactNo) → เหยื่อตาย และปืนหงาย LIFE */
+{
+  const st = emptyState({ phase: 'Battle', turn: 2 });
+  const pem = put(st, 'A.avatar', 'BT09-008');
+  const gun = put(st, 'A.magic', 'BT09-067');
+  apply(st, { type: 'attach', k: gun, to: pem, by: 'A', seed: 4 });
+  const foe = put(st, 'B.avatar', 'SD01-011'); /* ยักษ์ P1 */
+  const life = put(st, 'B.life', 'SD01-003', { faceUp: false });
+  put(st, 'A.hand', 'ODY1-073'); /* หมอมาแล้วววว */
+  let fx = apply(st, { type: 'declareAttack', atk: pem, def: foe, by: 'A', seed: 12 });
+  ok((st.prompts || []).some(p => p.kind === 'react' && p.reactTrigger === 'avatarWouldBeDestroyed'), 'react prompt opened');
+  fx = apply(st, { type: 'reactNo', by: 'A', seed: 13 });
+  if (fx.deny) fail('reactNo deny: ' + fx.deny);
+  ok(zone(st, foe) === 'B.hell', 'foe sent to hell after reactNo');
+  ok(st.inst[life].faceUp === true, 'gun revealed opp LIFE after reactNo');
+}
+
 /* ปืน: ฆ่า POWER ต่าง <2 → ไม่หงาย LIFE */
 {
   const st = emptyState();
@@ -200,20 +217,19 @@ function promptDest(st) {
   ok(zone(st, e3) === 'B.avatar', 'P3 untouched');
 }
 
-/* สไปรท์ไม่คู่หู: นอนจากสามัคคี แล้ว End Phase ตื่น */
+/* สไปรท์ไม่คู่หู: นอนจากสามัคคี แล้ว End Phase จะไม่ตื่น (ตื่นเมื่อมีคู่หูเท่านั้น) */
 {
   const st = emptyState({ phase: 'Battle' });
   put(st, 'A.deck', 'SD01-003');
   put(st, 'B.deck', 'SD01-003');
   const spr = put(st, 'A.avatar', 'BT09-009');
   const dummy = put(st, 'A.avatar', 'SD01-010');
-  ok(!BoT.inLinkStatus || true, 'sprite not paired');
   let fx = apply(st, { type: 'unity', k: spr, to: dummy, by: 'A', seed: 50 });
   if (fx.deny) fail('unity deny: ' + fx.deny);
   ok(!!st.inst[spr].tapped, 'sprite tapped for unity without pair');
   fx = apply(st, { type: 'endTurn', by: 'A', seed: 51 });
   if (fx.deny) fail('endTurn deny: ' + fx.deny);
-  ok(!st.inst[spr].tapped, 'sprite woke at own end without buddy');
+  ok(st.inst[spr].tapped === true, 'sprite stays tapped at own end without buddy');
 }
 
 console.log('ALL PASS');

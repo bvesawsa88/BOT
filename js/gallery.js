@@ -104,9 +104,16 @@
     if (!GL.db) return;
     setGLMode(GL.mode);
     const q = GL.q.trim().toLowerCase();
-    const filtered = galleryPool().filter(c =>
-      (!q || (c.name + ' ' + (c.effect || '') + ' ' + c.code).toLowerCase().includes(q)) &&
-      (!GL.series || c.series === GL.series) && (!GL.rarity || c.rarity === GL.rarity));
+    const filtered = galleryPool().filter(c => {
+      const eff = c.effect || '';
+      const textMatch = !q || (
+        (c.name + ' ' + eff + ' ' + c.code).toLowerCase().includes(q) ||
+        (q === 'คู่หู' && /\[\s*Link\b/i.test(eff)) ||
+        (q === 'link' && eff.includes('คู่หู'))
+      );
+      return textMatch &&
+        (!GL.series || c.series === GL.series) && (!GL.rarity || c.rarity === GL.rarity);
+    });
     byId('glResult').textContent = `${filtered.length} ใบ · แสดง ${Math.min(GL.shown, filtered.length)} · คลิกการ์ดเพื่อดูเต็มจอ`;
     byId('glGrid').innerHTML = filtered.slice(0, GL.shown).map(c =>
       `<div class="gl-card" data-uid="${esc(c.uid || '')}" data-code="${esc(c.code)}">

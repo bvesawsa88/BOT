@@ -193,22 +193,26 @@
     return !!(e && e.nameAliases && e.nameAliases.some(a => (a || '').includes(needle) || (needle || '').includes(a)));
   }
   /* คู่หู / Link — แยกชื่อพันธมิตรจากข้อความการ์ด */
-  const normBuddyName = s => (s || '').replace(/[่-๋]/g, '').replace(/ี/g, 'ิ').replace(/ื/g, 'ึ').replace(/ู/g, 'ุ').replace(/["“”']/g, '').replace(/\s+/g, '').toLowerCase();
+  const normBuddyName = s => (s || '').replace(/เพมนุ/g, 'เพมมุ').replace(/[่-๋]/g, '').replace(/ี/g, 'ิ').replace(/ื/g, 'ึ').replace(/ู/g, 'ุ').replace(/["“”']/g, '').replace(/\s+/g, '').toLowerCase();
   function buddyPartnerNameOf(c) {
-    const e = (c && c.effect) || '';
-    let m = e.match(/\[\s*(?:Link|คู่หู)\s*[-–—]?\s*([^\]\n]+?)\s*\]/);
+    const e = (c && c.effect) || (c && resolveEffect(c.code, c.name) && resolveEffect(c.code, c.name).note) || '';
+    let m = e.match(/\[\s*(?:Link|คู่หู)\s*[-–—]?\s*([^\]\n]+?)\s*\]/i);
     if (m) return m[1].trim().replace(/^["“”]|["“”]$/g, '');
-    m = e.match(/(?:^|\n)\s*คู่หู\s*[-–—]\s*["“”]?([^"“”\n\[]+)["“”]?/);
+    m = e.match(/(?:^|\n)\s*คู่หู\s*[-–—]\s*["“”]?([^"“”\n\[]+)["“”]?/i);
     return m ? m[1].trim() : null;
   }
   function cardHasBuddyAbility(c) {
     if (!c) return false;
-    const e = c.effect || '';
-    return /\[\s*(?:Link|คู่หู)\b/.test(e) || /(?:^|\n)\s*คู่หู\s*[-–—]/.test(e);
+    const e = c.effect || (resolveEffect(c.code, c.name) && resolveEffect(c.code, c.name).note) || '';
+    return /\[\s*(?:Link|คู่หู)\b/i.test(e) || /(?:^|\n)\s*คู่หู\s*[-–—]/i.test(e);
   }
   function buddyNamesMatch(a, b) {
     const na = normBuddyName(a), nb = normBuddyName(b);
-    return !!(na && nb && (na.includes(nb) || nb.includes(na)));
+    if (!na || !nb) return false;
+    if (na === nb) return true;
+    if (na.length >= 4 && nb.length >= 4 && (na.includes(nb) || nb.includes(na))) return true;
+    if (Math.min(na.length, nb.length) >= 3 && Math.min(na.length, nb.length) / Math.max(na.length, nb.length) >= 0.5 && (na.includes(nb) || nb.includes(na))) return true;
+    return false;
   }
   /* จับคู่ได้เมื่อใบต้นมีคู่หู/Link และใบเป้าตรงชื่อคู่ (หรือใบเป้าชี้กลับมาที่ใบต้น) */
   function buddyPairAllowed(c1, c2) {
@@ -1328,6 +1332,9 @@
       if (cont) abortUnpaidDestroyCost(st, fx, cont);
     } else if (pend && pend.k && st.inst[pend.k] && zoneOf(st, pend.k)) {
       destroyCard(st, fx, pend.k, pend.opts || { ignoreWouldDestroyReact: true });
+      if (pend.opts && typeof pend.opts.onCombatDestroyed === 'function') {
+        pend.opts.onCombatDestroyed();
+      }
       if (cont) {
         if (cardStillOnAvatarZone(st, pend.k)) abortUnpaidDestroyCost(st, fx, cont);
         else continueAfterDestroyCost(st, fx, cont, fx && fx._rng);
@@ -5802,8 +5809,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const side = ac.target.side === 'enemy' ? 'enemyAvatars' : ac.target.side === 'own' ? 'ownAvatars' : 'allAvatars';
           const filt = Object.assign({}, ac.target);
           delete filt.select; delete filt.side; delete filt.count;
-          if (filt.printedPowerLteDestroyed && ctx.destroyed && st.inst[ctx.destroyed]) {
-            filt.powerMax = effPower(st, ctx.destroyed);
+          if (filt.printedPowerLteDestroyed) {
+            const victimPower = (ctx.destroyedPower != null)
+              ? ctx.destroyedPower
+              : (ctx.destroyed && st.inst[ctx.destroyed] ? Math.max(+st.inst[ctx.destroyed].power || 0, effPower(st, ctx.destroyed)) : 0);
+            filt.powerMax = victimPower;
             delete filt.printedPowerLteDestroyed;
           }
           // then = รันหลังทำลายสำเร็จเท่านั้น (นรสิง: นัดเปลี่ยนร่างตอนจบเทิร์น)
@@ -7504,7 +7514,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     const od = ownerOf(st, defId);
     // บัฟ onFight ใส่ตอนประกาศโจมตีแล้ว — resolve ใช้ค่าที่มีอยู่ (อย่าใส่ซ้ำ)
     const pa = effPower(st, atkId), pd = effPower(st, defId);
-    const tryDestroy = (victim, winner) => {
+    const tryDestroy = (victim, winner, onCombatDestroyed) => {
       const V = st.inst[victim], W = st.inst[winner];
       if (V && V.combatImmuneUntilEOT) {
         addLog(st, 'S', `${V.name} ไม่ถูกทำลายจากการต่อสู้ในเทิร์นนี้ (พระคุ้มครอง)`);
@@ -7528,11 +7538,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           break;
         }
       }
-      return destroyCard(st, fx, victim, { fromCombat: true, byOpp: !!(wOwn && vOwn && wOwn !== vOwn), skipDestroyed });
+      return destroyCard(st, fx, victim, {
+        fromCombat: true, byOpp: !!(wOwn && vOwn && wOwn !== vOwn),
+        skipDestroyed, onCombatDestroyed
+      });
     };
     const fireBattleDestroy = (winnerId, victimId, extra) => {
       if (!diedFlag(winnerId)) return;
       const wOwn = ownerOf(st, winnerId);
+      const victimCombatPower = (winnerId === atkId ? pd : pa);
+      const victimPrintedPower = (+((victimId && st.inst[victimId] && st.inst[victimId].power)) || 0);
+      const destroyedPower = Math.max(victimCombatPower, victimPrintedPower);
+      const winnerPower = (winnerId === atkId ? pa : pd);
       const runBattle = (srcK) => {
         abil(st, srcK, 'battleDestroy').forEach(ab => {
           if (ab.oncePerTurn && !claimOncePerTurn(st, srcK, ab.oncePerTurnTag || 'battleDestroy')) return;
@@ -7546,11 +7563,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if (!kws.some(kw => printedHasKeyword(st, victimId, kw))) return;
           }
           if (ab.ifDestroyedPowerDiffGte != null) {
-            const hp = effPower(st, winnerId);
-            const vp = victimId && st.inst[victimId] ? effPower(st, victimId) : 0;
+            const hp = winnerPower || effPower(st, winnerId);
+            const vp = victimCombatPower != null ? victimCombatPower : (victimId && st.inst[victimId] ? effPower(st, victimId) : 0);
             if (hp - vp < ab.ifDestroyedPowerDiffGte) return;
           }
-          runActions(st, fx, ab.actions || [], { src: srcK, owner: wOwn, rng: fx._rng || Math.random, destroyed: victimId, host: winnerId });
+          runActions(st, fx, ab.actions || [], {
+            src: srcK, owner: wOwn, rng: fx._rng || Math.random,
+            destroyed: victimId, destroyedPower: destroyedPower, host: winnerId
+          });
         });
       };
       runBattle(winnerId);
@@ -7562,9 +7582,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     const diedFlag = (winnerId) => st.inst[winnerId] && (zoneOf(st, winnerId) || '').endsWith('.avatar');
     let res;
     if (pa > pd) {
-      const died = tryDestroy(defId, atkId);
-      res = died ? `${D.name} ถูกทำลาย — ส่งนรกแล้ว` : `${D.name} รอดจากการต่อสู้ (กันทำลาย)`;
-      if (died) {
+      const onDead = () => {
         fireBattleDestroy(atkId, defId, () => {
           if (nameMatches(st.inst[atkId], 'พระนารายณ์')) offerNaraiHandForms(st, fx, oa, atkId);
           if (st.inst[atkId] && st.inst[atkId].battleDestroyLifeHitUntilEOT) {
@@ -7574,25 +7592,35 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             }
           }
         });
-      }
+      };
+      const died = tryDestroy(defId, atkId, onDead);
+      res = died ? `${D.name} ถูกทำลาย — ส่งนรกแล้ว`
+        : (st._wouldDestroyPending ? `${D.name} จะถูกทำลาย — รอ React` : `${D.name} รอดจากการต่อสู้ (กันทำลาย)`);
+      if (died) onDead();
     }
     else if (pa < pd) {
-      const died = tryDestroy(atkId, defId);
-      res = died ? `${A.name} ถูกทำลาย — ส่งนรกแล้ว` : `${A.name} รอดจากการต่อสู้ (กันทำลาย)`;
-      if (died) fireBattleDestroy(defId, atkId);
+      const onDead = () => fireBattleDestroy(defId, atkId);
+      const died = tryDestroy(atkId, defId, onDead);
+      res = died ? `${A.name} ถูกทำลาย — ส่งนรกแล้ว`
+        : (st._wouldDestroyPending ? `${A.name} จะถูกทำลาย — รอ React` : `${A.name} รอดจากการต่อสู้ (กันทำลาย)`);
+      if (died) onDead();
     }
     else if (pa === 0) { res = 'POWER 0 ปะทะ POWER 0 — ไม่มีอะไรเกิดขึ้น (ตามกติกา)'; }
     else {
       // ลูกฮึด: POWER เท่ากัน + มี keyword / ฝ่ายตรงข้ามไม่มี → ชนะฝ่ายเดียว
       const hak = hasKw(st, atkId, 'ลูกฮึด'), hdk = hasKw(st, defId, 'ลูกฮึด');
       if (hak && !hdk) {
-        const died = tryDestroy(defId, atkId);
-        res = died ? `${D.name} ถูกทำลาย (ลูกฮึด) — ส่งนรกแล้ว` : `${D.name} รอดจากการต่อสู้ (กันทำลาย)`;
-        if (died) fireBattleDestroy(atkId, defId);
+        const onDead = () => fireBattleDestroy(atkId, defId);
+        const died = tryDestroy(defId, atkId, onDead);
+        res = died ? `${D.name} ถูกทำลาย (ลูกฮึด) — ส่งนรกแล้ว`
+          : (st._wouldDestroyPending ? `${D.name} จะถูกทำลาย (ลูกฮึด) — รอ React` : `${D.name} รอดจากการต่อสู้ (กันทำลาย)`);
+        if (died) onDead();
       } else if (hdk && !hak) {
-        const died = tryDestroy(atkId, defId);
-        res = died ? `${A.name} ถูกทำลาย (ลูกฮึด) — ส่งนรกแล้ว` : `${A.name} รอดจากการต่อสู้ (กันทำลาย)`;
-        if (died) fireBattleDestroy(defId, atkId);
+        const onDead = () => fireBattleDestroy(defId, atkId);
+        const died = tryDestroy(atkId, defId, onDead);
+        res = died ? `${A.name} ถูกทำลาย (ลูกฮึด) — ส่งนรกแล้ว`
+          : (st._wouldDestroyPending ? `${A.name} จะถูกทำลาย (ลูกฮึด) — รอ React` : `${A.name} รอดจากการต่อสู้ (กันทำลาย)`);
+        if (died) onDead();
       } else {
         const d1 = tryDestroy(atkId, defId), d2 = tryDestroy(defId, atkId);
         res = (d1 || d2) ? 'POWER เท่ากัน — ส่งนรกตามผลกันทำลาย' : 'POWER เท่ากัน — ทั้งคู่รอด';
@@ -7635,12 +7663,22 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
   function buildInitialState(cards, rng, decks, opts) {
     rng = rng || Math.random; decks = decks || {}; opts = opts || {};
     const byCode = {};
-    cards.forEach(c => { if (!byCode[c.code] || c.image === c.code + '.png') byCode[c.code] = c; });
+    const byUid = {};
+    const byPrint = {};
+    cards.forEach(c => {
+      if (c.uid) byUid[c.uid] = c;
+      if (c.rarity) {
+        byPrint[`${c.code}-${c.rarity}`] = c;
+        byPrint[`${c.code}__${c.rarity}`] = c;
+      }
+      if (!byCode[c.code] || c.image === c.code + '.png') byCode[c.code] = c;
+    });
+    const resolveCard = key => byUid[key] || byPrint[key] || byCode[key] || byCode[String(key).replace(/-[A-Za-z0-9]{1,5}$/, '')] || null;
     const sd = Object.values(byCode).filter(c => c.series === 'SD01');
     const mainSD = sd.filter(c => c.type !== 'Life'), lifeSD = sd.filter(c => c.type === 'Life');
     const expand = counts => {
       const out = [];
-      Object.entries(counts || {}).forEach(([code, ct]) => { const c = byCode[code]; if (c) for (let i = 0; i < ct; i++) out.push(c); });
+      Object.entries(counts || {}).forEach(([code, ct]) => { const c = resolveCard(code); if (c) for (let i = 0; i < ct; i++) out.push(c); });
       return out;
     };
     let n = 0; const inst = {}, zones = { land: [] };
@@ -11432,6 +11470,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         // สั่งใช้ปกติ (เรียกหนู / ระเบิดบอร์ดเมฟิสโต้ ฯลฯ) — เฉพาะ Main Phase ของเจ้าของเท่านั้น (ห้ามกระโดดเฟส)
         if (ab.requireAttached && !c.attachedTo)
           return deny(`"${c.name}" ใช้ได้เมื่อสวมใส่อยู่เท่านั้น`);
+        if (ab.requireLinked && !inLinkStatus(st, a.k))
+          return deny(`"${c.name}" ใช้ได้เมื่ออยู่ในสถานะ Link / มีคู่หูบนสนามเท่านั้น`);
         if (ab.whenAttacking) {
           if (!st.pending || st.pending.atk !== a.k) return deny('ใช้ได้เมื่อ Avatar ใบนี้กำลังโจมตี');
         } else {
@@ -11994,6 +12034,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               if (!abilityMagicReqOk(st, ending, ab)) return;
               const cond = (ab.trigger && ab.trigger.if) || '';
               if (cond === 'selfTapped' && !(st.inst[k] && st.inst[k].tapped)) return;
+              if (ab.requireLinked && !inLinkStatus(st, k)) return;
               runActions(st, fx, ab.actions, { src: k, owner: ending, rng });
             });
           });

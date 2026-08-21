@@ -111,15 +111,16 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   ok(BoT.hasKw(st, spr, 'สามัคคี'), 'sprite unity');
 }
 
-/* 7) End Phase ถ้านอน: ตื่น + POWER +2 จน Draw Phase ถัดไปของเรา */
+/* 7) End Phase มีคู่หู (เพมมุ) + ถ้านอน: ตื่น + POWER +2 จน Draw Phase ถัดไปของเรา */
 {
   const st = emptyState({ phase: 'Battle', active: 'A' });
   put(st, 'A.deck', 'SD01-003');
   put(st, 'B.deck', 'SD01-003');
+  const pem = put(st, 'A.avatar', 'BT09-008');
   const spr = put(st, 'A.avatar', 'BT09-009', { tapped: true });
   let fx = apply(st, { type: 'endTurn', by: 'A', seed: 6 });
   if (fx.deny) fail('endTurn deny: ' + fx.deny);
-  ok(!st.inst[spr].tapped, 'sprite untapped at own end');
+  ok(!st.inst[spr].tapped, 'sprite untapped at own end with buddy');
   ok(BoT.effPower(st, spr) === 6, 'sprite +2 until next own draw: ' + BoT.effPower(st, spr));
   ok(st.active === 'B', 'opponent turn after A ends');
   ok(BoT.effPower(st, spr) === 6, 'buff lasts through opponent turn: ' + BoT.effPower(st, spr));
@@ -129,15 +130,29 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   ok(BoT.effPower(st, spr) === 4, 'buff gone at next own draw: ' + BoT.effPower(st, spr));
 }
 
-/* 8) End Phase ถ้าตื่นอยู่ — ไม่บัพ */
+/* 8) End Phase ถ้าไม่มีคู่หู (เพมมุ) — ถ้านอน จะไม่ตื่น */
 {
   const st = emptyState({ phase: 'Battle', active: 'A' });
   put(st, 'A.deck', 'SD01-003');
   put(st, 'B.deck', 'SD01-003');
+  const spr = put(st, 'A.avatar', 'BT09-009', { tapped: true });
+  const fx = apply(st, { type: 'endTurn', by: 'A', seed: 8 });
+  if (fx.deny) fail('no-buddy endTurn deny: ' + fx.deny);
+  ok(st.inst[spr].tapped === true, 'sprite stays tapped without buddy');
+  ok(BoT.effPower(st, spr) === 4, 'sprite no power buff without buddy: ' + BoT.effPower(st, spr));
+}
+
+/* 8b) End Phase มีคู่หู และตื่นอยู่ (ไม่นอน) — ยังคงได้รับ POWER +2 จนถึง Draw Phase ถัดไป */
+{
+  const st = emptyState({ phase: 'Battle', active: 'A' });
+  put(st, 'A.deck', 'SD01-003');
+  put(st, 'B.deck', 'SD01-003');
+  put(st, 'A.avatar', 'BT09-008');
   const spr = put(st, 'A.avatar', 'BT09-009', { tapped: false });
   const fx = apply(st, { type: 'endTurn', by: 'A', seed: 8 });
   if (fx.deny) fail('untapped endTurn deny: ' + fx.deny);
-  ok(BoT.effPower(st, spr) === 4, 'untapped sprite no end-phase buff: ' + BoT.effPower(st, spr));
+  ok(!st.inst[spr].tapped, 'sprite still untapped');
+  ok(BoT.effPower(st, spr) === 6, 'untapped sprite still gets end-phase power +2: ' + BoT.effPower(st, spr));
 }
 
 /* 9) รีปริ้น PRMO สไปรท์ได้คู่กับเพมมุ */

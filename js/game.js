@@ -2011,10 +2011,20 @@
     if (!spec || !spec.main) return { key, name: (deck && deck.name) || key, score: -1, why: '' };
     const db = (soloCards || (typeof CardDB !== 'undefined' && CardDB._all) || []);
     const byCode = {};
-    (Array.isArray(db) ? db : []).forEach(c => { if (c && c.code) byCode[c.code] = c; });
+    const byUid = {};
+    const byPrint = {};
+    (Array.isArray(db) ? db : []).forEach(c => {
+      if (c && c.uid) byUid[c.uid] = c;
+      if (c && c.rarity) {
+        byPrint[`${c.code}-${c.rarity}`] = c;
+        byPrint[`${c.code}__${c.rarity}`] = c;
+      }
+      if (c && c.code && (!byCode[c.code] || c.image === c.code + '.png')) byCode[c.code] = c;
+    });
+    const resolveCard = key => byUid[key] || byPrint[key] || byCode[key] || byCode[String(key).replace(/-[A-Za-z0-9]{1,5}$/, '')] || null;
     const cards = [];
     for (const [code, cnt] of Object.entries(spec.main)) {
-      const c = byCode[code]; if (!c) continue;
+      const c = resolveCard(code); if (!c) continue;
       for (let i = 0; i < (+cnt || 0); i++) cards.push(c);
     }
     const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
@@ -2025,8 +2035,8 @@
     let avatars = 0, costs = 0, powers = 0, colors = {}, land = 0, react = 0, mod = 0, activated = 0, noPaid = 0, complex = 0, n = 0;
     let isan = 0, forest = 0, swamp = 0;
     for (const [code, cnt] of Object.entries(spec.main)) {
-      const c = byCode[code]; if (!c) continue;
-      const e = (BoTEngine.effectOf && BoTEngine.effectOf(code, c.name)) || {};
+      const c = resolveCard(code); if (!c) continue;
+      const e = (BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name)) || {};
       const abs = e.abilities || [];
       const nm = c.name || '';
       for (let i = 0; i < (+cnt || 0); i++) {
@@ -3886,28 +3896,40 @@
   /* ── render โต๊ะ ── */
   function tagCls(p) { return p === 'A' ? 'A' : p === 'B' ? 'B' : 'S'; }
   // สถานะคู่หู (Link) — Avatar ที่ระบุ [คู่หู/Link - ชื่อพันธมิตร] และพันธมิตรอยู่บน Avatar Zone ฝั่งเดียวกัน
-  const normName = s => (s || '').replace(/[่-๋]/g, '').replace(/ี/g, 'ิ').replace(/ื/g, 'ึ').replace(/ู/g, 'ุ').replace(/["“”']/g, '').replace(/\s+/g, '').toLowerCase();
-  function buddyPartnerName(effect) {
-    const e = effect || '';
-    let m = e.match(/\[\s*(?:Link|คู่หู)\s*[-–—]?\s*([^\]\n]+?)\s*\]/);
+  const normName = s => (s || '').replace(/เพมนุ/g, 'เพมมุ').replace(/[่-๋]/g, '').replace(/ี/g, 'ิ').replace(/ื/g, 'ึ').replace(/ู/g, 'ุ').replace(/["“”']/g, '').replace(/\s+/g, '').toLowerCase();
+  function buddyPartnerName(effect, c) {
+    let e = effect || '';
+    if (!e && c && BoTEngine.effectOf) {
+      const ef = BoTEngine.effectOf(c.code, c.name);
+      e = (ef && ef.note) || '';
+    }
+    let m = e.match(/\[\s*(?:Link|คู่หู)\s*[-–—]?\s*([^\]\n]+?)\s*\]/i);
     if (m) return m[1].trim().replace(/^["“”]|["“”]$/g, '');
-    m = e.match(/(?:^|\n)\s*คู่หู\s*[-–—]\s*["“”]?([^"“”\n\[]+)["“”]?/);
+    m = e.match(/(?:^|\n)\s*คู่หู\s*[-–—]\s*["“”]?([^"“”\n\[]+)["“”]?/i);
     return m ? m[1].trim() : null;
   }
   function hasBuddyAbility(c) {
     if (!c) return false;
-    const e = c.effect || '';
-    return /\[\s*(?:Link|คู่หู)\b/.test(e) || /(?:^|\n)\s*คู่หู\s*[-–—]/.test(e);
+    let e = c.effect || '';
+    if (!e && BoTEngine.effectOf) {
+      const ef = BoTEngine.effectOf(c.code, c.name);
+      e = (ef && ef.note) || '';
+    }
+    return /\[\s*(?:Link|คู่หู)\b/i.test(e) || /(?:^|\n)\s*คู่หู\s*[-–—]/i.test(e);
   }
   function buddyNamesMatch(a, b) {
     const na = normName(a), nb = normName(b);
-    return !!(na && nb && (na.includes(nb) || nb.includes(na)));
+    if (!na || !nb) return false;
+    if (na === nb) return true;
+    if (na.length >= 4 && nb.length >= 4 && (na.includes(nb) || nb.includes(na))) return true;
+    if (Math.min(na.length, nb.length) >= 3 && Math.min(na.length, nb.length) / Math.max(na.length, nb.length) >= 0.5 && (na.includes(nb) || nb.includes(na))) return true;
+    return false;
   }
   function canBuddyPairWith(c1, c2) {
     if (!c1 || !c2) return false;
     if (!hasBuddyAbility(c1) && !hasBuddyAbility(c2)) return false;
-    const p1 = buddyPartnerName(c1.effect);
-    const p2 = buddyPartnerName(c2.effect);
+    const p1 = buddyPartnerName(c1.effect, c1);
+    const p2 = buddyPartnerName(c2.effect, c2);
     if (p1 && buddyNamesMatch(p1, c2.name)) return true;
     if (p2 && buddyNamesMatch(p2, c1.name)) return true;
     return false;
@@ -4034,6 +4056,7 @@
       classes.push('hell-act');
       qa = `<div class="qa qa-hand"><button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้จากนรก (หรือคลิกขวา)">${BotUtil.kwHtml('สั่งใช้')}</button></div>`;
     } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
+      const canPairBtn = cls === 'avatar' && hasBuddyAbility(c);
       const canUnityBtn = cls === 'avatar' && canUseUnity(k);
       const canModAtt = cls === 'magic' && canAttachFromMagic(k);
       // มีความสามารถสั่งใช้ (activated) เท่านั้นถึงโชว์ ⚡ — กดแล้วถ้ามีเลือกปฏิบัติจะขึ้นกล่อง 2 เทค
@@ -4044,6 +4067,7 @@
         return false;
       });
       const parts = []
+        .concat(canPairBtn ? `<button class="qa-b qa-kw qa-pair" data-qa="pair" data-k="${k}" title="${c.pairWith ? `💔 เลิกคู่หู (คู่กับ ${st.inst[c.pairWith] ? esc(st.inst[c.pairWith].name) : ''})` : `🤝 จับคู่หู${buddyPartnerName(c.effect, c) ? ' → ' + esc(buddyPartnerName(c.effect, c)) : ''} (หรือลากทับคู่หู)`}">${BotUtil.kwHtml('คู่หู')}</button>` : [])
         .concat(canUnityBtn ? `<button class="qa-b qa-kw qa-unity" data-qa="unity" data-k="${k}" title="สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">${BotUtil.kwHtml('สามัคคี')}</button>` : [])
         .concat(canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : [])
         .concat(hasAct ? `<button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">${BotUtil.kwHtml('สั่งใช้')}</button>` : []);
@@ -5658,12 +5682,17 @@
     }
   }, { passive: true });
 
-  // ปุ่มลัดบนการ์ด (โผล่ตอนชี้เมาส์) — สามัคคี / สวมใส่ / สั่งใช้
+  // ปุ่มลัดบนการ์ด (โผล่ตอนชี้เมาส์) — คู่หู / สามัคคี / สวมใส่ / สั่งใช้
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-qa]'); if (!b || !st) return;
     e.preventDefault(); e.stopPropagation();
     const k = b.dataset.k; if (!st.inst[k]) return;
-    if (b.dataset.qa === 'unity') startAnnounce(k, 'unity');
+    if (b.dataset.qa === 'pair') {
+      const c = st.inst[k];
+      if (c && c.pairWith) sendAction({ type: 'pair', k, by: mode === 'solo' ? BoTEngine.ownerOf(st, k) : undefined });
+      else startAnnounce(k, 'pair');
+    }
+    else if (b.dataset.qa === 'unity') startAnnounce(k, 'unity');
     else if (b.dataset.qa === 'attach') startAnnounce(k, 'attach');
     else if (b.dataset.qa === 'ann') startAnnounce(k);
     else if (b.dataset.qa === 'act') tryActivateAbility(k);
@@ -5690,12 +5719,19 @@
       drag.moved = true; clearTimeout(drag.longT);
       document.body.classList.add('dragging'); // ปิด hover-zoom ระหว่างลาก กันบังเป้า
       if (drag.k && !drag.viewer) drag.ghost = makeGhost(drag.k, e.clientX, e.clientY);
-      // ระหว่างลากสามัคคี/มอด — ไฮไลต์เป้าที่วางได้
+      // ระหว่างลากคู่หู/สามัคคี/มอด — ไฮไลต์เป้าที่วางได้
       if (drag.k && st && st.inst[drag.k]) {
         const src = st.inst[drag.k];
         const srcZ = BoTEngine.zoneOf(st, drag.k) || '';
         const srcSide = BoTEngine.ownerOf(st, drag.k);
         document.querySelectorAll('.card.drag-drop-ok').forEach(n => n.classList.remove('drag-drop-ok'));
+        if (hasBuddyAbility(src) && srcZ.endsWith('.avatar')) {
+          (st.zones[srcSide + '.avatar'] || []).filter(t => t !== drag.k).forEach(t => {
+            if (canBuddyPairWith(src, st.inst[t])) {
+              const el2 = document.querySelector(`[data-cid="${t}"]`); if (el2) el2.classList.add('drag-drop-ok');
+            }
+          });
+        }
         if (canUseUnity(drag.k)) {
           (st.zones[srcSide + '.avatar'] || []).filter(t => t !== drag.k).forEach(t => {
             const el2 = document.querySelector(`[data-cid="${t}"]`); if (el2) el2.classList.add('drag-drop-ok');
@@ -5774,6 +5810,13 @@
           }
           toast('สวมใส่: ลากใบมอดลง Magic Zone ก่อน แล้วค่อยลากทับ Avatar (หรือกด 🔗)');
           return;
+        }
+        // ลาก Avatar ทับพันธมิตรที่เป็นคู่หู / Link = จับคู่หู (ถ้ายังไม่ได้จับคู่กัน)
+        if (tz && tz.endsWith('.avatar') && dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar')
+          && BoTEngine.ownerOf(st, tk) === BoTEngine.ownerOf(st, d.k)
+          && canBuddyPairWith(dc, st.inst[tk]) && dc.pairWith !== tk) {
+          announceSrc = null; announceKind = 'use';
+          return sendAction({ type: 'pair', k: d.k, to: tk, by: mode === 'solo' ? fromZ[0] : undefined });
         }
         // ลาก Avatar ที่มีสามัคคี ทับพันธมิตร = สามัคคี
         if (tz && tz.endsWith('.avatar') && canUseUnity(d.k)

@@ -83,7 +83,8 @@ const BY_SET = {
       abilities: [
         {
           keyword: 'อัตโนมัติ',
-          trigger: { on: 'ownTurnEnd', if: 'selfTapped' },
+          trigger: { on: 'ownTurnEnd' },
+          requireLinked: true,
           actions: [
             { op: 'untap', target: 'self' },
             {
@@ -96,7 +97,7 @@ const BY_SET = {
         }
       ],
       parseStatus: 'auto',
-      note: 'โล่มนุษย์ ลูกฮึด สามัคคี · End Phase ถ้านอน: ตื่น และ POWER +2 จน Draw Phase ถัดไปของเรา · [Link เพมมุ]'
+      note: 'โล่มนุษย์ ลูกฮึด สามัคคี · [Link เพมนุ ยอดมนุษย์] อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar "เพมนุ" ไว้ใน Deck ด้วยเสมอ'
     },
     'BT09-010': {
       code: 'BT09-010',

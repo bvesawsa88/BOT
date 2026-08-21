@@ -59,7 +59,7 @@
     'สามัคคี': 'unity', 'โล่มนุษย์': 'humanshield', 'เตะไข่': 'kick',
     'เทิร์นละครั้ง': 'onceperturn', 'ต่อเนื่อง': 'continuous', 'สั่งใช้': 'command',
     'อัตโนมัติ': 'auto', 'พอดี': 'exact', 'ลูกฮึด': 'guts', 'แทงหลัง': 'backstab',
-    'เนรเทศ': 'exile', 'คู่หู': 'link'
+    'เนรเทศ': 'exile', 'คู่หู': 'link', 'Link': 'link', 'link': 'link'
   };
   const SYM_FILE = {
     'เทพ': 'deity', 'ยักษ์': 'giant', 'จอมเวทย์': 'wizard', 'คน': 'human',

@@ -20,9 +20,17 @@
       ]).then(([all, ban]) => {
         const byCode = {};
         const byUid = {};
+        const byPrint = {};
+        const printsByCode = {};
         all.forEach(c => {
-          byUid[c.uid] = c;
-          // เกม/เด็คใช้รหัสเดียวต่อใบ — ยึดพิมพ์หลัก (ไม่ใช่ SCR/PR/CBR)
+          if (c.uid) byUid[c.uid] = c;
+          if (!printsByCode[c.code]) printsByCode[c.code] = [];
+          printsByCode[c.code].push(c);
+          if (c.rarity) {
+            byPrint[`${c.code}-${c.rarity}`] = c;
+            byPrint[`${c.code}__${c.rarity}`] = c;
+          }
+          // เกม/เด็คยึดพิมพ์หลัก (ไม่ใช่ SCR/PR/CBR) เป็นตัวแทนรหัส
           if (!byCode[c.code] || c.image === c.code + '.png') byCode[c.code] = c;
         });
         // cards = รหัสไม่ซ้ำ (จัดเด็ค/เกม) · prints = ทุกความหายากรวม SEC/PR/CBR (แกลเลอรี/เปิดซอง)
@@ -38,8 +46,22 @@
             if (m) customLimitByName[c.name] = Math.max(customLimitByName[c.name] || 0, +m[0]);
           }
         });
+        function lookup(key) {
+          if (!key) return null;
+          if (byUid[key]) return byUid[key];
+          if (byPrint[key]) return byPrint[key];
+          if (byCode[key]) return byCode[key];
+          const stripped = String(key).replace(/-[A-Za-z0-9]{1,5}$/, '');
+          return byCode[stripped] || null;
+        }
+        function printsOf(codeOrUid) {
+          const c = lookup(codeOrUid);
+          if (!c) return [];
+          return printsByCode[c.code] || [c];
+        }
         cache = {
-          all, cards, prints, byCode, byUid,
+          all, cards, prints, byCode, byUid, byPrint, printsByCode,
+          lookup, printsOf,
           onlyNames, customLimitByName,
           ban: {
             banned: ban.banned || [], limit1: ban.limit1 || [],

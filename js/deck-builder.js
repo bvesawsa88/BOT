@@ -5,7 +5,7 @@
   const { byId, esc, asset } = BotUtil;
 
 /* ═══════════════ DECK BUILDER ═══════════════ */
-  const DB = { db: null, q: '', type: '', color: '', cost: '', gem: '', power: '', gemColor: '', symbol: '', series: [], subtype: '', keyword: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} } };
+  const DB = { db: null, q: '', type: '', color: '', cost: '', gem: '', power: '', gemColor: '', symbol: '', series: [], subtype: '', keyword: '', rarity: '', shown: 60, sort: 'code', dir: 1, deck: { main: {}, life: {} } };
   const DK = { sel: null };
   const RARITY_ORDER = { C: 0, R: 1, SR: 2, UR: 3, SEC: 4, SCR: 4, USEC: 5, PR: 6, CBR: 7 };
   const COLOR_HEX = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
@@ -13,7 +13,11 @@
   const MAGIC_ORDER = { Normal: 0, React: 1, Land: 2, Modification: 3 };
   const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'KD01', 'KD02', 'KD03', 'KD04'];
 
-  function cardOf(code) { return (DB.db && DB.db.byCode[code]) || null; }
+  function cardOf(code) {
+    if (!DB.db) return null;
+    if (DB.db.lookup) return DB.db.lookup(code);
+    return (DB.db.byPrint && DB.db.byPrint[code]) || (DB.db.byUid && DB.db.byUid[code]) || DB.db.byCode[code] || null;
+  }
   function nCards(obj) { return Object.values(obj || {}).reduce((a, b) => a + b, 0); }
   function specCounts(spec) {
     const types = { Avatar: 0, Magic: 0, Construct: 0 };
@@ -118,7 +122,8 @@
     closeDbDrawers();
     CardDB.load().then(db => {
       DB.db = db;
-      byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด · Rule Book 3.2`;
+      const printCount = (db.prints && db.prints.length) || (db.all && db.all.length) || db.cards.length;
+      byId('dbCount').textContent = `${db.cards.length} รหัสการ์ด (${printCount} ภาพ/Art) · Rule Book 3.2`;
       if (opts.empty) {
         DB.deck = { main: {}, life: {} };
         byId('dbName').value = '';
@@ -169,7 +174,7 @@
   function keywordList() {
     const known = BotUtil.KW_FILE || {};
     const order = BotUtil.KW_FILTER_ORDER || Object.keys(known);
-    const extra = Object.keys(known).filter(k => !order.includes(k));
+    const extra = Object.keys(known).filter(k => !order.includes(k) && k !== 'Link' && k !== 'link');
     return order.filter(k => known[k]).concat(extra);
   }
   function renderKeywordChips() {
@@ -219,9 +224,11 @@
     return { m, l };
   }
   function addCode(code) {
-    const c = DB.db.byCode[code]; if (!c) return;
+    const c = cardOf(code); if (!c) return;
     const sec = c.type === 'Life' ? 'life' : 'main';
-    const lim = limitOf(c), cur = DB.deck[sec][code] || 0;
+    const lim = limitOf(c);
+    const key = c.uid || (c.rarity ? `${c.code}-${c.rarity}` : c.code);
+    const cur = DB.deck[sec][key] || 0;
     if (lim === 0) { msg(`"${c.name}" อยู่ในลิสต์ห้ามใส่ (การ์ดบาป)`); return; }
     // ★ Only #1: เด็คมีได้แค่ 1 ชื่อ — ห้ามผสม Only คนละใบ (ยกเว้นชื่อเดียวกันตามลิมิต)
     if (isOnly(c)) {
@@ -238,29 +245,50 @@
       msg(`"${c.name}" ใส่ได้สูงสุด ${lim} ใบ${why} — ตอนนี้มี ${byName} ใบแล้ว (นับรวมทุกรหัส/ความหายากของชื่อนี้)`);
       return;
     }
-    DB.deck[sec][code] = cur + 1; msg(''); renderDB();
+    DB.deck[sec][key] = cur + 1; msg(''); renderDB();
   }
   function subCode(code) {
-    const c = DB.db.byCode[code]; if (!c) return;
+    const c = cardOf(code); if (!c) return;
     const sec = c.type === 'Life' ? 'life' : 'main';
-    const cur = DB.deck[sec][code] || 0;
-    if (cur <= 1) delete DB.deck[sec][code]; else DB.deck[sec][code] = cur - 1;
+    const key = c.uid || (c.rarity ? `${c.code}-${c.rarity}` : c.code);
+    let targetKey = key;
+    if (!(DB.deck[sec][targetKey] > 0)) {
+      targetKey = Object.keys(DB.deck[sec] || {}).find(k => {
+        const cd = cardOf(k); return cd && (cd.code === c.code || cd.name === c.name);
+      }) || key;
+    }
+    const cur = DB.deck[sec][targetKey] || 0;
+    if (cur <= 1) delete DB.deck[sec][targetKey]; else DB.deck[sec][targetKey] = cur - 1;
     renderDB();
   }
   function msg(t) { byId('dbMsg').textContent = t; }
 
   function filteredCards() {
     const q = DB.q.trim().toLowerCase();
-    const out = DB.db.cards.filter(c =>
-      (!q || (c.name + ' ' + (c.effect || '') + ' ' + c.code).toLowerCase().includes(q)) &&
-      (!DB.type || c.type === DB.type) && (!DB.color || c.color === DB.color) &&
-      (!DB.symbol || c.symbol === DB.symbol) && (!(DB.series && DB.series.length) || DB.series.includes(c.series)) &&
-      (!DB.subtype || magicSubtypeOf(c) === DB.subtype) &&
-      (!DB.keyword || (c.effect || '').includes(DB.keyword)) &&
-      (DB.cost === '' || (DB.cost === '8+' ? +c.cost >= 8 : String(c.cost) === DB.cost)) &&
-      (DB.gem === '' || (c.gem !== '' && c.gem != null && String(+c.gem) === DB.gem)) &&
-      (DB.power === '' || (c.power !== '' && c.power != null && (DB.power === '8+' ? +c.power >= 8 : String(+c.power) === DB.power))) &&
-      (!DB.gemColor || (c.gem !== '' && c.gem != null && BotUtil.gemPrintColor(c) === DB.gemColor)));
+    const pool = (DB.rarity ? DB.db.prints : DB.db.cards) || [];
+    const out = pool.filter(c => {
+      const eff = c.effect || '';
+      const kwMatch = !DB.keyword || (
+        DB.keyword === 'คู่หู'
+          ? (eff.includes('คู่หู') || /\[\s*(?:Link|คู่หู)\b/i.test(eff) || /(?:^|\n)\s*(?:Link|คู่หู)\s*[-–—]/i.test(eff))
+          : eff.includes(DB.keyword)
+      );
+      const textMatch = !q || (
+        (c.name + ' ' + eff + ' ' + c.code + ' ' + (c.rarity || '')).toLowerCase().includes(q) ||
+        (q === 'คู่หู' && /\[\s*Link\b/i.test(eff)) ||
+        (q === 'link' && eff.includes('คู่หู'))
+      );
+      return textMatch &&
+        (!DB.type || c.type === DB.type) && (!DB.color || c.color === DB.color) &&
+        (!DB.symbol || c.symbol === DB.symbol) && (!(DB.series && DB.series.length) || DB.series.includes(c.series)) &&
+        (!DB.subtype || magicSubtypeOf(c) === DB.subtype) &&
+        (!DB.rarity || c.rarity === DB.rarity) &&
+        kwMatch &&
+        (DB.cost === '' || (DB.cost === '8+' ? +c.cost >= 8 : String(c.cost) === DB.cost)) &&
+        (DB.gem === '' || (c.gem !== '' && c.gem != null && String(+c.gem) === DB.gem)) &&
+        (DB.power === '' || (c.power !== '' && c.power != null && (DB.power === '8+' ? +c.power >= 8 : String(+c.power) === DB.power))) &&
+        (!DB.gemColor || (c.gem !== '' && c.gem != null && BotUtil.gemPrintColor(c) === DB.gemColor));
+    });
     const key = {
       code: c => c.code, name: c => c.name,
       cost: c => +c.cost || 0, power: c => +c.power || 0, gem: c => +c.gem || 0,
@@ -274,22 +302,54 @@
     return out;
   }
 
-  /* modal ดูการ์ดใหญ่ + ปรับจำนวน (แนวเดียวกับ bottcg.com) */
+  /* modal ดูการ์ดใหญ่ + ปรับจำนวน + เลือกภาพ (Art/Rarity) */
   function openCardModal(code) {
-    const c = DB.db.byCode[code]; if (!c) return;
+    const c = cardOf(code); if (!c) return;
+    const baseCode = c.code;
     const sec = c.type === 'Life' ? 'life' : 'main';
-    const n = DB.deck[sec][code] || 0;
+
+    let currentInDeckKey = null;
+    let n = 0;
+    ['main', 'life'].forEach(s => {
+      Object.entries(DB.deck[s] || {}).forEach(([k, ct]) => {
+        const cd = cardOf(k);
+        if (cd && (cd.code === baseCode || cd.name === c.name)) {
+          currentInDeckKey = k;
+          n += ct;
+        }
+      });
+    });
+    const currentPrint = (currentInDeckKey && cardOf(currentInDeckKey)) || c;
     const lim = limitOf(c);
+    const prints = (DB.db && DB.db.printsOf ? DB.db.printsOf(baseCode) : [c]);
+
+    const artPickerHtml = prints.length > 1 ? `
+      <div class="db-art-picker">
+        <span class="db-art-label">🎨 เลือกเวอร์ชันภาพ (${prints.length} แบบ):</span>
+        <div class="db-art-chips">
+          ${prints.map(p => {
+            const isAct = currentPrint.uid ? (p.uid === currentPrint.uid) : (p.image === currentPrint.image || p.rarity === currentPrint.rarity);
+            const isHot = ['SEC', 'USEC', 'PR', 'CBR', 'UR'].includes(p.rarity);
+            const pKey = p.uid || (p.code + '-' + p.rarity);
+            return `<button type="button" class="db-art-chip${isAct ? ' active' : ''}${isHot ? ' hot' : ''}" data-pick-art="${esc(pKey)}" data-code="${esc(baseCode)}">
+              <span>${esc(p.rarity || 'Normal')}</span>
+              ${p.dropRate ? `<small>(${esc(p.dropRate)})</small>` : ''}
+            </button>`;
+          }).join('')}
+        </div>
+      </div>` : '';
+
     byId('dbZoom').innerHTML = `
-      <div class="gl-zoom-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
+      <div class="gl-zoom-img" style="background-image:url('${esc(currentPrint.imageUrl)}')"></div>
       <div class="gl-zoom-info" data-stop="1">
-        <div class="gl-zoom-name">${esc(c.name)}</div>
-        <div class="gl-zoom-meta">${BotUtil.cardMetaHtml(c)}</div>
-        <div class="gl-zoom-effect">${BotUtil.formatEffect((c.effect || '—') + (c.favorText ? '\n\n"' + c.favorText + '"' : ''))}</div>
+        <div class="gl-zoom-name">${esc(currentPrint.name)}</div>
+        <div class="gl-zoom-meta">${BotUtil.cardMetaHtml(currentPrint)}</div>
+        <div class="gl-zoom-effect">${BotUtil.formatEffect((currentPrint.effect || '—') + (currentPrint.favorText ? '\n\n"' + currentPrint.favorText + '"' : ''))}</div>
+        ${artPickerHtml}
         <div class="db-zoom-actions">
-          <button class="db-pm big" data-q="sub" data-code="${esc(code)}">−</button>
+          <button class="db-pm big" data-q="sub" data-code="${esc(currentPrint.uid || currentPrint.code)}">−</button>
           <div class="db-zoom-count">ในเด็ค ×${n}${lim < 4 ? ` <span>(ลิมิต ${lim})</span>` : ''}</div>
-          <button class="db-pm big" data-q="add" data-code="${esc(code)}">+</button>
+          <button class="db-pm big" data-q="add" data-code="${esc(currentPrint.uid || currentPrint.code)}">+</button>
           <button class="btn-dark small" data-close="1">ปิด</button>
         </div>
       </div>`;
@@ -304,6 +364,7 @@
     chipRow('dbGemChips', ['', '0', '1', '2', '3', '4'], DB.gem, v => { DB.gem = v; DB.shown = 60; renderDB(); });
     chipRow('dbPowerChips', ['', '0', '1', '2', '3', '4', '5', '6', '7', '8+'], DB.power, v => { DB.power = v; DB.shown = 60; renderDB(); });
     chipRow('dbGemColorChips', ['', 'ใส', 'แดง', 'ฟ้า', 'ม่วง', 'เขียว'], DB.gemColor, v => { DB.gemColor = v; DB.shown = 60; renderDB(); });
+    chipRow('dbRarityChips', ['', 'C', 'R', 'SR', 'UR', 'SEC', 'USEC', 'PR', 'CBR'], DB.rarity, v => { DB.rarity = v; DB.shown = 60; renderDB(); });
     renderSeriesChips();
     renderSymbolChips();
     renderSubtypeChips();
@@ -312,8 +373,18 @@
     const filtered = filteredCards();
     byId('dbResult').textContent = `พบ ${filtered.length} ใบ · แสดง ${Math.min(DB.shown, filtered.length)}`;
     byId('dbGrid').innerHTML = filtered.slice(0, DB.shown).map(c => {
-      const n = DB.deck.main[c.code] || DB.deck.life[c.code] || 0;
-      return `<div class="db-card" data-code="${esc(c.code)}">
+      const cardKey = c.uid || (c.rarity ? `${c.code}-${c.rarity}` : c.code);
+      let n = DB.deck.main[cardKey] || DB.deck.life[cardKey] || 0;
+      if (!n) {
+        // Look up by base code or name
+        ['main', 'life'].forEach(sec => {
+          Object.entries(DB.deck[sec] || {}).forEach(([k, ct]) => {
+            const cd = cardOf(k);
+            if (cd && (cd.code === c.code || cd.name === c.name)) n += ct;
+          });
+        });
+      }
+      return `<div class="db-card" data-code="${esc(cardKey)}">
         <img src="${esc(c.imageUrl)}" loading="lazy" alt="">
         <div class="db-rar">${esc(c.rarity)}</div>
         ${n ? `<div class="db-badge">×${n}</div>` : ''}
@@ -455,8 +526,15 @@
     const b = e.target.closest('[data-v]');
     if (b) toggleSeries(b.dataset.v);
   });
+  byId('dbRarityChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    DB.rarity = b.dataset.v || '';
+    DB.shown = 60;
+    renderDB();
+  });
   byId('dbClear').onclick = () => {
-    Object.assign(DB, { q: '', type: '', color: '', cost: '', gem: '', power: '', gemColor: '', symbol: '', series: [], subtype: '', keyword: '', shown: 60 });
+    Object.assign(DB, { q: '', type: '', color: '', cost: '', gem: '', power: '', gemColor: '', symbol: '', series: [], subtype: '', keyword: '', rarity: '', shown: 60 });
     byId('dbQ').value = '';
     renderDB();
   };
@@ -470,6 +548,34 @@
     openCardModal(el.dataset.code);
   });
   byId('dbZoom').addEventListener('click', e => {
+    const artBtn = e.target.closest('[data-pick-art]');
+    if (artBtn) {
+      const pKey = artBtn.dataset.pickArt;
+      const baseCode = artBtn.dataset.code;
+      const newCard = cardOf(pKey);
+      if (newCard) {
+        // เปลี่ยนภาพการ์ดใบนี้ในเด็คให้เป็นเวอร์ชันที่เลือก
+        let changed = false;
+        ['main', 'life'].forEach(sec => {
+          let totalCount = 0;
+          Object.keys(DB.deck[sec] || {}).forEach(k => {
+            const cd = cardOf(k);
+            if (cd && (cd.code === baseCode || cd.name === newCard.name)) {
+              totalCount += DB.deck[sec][k];
+              delete DB.deck[sec][k];
+            }
+          });
+          if (totalCount > 0) {
+            const targetKey = newCard.uid || (newCard.rarity ? `${newCard.code}-${newCard.rarity}` : newCard.code);
+            DB.deck[sec][targetKey] = totalCount;
+            changed = true;
+          }
+        });
+        openCardModal(pKey);
+        renderDB();
+      }
+      return;
+    }
     const q = e.target.closest('[data-q]');
     if (q) { (q.dataset.q === 'add' ? addCode : subCode)(q.dataset.code); return; }
     if (e.target.closest('[data-close]') || !e.target.closest('[data-stop]')) byId('dbZoom').classList.add('hidden');
