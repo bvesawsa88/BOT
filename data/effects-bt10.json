@@ -1468,7 +1468,8 @@
               "dest": "magic",
               "distinctNames": true,
               "multiMax": 99,
-              "optional": true
+              "optional": true,
+              "showAll": true
             }
           ]
         },

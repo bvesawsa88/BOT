@@ -133,6 +133,7 @@
       const e = EFFECTS[c.code] || (EFFECTS[c.code] = { code: c.code, abilities: [] });
       if (c.abilities && c.abilities.length) e.abilities = c.abilities;
       if (c.keywords) e.keywords = c.keywords;
+      if (c.linkKeywords) e.linkKeywords = c.linkKeywords;
       if (c.name) e.name = e.name || c.name;
     });
     rebuildNameIndex();
@@ -150,7 +151,7 @@
     'scoutBonusConstruct', 'hostCostDelta', 'hostPowerIfEffCostMin',
     'destroyAnyOnSummonedByAvatarNameIncludes', 'destroyAnyOnSummonedByAvatarSymbol',
     'extraColors', 'onlyAttackableAllyNameIncludes', 'cannotAttack', 'unityOnlyNameIncludes',
-    'controlImmuneOwnAvatars'
+    'controlImmuneOwnAvatars', 'linkKeywords'
   ];
   function inheritMetaFromNamePeers(chosen, nm) {
     if (!chosen || !nm) return chosen;
@@ -352,9 +353,13 @@
   const hasKw = (st, k, kw) => {
     const c = st.inst[k]; if (!c) return false;
     if (keywordSuppressedByOverdose(st, k, kw)) return false;
+    const e = fxCard(c);
+    if (e && e.linkKeywords && e.linkKeywords.includes(kw)) {
+      return inLinkStatus(st, k);
+    }
     if (keywordsOf(c.code, c.name).includes(kw)) return true;
     // fallback: ข้อความการ์ดขึ้นต้น/มีบรรทัด keyword (เช่น ยักษ์หินแผ่นดินใหญ่ — โล่มนุษย์)
-    if (kw && c.effect && new RegExp('(^|\\n)\\s*' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(c.effect)) return true;
+    if (kw && c.effect && (!e || !e.linkKeywords || !e.linkKeywords.includes(kw)) && new RegExp('(^|\\n)\\s*' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(c.effect)) return true;
     if ((c.grantedKeywords || []).some(g => g.kw === kw)) return true;
     for (const id in st.inst) {
       if (st.inst[id].attachedTo === k && keywordsOf(st.inst[id].code).includes(kw)) return true;
@@ -375,7 +380,6 @@
         if (kw === 'แทงหลัง' && /ได้รับ\s*แทงหลัง|ได้รับความสามารถ\s*แทงหลัง/.test(txt)) return true;
       }
     }
-    const e = fxCard(c);
     if (e && e.grantKeywordIfAllyNameIncludes && e.grantKeywordIfAllyNameIncludes.keyword === kw) {
       const z = zoneOf(st, k) || '';
       if (z.endsWith('.avatar')) {
@@ -2609,11 +2613,14 @@
 
   function cardSymbols(st, k) {
     const c = st.inst[k]; if (!c) return [];
-    // Land force symbol (แอสการ์ด): บังคับ Symbol ทั้งสนามจนกว่า Land จะออก
-    for (const id of (st.zones['land'] || [])) {
-      const L = st.inst[id];
-      const le = fxCard(L);
-      if (L && L.faceUp && le && le.forceAllAvatarSymbol) return [le.forceAllAvatarSymbol];
+    const z = zoneOf(st, k) || '';
+    // Land force symbol (แอสการ์ด): เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น Symbol {เทพ}
+    if (c.type === 'Avatar' && z.endsWith('.avatar')) {
+      for (const id of (st.zones['land'] || [])) {
+        const L = st.inst[id];
+        const le = fxCard(L);
+        if (L && L.faceUp && le && le.forceAllAvatarSymbol) return [le.forceAllAvatarSymbol];
+      }
     }
     // วูตาตู ฯลฯ: ใบสวมบังคับ Symbol โฮสต์
     for (const id in st.inst) {
@@ -9310,6 +9317,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 p._skipPickTail = true;
               }
             }
+            if (p.shuffleAfter || (p.shuffleAfterIfFromDeck && pickedFromDeck)) {
+              seededShuffle(st.zones[p.chooser + '.deck'] || [], rng);
+              addLog(st, p.chooser, 'สับเด็ค');
+              syncHeimdall(st);
+            }
             fx.snd = 'place';
           } else if (p.dest === 'magicToHellCost') {
             doMove(st, a.k, p.chooser + '.hell', null, fx);
@@ -11753,6 +11765,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (!(zoneOf(st, a.k) || '').endsWith('.avatar')) return deny('ใช้ได้เฉพาะ Avatar บนสนาม');
         if (!(zoneOf(st, a.to) || '').endsWith('.avatar')) return deny('ผู้รับต้องเป็น Avatar บนสนาม');
         if (tgtSide !== side) return deny('สามัคคีให้ได้เฉพาะ Avatar ฝั่งตัวเอง');
+        if (!hasKw(st, a.k, 'สามัคคี')) return deny(`"${c.name}" ไม่มี keyword สามัคคี`);
         {
           const eGive = fxCard(c);
           if (eGive && eGive.unityOnlyNameIncludes && !nameMatches(tgt, eGive.unityOnlyNameIncludes))
@@ -12375,5 +12388,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove };
+  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols };
 });

@@ -5334,6 +5334,11 @@
         title = iAmChooser
           ? `✨ สอดแนมเจอ ${disp.length} ใบ (รวม Cost ${pp.scoutCostSum != null ? pp.scoutCostSum : '?'}) — กดรับขึ้นมือ แล้วเลือกเนรเทศศัตรู`
           : `👁 สอดแนมของผู้เล่น ${pp.chooser} — เจอ ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (showAllHell && pp.dest === 'magic')
+        title = iAmChooser
+          ? `✨ เปิดนรก ${disp.length} ใบ — แตะ Avatar มะม่วงที่กะพริบเพื่อวางบน Magic Zone (${selectable.length})`
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
       else if (showAllHell)
         title = iAmChooser
           ? `✨ เปิดนรก ${disp.length} ใบ — แตะใบที่กะพริบเพื่อเลือก (${selectable.length})`
@@ -5341,6 +5346,8 @@
           : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
       else if (pp.from === 'deckOrHell')
         title = `✨ ค้นเด็คหรือนรก — แตะการ์ดที่กะพริบเพื่อเลือกขึ้นมือ`;
+      else if (pp.from === 'hell' && pp.dest === 'magic')
+        title = `✨ เลือก Avatar มะม่วงจากนรกวางบน Magic Zone — แตะใบที่กะพริบ`;
       else if (pp.from === 'hell')
         title = `✨ เลือกการ์ดจากนรก`;
       else if (pp.from === 'deckAll')

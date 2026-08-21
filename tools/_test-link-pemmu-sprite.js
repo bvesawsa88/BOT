@@ -111,13 +111,20 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   ok(st.inst[pem].pairWith === spr && st.inst[spr].pairWith === pem, 'linked pair');
 }
 
-/* 6) สไปรท์มีโล่มนุษย์ / ลูกฮึด / สามัคคี */
+/* 6) สไปรท์มีโล่มนุษย์ / ลูกฮึด / สามัคคี เมื่ออยู่ในสถานะคู่หู (Link) เท่านั้น */
 {
   const st = emptyState();
   const spr = put(st, 'A.avatar', 'BT09-009');
-  ok(BoT.hasKw(st, spr, 'โล่มนุษย์'), 'sprite human shield');
-  ok(BoT.hasKw(st, spr, 'ลูกฮึด'), 'sprite stubborn');
-  ok(BoT.hasKw(st, spr, 'สามัคคี'), 'sprite unity');
+  ok(!BoT.hasKw(st, spr, 'โล่มนุษย์'), 'sprite no human shield without buddy');
+  ok(!BoT.hasKw(st, spr, 'ลูกฮึด'), 'sprite no stubborn without buddy');
+  ok(!BoT.hasKw(st, spr, 'สามัคคี'), 'sprite no unity without buddy');
+
+  // จับ Link กับเพมมุ
+  const pem = put(st, 'A.avatar', 'BT09-008');
+  apply(st, { type: 'pair', k: spr, to: pem, by: 'A', seed: 5 });
+  ok(BoT.hasKw(st, spr, 'โล่มนุษย์'), 'sprite has human shield with buddy');
+  ok(BoT.hasKw(st, spr, 'ลูกฮึด'), 'sprite has stubborn with buddy');
+  ok(BoT.hasKw(st, spr, 'สามัคคี'), 'sprite has unity with buddy');
 }
 
 /* 7) End Phase มีคู่หู (เพมมุ) + ถ้านอน: ตื่น + POWER +2 จน Draw Phase ถัดไปของเรา */

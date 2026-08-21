@@ -217,16 +217,16 @@ function promptDest(st) {
   ok(zone(st, e3) === 'B.avatar', 'P3 untouched');
 }
 
-/* สไปรท์ไม่คู่หู: นอนจากสามัคคี แล้ว End Phase จะไม่ตื่น (ตื่นเมื่อมีคู่หูเท่านั้น) */
+/* สไปรท์ไม่คู่หู: ไม่มีสามัคคี + ถ้านอนแล้ว End Phase จะไม่ตื่น (ตื่นเมื่อมีคู่หูเท่านั้น) */
 {
   const st = emptyState({ phase: 'Battle' });
   put(st, 'A.deck', 'SD01-003');
   put(st, 'B.deck', 'SD01-003');
-  const spr = put(st, 'A.avatar', 'BT09-009');
+  const spr = put(st, 'A.avatar', 'BT09-009', { tapped: false });
   const dummy = put(st, 'A.avatar', 'SD01-010');
   let fx = apply(st, { type: 'unity', k: spr, to: dummy, by: 'A', seed: 50 });
-  if (fx.deny) fail('unity deny: ' + fx.deny);
-  ok(!!st.inst[spr].tapped, 'sprite tapped for unity without pair');
+  ok(!!fx.deny, 'sprite cannot use unity without buddy: ' + fx.deny);
+  st.inst[spr].tapped = true;
   fx = apply(st, { type: 'endTurn', by: 'A', seed: 51 });
   if (fx.deny) fail('endTurn deny: ' + fx.deny);
   ok(st.inst[spr].tapped === true, 'sprite stays tapped at own end without buddy');
