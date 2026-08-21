@@ -1729,7 +1729,7 @@ server.on('upgrade', (req, socket, head) => {
     onLanUpgrade(req, socket, head);
     return;
   }
-  if (urlPath === '/signal' || urlPath === '/signal/') {
+  if (urlPath === '/signal' || urlPath === '/signal/' || urlPath === '/ws' || urlPath === '/ws/') {
     onSignalUpgrade(req, socket, head);
     return;
   }

@@ -747,7 +747,7 @@
   function syncUrlForScreen(name) {
     if (STREAM) return;
     const q = new URLSearchParams(location.search);
-    if (q.get('room') || q.get('stream')) return; // ออนไลน์/บานสนามใช้ query อยู่แล้ว
+    if (q.get('room') || q.get('lan') || q.get('stream')) return; // ออนไลน์/บานสนามใช้ query อยู่แล้ว
     try {
       if (name === 'menu') history.replaceState(null, '', location.pathname);
       else if (name === 'table' && mode === 'solo') history.replaceState(null, '', location.pathname + '#table');
@@ -1060,7 +1060,7 @@
   }
   function inviteURL() {
     if (netKind === 'lan' && typeof BotLAN !== 'undefined') return BotLAN.inviteURL(room);
-    return location.origin + location.pathname.replace(/\/?$/, '/') + '?room=' + room;
+    return location.origin + location.pathname.replace(/\/?$/, '/') + '?room=' + (room || '');
   }
   function copyText(text, okMsg, fallbackMsg) {
     const done = () => toast(okMsg, 4000);
@@ -1916,7 +1916,7 @@
       const hostNick = (lanAutoMatch ? lanHallNick() : myNick()) || 'โฮสต์';
       roomSt = lanEmptyRoom(hostNick);
       rememberSkins('A', mySkinPayload());
-      history.replaceState(null, '', '?lan=' + room);
+      history.replaceState(null, '', '?room=' + room);
       fillDeckSelect();
       if (lanMatchDeckKey) {
         try {
@@ -1944,7 +1944,7 @@
     });
   }
   function joinLanRoom(code) {
-    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
+    if (typeof BotLAN === 'undefined') { toast('โหลดระบบออนไลน์ไม่สำเร็จ'); return; }
     const clean = BotLAN.parseCode(code || (byId('inpRoom') && byId('inpRoom').value));
     const lobbyMsg = byId('lobbyMsg');
     if (clean.length !== 6) {
@@ -1955,15 +1955,17 @@
     if (lobbyMsg) lobbyMsg.textContent = 'กำลังเข้าห้อง…';
     realMode = false;
     lanExpectClose = false;
-    BotLAN.join(clean, {
-      onMessage: onLanMessage,
-      onClose: () => {
-        if (lanExpectClose || lanReconnecting) return;
-        if (!(mode === 'online' && netKind === 'lan')) return;
-        beginLanDropReconnect();
-        toast('หลุดจากโฮสต์ LAN');
-      },
-      onError: (err) => toast((err && err.message) || 'LAN error'),
+    ensurePlayReady().catch(() => {}).then(() => {
+      return BotLAN.join(clean, {
+        onMessage: onLanMessage,
+        onClose: () => {
+          if (lanExpectClose || lanReconnecting) return;
+          if (!(mode === 'online' && netKind === 'lan')) return;
+          beginLanDropReconnect();
+          toast('หลุดจากห้องออนไลน์');
+        },
+        onError: (err) => toast((err && err.message) || 'Online error'),
+      });
     }).then(api => {
       lanSession = api;
       lanIsHost = false;
@@ -1972,7 +1974,7 @@
       room = clean;
       seat = 'B';
       myReady = false;
-      history.replaceState(null, '', '?lan=' + room);
+      history.replaceState(null, '', '?room=' + room);
       const guestNick = (lanAutoMatch ? lanHallNick() : myNick()) || 'ผู้เล่น B';
       lanSend({ t: 'hello', nick: guestNick, uid: myUid(), skins: mySkinPayload() });
       fillDeckSelect();
@@ -7181,10 +7183,9 @@
   };
   byId('btnCreate').onclick = () => { byId('lobbyMsg').textContent = 'กำลังสร้างห้อง…'; realMode = false; startLanHost(); };
   function joinRoom(as) {
-    const code = byId('inpRoom').value.trim().toUpperCase();
+    const code = BotLAN ? BotLAN.parseCode(byId('inpRoom').value) : byId('inpRoom').value.trim().toUpperCase();
     if (code.length !== 6) { byId('lobbyMsg').textContent = 'รหัสห้องต้องมี 6 ตัวอักษร'; return; }
-    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง…'; realMode = false;
-    connect(() => wsSend({ t: 'join', room: code, nick: myNick(), as, uid: myUid() }));
+    joinLanRoom(code);
   }
   byId('btnJoin').onclick = () => joinLanRoom(byId('inpRoom').value);
   byId('btnSpec').onclick = () => joinRoom('spec');
@@ -7481,13 +7482,8 @@
       ensurePlayReady().catch(() => { });
       showScreen('lobby', true);
       byId('inpRoom').value = data.room.toUpperCase();
-      if (data.netKind === 'lan') {
-        // โฮสต์รีเฟรช = ต้องสร้างห้องใหม่ (Peer ID เดิมใช้ต่อไม่ได้ชัวร์)
-        byId('lobbyMsg').textContent = 'ห้องหลุดหลังรีเฟรช — สร้างห้องใหม่หรือเข้าด้วยรหัสโฮสต์';
-        return true;
-      }
       byId('lobbyMsg').textContent = 'กำลังกลับเข้าห้อง ' + data.room.toUpperCase() + '…';
-      connect(() => wsSend({ t: 'join', room: data.room, nick: myNick(), as: 'player', uid: myUid() }));
+      joinLanRoom(data.room);
       return true;
     }
     if (['lobby', 'decks', 'deckbuilder', 'gallery', 'howto'].includes(data.screen)) {
@@ -7516,16 +7512,12 @@
   const qParams = new URLSearchParams(location.search);
   const qLan = qParams.get('lan');
   const qRoom = qParams.get('room');
-  if (!restored && qLan && String(qLan).length === 6) {
+  const autoCode = (qRoom && qRoom.length === 6) ? qRoom : ((qLan && String(qLan).length === 6) ? String(qLan) : null);
+  if (!restored && autoCode) {
     showScreen('lobby', true);
-    byId('inpRoom').value = String(qLan).toUpperCase();
-    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + String(qLan).toUpperCase() + '…';
-    ensurePlayReady().then(() => joinLanRoom(qLan)).catch(() => joinLanRoom(qLan));
-  } else if (!restored && qRoom && qRoom.length === 6) {
-    showScreen('lobby', true);
-    byId('inpRoom').value = qRoom.toUpperCase();
-    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + qRoom.toUpperCase() + '…';
-    connect(() => wsSend({ t: 'join', room: qRoom, nick: myNick(), as: 'player', uid: myUid() }));
+    byId('inpRoom').value = autoCode.toUpperCase();
+    byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + autoCode.toUpperCase() + '…';
+    ensurePlayReady().then(() => joinLanRoom(autoCode)).catch(() => joinLanRoom(autoCode));
   }
 
   // บันทึกก่อนปิดแท็บ/รีเฟรช

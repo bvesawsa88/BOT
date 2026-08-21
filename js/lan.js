@@ -19,8 +19,17 @@
   }
 
   function parseCode(raw) {
-    const s = String(raw || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (s.indexOf('BOTLAN') === 0) return s.slice(6);
+    if (!raw) return '';
+    const str = String(raw).trim();
+    const matchQuery = str.match(/[?&](?:room|lan)=([A-Za-z0-9]{6})/i);
+    if (matchQuery) return matchQuery[1].toUpperCase();
+    const s = str.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (s.indexOf('BOTLAN') === 0) return s.slice(6, 12);
+    if (s.length > 6) {
+      const m = str.match(/\b([A-Za-z0-9]{6})\b/);
+      if (m) return m[1].toUpperCase();
+      return s.slice(-6);
+    }
     return s;
   }
 
@@ -228,7 +237,7 @@
 
   function inviteURL(code) {
     const origin = location.origin + location.pathname.replace(/\/?$/, '/');
-    return origin + '?lan=' + encodeURIComponent(parseCode(code));
+    return origin + '?room=' + encodeURIComponent(parseCode(code));
   }
 
   function qrDataUrl(text, size) {
