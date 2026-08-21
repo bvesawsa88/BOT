@@ -161,7 +161,10 @@
         })
         .catch(() => savedDecks());
     }
-    function getMaxDecks() { return userMaxDecks; }
+    function getMaxDecks() {
+      if (!isLoggedIn()) return 2;
+      return userMaxDecks;
+    }
     function getIsSupporter() { return isSupporter; }
     return { load, limitOf, isOnly, savedDecks, saveDecks, pullDecks, isLoggedIn, getMaxDecks, getIsSupporter };
   })();

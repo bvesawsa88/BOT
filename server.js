@@ -193,6 +193,20 @@ const MAX_DECKS = 40;
 const FREE_MAX_DECKS = 5;
 const SUPPORTER_MAX_DECKS = 40;
 
+const SETTINGS_FILE = path.join(ROOT, 'data', 'site-settings.json');
+function loadOAuthConfig() {
+  let jsonSettings = {};
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) jsonSettings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8') || '{}');
+  } catch (e) { }
+  return {
+    googleClientId: process.env.GOOGLE_CLIENT_ID || jsonSettings.googleClientId || '',
+    discordClientId: process.env.DISCORD_CLIENT_ID || jsonSettings.discordClientId || '',
+    discordClientSecret: process.env.DISCORD_CLIENT_SECRET || jsonSettings.discordClientSecret || '',
+    discordRedirectUri: process.env.DISCORD_REDIRECT_URI || jsonSettings.discordRedirectUri || ''
+  };
+}
+
 function isSupporterUser(u) {
   return !!(u && (u.isSupporter || u.role === 'admin'));
 }
@@ -333,6 +347,205 @@ async function handleAuth(req, res, urlPath) {
   }
 
   const route = urlPath.replace(/\/+$/, '') || '/';
+  const oauthConf = loadOAuthConfig();
+
+  if (route === '/auth/oauth/config') {
+    json(res, 200, {
+      ok: true,
+      googleClientId: oauthConf.googleClientId,
+      discordClientId: oauthConf.discordClientId
+    });
+    return;
+  }
+
+  if (route === '/auth/oauth/discord') {
+    const host = req.headers.host || 'localhost:3000';
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const redirectUri = oauthConf.discordRedirectUri || `${protocol}://${host}/auth/oauth/discord/callback`;
+    if (!oauthConf.discordClientId) {
+      json(res, 400, { ok: false, error: 'Discord OAuth ไม่ได้ตั้งค่า DISCORD_CLIENT_ID' });
+      return;
+    }
+    const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(oauthConf.discordClientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+    res.writeHead(302, { Location: discordUrl });
+    res.end();
+    return;
+  }
+
+  if (route === '/auth/oauth/discord/callback') {
+    const urlObj = new URL(req.url, 'http://localhost');
+    const code = urlObj.searchParams.get('code');
+    const host = req.headers.host || 'localhost:3000';
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const redirectUri = oauthConf.discordRedirectUri || `${protocol}://${host}/auth/oauth/discord/callback`;
+
+    if (!code || !oauthConf.discordClientId || !oauthConf.discordClientSecret) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(`<!DOCTYPE html><html><body><script>
+        if (window.opener) { window.opener.postMessage({ type: 'oauth_error', error: 'Discord code/secret ไม่ครบถ้วน' }, '*'); window.close(); }
+        else { alert('Discord OAuth error'); window.location.href = '/'; }
+      </script></body></html>`);
+      return;
+    }
+
+    try {
+      const tokenBody = new URLSearchParams({
+        client_id: oauthConf.discordClientId,
+        client_secret: oauthConf.discordClientSecret,
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: redirectUri
+      }).toString();
+
+      const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: tokenBody
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenData.access_token) throw new Error('no access_token from discord');
+
+      const userRes = await fetch('https://discord.com/api/users/@me', {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` }
+      });
+      const discordUser = await userRes.json();
+
+      let providerId = String(discordUser.id || '');
+      let rawName = discordUser.global_name || discordUser.username || 'DiscordUser';
+      let email = discordUser.email || '';
+      let cleanName = rawName.replace(/[^A-Za-z0-9_\u0E00-\u0E7F]/g, '').slice(0, 20);
+      if (cleanName.length < 3) cleanName = 'D_' + cleanName + Math.floor(Math.random() * 899 + 100);
+      const lookupKey = `discord:${providerId}`.toLowerCase();
+
+      const session = await mutateUsers(async (users) => {
+        let matchedKey = null;
+        for (const [k, u] of Object.entries(users)) {
+          if (u && (u.socialId === lookupKey || (u.providerId === providerId && u.provider === 'discord'))) {
+            matchedKey = k; break;
+          }
+        }
+        if (matchedKey && users[matchedKey]) {
+          return issueSession(users[matchedKey]);
+        }
+        let finalUsername = cleanName;
+        let baseKey = finalUsername.toLowerCase();
+        let counter = 1;
+        while (users[baseKey] && users[baseKey].socialId !== lookupKey) {
+          finalUsername = cleanName.slice(0, 16) + Math.floor(Math.random() * 899 + 100);
+          baseKey = finalUsername.toLowerCase();
+          if (counter++ > 10) break;
+        }
+        users[baseKey] = {
+          username: finalUsername,
+          provider: 'discord',
+          providerId,
+          email,
+          socialId: lookupKey,
+          decks: {},
+          createdAt: new Date().toISOString()
+        };
+        return issueSession(users[baseKey]);
+      });
+
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(`<!DOCTYPE html><html><body><script>
+        try { localStorage.setItem('bot_auth_token', ${JSON.stringify(session.token)}); } catch(e){}
+        if (window.opener) {
+          window.opener.postMessage({ type: 'oauth_success', session: ${JSON.stringify(session)} }, '*');
+          window.close();
+        } else {
+          window.location.href = '/';
+        }
+      </script></body></html>`);
+      return;
+    } catch (e) {
+      console.error('[auth/oauth/discord/callback]', e);
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(`<!DOCTYPE html><html><body><script>
+        if (window.opener) { window.opener.postMessage({ type: 'oauth_error', error: ${JSON.stringify(e.message || 'Error')} }, '*'); window.close(); }
+        else { alert('Discord OAuth error: ' + ${JSON.stringify(e.message || 'Error')}); window.location.href = '/'; }
+      </script></body></html>`);
+      return;
+    }
+  }
+
+  if (route === '/auth/social-login') {
+    if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+    let body;
+    try { body = JSON.parse(await readBody(req, 16384) || '{}'); }
+    catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+
+    const provider = String(body.provider || '').toLowerCase();
+    if (provider !== 'google' && provider !== 'discord') {
+      json(res, 400, { ok: false, error: 'invalid provider' });
+      return;
+    }
+
+    let providerId = String(body.id || body.sub || '').trim();
+    let email = String(body.email || '').trim().toLowerCase();
+    let rawName = String(body.name || body.username || '').trim();
+
+    if (body.credential && typeof body.credential === 'string') {
+      try {
+        const parts = body.credential.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+          if (payload.sub) providerId = payload.sub;
+          if (payload.email) email = payload.email.toLowerCase();
+          if (payload.name) rawName = payload.name;
+        }
+      } catch (e) { }
+    }
+
+    if (!rawName) rawName = provider === 'google' ? 'GoogleUser' : 'DiscordUser';
+    let cleanName = rawName.replace(/[^A-Za-z0-9_\u0E00-\u0E7F]/g, '').slice(0, 20);
+    if (cleanName.length < 3) cleanName = (provider === 'google' ? 'G_' : 'D_') + cleanName + Math.floor(Math.random() * 899 + 100);
+
+    const lookupKey = `${provider}:${providerId || email || cleanName}`.toLowerCase();
+
+    try {
+      const out = await mutateUsers(async (users) => {
+        let matchedKey = null;
+        for (const [k, u] of Object.entries(users)) {
+          if (u && (u.socialId === lookupKey || (providerId && u.providerId === providerId && u.provider === provider) || (email && u.email === email && u.provider === provider))) {
+            matchedKey = k;
+            break;
+          }
+        }
+
+        if (matchedKey && users[matchedKey]) {
+          const u = users[matchedKey];
+          return { status: 200, body: issueSession(u) };
+        }
+
+        let finalUsername = cleanName;
+        let baseKey = finalUsername.toLowerCase();
+        let counter = 1;
+        while (users[baseKey] && users[baseKey].socialId !== lookupKey) {
+          finalUsername = cleanName.slice(0, 16) + Math.floor(Math.random() * 899 + 100);
+          baseKey = finalUsername.toLowerCase();
+          if (counter++ > 10) break;
+        }
+
+        users[baseKey] = {
+          username: finalUsername,
+          provider,
+          providerId,
+          email,
+          socialId: lookupKey,
+          decks: {},
+          createdAt: new Date().toISOString()
+        };
+
+        return { status: 200, body: issueSession(users[baseKey]) };
+      });
+      json(res, out.status, out.body);
+    } catch (e) {
+      console.error('[auth/social-login]', e.message || e);
+      json(res, 500, { ok: false, error: 'server error' });
+    }
+    return;
+  }
 
   if (route === '/auth/register' || route === '/auth/login') {
     if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }

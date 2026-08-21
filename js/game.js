@@ -6709,6 +6709,126 @@
     } catch (e) { byId('authMsg').textContent = 'เชื่อมต่อไม่ได้'; }
     byId('authSubmit').disabled = false;
   }
+  async function loginWithGoogle() {
+    byId('authMsg').textContent = 'กำลังเชื่อมต่อ Google...';
+    try {
+      const confRes = await fetch('/auth/oauth/config').then(r => r.json()).catch(() => ({}));
+      if (confRes.googleClientId && window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+          client_id: confRes.googleClientId,
+          callback: async (res) => {
+            if (res.credential) {
+              const r = await fetch('/auth/social-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provider: 'google', credential: res.credential })
+              });
+              const j = await r.json();
+              if (j.ok) {
+                try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+                setAuthUI(j.username, j.admin, j.isSupporter);
+                closeAuth();
+                toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
+                syncCloudDecks();
+              } else {
+                byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
+              }
+            }
+          }
+        });
+        window.google.accounts.id.prompt();
+        return;
+      }
+
+      if (confRes.googleClientId) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => loginWithGoogle();
+        document.head.appendChild(script);
+        return;
+      }
+
+      const name = prompt('กรอกชื่อผู้ใช้สำหรับบัญชี Google (หรืออีเมล):', 'GoogleUser');
+      if (!name) { byId('authMsg').textContent = ''; return; }
+      const r = await fetch('/auth/social-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'google', name: name.trim(), id: 'g_' + name.trim().toLowerCase() })
+      });
+      const j = await r.json();
+      if (j.ok) {
+        try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+        setAuthUI(j.username, j.admin, j.isSupporter);
+        closeAuth();
+        toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
+        syncCloudDecks();
+      } else {
+        byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
+      }
+    } catch (e) {
+      byId('authMsg').textContent = 'เชื่อมต่อ Google ไม่สำเร็จ';
+    }
+  }
+
+  async function loginWithDiscord() {
+    byId('authMsg').textContent = 'กำลังเชื่อมต่อ Discord...';
+    try {
+      const confRes = await fetch('/auth/oauth/config').then(r => r.json()).catch(() => ({}));
+      if (confRes.discordClientId) {
+        const w = 500, h = 700;
+        const left = (screen.width / 2) - (w / 2), top = (screen.height / 2) - (h / 2);
+        const popup = window.open('/auth/oauth/discord', 'discord_oauth', `width=${w},height=${h},top=${top},left=${left}`);
+        if (!popup) {
+          window.location.href = '/auth/oauth/discord';
+        }
+        return;
+      }
+
+      const name = prompt('กรอกชื่อผู้ใช้สำหรับบัญชี Discord:', 'DiscordUser');
+      if (!name) { byId('authMsg').textContent = ''; return; }
+      const r = await fetch('/auth/social-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'discord', name: name.trim(), id: 'd_' + name.trim().toLowerCase() })
+      });
+      const j = await r.json();
+      if (j.ok) {
+        try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+        setAuthUI(j.username, j.admin, j.isSupporter);
+        closeAuth();
+        toast('👤 เข้าสู่ระบบด้วย Discord: ' + j.username);
+        syncCloudDecks();
+      } else {
+        byId('authMsg').textContent = j.error || 'Discord login ล้มเหลว';
+      }
+    } catch (e) {
+      byId('authMsg').textContent = 'เชื่อมต่อ Discord ไม่สำเร็จ';
+    }
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'oauth_success' && e.data.session) {
+      const j = e.data.session;
+      try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+      setAuthUI(j.username, j.admin, j.isSupporter);
+      closeAuth();
+      toast('👤 สวัสดี ' + j.username + (j.isSupporter ? ' (☕ ผู้สนับสนุน)' : ''));
+      syncCloudDecks();
+    } else if (e.data && e.data.type === 'oauth_error') {
+      byId('authMsg').textContent = e.data.error || 'OAuth error';
+    }
+  });
+
+  const btnGoogle = byId('btnAuthGoogle');
+  if (btnGoogle) btnGoogle.onclick = loginWithGoogle;
+  const btnDiscord = byId('btnAuthDiscord');
+  if (btnDiscord) btnDiscord.onclick = loginWithDiscord;
+
+  window.openAuth = openAuth;
+  window.checkAuth = checkAuth;
+
   byId('btnLogin').onclick = () => openAuth('login');
   byId('btnLogout').onclick = () => { try { localStorage.removeItem('bot_auth_token'); localStorage.removeItem('bot_user'); } catch (e) { } setAuthUI(null); toast('ออกจากระบบแล้ว'); };
   if (window.BotSkins) {

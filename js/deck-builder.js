@@ -195,7 +195,7 @@
   function nameCountInDeck(name) {
     let n = 0;
     ['main', 'life'].forEach(sec => Object.entries(DB.deck[sec]).forEach(([k, ct]) => {
-      const cd = DB.db.byCode[k]; if (cd && cd.name === name) n += ct;
+      const cd = cardOf(k); if (cd && cd.name === name) n += ct;
     }));
     return n;
   }
@@ -203,7 +203,7 @@
   function onlyNamesInDeck(deck) {
     const names = new Set();
     ['main', 'life'].forEach(sec => Object.keys(deck[sec] || {}).forEach(k => {
-      const cd = DB.db.byCode[k]; if (cd && isOnly(cd)) names.add(cd.name);
+      const cd = cardOf(k); if (cd && isOnly(cd)) names.add(cd.name);
     }));
     return [...names];
   }
@@ -211,7 +211,7 @@
   function perNameCounts(deck) {
     const out = {};
     ['main', 'life'].forEach(sec => Object.entries(deck[sec] || {}).forEach(([k, ct]) => {
-      const cd = DB.db.byCode[k]; if (!cd) return;
+      const cd = cardOf(k); if (!cd) return;
       const e = out[cd.name] = out[cd.name] || { n: 0, lim: 0 };
       e.n += ct;
       e.lim = Math.max(e.lim, limitOf(cd));   // ชื่อเดียวกันต่างรหัส: CardDB รวม Only/customLimit ทุกพิมพ์แล้ว ค่าจึงเท่ากัน
@@ -405,7 +405,7 @@
     // ★ ตรวจลิมิตต่อชื่อ ครอบคลุมทั้ง Main และ LIFE (เดิมสแกนแค่ main + นับต่อรหัส)
     const overNames = Object.entries(perNameCounts(DB.deck)).filter(([, v]) => v.n > v.lim);
     const allCodes = Object.keys({ ...DB.deck.main, ...DB.deck.life });
-    const nameOf = k => DB.db.byCode[k] ? DB.db.byCode[k].name : '';
+    const nameOf = k => { const cd = cardOf(k); return cd ? cd.name : ''; };
     const onlyNames = onlyNamesInDeck(DB.deck);
     const onlyOk = onlyNames.length === 1;
     const onlyLabel = onlyNames.length === 0
@@ -421,7 +421,7 @@
         ? `เกินลิมิต ${overNames.length} ชื่อ: ` + overNames.slice(0, 3).map(([nm, v]) => `${nm} ${v.n}/${v.lim}`).join(' · ') + (overNames.length > 3 ? ' …' : '')
         : 'ไม่เกินลิมิตต่อชื่อ (≤4 / Only #1 / banlist · นับรวมทุกรหัส)'],
     ];
-    const prCount = allCodes.filter(k => DB.db.byCode[k] && DB.db.byCode[k].rarity === 'PR').length;
+    const prCount = allCodes.filter(k => { const cd = cardOf(k); return cd && cd.rarity === 'PR'; }).length;
     if (prCount) checks.push([false, `มีการ์ด PR "ลำเอียง" ${prCount} ใบ — ห้ามใช้ในโหมดแข่ง`, true]);
     const bannedIn = allCodes.filter(k => DB.db.ban.banned.includes(nameOf(k)));
     if (bannedIn.length) checks.push([false, `มีการ์ดห้ามใส่ (การ์ดบาป) ${bannedIn.length} รายการ`]);
@@ -437,7 +437,7 @@
     const curve = [0, 1, 2, 3, 4, 5, 6, 7, '8+'].map(v => {
       let n = 0;
       Object.entries(DB.deck.main).forEach(([k, ct]) => {
-        const cd = DB.db.byCode[k]; if (!cd || cd.cost === '' || cd.cost == null) return;
+        const cd = cardOf(k); if (!cd || cd.cost === '' || cd.cost == null) return;
         const co = +cd.cost;
         if (v === '8+' ? co >= 8 : co === v) n += ct;
       });
@@ -592,8 +592,14 @@
     const name = (byId('dbName').value.trim() || 'เด็คไม่มีชื่อ');
     const sv = CardDB.savedDecks();
     const isNew = !sv[name];
-    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
+    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : (CardDB.isLoggedIn && CardDB.isLoggedIn() ? 5 : 2);
     if (isNew && Object.keys(sv).length >= max) {
+      if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
+        msg(`⚠️ โหมดไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — กรุณาล็อกอินเพื่อจัดเด็คเพิ่ม`);
+        if (typeof root.toast === 'function') root.toast(`⚠️ ไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — ล็อกอินเพื่อจัดเด็คเพิ่ม`);
+        if (typeof window.openAuth === 'function') window.openAuth('login');
+        return;
+      }
       msg(`⚠️ บันทึกครบโควตา ${max} เด็คแล้ว (เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค)`);
       if (typeof root.toast === 'function') root.toast(`⚠️ จำกัด ${max} เด็ค — เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค`);
       return;
@@ -603,11 +609,13 @@
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }
     byId('dbName').value = name;
     DK.sel = { kind: 'saved', id: name };
-    const cloud = CardDB.isLoggedIn && CardDB.isLoggedIn();
-    msg(cloud
-      ? `บันทึก "${name}" แล้วบนบัญชี — ใช้เป็นเด็คหลักได้เลย`
-      : `บันทึก "${name}" แล้วบนเครื่องนี้ — ล็อกอินเพื่อเก็บข้ามเครื่อง`);
-    renderDB();
+    if (typeof root.toast === 'function') {
+      root.toast(`✓ บันทึกเด็ค "${name}" แล้ว`);
+    }
+    // เวลาเซฟเด็คให้ออกมาหน้าเด็คของฉันเลย
+    closeDbDrawers();
+    BOT.showScreen('decks');
+    window.openDeckList();
   };
   byId('dbClearDeck').onclick = () => { DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB(); };
   let STARTERS_DB = null, startersP = null;
@@ -668,7 +676,7 @@
   /* ── รหัสเด็ครูปแบบข้อความ (เข้ากันได้กับ bottcg.com) ── */
   const stripRarity = code => code.replace(/-[A-Z]{1,5}$/, ''); // "BT02-045-C" → "BT02-045"
   function buildDeckCode(deck, name) {
-    const line = (code, n) => { const c = DB.db.byCode[code]; return `${n}x ${code}${c && c.rarity ? '-' + c.rarity : ''}`; };
+    const line = (code, n) => { const c = cardOf(code); return `${n}x ${code}${c && c.rarity ? '-' + c.rarity : ''}`; };
     const mains = Object.entries(deck.main).sort((a, b) => a[0] < b[0] ? -1 : 1);
     const lifes = Object.entries(deck.life).sort((a, b) => a[0] < b[0] ? -1 : 1);
     let s = `# ${name || 'เด็คไม่มีชื่อ'}\n\n# Main Deck\n`;
@@ -703,7 +711,7 @@
       });
     });
     function addEntry(n, base) {
-      const c = DB.db.byCode[base];
+      const c = cardOf(base);
       if (!c) { unknown.push(base); return; }
       if (section === 'side') { side += n; return; }
       const dest = c.type === 'Life' ? life : main;
@@ -755,7 +763,7 @@
     let keptOnlyName = null;
     const droppedOnly = [];
     ['main', 'life'].forEach(sec => Object.keys(r[sec]).forEach(code => {
-      const cd = DB.db.byCode[code]; if (!cd) return;
+      const cd = cardOf(code); if (!cd) return;
       if (isOnly(cd)) {
         if (keptOnlyName == null) keptOnlyName = cd.name;
         else if (cd.name !== keptOnlyName) {
@@ -883,7 +891,7 @@
     const presets = Object.keys(STARTERS_DB || {}).filter(k => !STARTER_KEYS.includes(k));
     let html = `<div class="dk-sec">เด็คที่บันทึก (${savedNames.length}/${maxDecks}${isSupp ? ' · ☕' : ''})</div>`;
     if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
-      html += `<div class="dk-empty-mini">ยังไม่ล็อกอิน — เด็คชุดนี้อยู่บนเครื่องนี้เท่านั้น</div>`;
+      html += `<div class="dk-empty-mini">ยังไม่ล็อกอิน (เก็บได้สูงสุด ${maxDecks} เด็คบนเครื่องนี้) — <button type="button" class="btn-dark mini" style="display:inline-block;padding:2px 8px;font-size:11.5px;margin-left:4px" onclick="if(window.openAuth)window.openAuth('login')">เข้าสู่ระบบ</button> เพื่อจัดเด็คเพิ่มและซิงค์ข้ามเครื่อง</div>`;
     } else if (!isSupp && savedNames.length >= maxDecks) {
       html += `<div class="dk-empty-mini" style="color:#d49d2b">☕ เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค และคัสตอมสนาม/การ์ด</div>`;
     }
@@ -929,7 +937,16 @@
     });
   };
   byId('dkBack').onclick = () => BOT.showScreen('menu');
-  byId('dkNew').onclick = () => goBuilder({ empty: true });
+  byId('dkNew').onclick = () => {
+    const sv = CardDB.savedDecks();
+    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : (CardDB.isLoggedIn && CardDB.isLoggedIn() ? 5 : 2);
+    if (!(CardDB.isLoggedIn && CardDB.isLoggedIn()) && Object.keys(sv).length >= max) {
+      if (typeof root.toast === 'function') root.toast(`⚠️ ไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — ล็อกอินเพื่อจัดเด็คเพิ่ม`);
+      if (typeof window.openAuth === 'function') window.openAuth('login');
+      return;
+    }
+    goBuilder({ empty: true });
+  };
   byId('dkList').addEventListener('click', e => {
     const b = e.target.closest('[data-kind]'); if (!b) return;
     DK.sel = { kind: b.dataset.kind, id: b.dataset.id };
