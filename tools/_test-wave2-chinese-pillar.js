@@ -79,7 +79,7 @@ function apply(st, a) { return BoT.applyAction(st, a); }
   const av = put(st, 'A.hand', 'CC01-018');
   const p1 = put(st, 'A.hand', 'SD01-017');
   const p2 = put(st, 'A.hand', 'SD02-018');
-  const p3 = put(st, 'A.hand', 'BT04-047');
+  const p3 = put(st, 'A.hand', 'SD01-011');
   let fx = apply(st, { type: 'summon', k: av, to: 'A.avatar', payIds: [p1, p2, p3], by: 'A', seed: 2 });
   ok(!fx.deny, 'summon ทรงจีน: ' + (fx.deny || ''));
   let pr = (st.prompts || [])[0];

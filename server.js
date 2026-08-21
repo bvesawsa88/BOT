@@ -1443,6 +1443,7 @@ function attachWs(socket) {
     }
   });
   socket.on('close', emitClose);
+  socket.on('end', emitClose);
   socket.on('error', emitClose);
   return api;
 }

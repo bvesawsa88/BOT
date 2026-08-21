@@ -10804,6 +10804,12 @@
         }
       ],
       "parseStatus": "auto",
+      "freeSummonIf": {
+        "requireOwnNameIncludes": "พี่หน่วง"
+      },
+      "costZeroIfOwnNameIncludes": [
+        "พี่หน่วง"
+      ],
       "note": "มี พี่หน่วง Cost 0 / End Phase จั่ว 1 / สั่งใช้ ให้ โล่มนุษย์"
     },
     {
@@ -37548,6 +37554,7 @@
                 "select": "choose",
                 "side": "own",
                 "type": "Avatar",
+                "symbol": "สัตว์วิเศษ",
                 "nameIncludes": [
                   "นาค"
                 ]

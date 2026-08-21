@@ -2003,10 +2003,13 @@
       ],
       "parseStatus": "auto",
       "name": "ยานรายการ เถียงทันหน่วง",
-      "note": "มี พี่หน่วง Cost 0 / End Phase จั่ว 1 / สั่งใช้ ให้ โล่มนุษย์",
+      "freeSummonIf": {
+        "requireOwnNameIncludes": "พี่หน่วง"
+      },
       "costZeroIfOwnNameIncludes": [
         "พี่หน่วง"
-      ]
+      ],
+      "note": "มี พี่หน่วง Cost 0 / End Phase จั่ว 1 / สั่งใช้ ให้ โล่มนุษย์"
     },
     {
       "code": "BT07-073",

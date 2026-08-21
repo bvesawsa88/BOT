@@ -2794,12 +2794,17 @@
   /* ของขวัญ ฯลฯ — อัญเชิญฟรีถ้าเงื่อนไข freeSummonIf ครบ (มือเท่านั้น) */
   function freeSummonOk(st, k) {
     const c = st.inst[k]; if (!c || !st) return false;
-    const e = fxCard(c); if (!e || !e.freeSummonIf) return false;
+    const e = fxCard(c); if (!e) return false;
     const z = zoneOf(st, k) || '';
     if (!z.endsWith('.hand')) return false;
     const owner = z[0];
-    const fs = e.freeSummonIf;
     const field = st.zones[owner + '.avatar'] || [];
+    if (e.costZeroIfOwnNameIncludes) {
+      const needles = Array.isArray(e.costZeroIfOwnNameIncludes) ? e.costZeroIfOwnNameIncludes : [e.costZeroIfOwnNameIncludes];
+      if (needles.some(n => field.some(id => nameMatches(st.inst[id], n)))) return true;
+    }
+    if (!e.freeSummonIf) return false;
+    const fs = e.freeSummonIf;
     if (fs.requireOwnNameIncludes && !field.some(id => nameMatches(st.inst[id], fs.requireOwnNameIncludes)))
       return false;
     if (fs.requireNoOwnExactName && field.some(id => (st.inst[id] && st.inst[id].name) === fs.requireNoOwnExactName))
@@ -7695,7 +7700,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
   }
 
   function buildInitialState(cards, rng, decks, opts) {
-    rng = rng || Math.random; decks = decks || {}; opts = opts || {};
+    if (rng && typeof rng === 'object' && !decks && (rng.A || rng.B || rng.main)) {
+      opts = decks || {};
+      decks = rng;
+      rng = Math.random;
+    }
+    if (typeof rng !== 'function') rng = Math.random;
+    decks = decks || {}; opts = opts || {};
     const byCode = {};
     const byUid = {};
     const byPrint = {};
@@ -8210,18 +8221,21 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         if (c.subtype === 'Modification') {
           const eMod = resolveEffect(c.code, c.name);
-          const ao = eMod && eMod.attachOnly;
-          const avs = (st.zones[owner + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
-          if (!avs.length) {
-            return deny(`ใช้ "${c.name}" ไม่ได้ — ไม่มี Avatar บนสนามให้สวมใส่`);
-          }
-          if (ao) {
-            const hasValidHost = avs.some(id => !attachOnlyDeny(st, c.code, id, c.name));
-            if (!hasValidHost) {
-              if (ao.nameIncludes) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี "${ao.nameIncludes}" บน Avatar Zone ฝ่ายเรา`);
-              if (ao.symbol) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar Symbol ${ao.symbol} บนสนาม`);
-              if (ao.effectIncludes) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar ที่มี "${ao.effectIncludes}" บนสนาม`);
-              return deny(`ใช้ "${c.name}" ไม่ได้ — ไม่มี Avatar ที่สามารถสวมใส่ได้บนสนาม`);
+          const summonsHost = (eMod && eMod.abilities || []).some(ab => (ab.actions || []).some(ac => ac.thenAttachSrc || (ac.dest === 'avatar' && (ac.op === 'hellPick' || ac.op === 'deckPick'))));
+          if (!summonsHost) {
+            const ao = eMod && eMod.attachOnly;
+            const avs = (st.zones[owner + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
+            if (!avs.length) {
+              return deny(`ใช้ "${c.name}" ไม่ได้ — ไม่มี Avatar บนสนามให้สวมใส่`);
+            }
+            if (ao) {
+              const hasValidHost = avs.some(id => !attachOnlyDeny(st, c.code, id, c.name));
+              if (!hasValidHost) {
+                if (ao.nameIncludes) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี "${ao.nameIncludes}" บน Avatar Zone ฝ่ายเรา`);
+                if (ao.symbol) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar Symbol ${ao.symbol} บนสนาม`);
+                if (ao.effectIncludes) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar ที่มี "${ao.effectIncludes}" บนสนาม`);
+                return deny(`ใช้ "${c.name}" ไม่ได้ — ไม่มี Avatar ที่สามารถสวมใส่ได้บนสนาม`);
+              }
             }
           }
         }
@@ -9021,7 +9035,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               triggerSummon(st, fx, a.k, p.chooser, { paidCost: !!p.paidCost, summonedByAvatar: p.summonedByAvatar || null });
               if (p.thenAttachSrc && st.inst[p.src]) {
                 if (equipOnto(st, p.src, a.k))
-                  addLog(st, p.chooser, `โฟเบีย: สวมใส่ตัวเองให้ ${nameOf(st, a.k)}`);
+                  addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: สวมใส่ตัวเองให้ ${nameOf(st, a.k)}`);
               }
               if (p.thenIfColor) {
                 const col = (st.inst[a.k] && st.inst[a.k].color) || '';
@@ -11765,6 +11779,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (!(zoneOf(st, a.k) || '').endsWith('.avatar')) return deny('ใช้ได้เฉพาะ Avatar บนสนาม');
         if (!(zoneOf(st, a.to) || '').endsWith('.avatar')) return deny('ผู้รับต้องเป็น Avatar บนสนาม');
         if (tgtSide !== side) return deny('สามัคคีให้ได้เฉพาะ Avatar ฝั่งตัวเอง');
+        if (cannotChangeState(st, a.k)) return deny(`"${c.name}" ไม่สามารถเปลี่ยนสภาพได้จนจบเทิร์น`);
         if (!hasKw(st, a.k, 'สามัคคี')) return deny(`"${c.name}" ไม่มี keyword สามัคคี`);
         {
           const eGive = fxCard(c);
@@ -11772,7 +11787,6 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             return deny(`"${c.name}" ใช้สามัคคีให้ได้เฉพาะ "${eGive.unityOnlyNameIncludes}"`);
         }
         if (c.tapped) return deny(`"${c.name}" นอนอยู่แล้ว ใช้สามัคคีไม่ได้`);
-        if (cannotChangeState(st, a.k)) return deny(`"${c.name}" ไม่สามารถเปลี่ยนสภาพได้จนจบเทิร์น`);
         if (!a._skipAbilityReact && offerAbilityReact(st, fx, side, a.k, { type: 'unity', k: a.k, to: a.to, owner: side })) {
           fx.snd = 'tap';
           break;
@@ -12100,8 +12114,35 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           // อินาริ ฯลฯ: อัตโนมัติ End Phase จาก Magic Zone
           (st.zones[ending + '.magic'] || []).slice().forEach(k => {
             const c = st.inst[k]; if (!c || !c.faceUp) return;
-            abil(st, k, 'ownTurnEnd').forEach(ab => {
+            abil(st, k, 'ownTurnEnd').concat(abil(st, k, 'ownEndPhase')).forEach(ab => {
               if (!(ab.fromMagicZone || (fxCard(c) && fxCard(c).abilitiesFromMagicZone))) return;
+              runActions(st, fx, ab.actions, { src: k, owner: ending, rng });
+            });
+          });
+          // ยานรายการ เถียงทันหน่วง ฯลฯ: อัตโนมัติ End Phase จาก Construct Zone
+          (st.zones[ending + '.construct'] || []).slice().forEach(k => {
+            const c = st.inst[k]; if (!c || !c.faceUp) return;
+            abil(st, k, 'ownTurnEnd').concat(abil(st, k, 'ownEndPhase')).forEach(ab => {
+              if (!abilityMagicReqOk(st, ending, ab)) return;
+              const cond = (ab.trigger && ab.trigger.if) || '';
+              if (cond) {
+                const parts = cond.split(',').map(s => s.trim());
+                for (const p of parts) {
+                  if (p.startsWith('ownAvatarNameIncludes:')) {
+                    const reqName = p.slice('ownAvatarNameIncludes:'.length);
+                    const has = (st.zones[ending + '.avatar'] || []).some(aid => nameMatches(st.inst[aid], reqName));
+                    if (!has) return;
+                  }
+                  if (p === 'ownMagicHasEnemyAvatar') {
+                    const opp = other(ending);
+                    const has = (st.zones[ending + '.magic'] || []).some(mid => {
+                      const mc = st.inst[mid];
+                      return mc && mc.type === 'Avatar' && (mc.cardOwner === opp || (mc.originalOwner && mc.originalOwner === opp));
+                    });
+                    if (!has) return;
+                  }
+                }
+              }
               runActions(st, fx, ab.actions, { src: k, owner: ending, rng });
             });
           });

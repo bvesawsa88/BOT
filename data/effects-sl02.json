@@ -109,6 +109,7 @@
                 "select": "choose",
                 "side": "own",
                 "type": "Avatar",
+                "symbol": "สัตว์วิเศษ",
                 "nameIncludes": [
                   "นาค"
                 ]
