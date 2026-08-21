@@ -1416,6 +1416,14 @@
   }
   function lanHostStartGame() {
     if (!lanIsHost || !roomSt) return;
+    if (!roomSt.A.ready) {
+      const d = selectedDeck();
+      roomSt.A.ready = true;
+      roomSt.A.deckName = d ? d.name : '';
+      lanDecks.A = d ? d.spec : null;
+      lanBroadcastRoom();
+      renderRoom();
+    }
     if (!(roomSt.A.online && roomSt.B.online && roomSt.A.ready && roomSt.B.ready)) {
       toast('รอให้ครบ 2 คนและกดพร้อมทั้งคู่');
       return;
@@ -1431,7 +1439,10 @@
       lanSend({ t: 'start', state: st, seq: 0 });
       reportTable('lan');
       startTable();
-    }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
+    }).catch(err => {
+      console.error('lanHostStartGame error:', err);
+      toast('โหลดข้อมูลการ์ดไม่สำเร็จ');
+    });
   }
   function lanHostRematch() {
     if (!lanIsHost) return;
@@ -1482,7 +1493,18 @@
         maybeLanAutoStart();
         return;
       }
-      if (m.t === 'start') { lanHostStartGame(); return; }
+      if (m.t === 'start') {
+        if (!roomSt.A.ready) {
+          const d = selectedDeck();
+          roomSt.A.ready = true;
+          roomSt.A.deckName = d ? d.name : '';
+          lanDecks.A = d ? d.spec : null;
+          lanBroadcastRoom();
+          renderRoom();
+        }
+        lanHostStartGame();
+        return;
+      }
       if (m.t === 'action') { lanHostHandleAction(m.a || {}, 'B'); return; }
       if (m.t === 'rematch') { lanHostRematch(); return; }
       if (m.t === 'end') {
@@ -1523,11 +1545,14 @@
       return;
     }
     if (m.t === 'start') {
-      ensurePlayReady().then(() => {
+      Promise.all([ensurePlayReady(), CardDB.load()]).then(() => {
         st = m.state; seqNum = m.seq || 0; gameStart = Date.now(); selMap = {};
         lanAutoMatch = false;
         presenceSetStatus('busy');
         startTable();
+      }).catch(err => {
+        console.error('Failed to start table on guest:', err);
+        toast('เกิดข้อผิดพลาดในการโหลดเกม: ' + (err && err.message || err));
       });
       return;
     }
@@ -1899,6 +1924,11 @@
           if (sel && [...sel.options].some(o => o.value === lanMatchDeckKey)) sel.value = lanMatchDeckKey;
         } catch (e) { }
       }
+      const d = selectedDeck();
+      myReady = true;
+      roomSt.A.ready = true;
+      roomSt.A.deckName = d ? d.name : '';
+      lanDecks.A = d ? d.spec : null;
       showScreen('room');
       renderRoom();
       updateRoomShareUI();
@@ -7165,13 +7195,19 @@
   if (roomCodeEl) roomCodeEl.onclick = copyRoomCode;
   byId('selDeck').onchange = () => {
     try { localStorage.setItem('bot_active_deck', byId('selDeck').value); } catch (e) { }
-    if (myReady) {
-      myReady = false;
-      if (netKind === 'lan') {
-        if (lanIsHost) {
-          roomSt.A.ready = false; lanDecks.A = null; lanBroadcastRoom();
-        } else lanSend({ t: 'ready', ready: false });
-      } else wsSend({ t: 'ready', ready: false });
+    const d = selectedDeck();
+    if (netKind === 'lan') {
+      if (lanIsHost) {
+        roomSt.A.deckName = d ? d.name : '';
+        if (myReady) {
+          lanDecks.A = d ? d.spec : null;
+        }
+        lanBroadcastRoom();
+      } else {
+        if (myReady) {
+          lanSend({ t: 'ready', ready: true, deck: d ? d.spec : null, deckName: d ? d.name : '', skins: mySkinPayload() });
+        }
+      }
       renderRoom();
     }
   };
@@ -7208,6 +7244,19 @@
   };
   byId('btnStart').onclick = () => {
     if (netKind === 'lan') {
+      if (!myReady) {
+        myReady = true;
+        const d = selectedDeck();
+        if (lanIsHost) {
+          roomSt.A.ready = true;
+          roomSt.A.deckName = d ? d.name : '';
+          lanDecks.A = d ? d.spec : null;
+          lanBroadcastRoom();
+        } else {
+          lanSend({ t: 'ready', ready: true, deck: d ? d.spec : null, deckName: d ? d.name : '', skins: mySkinPayload() });
+        }
+        renderRoom();
+      }
       if (lanIsHost) lanHostStartGame();
       else lanSend({ t: 'start' });
     } else wsSend({ t: 'start' });

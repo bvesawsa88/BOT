@@ -670,7 +670,6 @@ async function handleAuth(req, res, urlPath) {
 }
 
 /* ── ตั้งค่าเว็บ (สปอนเซอร์ / ประกาศ) — แก้จากหน้าแอดมิน ไม่ต้องแตะโค้ด ── */
-const SETTINGS_FILE = path.join(ROOT, 'data', 'site-settings.json');
 const UPLOAD_DIR = path.join(ROOT, 'data', 'uploads');
 const SKINS_FILE = path.join(ROOT, 'data', 'skins.json');
 const SPONSOR_SLOTS = ['cardBack', 'lifeBack', 'playmat', 'playmatOpp'];
