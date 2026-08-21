@@ -5,38 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>แอดมิน — Battle of Talingchan</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820ab">
+<link rel="stylesheet" href="css/style.css?v=20260821">
+<script src="js/security.js?v=20260821"></script>
 <style>
   html,body{overflow:auto;height:auto;min-height:100%;-webkit-user-select:text;user-select:text}
-  .ad{max-width:560px;margin:0 auto;padding:22px 16px 48px}
-  .ad-card{background:rgba(255,250,240,.5);border:2px solid var(--ink);border-radius:16px;padding:18px 18px 16px;color:var(--ink)}
-  .ad h1{font-family:'IBM Plex Sans Thai',sans-serif;font-size:22px;margin:0 0 6px}
+  .ad{max-width:680px;margin:0 auto;padding:20px 14px 60px}
+  .ad-card{background:rgba(255,250,240,.96);border:2px solid var(--ink);border-radius:18px;padding:22px 20px;color:var(--ink);box-shadow:4px 4px 0 rgba(0,0,0,.15)}
+  .ad h1{font-family:'IBM Plex Sans Thai',sans-serif;font-size:22px;margin:0 0 4px}
   .ad-sub{font-size:13px;margin:0 0 16px;opacity:.8}
+  
+  /* Tabs Navigation */
+  .ad-tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:2px solid rgba(26,22,18,.15);padding-bottom:10px}
+  .ad-tab{padding:8px 16px;border-radius:8px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;background:rgba(26,22,18,.07);color:var(--ink);border:1.5px solid transparent;cursor:pointer;transition:all .15s}
+  .ad-tab:hover{background:rgba(26,22,18,.14)}
+  .ad-tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  
   .ad label{display:block;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;margin:12px 0 4px}
-  .ad input[type=text],.ad input[type=password],.ad textarea{
-    width:100%;padding:10px 12px;border:1.5px solid var(--ink);border-radius:8px;
-    background:rgba(255,252,245,.85);color:var(--ink);font-family:'Sarabun',sans-serif;font-size:14px
+  .ad input[type=text],.ad input[type=password],.ad input[type=number],.ad textarea,.ad select{
+    width:100%;padding:9px 12px;border:1.5px solid var(--ink);border-radius:8px;
+    background:rgba(255,252,245,.95);color:var(--ink);font-family:'Sarabun',sans-serif;font-size:14px;
+    box-sizing:border-box;
   }
-  .ad textarea{min-height:72px;resize:vertical}
-  .ad-row{display:flex;align-items:center;gap:8px;margin:12px 0}
-  .ad-row input{width:auto}
+  .ad textarea{min-height:64px;resize:vertical}
+  .ad-row{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13.5px;cursor:pointer}
+  .ad-row input[type=checkbox]{width:17px;height:17px;accent-color:#8b2616;cursor:pointer}
   .ad-slots{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-  .ad-slot{border:1.5px solid var(--ink);border-radius:10px;padding:8px;background:rgba(255,252,245,.7);cursor:pointer;text-align:center}
-  .ad-slot img{width:100%;height:88px;object-fit:cover;border-radius:6px;background:#1a1612;display:block}
-  .ad-slot.mat img{height:56px}
+  .ad-slot{border:1.5px solid var(--ink);border-radius:10px;padding:8px;background:rgba(255,252,245,.7);cursor:pointer;text-align:center;transition:transform .1s}
+  .ad-slot:hover{transform:translateY(-2px)}
+  .ad-slot img{width:100%;height:84px;object-fit:cover;border-radius:6px;background:#1a1612;display:block}
+  .ad-slot.mat img{height:54px}
   .ad-slot span{display:block;font-size:12px;font-weight:600;margin-top:6px}
-  .ad-msg{min-height:18px;font-size:13px;color:#7a3b12;margin:8px 0}
-  .ad-msg.ok{color:#215c38}
-  .ad-actions{display:flex;gap:8px;margin-top:14px}
+  .ad-msg{min-height:18px;font-size:13px;color:#8b2616;margin:10px 0}
+  .ad-msg.ok{color:#1e6b37;font-weight:600}
+  .ad-actions{display:flex;gap:8px;margin-top:16px}
   .ad-actions>button,.ad-actions>a{flex:1;text-align:center;text-decoration:none}
-  .ad-foot{margin-top:18px;padding-top:12px;border-top:1px solid rgba(26,22,18,.2)}
+  .ad-foot{margin-top:22px;padding-top:16px;border-top:1px solid rgba(26,22,18,.2)}
+  
+  /* User Management Styles */
+  .um-stats{display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:14px}
+  .um-stat-card{background:rgba(26,22,18,.05);border:1.5px solid rgba(26,22,18,.12);border-radius:10px;padding:10px;text-align:center}
+  .um-stat-num{font-size:20px;font-weight:700;color:#8b2616;font-family:'IBM Plex Sans Thai',sans-serif}
+  .um-stat-label{font-size:11.5px;opacity:.8}
+  
+  .um-bar{display:flex;gap:8px;margin-bottom:12px}
+  .um-search{flex:1}
+  .um-list{display:flex;flex-direction:column;gap:8px;max-height:480px;overflow-y:auto;padding-right:4px}
+  .um-item{border:1.5px solid rgba(26,22,18,.2);border-radius:12px;padding:12px;background:#fff;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+  .um-item.supporter{border-color:#d49d2b;background:linear-gradient(to right, #fffdf8, #fff)}
+  .um-item.admin{border-color:#8b2616;background:linear-gradient(to right, #fff8f8, #fff)}
+  .um-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .um-name{font-weight:700;font-size:15px;color:var(--ink);display:flex;align-items:center;gap:6px}
+  .um-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;text-transform:uppercase}
+  .um-badge.admin{background:#8b2616;color:#fff}
+  .um-badge.supporter{background:#d49d2b;color:#221800}
+  .um-badge.free{background:#e2dfd9;color:#555}
+  .um-meta{font-size:12px;opacity:.8;display:flex;gap:12px;flex-wrap:wrap}
+  .um-note{font-size:12px;background:rgba(212,157,43,.12);padding:4px 8px;border-radius:6px;color:#6b4d08}
+  .um-actions{display:flex;gap:6px;margin-top:4px}
+  
+  /* Edit User Modal */
+  .um-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:999}
+  .um-modal{background:#fffdf8;border:2px solid var(--ink);border-radius:16px;max-width:480px;width:100%;padding:20px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+  .um-modal-title{font-size:18px;font-weight:700;font-family:'IBM Plex Sans Thai',sans-serif;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+  .um-modal-close{cursor:pointer;font-size:20px;border:none;background:none}
+  .um-perk-box{background:rgba(212,157,43,.1);border:1.5px dashed #d49d2b;border-radius:10px;padding:12px;margin:10px 0}
 </style>
 </head>
 <body>
 <div class="ad">
+  <!-- Login Card -->
   <div id="loginCard" class="ad-card">
-    <h1>ตั้งค่าเว็บ</h1>
-    <p class="ad-sub">เข้าสู่ระบบด้วยบัญชีแอดมิน</p>
+    <h1>ระบบจัดการแอดมิน</h1>
+    <p class="ad-sub">เข้าสู่ระบบด้วยบัญชีแอดมิน Battle of Talingchan</p>
     <label for="loginUser">ชื่อผู้ใช้</label>
     <input id="loginUser" autocomplete="username" maxlength="20">
     <label for="loginPass">รหัสผ่าน</label>
@@ -48,46 +88,129 @@
     </div>
   </div>
 
+  <!-- Main Panel -->
   <div id="panelCard" class="ad-card hidden">
-    <h1>ตั้งค่าเว็บ</h1>
-    <p class="ad-sub">สปอนเซอร์ / ประกาศ / พร้อมเพย์ — บันทึกแล้วใช้ทันที ไม่ต้องแก้โค้ด</p>
-
-    <label class="ad-row"><input type="checkbox" id="sponsorOn"> บอทใช้สกินสปอนเซอร์</label>
-    <label for="spName">ชื่อสปอนเซอร์ (สั้น)</label>
-    <input id="spName" maxlength="24" placeholder="เช่น TINNY">
-    <label for="spLabel">คำอธิบาย</label>
-    <input id="spLabel" maxlength="60" placeholder="เช่น สปอน · TINNY Cafe">
-    <label>รูปสกิน (แตะเพื่อเปลี่ยน)</label>
-    <div class="ad-slots">
-      <div class="ad-slot" data-slot="cardBack"><img alt=""><span>หลังการ์ด</span></div>
-      <div class="ad-slot" data-slot="lifeBack"><img alt=""><span>หลังไลฟ์</span></div>
-      <div class="ad-slot mat" data-slot="playmat"><img alt=""><span>เพลย์แมท</span></div>
-      <div class="ad-slot mat" data-slot="playmatOpp"><img alt=""><span>เพลย์แมทฝั่งตรงข้าม</span></div>
-    </div>
-    <input id="filePick" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-
-    <label for="notice">ประกาศบนเมนูหลัก (เว้นว่าง = ไม่โชว์)</label>
-    <textarea id="notice" maxlength="200" placeholder="เช่น สปอนเดือนนี้ TINNY Cafe"></textarea>
-    <label for="promptpay">พร้อมเพย์ (เว้นว่าง = ใช้ค่าเดิมในหน้าเว็บ)</label>
-    <input id="promptpay" inputmode="numeric" maxlength="15" placeholder="เช่น 0812345678">
-    <label for="truemoney">ลิงก์ TrueMoney (เว้นว่าง = ใช้ค่าเดิม)</label>
-    <input id="truemoney" maxlength="200" placeholder="https://…">
-
-    <div id="saveMsg" class="ad-msg"></div>
-    <div class="ad-actions">
-      <a class="btn-dark" href="/">กลับเกม</a>
-      <button type="button" id="btnSave" class="btn-primary">บันทึก</button>
+    <!-- Tabs Header -->
+    <div class="ad-tabs">
+      <button type="button" class="ad-tab on" data-tab="settings">🎨 ตั้งค่าสปอนเซอร์ & เว็บ</button>
+      <button type="button" class="ad-tab" data-tab="users">👥 จัดการยูสเซอร์ & สิทธิ์ (เลี้ยงกาแฟ)</button>
     </div>
 
-    <div class="ad-foot">
-      <label>เปลี่ยนรหัสแอดมิน</label>
-      <input id="pwCur" type="password" placeholder="รหัสปัจจุบัน" maxlength="64" autocomplete="current-password">
-      <input id="pwNext" type="password" placeholder="รหัสใหม่ (อย่างน้อย 6 ตัว)" maxlength="64" autocomplete="new-password" style="margin-top:8px">
-      <div id="pwMsg" class="ad-msg"></div>
-      <button type="button" id="btnPw" class="btn-dark">เปลี่ยนรหัส</button>
+    <!-- TAB 1: Site & Sponsor Settings -->
+    <div id="tabContentSettings">
+      <h1>ตั้งค่าสปอนเซอร์ & เว็บ</h1>
+      <p class="ad-sub">สปอนเซอร์ / ประกาศ / พร้อมเพย์ — บันทึกแล้วใช้ทันที</p>
+
+      <label class="ad-row"><input type="checkbox" id="sponsorOn"> บอทใช้สกินสปอนเซอร์</label>
+      <label for="spName">ชื่อสปอนเซอร์ (สั้น)</label>
+      <input id="spName" maxlength="24" placeholder="เช่น TINNY">
+      <label for="spLabel">คำอธิบาย</label>
+      <input id="spLabel" maxlength="60" placeholder="เช่น สปอน · TINNY Cafe">
+      <label>รูปสกิน (แตะเพื่อเปลี่ยน)</label>
+      <div class="ad-slots">
+        <div class="ad-slot" data-slot="cardBack"><img alt=""><span>หลังการ์ด</span></div>
+        <div class="ad-slot" data-slot="lifeBack"><img alt=""><span>หลังไลฟ์</span></div>
+        <div class="ad-slot mat" data-slot="playmat"><img alt=""><span>เพลย์แมท</span></div>
+        <div class="ad-slot mat" data-slot="playmatOpp"><img alt=""><span>เพลย์แมทฝั่งตรงข้าม</span></div>
+      </div>
+      <input id="filePick" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+
+      <label for="notice">ประกาศบนเมนูหลัก (เว้นว่าง = ไม่โชว์)</label>
+      <textarea id="notice" maxlength="200" placeholder="เช่น สปอนเดือนนี้ TINNY Cafe"></textarea>
+      <label for="promptpay">พร้อมเพย์ (เว้นว่าง = ใช้ค่าเดิมในหน้าเว็บ)</label>
+      <input id="promptpay" inputmode="numeric" maxlength="15" placeholder="เช่น 0812345678">
+      <label for="truemoney">ลิงก์ TrueMoney (เว้นว่าง = ใช้ค่าเดิม)</label>
+      <input id="truemoney" maxlength="200" placeholder="https://…">
+
+      <div id="saveMsg" class="ad-msg"></div>
+      <div class="ad-actions">
+        <a class="btn-dark" href="/">กลับเกม</a>
+        <button type="button" id="btnSave" class="btn-primary">บันทึกตั้งค่าเว็บ</button>
+      </div>
+
+      <div class="ad-foot">
+        <label>เปลี่ยนรหัสผ่านแอดมิน</label>
+        <input id="pwCur" type="password" placeholder="รหัสปัจจุบัน" maxlength="64" autocomplete="current-password">
+        <input id="pwNext" type="password" placeholder="รหัสใหม่ (อย่างน้อย 6 ตัว)" maxlength="64" autocomplete="new-password" style="margin-top:8px">
+        <div id="pwMsg" class="ad-msg"></div>
+        <button type="button" id="btnPw" class="btn-dark">เปลี่ยนรหัสผ่านแอดมิน</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: User Management -->
+    <div id="tabContentUsers" class="hidden">
+      <h1>จัดการยูสเซอร์ & ปลดล็อกสิทธิ์</h1>
+      <p class="ad-sub">เปิด/ปิดสิทธิ์สำหรับผู้สนับสนุน (เลี้ยงกาแฟ): ปลดล็อก 40 เด็ค และคัสตอมสนาม/การ์ด</p>
+
+      <div class="um-stats">
+        <div class="um-stat-card">
+          <div id="statTotalUsers" class="um-stat-num">0</div>
+          <div class="um-stat-label">ผู้ใช้ทั้งหมด</div>
+        </div>
+        <div class="um-stat-card">
+          <div id="statSupporters" class="um-stat-num">0</div>
+          <div class="um-stat-label">☕ ผู้สนับสนุน</div>
+        </div>
+        <div class="um-stat-card">
+          <div id="statTotalDecks" class="um-stat-num">0</div>
+          <div class="um-stat-label">เด็คทั้งหมด</div>
+        </div>
+      </div>
+
+      <div class="um-bar">
+        <input type="text" id="umSearch" class="um-search" placeholder="🔍 ค้นหาตามชื่อ หรือ Note...">
+        <button type="button" id="umReload" class="btn-dark small">🔄 รีเฟรช</button>
+      </div>
+
+      <div id="umList" class="um-list">
+        <!-- User Cards Rendered Here -->
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Modal Edit User -->
+<div id="umEditModal" class="um-modal-mask hidden">
+  <div class="um-modal">
+    <div class="um-modal-title">
+      <span>⚙️ แก้ไขสิทธิ์ผู้ใช้: <b id="edUsername"></b></span>
+      <button type="button" id="edClose" class="um-modal-close">✕</button>
+    </div>
+
+    <div class="um-perk-box">
+      <label class="ad-row" style="margin:0;font-weight:700;font-size:14px;color:#6b4d08">
+        <input type="checkbox" id="edIsSupporter">
+        ☕ สถานะผู้สนับสนุน (เลี้ยงกาแฟ)
+      </label>
+      <p style="font-size:12px;margin:4px 0 0 25px;opacity:.85">
+        เมื่อเปิด: ปลดล็อกบันทึกเด็คได้สูงสุด 40 เด็ค และเปิดสิทธิ์คัสตอมสนาม/หลังการ์ดให้อัตโนมัติ
+      </p>
+    </div>
+
+    <label for="edMaxDecks">จำนวนเด็คสูงสุด (Max Decks)</label>
+    <input type="number" id="edMaxDecks" min="1" max="100" value="5">
+    <small style="font-size:11.5px;opacity:.7">ค่าเริ่มต้น: ฟรี = 5 เด็ค, ผู้สนับสนุน = 40 เด็ค</small>
+
+    <label class="ad-row" style="margin-top:12px">
+      <input type="checkbox" id="edCustomSkins">
+      🎨 อนุญาตให้คัสตอมสนาม & สกินการ์ดส่วนตัว
+    </label>
+
+    <label for="edNote">บันทึกข้อมูล (Note ของแอดมิน)</label>
+    <textarea id="edNote" placeholder="เช่น เลี้ยงกาแฟ 50 บาท วันที่ 21/08/2026, Discord @name"></textarea>
+
+    <label for="edNewPass">รีเซ็ตรหัสผ่านใหม่ (เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยน)</label>
+    <input type="password" id="edNewPass" placeholder="รหัสผ่านใหม่อย่างน้อย 6 ตัว">
+
+    <div id="edMsg" class="ad-msg"></div>
+
+    <div class="ad-actions">
+      <button type="button" id="edDelete" class="btn-dark" style="color:#e05244">🗑️ ลบบัญชี</button>
+      <button type="button" id="edSave" class="btn-primary">💾 บันทึกการแก้ไข</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   const TOKEN_KEY = 'bot_auth_token';
@@ -95,10 +218,13 @@
   const setToken = (t) => { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) { } };
   const byId = (id) => document.getElementById(id);
   let settings = null;
+  let allUsers = [];
+  let currentEditUser = null;
   let pickSlot = '';
 
   function msg(id, t, ok) {
     const el = byId(id);
+    if (!el) return;
     el.textContent = t || '';
     el.classList.toggle('ok', !!ok);
   }
@@ -111,7 +237,20 @@
     byId('loginCard').classList.toggle('hidden', !on);
     byId('panelCard').classList.toggle('hidden', on);
   }
-  function fill() {
+
+  // Tabs switching
+  document.querySelectorAll('.ad-tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('on'));
+      tab.classList.add('on');
+      const target = tab.dataset.tab;
+      byId('tabContentSettings').classList.toggle('hidden', target !== 'settings');
+      byId('tabContentUsers').classList.toggle('hidden', target !== 'users');
+      if (target === 'users') loadUsers();
+    };
+  });
+
+  function fillSettings() {
     const s = settings || {};
     const sp = s.sponsor || {};
     byId('sponsorOn').checked = s.sponsorEnabled !== false;
@@ -127,14 +266,16 @@
       img.src = src ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + Date.now() : '';
     });
   }
+
   async function loadPanel() {
     const r = await fetch('/admin/settings', { headers: authHeaders() });
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'ไม่ใช่แอดมิน');
     settings = j.settings;
-    fill();
+    fillSettings();
     showLogin(false);
   }
+
   async function boot() {
     const t = token();
     if (!t) { showLogin(true); return; }
@@ -145,6 +286,7 @@
       await loadPanel();
     } catch (e) { showLogin(true); }
   }
+
   async function doLogin() {
     msg('loginMsg', '');
     const username = byId('loginUser').value.trim();
@@ -162,6 +304,7 @@
       await loadPanel();
     } catch (e) { msg('loginMsg', 'เชื่อมต่อไม่ได้'); }
   }
+
   async function save() {
     msg('saveMsg', 'กำลังบันทึก…');
     const body = {
@@ -181,10 +324,11 @@
       const j = await r.json();
       if (!j.ok) { msg('saveMsg', j.error || 'ไม่สำเร็จ'); return; }
       settings = j.settings;
-      fill();
+      fillSettings();
       msg('saveMsg', 'บันทึกแล้ว — คนที่รีเฟรชหน้าเกมจะเห็นค่าใหม่', true);
     } catch (e) { msg('saveMsg', 'เชื่อมต่อไม่ได้'); }
   }
+
   async function upload(slot, file) {
     msg('saveMsg', 'กำลังอัปโหลดรูป…');
     const data = await new Promise((resolve, reject) => {
@@ -204,9 +348,10 @@
     const j = await r.json();
     if (!j.ok) { msg('saveMsg', j.error || 'อัปโหลดไม่สำเร็จ'); return; }
     settings = j.settings;
-    fill();
+    fillSettings();
     msg('saveMsg', 'อัปโหลดรูปแล้ว — กดบันทึกถ้าแก้ชื่อ/ประกาศด้วย', true);
   }
+
   async function changePw() {
     msg('pwMsg', '');
     const password = byId('pwCur').value;
@@ -226,10 +371,150 @@
     } catch (e) { msg('pwMsg', 'เชื่อมต่อไม่ได้'); }
   }
 
+  /* ═══ USER MANAGEMENT LOGIC ═══ */
+  async function loadUsers() {
+    try {
+      const r = await fetch('/admin/users', { headers: authHeaders() });
+      const j = await r.json();
+      if (!j.ok) return;
+      allUsers = j.users || [];
+      renderUsers();
+    } catch (e) { }
+  }
+
+  function renderUsers() {
+    const q = (byId('umSearch').value || '').trim().toLowerCase();
+    const filtered = allUsers.filter(u => {
+      if (!q) return true;
+      return (u.username || '').toLowerCase().includes(q) || (u.supporterNote || '').toLowerCase().includes(q);
+    });
+
+    // Update Stats
+    byId('statTotalUsers').textContent = allUsers.length;
+    byId('statSupporters').textContent = allUsers.filter(u => u.isSupporter || u.role === 'admin').length;
+    const totalDecks = allUsers.reduce((acc, u) => acc + (u.deckCount || 0), 0);
+    byId('statTotalDecks').textContent = totalDecks;
+
+    if (!filtered.length) {
+      byId('umList').innerHTML = '<div style="text-align:center;padding:24px;opacity:.6">ไม่พบรายชื่อผู้ใช้</div>';
+      return;
+    }
+
+    byId('umList').innerHTML = filtered.map(u => {
+      const isAdmin = u.role === 'admin';
+      const isSupp = !!u.isSupporter;
+      const badgeCls = isAdmin ? 'admin' : (isSupp ? 'supporter' : 'free');
+      const badgeText = isAdmin ? '👑 แอดมิน' : (isSupp ? '☕ ผู้สนับสนุน' : '👤 สมาชิกฟรี');
+      const itemCls = isAdmin ? 'admin' : (isSupp ? 'supporter' : '');
+      const customBadge = u.customSkinsAllowed ? '🎨 Custom สกิน: เปิด' : '🔒 Custom สกิน: ปิด';
+      const noteHtml = u.supporterNote ? `<div class="um-note">📝 ${escapeHtml(u.supporterNote)}</div>` : '';
+
+      return `<div class="um-item ${itemCls}">
+        <div class="um-head">
+          <div class="um-name">
+            <span>${escapeHtml(u.username)}</span>
+            <span class="um-badge ${badgeCls}">${badgeText}</span>
+          </div>
+          <button type="button" class="btn-dark small btn-edit-user" data-user="${escapeHtml(u.username)}">⚙️ แก้ไขสิทธิ์</button>
+        </div>
+        <div class="um-meta">
+          <span>📦 เด็ค: <b>${u.deckCount || 0} / ${u.maxDecks || 5}</b></span>
+          <span>${customBadge}</span>
+        </div>
+        ${noteHtml}
+      </div>`;
+    }).join('');
+
+    document.querySelectorAll('.btn-edit-user').forEach(btn => {
+      btn.onclick = () => {
+        const username = btn.dataset.user;
+        const target = allUsers.find(x => x.username === username);
+        if (target) openEditUser(target);
+      };
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function openEditUser(u) {
+    currentEditUser = u;
+    byId('edUsername').textContent = u.username;
+    byId('edIsSupporter').checked = !!u.isSupporter;
+    byId('edMaxDecks').value = u.maxDecks || (u.isSupporter ? 40 : 5);
+    byId('edCustomSkins').checked = !!u.customSkinsAllowed;
+    byId('edNote').value = u.supporterNote || '';
+    byId('edNewPass').value = '';
+    msg('edMsg', '');
+    byId('edDelete').style.display = u.role === 'admin' ? 'none' : 'block';
+    byId('umEditModal').classList.remove('hidden');
+  }
+
+  function closeEditUser() {
+    byId('umEditModal').classList.add('hidden');
+    currentEditUser = null;
+  }
+
+  // When clicking supporter toggle in modal, automatically suggest 40 decks and custom skins
+  byId('edIsSupporter').addEventListener('change', (e) => {
+    if (e.target.checked) {
+      if (+byId('edMaxDecks').value <= 5) byId('edMaxDecks').value = 40;
+      byId('edCustomSkins').checked = true;
+    }
+  });
+
+  async function saveEditUser() {
+    if (!currentEditUser) return;
+    msg('edMsg', 'กำลังบันทึก…');
+    const body = {
+      username: currentEditUser.username,
+      isSupporter: byId('edIsSupporter').checked,
+      maxDecks: +byId('edMaxDecks').value || 5,
+      customSkinsAllowed: byId('edCustomSkins').checked,
+      supporterNote: byId('edNote').value.trim(),
+    };
+    const newPass = byId('edNewPass').value.trim();
+    if (newPass) body.newPassword = newPass;
+
+    try {
+      const r = await fetch('/admin/users', {
+        method: 'PUT', headers: authHeaders(true), body: JSON.stringify(body)
+      });
+      const j = await r.json();
+      if (!j.ok) { msg('edMsg', j.error || 'ไม่สำเร็จ'); return; }
+      msg('edMsg', 'บันทึกเรียบร้อย!', true);
+      await loadUsers();
+      setTimeout(closeEditUser, 600);
+    } catch (e) { msg('edMsg', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้'); }
+  }
+
+  async function deleteUser() {
+    if (!currentEditUser) return;
+    if (currentEditUser.role === 'admin') { alert('ไม่สามารถลบบัญชีแอดมินได้'); return; }
+    if (!confirm(`ยืนยันการลบบัญชี "${currentEditUser.username}" หรือไม่? ข้อมูลเด็คทั้งหมดจะหายไป`)) return;
+    try {
+      const r = await fetch('/admin/users', {
+        method: 'DELETE', headers: authHeaders(true),
+        body: JSON.stringify({ username: currentEditUser.username })
+      });
+      const j = await r.json();
+      if (!j.ok) { alert(j.error || 'ลบไม่สำเร็จ'); return; }
+      closeEditUser();
+      await loadUsers();
+    } catch (e) { alert('เชื่อมต่อไม่ได้'); }
+  }
+
   byId('btnDoLogin').onclick = doLogin;
   byId('loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
   byId('btnSave').onclick = save;
   byId('btnPw').onclick = changePw;
+  byId('umSearch').oninput = renderUsers;
+  byId('umReload').onclick = loadUsers;
+  byId('edClose').onclick = closeEditUser;
+  byId('edSave').onclick = saveEditUser;
+  byId('edDelete').onclick = deleteUser;
+
   byId('filePick').onchange = () => {
     const f = byId('filePick').files && byId('filePick').files[0];
     const slot = pickSlot;

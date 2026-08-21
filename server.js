@@ -190,8 +190,25 @@ const USER_RE = /^[A-Za-z0-9_\u0E00-\u0E7F]{3,20}$/;
 const CODE_RE = /^[A-Za-z0-9]{2,12}-\d{2,4}$/;
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MAX_DECKS = 40;
+const FREE_MAX_DECKS = 5;
+const SUPPORTER_MAX_DECKS = 40;
+
+function isSupporterUser(u) {
+  return !!(u && (u.isSupporter || u.role === 'admin'));
+}
+
+function userMaxDecks(u) {
+  if (u && typeof u.maxDecks === 'number' && u.maxDecks > 0) return u.maxDecks;
+  return isSupporterUser(u) ? SUPPORTER_MAX_DECKS : FREE_MAX_DECKS;
+}
+
+function canUseCustomSkins(u) {
+  if (u && typeof u.customSkinsAllowed === 'boolean') return u.customSkinsAllowed;
+  return isSupporterUser(u);
+}
 
 function loadUsers() {
+
   try {
     const raw = fs.readFileSync(USERS_FILE, 'utf8');
     const obj = JSON.parse(raw);
@@ -268,10 +285,11 @@ function sanitizeCounts(obj) {
   return out;
 }
 
-function sanitizeDecks(raw) {
+function sanitizeDecks(raw, maxLimit) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const out = {};
-  for (const name of Object.keys(raw).slice(0, MAX_DECKS)) {
+  const limit = typeof maxLimit === 'number' && maxLimit > 0 ? maxLimit : MAX_DECKS;
+  for (const name of Object.keys(raw).slice(0, limit)) {
     const n = String(name).trim().slice(0, 40);
     if (!n) continue;
     const d = raw[name];
@@ -283,7 +301,7 @@ function sanitizeDecks(raw) {
 
 function authCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Cache-Control', 'no-store');
 }
@@ -295,7 +313,15 @@ function isAdminUser(u) {
 function issueSession(user) {
   user.token = newToken();
   user.tokenExp = Date.now() + TOKEN_TTL_MS;
-  return { ok: true, token: user.token, username: user.username, admin: isAdminUser(user) };
+  return {
+    ok: true,
+    token: user.token,
+    username: user.username,
+    admin: isAdminUser(user),
+    isSupporter: isSupporterUser(user),
+    maxDecks: userMaxDecks(user),
+    customSkinsAllowed: canUseCustomSkins(user)
+  };
 }
 
 async function handleAuth(req, res, urlPath) {
@@ -370,27 +396,48 @@ async function handleAuth(req, res, urlPath) {
 
     if (route === '/auth/me') {
       if (req.method !== 'GET') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
-      json(res, 200, { ok: true, username: hit.user.username, admin: isAdminUser(hit.user) });
+      json(res, 200, {
+        ok: true,
+        username: hit.user.username,
+        admin: isAdminUser(hit.user),
+        isSupporter: isSupporterUser(hit.user),
+        maxDecks: userMaxDecks(hit.user),
+        customSkinsAllowed: canUseCustomSkins(hit.user)
+      });
       return;
     }
 
     if (req.method === 'GET') {
-      json(res, 200, { ok: true, decks: hit.user.decks && typeof hit.user.decks === 'object' ? hit.user.decks : {} });
+      json(res, 200, {
+        ok: true,
+        decks: hit.user.decks && typeof hit.user.decks === 'object' ? hit.user.decks : {},
+        maxDecks: userMaxDecks(hit.user),
+        isSupporter: isSupporterUser(hit.user)
+      });
       return;
     }
     if (req.method === 'PUT') {
       let body;
       try { body = JSON.parse(await readBody(req, 262144) || '{}'); }
       catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      const maxLimit = userMaxDecks(hit.user);
+      const reqDeckCount = body.decks && typeof body.decks === 'object' ? Object.keys(body.decks).length : 0;
+      if (reqDeckCount > maxLimit) {
+        json(res, 403, {
+          ok: false,
+          error: `จำกัดบันทึกได้สูงสุด ${maxLimit} เด็ค (ติดต่อแอดมินหรือเลี้ยงกาแฟเพื่อปลดล็อก ${SUPPORTER_MAX_DECKS} เด็ค)`
+        });
+        return;
+      }
       try {
         const saved = await mutateUsers((users2) => {
           const h = findByToken(users2, token);
           if (!h) return { ok: false };
-          h.user.decks = sanitizeDecks(body.decks);
+          h.user.decks = sanitizeDecks(body.decks, maxLimit);
           return { ok: true };
         });
         if (!saved || !saved.ok) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
-        json(res, 200, { ok: true });
+        json(res, 200, { ok: true, maxDecks: maxLimit });
       } catch (e) {
         console.error('[auth]', e.message || e);
         json(res, 500, { ok: false, error: 'server error' });
@@ -607,12 +654,16 @@ async function handleAuthSkins(req, res, route) {
   const hit0 = findByToken(loadUsers(), token);
   if (!hit0) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
 
+  const allowedCustom = canUseCustomSkins(hit0.user);
+
   if (route === '/auth/skins') {
     if (req.method === 'GET') {
       json(res, 200, {
         ok: true,
         sel: sanitizeSkinSel(hit0.user.skins),
         custom: readUserCustom(hit0.user),
+        customAllowed: allowedCustom,
+        isSupporter: isSupporterUser(hit0.user)
       });
       return;
     }
@@ -620,6 +671,10 @@ async function handleAuthSkins(req, res, route) {
       let body;
       try { body = JSON.parse(await readBody(req, 8192) || '{}'); }
       catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      if (!allowedCustom && body.sel && Object.values(body.sel).includes('custom')) {
+        json(res, 403, { ok: false, error: 'ฟังก์ชันคัสตอมสนามและการ์ดเปิดให้เฉพาะผู้สนับสนุน (เลี้ยงกาแฟ) — ติดต่อแอดมินเพื่อปลดล็อก' });
+        return;
+      }
       try {
         const saved = await mutateUsers((users2) => {
           const h = findByToken(users2, token);
@@ -640,6 +695,10 @@ async function handleAuthSkins(req, res, route) {
   }
 
   if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+  if (!allowedCustom) {
+    json(res, 403, { ok: false, error: 'ฟังก์ชันคัสตอมสนามและการ์ดเปิดให้เฉพาะผู้สนับสนุน (เลี้ยงกาแฟ) — ติดต่อแอดมินเพื่อปลดล็อก' });
+    return;
+  }
   let body;
   try { body = JSON.parse(await readBody(req, 600000) || '{}'); }
   catch (e) { json(res, 400, { ok: false, error: 'รูปใหญ่เกินไปหรือไฟล์ไม่ถูกต้อง' }); return; }
@@ -820,6 +879,118 @@ async function handleAdminApi(req, res, urlPath) {
     return;
   }
 
+  if (route === '/admin/users') {
+    if (req.method === 'GET') {
+      const users = loadUsers();
+      const list = Object.entries(users).map(([k, u]) => {
+        const d = u.decks && typeof u.decks === 'object' ? u.decks : {};
+        const c = u.customSkins && typeof u.customSkins === 'object' ? u.customSkins : {};
+        return {
+          key: k,
+          username: u.username || k,
+          role: u.role || 'user',
+          isSupporter: isSupporterUser(u),
+          maxDecks: userMaxDecks(u),
+          customSkinsAllowed: canUseCustomSkins(u),
+          supporterNote: u.supporterNote || '',
+          deckCount: Object.keys(d).length,
+          createdAt: u.createdAt || null,
+          customSkins: c,
+        };
+      });
+      json(res, 200, { ok: true, users: list });
+      return;
+    }
+
+    if (req.method === 'PUT') {
+      let body;
+      try { body = JSON.parse(await readBody(req, 8192) || '{}'); }
+      catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      const target = String(body.username || '').trim().toLowerCase();
+      if (!target) { json(res, 400, { ok: false, error: 'ระบุ username' }); return; }
+
+      try {
+        const result = await mutateUsers(async (users) => {
+          const u = users[target];
+          if (!u) return { status: 404, body: { ok: false, error: 'ไม่พบผู้ใช้นี้' } };
+
+          if (typeof body.isSupporter === 'boolean') {
+            u.isSupporter = body.isSupporter;
+            if (body.isSupporter) {
+              if (!u.maxDecks || u.maxDecks <= FREE_MAX_DECKS) u.maxDecks = SUPPORTER_MAX_DECKS;
+              if (typeof u.customSkinsAllowed !== 'boolean') u.customSkinsAllowed = true;
+            }
+          }
+          if (typeof body.maxDecks === 'number' && body.maxDecks > 0) {
+            u.maxDecks = Math.max(1, Math.min(100, Math.floor(body.maxDecks)));
+          }
+          if (typeof body.customSkinsAllowed === 'boolean') {
+            u.customSkinsAllowed = body.customSkinsAllowed;
+          }
+          if (typeof body.supporterNote === 'string') {
+            u.supporterNote = clip(body.supporterNote, 300);
+          }
+          if (body.newPassword && typeof body.newPassword === 'string' && body.newPassword.length >= 6) {
+            const salt = crypto.randomBytes(16).toString('hex');
+            const hash = await scryptHash(body.newPassword, salt);
+            u.salt = salt;
+            u.hash = hash;
+            delete u.token;
+            delete u.tokenExp;
+          }
+
+          return {
+            status: 200,
+            body: {
+              ok: true,
+              user: {
+                username: u.username || target,
+                role: u.role || 'user',
+                isSupporter: isSupporterUser(u),
+                maxDecks: userMaxDecks(u),
+                customSkinsAllowed: canUseCustomSkins(u),
+                supporterNote: u.supporterNote || '',
+              }
+            }
+          };
+        });
+        json(res, result.status, result.body);
+      } catch (e) {
+        console.error('[admin]', e.message || e);
+        json(res, 500, { ok: false, error: 'server error' });
+      }
+      return;
+    }
+
+    if (req.method === 'DELETE') {
+      let body;
+      try { body = JSON.parse(await readBody(req, 4096) || '{}'); }
+      catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      const target = String(body.username || '').trim().toLowerCase();
+      if (!target) { json(res, 400, { ok: false, error: 'ระบุ username' }); return; }
+
+      try {
+        const result = await mutateUsers((users) => {
+          const u = users[target];
+          if (!u) return { status: 404, body: { ok: false, error: 'ไม่พบผู้ใช้นี้' } };
+          if (isAdminUser(u) || target === 'admin') {
+            return { status: 403, body: { ok: false, error: 'ไม่สามารถลบบัญชีแอดมินได้' } };
+          }
+          delete users[target];
+          return { status: 200, body: { ok: true } };
+        });
+        json(res, result.status, result.body);
+      } catch (e) {
+        console.error('[admin]', e.message || e);
+        json(res, 500, { ok: false, error: 'server error' });
+      }
+      return;
+    }
+
+    json(res, 405, { ok: false, error: 'method not allowed' });
+    return;
+  }
+
   json(res, 404, { ok: false, error: 'not found' });
 }
 
@@ -847,10 +1018,34 @@ function getServerVersion() {
 }
 
 const server = http.createServer((req, res) => {
+  // Security & Privacy Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
 
   let urlPath = req.url.split('?')[0];
+
+  // 🛡️ ป้องกันการเข้าถึงไฟล์และโฟลเดอร์ลับโดยตรง (data, tools, .git, server.js, etc.)
+  const cleanPath = urlPath.replace(/\\/g, '/');
+  const forbiddenPatterns = [
+    /^\/data(\/|$)/i,
+    /^\/tools(\/|$)/i,
+    /^\/\./i,
+    /\.env/i,
+    /server\.js$/i,
+    /download_assets\.js$/i,
+    /package(-lock)?\.json$/i,
+    /users\.json$/i
+  ];
+  if (forbiddenPatterns.some(pat => pat.test(cleanPath))) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('403 Forbidden: Protected Resource');
+    return;
+  }
+
   if (urlPath === '/feedback') {
     handleFeedback(req, res);
     return;

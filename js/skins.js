@@ -36,6 +36,7 @@
     ]
   };
   let loggedIn = false;
+  let customAllowed = false;
   let onNeedLogin = null;
   let fileSlot = null;
   let pulling = false;
@@ -338,12 +339,20 @@
       if (typeof onNeedLogin === 'function') onNeedLogin();
       return;
     }
+    if (!customAllowed) {
+      alert('☕ ฟังก์ชันคัสตอมสนามและการ์ดเปิดให้เฉพาะผู้สนับสนุน (เลี้ยงกาแฟ)\nกรุณาติดต่อแอดมินหรือเลี้ยงกาแฟเพื่อปลดล็อกสิทธิ์');
+      return;
+    }
     if (readCustom()[slot]) setSlot(slot, 'custom');
     else startImport(slot);
   }
   function startImport(slot) {
     if (!loggedIn) {
       if (typeof onNeedLogin === 'function') onNeedLogin();
+      return;
+    }
+    if (!customAllowed) {
+      alert('☕ ฟังก์ชันคัสตอมสนามและการ์ดเปิดให้เฉพาะผู้สนับสนุน (เลี้ยงกาแฟ)\nกรุณาติดต่อแอดมินหรือเลี้ยงกาแฟเพื่อปลดล็อกสิทธิ์');
       return;
     }
     fileSlot = slot;
@@ -376,7 +385,7 @@
     ).join('');
     const customSrc = thumbFor('cardBack', 'custom');
     const customOn = packMatch(sel) === 'custom' ? ' on' : '';
-    const customHint = !loggedIn ? 'ล็อกอินก่อน' : (hasAnyCustom() ? 'แตะเพื่อแก้รูป' : 'แตะเพื่อนำเข้า');
+    const customHint = !loggedIn ? 'ล็อกอินก่อน' : (!customAllowed ? '🔒 ปลดล็อกด้วยการเลี้ยงกาแฟ' : (hasAnyCustom() ? 'แตะเพื่อแก้รูป' : 'แตะเพื่อนำเข้า'));
     const customMatSrc = thumbFor('playmat', 'custom');
     const matBtns = playmatChoices().map(p =>
       `<button type="button" class="skin-pack-btn skin-pack-mat${sel.playmat === p.id ? ' on' : ''}" data-skin-slot="playmat" data-skin-id="${p.id}">
@@ -503,6 +512,7 @@
       const j = await r.json();
       if (gen !== pullGen || !authToken()) return;
       if (!j.ok) return;
+      customAllowed = !!(j.customAllowed || j.isSupporter);
       const remoteCustom = (j.custom && typeof j.custom === 'object') ? j.custom : {};
       const remoteSel = j.sel && typeof j.sel === 'object' ? {
         cardBack: clampSlot(j.sel.cardBack, 'cardBack'),
@@ -531,6 +541,7 @@
   function clearAccount() {
     pullGen++;
     pulling = false;
+    customAllowed = false;
     writeCustom({});
     const sel = readSel();
     const oid = officialId();

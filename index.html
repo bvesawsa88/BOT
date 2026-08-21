@@ -16,6 +16,7 @@
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=20260821">
+<script src="js/security.js?v=20260821"></script>
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -30,7 +31,7 @@
 <div id="menu" class="screen">
   <div id="userBar">
     <button id="btnLogin" class="btn-ghost">🔑 เข้าสู่ระบบ / สมัคร</button>
-    <span id="userChip" class="hidden">👤 <b id="userName"></b> · <a id="btnAdmin" class="link-btn hidden" href="/admin" style="margin:0">ตั้งค่า</a> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
+    <span id="userChip" class="hidden">👤 <b id="userName"></b><span id="userBadge" class="hidden" style="font-size:11px;background:#d49d2b;color:#221800;font-weight:bold;padding:1px 6px;border-radius:10px;margin-left:4px">☕ Supporter</span> · <a id="btnAdmin" class="link-btn hidden" href="/admin" style="margin:0">ตั้งค่า</a> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
   </div>
   <div class="float-card f1"><img src="https://cdn.bangbon.app/cards/SD01-001.png" alt=""></div>
   <div class="float-card f2"><img src="https://cdn.bangbon.app/cards/SD01-015.png" alt=""></div>

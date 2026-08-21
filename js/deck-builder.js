@@ -591,6 +591,13 @@
   byId('dbSave').onclick = () => {
     const name = (byId('dbName').value.trim() || 'เด็คไม่มีชื่อ');
     const sv = CardDB.savedDecks();
+    const isNew = !sv[name];
+    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
+    if (isNew && Object.keys(sv).length >= max) {
+      msg(`⚠️ บันทึกครบโควตา ${max} เด็คแล้ว (เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค)`);
+      if (typeof root.toast === 'function') root.toast(`⚠️ จำกัด ${max} เด็ค — เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค`);
+      return;
+    }
     sv[name] = { main: DB.deck.main, life: DB.deck.life };
     CardDB.saveDecks(sv);
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }
@@ -871,10 +878,14 @@
     if (!DB.db) return;
     const saved = CardDB.savedDecks();
     const savedNames = Object.keys(saved);
+    const maxDecks = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
+    const isSupp = CardDB.getIsSupporter ? CardDB.getIsSupporter() : false;
     const presets = Object.keys(STARTERS_DB || {}).filter(k => !STARTER_KEYS.includes(k));
-    let html = `<div class="dk-sec">เด็คที่บันทึก</div>`;
+    let html = `<div class="dk-sec">เด็คที่บันทึก (${savedNames.length}/${maxDecks}${isSupp ? ' · ☕' : ''})</div>`;
     if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
       html += `<div class="dk-empty-mini">ยังไม่ล็อกอิน — เด็คชุดนี้อยู่บนเครื่องนี้เท่านั้น</div>`;
+    } else if (!isSupp && savedNames.length >= maxDecks) {
+      html += `<div class="dk-empty-mini" style="color:#d49d2b">☕ เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค และคัสตอมสนาม/การ์ด</div>`;
     }
     if (!savedNames.length) html += `<div class="dk-empty-mini">ยังไม่มีเด็คที่บันทึก — กด «จัดเด็คใหม่» มุมบนขวา</div>`;
     else html += savedNames.map(n => itemBtn('saved', n, n, saved[n])).join('');

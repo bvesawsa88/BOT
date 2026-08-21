@@ -6621,13 +6621,19 @@
   /* ── ล็อกอิน / สมัครสมาชิก ── */
   let authMode = 'login';
   const authToken = () => { try { return localStorage.getItem('bot_auth_token') || ''; } catch (e) { return ''; } };
-  function setAuthUI(username, admin) {
+  function setAuthUI(username, admin, isSupporter) {
     const on = !!username;
     byId('btnLogin').classList.toggle('hidden', on);
     byId('userChip').classList.toggle('hidden', !on);
     const adm = byId('btnAdmin');
     if (adm) adm.classList.toggle('hidden', !admin);
-    if (on) { byId('userName').textContent = username; try { localStorage.setItem('bot_user', username); } catch (e) { } if (byId('inpNick') && !byId('inpNick').value) byId('inpNick').value = username; }
+    const badge = byId('userBadge');
+    if (badge) badge.classList.toggle('hidden', !isSupporter);
+    if (on) {
+      byId('userName').textContent = username;
+      try { localStorage.setItem('bot_user', username); } catch (e) { }
+      if (byId('inpNick') && !byId('inpNick').value) byId('inpNick').value = username;
+    }
     if (window.BotSkins) BotSkins.setLoggedIn(on);
   }
   async function syncCloudDecks() {
@@ -6646,7 +6652,7 @@
     try {
       const r = await fetch('/auth/me', { headers: { Authorization: 'Bearer ' + t } });
       const j = await r.json();
-      if (j.ok) { setAuthUI(j.username, j.admin); syncCloudDecks(); }
+      if (j.ok) { setAuthUI(j.username, j.admin, j.isSupporter); syncCloudDecks(); }
       else { try { localStorage.removeItem('bot_auth_token'); } catch (e) { } setAuthUI(null); }
     } catch (e) { setAuthUI(null); }
   }
@@ -6668,9 +6674,9 @@
       const j = await r.json();
       if (j.ok) {
         try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
-        setAuthUI(j.username, j.admin);
+        setAuthUI(j.username, j.admin, j.isSupporter);
         closeAuth();
-        toast('👤 สวัสดี ' + j.username);
+        toast('👤 สวัสดี ' + j.username + (j.isSupporter ? ' (☕ ผู้สนับสนุน)' : ''));
         syncCloudDecks();
       }
       else byId('authMsg').textContent = j.error || 'ไม่สำเร็จ';
