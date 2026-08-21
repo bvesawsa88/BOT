@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   /* ธีมขาว-ดำ (ชาโคล + ขาว) เข้ากับโลโก้สีขาว — เปลี่ยนที่นี่ที่เดียว cascade ทั้งเว็บ */
   --bg:#1b1b1e; --panel:#0f0f11; --card-ui:#1e1e22; --border:#3a3a42;
   --red:#3c3c45; --red-dark:#000000; --red-lite:#d2d2d8; --gold:#f0f0f3;
@@ -1584,3 +1584,25 @@ body.stream-win #roomInfo{opacity:.8}
 @media (max-width:920px){
   .bot-ai-debug{bottom:90px;max-height:28vh;font-size:11px}
 }
+
+/* แถบแจ้งเตือนอัปเดตเวอร์ชันใหม่ */
+.bot-update-banner{
+  position:fixed;top:12px;left:50%;transform:translateX(-50%);
+  z-index:99999;display:flex;align-items:center;gap:12px;
+  background:rgba(18,18,22,.96);border:1.5px solid var(--gold);
+  color:var(--cream);padding:8px 16px;border-radius:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.65);font-size:13px;
+  font-family:'IBM Plex Sans Thai',sans-serif;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  animation:botSlideDown .35s ease;
+}
+.bot-update-banner button{
+  background:var(--gold);color:#1a1612;border:none;
+  padding:5px 14px;border-radius:6px;font-weight:700;
+  font-size:12px;cursor:pointer;
+  transition:filter .15s, transform .1s;
+}
+.bot-update-banner button:hover{filter:brightness(1.15);transform:scale(1.03)}
+.bot-update-banner button:active{transform:scale(.97)}
+@keyframes botSlideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+

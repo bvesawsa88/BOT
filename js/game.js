@@ -5111,30 +5111,6 @@
     choiceOpenedAt = Date.now();
     byId('choiceModal').classList.remove('hidden');
   }
-  function parseChoiceOptions(effect) {
-    const lines = (effect || '').replace(/\r/g, '').split('\n');
-    const opts = []; let cur = null;
-    for (const ln of lines) {
-      const m = ln.match(/^\s*([1-9])\)\s*(.*)/);
-      if (m) { if (cur != null) opts.push(cur); cur = m[2].trim(); }
-      else if (cur != null) {
-        if (/^\s*(ถ้า|#|เมื่อ|คำสั่งเสีย|หาก)/.test(ln)) { opts.push(cur); cur = null; }
-        else cur += ' ' + ln.trim();
-      }
-    }
-    if (cur != null) opts.push(cur);
-    return opts.map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
-  }
-  function openChoicePopup(k) {
-    closeMenu();
-    const c = st.inst[k]; if (!c) return;
-    const opts = parseChoiceOptions(c.effect);
-    if (!opts.length) { toast('การ์ดนี้ไม่พบตัวเลือก เลือกปฏิบัติ ที่อ่านได้'); return; }
-    choiceCtx = { k, opts, sel: 0 };
-    byId('choiceCardName').textContent = c.name;
-    renderChoiceOpts();
-    showChoiceModal();
-  }
   function openChoiceFromEffects(k, options, extra) {
     closeMenu();
     const c = st.inst[k]; if (!c) return;

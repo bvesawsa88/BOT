@@ -46,9 +46,10 @@
     return _once[href];
   }
 
-  const V = '20260820asgard';
+  const DEFAULT_V = '20260821';
   function asset(path) {
-    return path + (path.includes('?') ? '&' : '?') + 'v=' + V;
+    const ver = window.__BOT_VERSION || DEFAULT_V;
+    return path + (path.includes('?') ? '&' : '?') + 'v=' + ver;
   }
 
   /* เทค / ซิมโบล — รูปทางการจาก bottcg (สีเดียวกับที่พิมพ์บนการ์ด) */

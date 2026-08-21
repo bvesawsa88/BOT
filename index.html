@@ -7,12 +7,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260820ab">
+<link rel="stylesheet" href="css/style.css?v=20260821">
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -1200,12 +1203,103 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260820asgard"></script>
-<script src="js/skins.js?v=20260820asgard"></script>
-<script src="js/carddb.js?v=20260820login"></script>
-<script src="js/lan.js?v=20260820e"></script>
-<script src="js/game.js?v=20260820admin"></script>
-<script>/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });</script>
+<script src="js/util.js?v=20260821"></script>
+<script src="js/skins.js?v=20260821"></script>
+<script src="js/carddb.js?v=20260821"></script>
+<script src="js/lan.js?v=20260821"></script>
+<script src="js/game.js?v=20260821"></script>
+<script>
+/* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(function(reg) {
+    if (reg) reg.update();
+  }).catch(function() { });
+}
+
+/* ════ ระบบตรวจจับและบังคับอัปเดตเวอร์ชันอัตโนมัติ (Auto-Update Checker) ════ */
+(function() {
+  var currentVer = null;
+  var isChecking = false;
+  var bannerEl = null;
+
+  function isGameActive() {
+    var menu = document.getElementById('menu');
+    var board = document.getElementById('board');
+    if (menu && menu.classList.contains('hidden')) return true;
+    if (board && !board.classList.contains('hidden')) return true;
+    return false;
+  }
+
+  function showUpdateBanner() {
+    if (bannerEl || document.getElementById('botUpdateBanner')) return;
+    bannerEl = document.createElement('div');
+    bannerEl.id = 'botUpdateBanner';
+    bannerEl.className = 'bot-update-banner';
+    bannerEl.innerHTML = '<span>⚡ มีอัปเดตระบบใหม่ (แก้บัค/ปรับปรุง)</span><button type="button" id="btnApplyUpdate">รีเฟรชทันที</button>';
+    document.body.appendChild(bannerEl);
+    var btn = document.getElementById('btnApplyUpdate');
+    if (btn) btn.addEventListener('click', forceReload);
+  }
+
+  function forceReload() {
+    try {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) { r.update(); });
+        }).catch(function() {});
+      }
+    } catch(e) {}
+    var url = window.location.href.split('?')[0].split('#')[0];
+    window.location.replace(url + '?_t=' + Date.now());
+  }
+
+  function checkVersion() {
+    if (isChecking) return;
+    isChecking = true;
+    fetch('/api/version?_t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        isChecking = false;
+        if (!data || !data.version) return;
+        
+        if (!currentVer) {
+          currentVer = data.version;
+          window.__BOT_VERSION = data.version;
+          return;
+        }
+
+        if (currentVer !== data.version) {
+          console.log('[Update] New version detected:', data.version, '(current:', currentVer, ')');
+          if (isGameActive()) {
+            showUpdateBanner();
+          } else {
+            forceReload();
+          }
+        }
+      })
+      .catch(function() {
+        isChecking = false;
+      });
+  }
+
+  // ตรวจสอบเวอร์ชันทันทีเมื่อโหลดหน้า
+  checkVersion();
+
+  // ตรวจสอบทุกๆ 25 วินาที
+  setInterval(checkVersion, 25000);
+
+  // ตรวจสอบเมื่อสลับกลับมาที่แท็บ (Visibility change / Focus)
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') checkVersion();
+  });
+  window.addEventListener('focus', checkVersion);
+
+  // เมื่อผู้เล่นกดกลับสู่หน้าหลัก ให้เช็คทันที
+  var btnHome = document.getElementById('btnHome');
+  if (btnHome) btnHome.addEventListener('click', function() { setTimeout(checkVersion, 200); });
+  var btnBack = document.getElementById('btnBack');
+  if (btnBack) btnBack.addEventListener('click', function() { setTimeout(checkVersion, 200); });
+})();
+</script>
 </body>
 </html>

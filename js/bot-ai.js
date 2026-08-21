@@ -66,9 +66,6 @@
   function ownNameOnField(st, side, needle) {
     return zoneIds(st, side + '.avatar').some(k => nm(st.inst[k], needle));
   }
-  function countNameOnField(st, side, needle) {
-    return zoneIds(st, side + '.avatar').filter(k => nm(st.inst[k], needle)).length;
-  }
 
   /* เก็บ requireLand จากความสามารถ + ออร่า static */
   function landNeedlesOfCard(c) {
@@ -404,15 +401,9 @@
     return zoneIds(st, owner + '.life').some(k => {
       const c = st.inst[k];
       if (!c || !c.faceUp) return false;
+      if (lifeRevealUnusable(st, owner, c)) return true;
       const n = nameOf(c);
-      if (/ไม่นะ\s*โดม/.test(n)) {
-        if (!hellHasGemAvatar(st, owner, 3)) return true;
-        return !lifeCardPending(st, owner, k);
-      }
-      if (/ไม่นะ\s*อู๊ด/.test(n)) {
-        if (!hellHasNormalMagic(st, owner)) return true;
-        return !lifeCardPending(st, owner, k);
-      }
+      if (/ไม่นะ\s*(โดม|อู๊ด)/.test(n)) return !lifeCardPending(st, owner, k);
       return false;
     });
   }

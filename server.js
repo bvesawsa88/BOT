@@ -823,6 +823,29 @@ async function handleAdminApi(req, res, urlPath) {
   json(res, 404, { ok: false, error: 'not found' });
 }
 
+const SERVER_BOOT_TIME = Date.now().toString(36);
+function getServerVersion() {
+  try {
+    const files = [
+      path.join(ROOT, 'index.html'),
+      path.join(ROOT, 'js', 'game.js'),
+      path.join(ROOT, 'js', 'bot-ai.js'),
+      path.join(ROOT, 'js', 'carddb.js'),
+      path.join(ROOT, 'css', 'style.css')
+    ];
+    let maxMtime = 0;
+    for (const f of files) {
+      if (fs.existsSync(f)) {
+        const mt = fs.statSync(f).mtimeMs;
+        if (mt > maxMtime) maxMtime = mt;
+      }
+    }
+    return Math.floor(maxMtime / 1000).toString(36) + '-' + SERVER_BOOT_TIME;
+  } catch (e) {
+    return SERVER_BOOT_TIME;
+  }
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
@@ -836,6 +859,14 @@ const server = http.createServer((req, res) => {
     handleAuth(req, res, urlPath).catch((err) => {
       console.error('[auth]', err);
       if (!res.headersSent) json(res, 500, { ok: false, error: 'server error' });
+    });
+    return;
+  }
+  if (urlPath === '/api/version') {
+    json(res, 200, {
+      ok: true,
+      version: getServerVersion(),
+      timestamp: Date.now()
     });
     return;
   }
@@ -873,7 +904,12 @@ const server = http.createServer((req, res) => {
       if (err.code === 'ENOENT') {
         fs.readFile(path.join(ROOT, 'index.html'), (e2, d2) => {
           if (e2) { res.writeHead(404); res.end('404 Not Found'); return; }
-          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.writeHead(200, {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          });
           res.end(d2);
         });
       } else {
@@ -881,7 +917,16 @@ const server = http.createServer((req, res) => {
       }
       return;
     }
-    res.writeHead(200, { 'Content-Type': mime });
+    const isCode = ['.html', '.js', '.css', '.json'].includes(ext);
+    const headers = {
+      'Content-Type': mime,
+      'Cache-Control': isCode ? 'no-cache, no-store, must-revalidate' : 'public, max-age=86400',
+    };
+    if (isCode) {
+      headers['Pragma'] = 'no-cache';
+      headers['Expires'] = '0';
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 });
