@@ -72,13 +72,22 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   ok(!st.inst[other].attachedTo, 'water not attached');
 }
 
-/* 4) สั่งใช้: ค้นอาวุธจากเด็คมาสวม + นับ Modification + เทิร์นละครั้ง */
+/* 4) สั่งใช้: ต้องมีคู่หู (Link) ก่อนถึงจะสั่งใช้ค้นอาวุธจากเด็คมาสวมได้ + นับ Modification + เทิร์นละครั้ง */
 {
   const st = emptyState();
   const pem = put(st, 'A.avatar', 'BT09-008');
   const gun = put(st, 'A.deck', 'BT09-067');
   put(st, 'A.deck', 'SD01-003');
+  // ยังไม่ Link -> ต้องถูก deny
   let fx = apply(st, { type: 'activateAbility', k: pem, by: 'A', seed: 2 });
+  ok(!!fx.deny, 'activate without link denied: ' + fx.deny);
+
+  // จับ Link กับสไปรท์
+  const spr = put(st, 'A.avatar', 'BT09-009');
+  apply(st, { type: 'pair', k: pem, to: spr, by: 'A', seed: 2 });
+
+  // Link แล้ว -> สั่งใช้สำเร็จ
+  fx = apply(st, { type: 'activateAbility', k: pem, by: 'A', seed: 2 });
   if (fx.deny) fail('activate deny: ' + fx.deny);
   const pr = (st.prompts || [])[0];
   ok(pr && pr.dest === 'pickAttachHost', 'prompt pick weapon from deck: ' + JSON.stringify(pr && { dest: pr.dest, from: pr.from }));

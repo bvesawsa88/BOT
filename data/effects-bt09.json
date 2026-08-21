@@ -230,6 +230,7 @@
           "trigger": {
             "on": "activated"
           },
+          "requireLinked": true,
           "oncePerTurn": true,
           "countsAsModification": true,
           "actions": [
@@ -250,7 +251,7 @@
       "parseStatus": "auto",
       "name": "เพมมุ ยอดมนุษย์",
       "hostAttachNameIncludes": "อาวุธของเพมมุ",
-      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
+      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · [Link สไปรท์] สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
     },
     {
       "code": "BT09-009",

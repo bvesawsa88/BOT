@@ -62,6 +62,7 @@ const BY_SET = {
         {
           keyword: 'สั่งใช้',
           trigger: { on: 'activated' },
+          requireLinked: true,
           oncePerTurn: true,
           countsAsModification: true,
           actions: [{
@@ -74,7 +75,7 @@ const BY_SET = {
         }
       ],
       parseStatus: 'auto',
-      note: 'สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)'
+      note: 'สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · [Link สไปรท์] สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)'
     },
     'BT09-009': {
       code: 'BT09-009',
