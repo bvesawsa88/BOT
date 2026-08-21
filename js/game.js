@@ -1250,7 +1250,7 @@
     if (mode === 'wait') {
       if (title) title.textContent = 'คู่ต่อสู้หลุดการเชื่อมต่อ';
       if (sub) sub.textContent = 'รอให้เขากลับมาไหม? สูงสุด 3 นาที — เกมยังไม่จบจนกว่าจะเลิกรอหรือหมดเวลา';
-      if (msg) msg.textContent = 'มือถือมักหลุดตอนสลับแอปหรือ Wi‑Fi อ่อน';
+      if (msg) msg.textContent = 'มือถือมักหลุดตอนสลับแอปหรือสัญญาณเน็ตอ่อน';
       if (act) act.textContent = 'รอ 3 นาที';
       if (leave) leave.textContent = 'ออกเลย';
     } else {
@@ -1304,7 +1304,7 @@
     }
   }
   function tryLanReconnect() {
-    if (typeof BotLAN === 'undefined') { toast('โหลดระบบ LAN ไม่สำเร็จ'); return; }
+    if (typeof BotLAN === 'undefined') { toast('โหลดระบบออนไลน์ไม่สำเร็จ'); return; }
     if (!room || lanIsHost) return;
     if (lanReconnecting) return;
     lanReconnecting = true;
@@ -1570,10 +1570,10 @@
     }
     if (m.t === 'end') { showEnd(m.winner, m.nick); return; }
     if (m.t === 'deny') { toast('🚫 ' + m.m, 3200); return; }
-    if (m.t === 'error') { toast(m.m || 'ห้อง LAN ปฏิเสธการเข้า'); leaveOnline(); return; }
+    if (m.t === 'error') { toast(m.m || 'ห้องออนไลน์ปฏิเสธการเข้า'); leaveOnline(); return; }
   }
 
-  /* ── LAN presence: เห็นใครออน → ท้าสู้ ── */
+  /* ── Online presence: เห็นใครออน → ท้าสู้ ── */
   function presenceUrl() {
     return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/lan';
   }
@@ -1631,7 +1631,7 @@
     if (!box) return;
     const others = presencePeers.filter(p => p.id !== presenceId);
     if (!others.length) {
-      box.innerHTML = '<div class="lan-peer-empty">ยังไม่มีใครอื่นในวง — รอเพื่อนเปิดหน้านี้<br><span style="font-size:11px">ให้เพื่อนเปิด URL เดียวกับที่คุณใช้อยู่</span></div>';
+      box.innerHTML = '<div class="lan-peer-empty">ยังไม่มีใครอื่นในล็อบบี้ — รอเพื่อนเข้าหน้านี้<br><span style="font-size:11px">ให้เพื่อนเปิดเว็บหน้านี้เพื่อมองเห็นกัน</span></div>';
       return;
     }
     const challenging = outgoingChallenge && outgoingChallenge.id;
@@ -1734,7 +1734,7 @@
       return;
     }
     if (m.t === 'error') {
-      toast(m.m || 'ล็อบบี้ LAN ผิดพลาด');
+      toast(m.m || 'ล็อบบี้ออนไลน์ผิดพลาด');
       setLanHallStatus(m.m || 'ผิดพลาด', 'err');
       outgoingChallenge = null;
       renderLanPeerList();
@@ -1753,38 +1753,54 @@
     presenceId = null;
     presencePeers = [];
   }
+  function candidatePresenceUrls() {
+    const urls = [];
+    const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    urls.push(proto + location.host + '/lan');
+    if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port !== '3000') {
+      urls.push('ws://' + location.hostname + ':3000/lan');
+      urls.push('ws://127.0.0.1:3000/lan');
+    }
+    return urls;
+  }
   function connectPresence() {
     presenceWanted = true;
     clearTimeout(presenceReconT);
     if (presenceWs && (presenceWs.readyState === 0 || presenceWs.readyState === 1)) return;
     setLanHallStatus('กำลังเชื่อมล็อบบี้…');
-    let sock;
-    try { sock = new WebSocket(presenceUrl()); }
-    catch (e) {
-      setLanHallStatus('เชื่อมล็อบบี้ไม่ได้ — รัน node server.js แล้วเปิดผ่าน IP โฮสต์', 'err');
-      return;
+    const urls = candidatePresenceUrls();
+    let idx = 0;
+    function tryPresence() {
+      if (idx >= urls.length) {
+        setLanHallStatus('เชื่อมล็อบบี้ไม่ได้ — ตรวจสอบการเชื่อมต่อเซิร์ฟเวอร์', 'err');
+        return;
+      }
+      const url = urls[idx++];
+      let sock;
+      try { sock = new WebSocket(url); } catch (e) { return tryPresence(); }
+      presenceWs = sock;
+      sock.onopen = () => {
+        presenceSend({ t: 'hello', nick: lanHallNick(), uid: myUid() });
+        setLanHallStatus('เชื่อมล็อบบี้แล้ว', 'ok');
+      };
+      sock.onmessage = (ev) => {
+        let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        onPresenceMessage(m);
+      };
+      sock.onclose = () => {
+        if (presenceWs === sock) presenceWs = null;
+        presenceId = null;
+        presencePeers = [];
+        renderLanPeerList();
+        if (!presenceWanted) return;
+        setLanHallStatus('หลุดจากล็อบบี้ — กำลังต่อใหม่…', 'err');
+        presenceReconT = setTimeout(connectPresence, 2000);
+      };
+      sock.onerror = () => {
+        tryPresence();
+      };
     }
-    presenceWs = sock;
-    sock.onopen = () => {
-      presenceSend({ t: 'hello', nick: lanHallNick(), uid: myUid() });
-      setLanHallStatus('เชื่อมล็อบบี้แล้ว', 'ok');
-    };
-    sock.onmessage = (ev) => {
-      let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
-      onPresenceMessage(m);
-    };
-    sock.onclose = () => {
-      if (presenceWs === sock) presenceWs = null;
-      presenceId = null;
-      presencePeers = [];
-      renderLanPeerList();
-      if (!presenceWanted) return;
-      setLanHallStatus('หลุดจากล็อบบี้ — กำลังต่อใหม่…', 'err');
-      presenceReconT = setTimeout(connectPresence, 2000);
-    };
-    sock.onerror = () => {
-      setLanHallStatus('เชื่อมล็อบบี้ไม่ได้ — ต้องรัน node server.js (ไม่ใช่แค่ Apache/XAMPP)', 'err');
-    };
+    tryPresence();
   }
   function openLanHall(instant) {
     presenceWanted = true;

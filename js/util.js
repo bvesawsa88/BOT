@@ -46,7 +46,7 @@
     return _once[href];
   }
 
-  const DEFAULT_V = '20260821';
+  const DEFAULT_V = '20260822';
   function asset(path) {
     const ver = window.__BOT_VERSION || DEFAULT_V;
     return path + (path.includes('?') ? '&' : '?') + 'v=' + ver;

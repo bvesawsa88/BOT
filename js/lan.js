@@ -33,6 +33,17 @@
     return s;
   }
 
+  function candidateSignalUrls() {
+    const urls = [];
+    const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    urls.push(proto + location.host + '/signal');
+    if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port !== '3000') {
+      urls.push('ws://' + location.hostname + ':3000/signal');
+      urls.push('ws://127.0.0.1:3000/signal');
+    }
+    return urls;
+  }
+
   function signalUrl() {
     return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/signal';
   }
@@ -51,29 +62,41 @@
   }
 
   function openSignal() {
-    return new Promise((resolve, reject) => {
-      let done = false;
-      const ws = new WebSocket(signalUrl());
-      const t = setTimeout(() => {
-        if (done) return;
-        done = true;
-        try { ws.close(); } catch (e) { }
-        reject(new Error('เชื่อมเซิร์ฟเวอร์ไม่สำเร็จ — รีเฟรชแล้วลองใหม่'));
-      }, 12000);
-      ws.onopen = () => {
-        if (done) return;
-        done = true;
-        clearTimeout(t);
-        ws._keep = setInterval(() => sendWs(ws, { t: 'ping' }), 20000);
-        resolve(ws);
-      };
-      ws.onerror = () => {
-        if (done) return;
-        done = true;
-        clearTimeout(t);
-        reject(new Error('เชื่อมเซิร์ฟเวอร์ไม่สำเร็จ — ตรวจเน็ตแล้วลองใหม่'));
-      };
-    });
+    const urls = candidateSignalUrls();
+    let idx = 0;
+
+    function tryConnect() {
+      if (idx >= urls.length) {
+        return Promise.reject(new Error('เชื่อมเซิร์ฟเวอร์ไม่สำเร็จ — รีเฟรชแล้วลองใหม่'));
+      }
+      const url = urls[idx++];
+      return new Promise((resolve, reject) => {
+        let done = false;
+        let ws;
+        try { ws = new WebSocket(url); } catch (e) { return reject(e); }
+        const t = setTimeout(() => {
+          if (done) return;
+          done = true;
+          try { ws.close(); } catch (e) { }
+          reject(new Error('timeout'));
+        }, 5000);
+        ws.onopen = () => {
+          if (done) return;
+          done = true;
+          clearTimeout(t);
+          ws._keep = setInterval(() => sendWs(ws, { t: 'ping' }), 20000);
+          resolve(ws);
+        };
+        ws.onerror = () => {
+          if (done) return;
+          done = true;
+          clearTimeout(t);
+          reject(new Error('failed'));
+        };
+      }).catch(() => tryConnect());
+    }
+
+    return tryConnect();
   }
 
   function attachRoom(ws, code, handlers, isHost) {

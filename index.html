@@ -15,8 +15,8 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260821">
-<script src="js/security.js?v=20260821"></script>
+<link rel="stylesheet" href="css/style.css?v=20260822">
+<script src="js/security.js?v=20260822"></script>
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -130,16 +130,16 @@
   </div>
 </div>
 
-<!-- ═══ ล็อบบี้ LAN: เห็นใครออน + ท้าสู้ ═══ -->
+<!-- ═══ ล็อบบี้ออนไลน์: เห็นใครออน + ท้าสู้ ═══ -->
 <div id="lanHall" class="screen hidden">
   <div class="lan-hall-wrap">
     <div class="panel lan-hall-me">
-      <div class="panel-title">LAN — ท้าสู้ในวงเดียวกัน</div>
-      <div class="panel-note" id="lanHallHint">รัน <b>node server.js</b> แล้วให้เพื่อนเปิดผ่าน IP เครื่องโฮสต์ (Wi‑Fi / ฮอตสปอตเดียวกัน)</div>
+      <div class="panel-title">ล็อบบี้ — ท้าสู้ผู้เล่นออนไลน์</div>
+      <div class="panel-note" id="lanHallHint">ล็อบบี้รวมผู้เล่นออนไลน์ — ท้าสู้กับคนที่กำลังออนไลน์อยู่ได้ทันที</div>
       <label class="menu-deck-lab" for="inpLanNick">ชื่อเล่น</label>
       <input id="inpLanNick" placeholder="ชื่อเล่นของคุณ…" autocomplete="off" maxlength="24">
       <label class="menu-deck-lab" for="selLanDeck">เด็คของคุณ (ต้องเลือกก่อนท้า / รับคำท้า)</label>
-      <select id="selLanDeck" class="menu-deck-select" title="เด็คสำหรับแมตช์ LAN">
+      <select id="selLanDeck" class="menu-deck-select" title="เด็คสำหรับแมตช์ออนไลน์">
         <option value="starter:SD01">SD01 Starter (50+5)</option>
       </select>
       <div data-skin-mount></div>
@@ -148,12 +148,12 @@
     <div class="panel lan-hall-list-panel">
       <div class="panel-title">ผู้เล่นออนไลน์</div>
       <div id="lanPeerList" class="lan-peer-list">
-        <div class="lan-peer-empty">ยังไม่มีใครอื่นในวง — รอเพื่อนเปิดหน้านี้</div>
+        <div class="lan-peer-empty">ยังไม่มีใครอื่นในล็อบบี้ — รอเพื่อนเข้าหน้านี้</div>
       </div>
     </div>
   </div>
   <div class="lan-hall-actions">
-    <button id="btnLanByCode" class="btn-ghost">เข้าด้วยรหัสห้อง (แบบเดิม)</button>
+    <button id="btnLanByCode" class="btn-ghost">เข้าด้วยรหัสห้อง</button>
     <button id="btnLanHallBack" class="link-btn">← กลับเมนูหลัก</button>
   </div>
 </div>
@@ -1106,7 +1106,7 @@
   </div>
 </div>
 
-<!-- overlay หลุด LAN — รอเพื่อน / เชื่อมต่อใหม่ -->
+<!-- overlay หลุดการเชื่อมต่อ — รอเพื่อน / เชื่อมต่อใหม่ -->
 <div id="lanDropModal" class="hidden">
   <div class="lan-drop-card">
     <div class="lan-drop-title" id="lanDropTitle">การเชื่อมต่อหลุด</div>
@@ -1120,7 +1120,7 @@
   </div>
 </div>
 
-<!-- คำท้า LAN -->
+<!-- คำท้าออนไลน์ -->
 <div id="lanChallengeModal" class="hidden">
   <div class="lan-challenge-card">
     <div class="lan-challenge-title" id="lanChallengeTitle">มีคำท้า!</div>
@@ -1215,11 +1215,11 @@
   </div>
 </div>
 
-<script src="js/util.js?v=20260821"></script>
-<script src="js/skins.js?v=20260821"></script>
-<script src="js/carddb.js?v=20260821"></script>
-<script src="js/lan.js?v=20260821"></script>
-<script src="js/game.js?v=20260821"></script>
+<script src="js/util.js?v=20260822"></script>
+<script src="js/skins.js?v=20260822"></script>
+<script src="js/carddb.js?v=20260822"></script>
+<script src="js/lan.js?v=20260822"></script>
+<script src="js/game.js?v=20260822"></script>
 <script>
 /* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) {
