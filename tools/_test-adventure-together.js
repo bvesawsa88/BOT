@@ -56,7 +56,7 @@ function playAdventure(st, mag) {
   return fx;
 }
 
-/* 1) มีเพมมุ → อัญเชิญสไปรท์จากเด็ค */
+/* 1) มีแค่เพมมุ → เลือกสไปรท์จากเด็คให้ทันที (ไม่ต้องขึ้น chooseMode) */
 {
   const st = emptyState();
   put(st, 'A.avatar', 'BT09-008');
@@ -64,22 +64,16 @@ function playAdventure(st, mag) {
   const spr = put(st, 'A.deck', 'BT09-009');
   const rest = put(st, 'A.deck', 'SD01-003');
   playAdventure(st, mag);
-  ok(st.prompts.length && st.prompts[0].kind === 'chooseMode', 'chooseMode after play');
-  const opts = st.prompts[0].options || [];
-  ok(!BoT.chooseModeOptionDeny(st, mag, 'A', opts[0]), 'mode 0 ok with pemmu');
-  ok(!!BoT.chooseModeOptionDeny(st, mag, 'A', opts[1]), 'mode 1 denied without sprite');
-  let fx = apply(st, { type: 'chooseMode', k: mag, opt: 0, by: 'A' });
-  ok(!fx.deny, 'choose mode 0: ' + (fx.deny || ''));
   const pick = (st.prompts || []).find(p => p.kind === 'pick');
-  ok(pick && pick.dest === 'avatar', 'deckPick dest avatar');
-  fx = apply(st, { type: 'chooseTarget', k: spr, by: 'A' });
+  ok(pick && pick.dest === 'avatar', 'deckPick dest avatar auto-opened');
+  let fx = apply(st, { type: 'chooseTarget', k: spr, by: 'A' });
   ok(!fx.deny, 'pick sprite: ' + (fx.deny || ''));
   ok(zone(st, spr) === 'A.avatar', 'sprite summoned from deck');
   ok(zone(st, rest) === 'A.deck', 'other deck card stays');
   ok(zone(st, mag) === 'A.hell', 'magic to hell');
 }
 
-/* 2) มีสไปรท์ → อัญเชิญเพมมุจากเด็ค — ไม่เลือกอาวุธของเพมมุ */
+/* 2) มีแค่สไปรท์ → เลือกเพมมุจากเด็คให้ทันที — ไม่เลือกอาวุธของเพมมุ */
 {
   const st = emptyState();
   put(st, 'A.avatar', 'BT09-009');
@@ -87,12 +81,8 @@ function playAdventure(st, mag) {
   const pem = put(st, 'A.deck', 'BT09-008');
   const gun = put(st, 'A.deck', 'BT09-067');
   playAdventure(st, mag);
-  const opts = st.prompts[0].options || [];
-  ok(!!BoT.chooseModeOptionDeny(st, mag, 'A', opts[0]), 'mode 0 denied without pemmu');
-  ok(!BoT.chooseModeOptionDeny(st, mag, 'A', opts[1]), 'mode 1 ok with sprite');
-  apply(st, { type: 'chooseMode', k: mag, opt: 1, by: 'A' });
   const pick = (st.prompts || []).find(p => p.kind === 'pick');
-  ok(pick, 'deckPick pemmu');
+  ok(pick, 'deckPick pemmu auto-opened');
   const cands = BoT.promptCandidates(st, pick);
   ok(cands.includes(pem), 'pemmu avatar is a candidate');
   ok(!cands.includes(gun), 'weapon of pemmu is not a candidate');
@@ -101,32 +91,41 @@ function playAdventure(st, mag) {
   ok(zone(st, gun) === 'A.deck', 'weapon stays in deck');
 }
 
-/* 3) PRMO สไปรท์อัญเชิญได้ */
+/* 3) มีแค่เพมมุ → PRMO สไปรท์อัญเชิญได้ */
 {
   const st = emptyState();
   put(st, 'A.avatar', 'BT09-008');
   const mag = put(st, 'A.hand', 'BT09-052');
   const spr = put(st, 'A.deck', 'PRMO-112');
   playAdventure(st, mag);
-  apply(st, { type: 'chooseMode', k: mag, opt: 0, by: 'A' });
   apply(st, { type: 'chooseTarget', k: spr, by: 'A' });
   ok(zone(st, spr) === 'A.avatar', 'prmo sprite summoned');
 }
 
-/* 4) ไม่มีเพมมุ/สไปรท์บนสนาม → ข้ามเลือกปฏิบัติได้ */
+/* 4) ไม่มีเพมมุ/สไปรท์บนสนาม → ใช้ไม่ได้ (Deny ทันที) */
 {
   const st = emptyState();
   const mag = put(st, 'A.hand', 'BT09-052');
   put(st, 'A.deck', 'BT09-008');
   put(st, 'A.deck', 'BT09-009');
+  const fx = apply(st, { type: 'playMagic', k: mag, by: 'A' });
+  ok(!!fx.deny, 'playMagic without pemmu/sprite denied: ' + fx.deny);
+}
+
+/* 5) มีทั้งเพมมุและสไปรท์บนสนาม → เปิด chooseMode ให้เลือก */
+{
+  const st = emptyState();
+  put(st, 'A.avatar', 'BT09-008');
+  put(st, 'A.avatar', 'BT09-009');
+  const mag = put(st, 'A.hand', 'BT09-052');
+  put(st, 'A.deck', 'BT09-008');
+  const spr = put(st, 'A.deck', 'BT09-009');
   playAdventure(st, mag);
-  ok(st.prompts.length && st.prompts[0].kind === 'chooseMode', 'chooseMode even if neither on field');
-  const opts = st.prompts[0].options || [];
-  ok(!!BoT.chooseModeOptionDeny(st, mag, 'A', opts[0]), 'mode 0 denied');
-  ok(!!BoT.chooseModeOptionDeny(st, mag, 'A', opts[1]), 'mode 1 denied');
-  const fx = apply(st, { type: 'skipPrompt', by: 'A' });
-  ok(!fx.deny, 'skip when both modes denied: ' + (fx.deny || ''));
-  ok(!(st.prompts || []).length, 'prompt cleared');
+  ok(st.prompts.length && st.prompts[0].kind === 'chooseMode', 'chooseMode opened when both on field');
+  const fx = apply(st, { type: 'chooseMode', k: mag, opt: 0, by: 'A' });
+  ok(!fx.deny, 'choose mode 0');
+  apply(st, { type: 'chooseTarget', k: spr, by: 'A' });
+  ok(zone(st, spr) === 'A.avatar', 'sprite summoned');
 }
 
 console.log('ALL PASS');

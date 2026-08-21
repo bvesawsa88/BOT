@@ -3608,9 +3608,12 @@
     walkEffectActions(ab.actions, ac => {
       if (msg) return true;
       if (ac.op === 'chooseMode') {
-        if (!isPlayMagic) {
-          const opts = ac.options || [];
-          if (opts.length && opts.every(opt => !!chooseModeOptionDeny(st, srcK, owner, opt))) {
+        const opts = ac.options || [];
+        if (opts.length && opts.every(opt => !!chooseModeOptionDeny(st, srcK, owner, opt))) {
+          const names = opts.map(o => o.requireOwnNameIncludes).filter(Boolean);
+          if (names.length === opts.length && names.length > 1) {
+            msg = 'ต้องมี ' + names.map(n => `"${n}"`).join(' หรือ ') + ' บนสนาม';
+          } else {
             const firstDeny = opts.map(opt => chooseModeOptionDeny(st, srcK, owner, opt)).find(Boolean);
             msg = firstDeny || 'ไม่มีตัวเลือกที่ใช้ได้ในเทิร์นนี้';
           }
@@ -5229,11 +5232,19 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
       } else if (ac.op === 'chooseMode') {
         const optional = ac.optional !== false;
-        st.prompts.push({ kind: 'chooseMode', src: ctx.src, chooser: ctx.owner, optional, options: ac.options || [] });
-        prompted = true;
-        addLog(st, ctx.owner, optional
-          ? `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ (ข้ามได้ — ยังไม่นับว่าใช้เทค)`
-          : `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ`);
+        const validOpts = (ac.options || []).map((opt, idx) => ({ opt, idx })).filter(o => !chooseModeOptionDeny(st, ctx.src, ctx.owner, o.opt));
+        if (validOpts.length === 1 && !optional) {
+          const single = validOpts[0];
+          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${single.opt.label || 'เลือกปฏิบัติ'}`);
+          claimChooseModeOption(st, ctx.src, single.opt);
+          runActions(st, fx, single.opt.actions || [], ctx);
+        } else {
+          st.prompts.push({ kind: 'chooseMode', src: ctx.src, chooser: ctx.owner, optional, options: ac.options || [] });
+          prompted = true;
+          addLog(st, ctx.owner, optional
+            ? `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ (ข้ามได้ — ยังไม่นับว่าใช้เทค)`
+            : `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกปฏิบัติ`);
+        }
       } else if (ac.op === 'grantBuffSummoned') {
         const sk = ctx.summoned;
         if (sk && st.inst[sk]) {
@@ -8189,6 +8200,23 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         {
           const uniq = uniqueMagicNameDeny(st, owner, a.k);
           if (uniq) return deny(uniq);
+        }
+        if (c.subtype === 'Modification') {
+          const eMod = resolveEffect(c.code, c.name);
+          const ao = eMod && eMod.attachOnly;
+          const avs = (st.zones[owner + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
+          if (!avs.length) {
+            return deny(`ใช้ "${c.name}" ไม่ได้ — ไม่มี Avatar บนสนามให้สวมใส่`);
+          }
+          if (ao) {
+            const hasValidHost = avs.some(id => !attachOnlyDeny(st, c.code, id, c.name));
+            if (!hasValidHost) {
+              if (ao.nameIncludes) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี "${ao.nameIncludes}" บน Avatar Zone ฝ่ายเรา`);
+              if (ao.symbol) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar Symbol ${ao.symbol} บนสนาม`);
+              if (ao.effectIncludes) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar ที่มี "${ao.effectIncludes}" บนสนาม`);
+              return deny(`ใช้ "${c.name}" ไม่ได้ — ไม่มี Avatar ที่สามารถสวมใส่ได้บนสนาม`);
+            }
+          }
         }
         // กติกา: Magic ใช้ได้ประเภทละ 1 ครั้ง/เทิร์น (แม้เทิร์นอีกฝ่าย) · React บังคับเสมอ
         // อย่าให้มีครั้งที่ 2: ใช้เป็นครั้งที่ 2 ได้ แต่ถ้าใช้เป็นใบแรกกินโควต้า (บล็อก React อื่น)
@@ -11475,6 +11503,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const sub = c.subtype || 'Normal';
           if ((sub === 'Normal' || sub === 'React') && !magicStaysOnMagicZone(c))
             return deny(`"${c.name}" ใช้ตอนเล่นจากมือเท่านั้น — ไม่สั่งใช้ซ้ำจาก Magic Zone`);
+          if (sub === 'Modification' && !c.attachedTo)
+            return deny(`"${c.name}" ต้องสวมใส่ให้ Avatar ก่อนจึงจะสั่งใช้ได้`);
         }
         // Land กลางสนาม: สั่งใช้ได้ทั้งสองฝ่าย — คอส/ผลยึดฝ่ายที่กด (by) ไม่ใช่คนที่วาง
         const owner = z === 'land'

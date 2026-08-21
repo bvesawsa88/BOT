@@ -709,8 +709,10 @@
     }
 
     if (mtype === 'Modification') {
-      const hosts = zoneIds(st, side + '.avatar').length;
-      if (!hosts) return -999;
+      const avs = zoneIds(st, side + '.avatar').filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
+      if (!avs.length) return -999;
+      const E = eng();
+      if (E && E.attachOnlyDeny && avs.every(k => !!E.attachOnlyDeny(st, c.code, k, c.name))) return -999;
       score = 32;
       if (arch === ARCH.ISAN || arch === ARCH.FOREST) score += 5;
       // ไม้เกาหลัง / มอดให้เตะไข่ — สำคัญเมื่อศัตรูมีบล็อกเกอร์

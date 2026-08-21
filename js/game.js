@@ -2953,7 +2953,10 @@
       else {
         const land = (st.zones['land'] || []).length;
         score = mtype === 'Land' ? (land ? -5 : 50) : (mtype === 'Modification' ? 30 : 18);
-        if (mtype === 'Modification' && !(st.zones['B.avatar'] || []).length) continue;
+        if (mtype === 'Modification') {
+          const avs = (st.zones['B.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
+          if (!avs.length || !avs.some(id => !BoTEngine.attachOnlyDeny(st, c.code, id, c.name))) continue;
+        }
       }
       ranked.push({ a: { type: 'playMagic', k, by: 'B' }, heur: score });
     }
@@ -5928,6 +5931,22 @@
     if (prClick && (mode === 'solo' || seat === prClick.chooser) && BoTEngine.promptTargetOk(st, d.k)) {
       sendAction({ type: 'chooseTarget', k: d.k, by: mode === 'solo' ? prClick.chooser : undefined });
       return;
+    }
+    // คลิก/แตะ Avatar บนสนามเพื่อเลือกข้อใน chooseMode (เช่น ผจญภัยด้วยกัน: แตะเพมมุ = เลือกข้อ 1, แตะสไปรท์ = เลือกข้อ 2)
+    if (prClick && prClick.kind === 'chooseMode' && !prClick.guessTypes && (mode === 'solo' || seat === prClick.chooser)) {
+      const tz = BoTEngine.zoneOf(st, d.k) || '';
+      if (tz.endsWith('.avatar') && (mode === 'solo' || BoTEngine.ownerOf(st, d.k) === prClick.chooser)) {
+        const clickedCard = st.inst[d.k];
+        const optIdx = (prClick.options || []).findIndex(opt =>
+          opt.requireOwnNameIncludes && BoTEngine.nameMatches(clickedCard, opt.requireOwnNameIncludes)
+          && !BoTEngine.chooseModeOptionDeny(st, prClick.src, prClick.chooser, opt)
+        );
+        if (optIdx !== -1) {
+          closeChoicePopup(true);
+          sendAction({ type: 'chooseMode', k: prClick.src, opt: optIdx, by: mode === 'solo' ? prClick.chooser : undefined });
+          return;
+        }
+      }
     }
     // สวนโจมตี: แตะ React ที่กะพริบเขียวในมือ = ใช้เลย (ดักโจมตี + React ยืดหยุ่น)
     if (st.pending && (BoTEngine.attackReactOptions || BoTEngine.counterOptions)) {

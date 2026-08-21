@@ -232,4 +232,28 @@ function promptDest(st) {
   ok(st.inst[spr].tapped === true, 'sprite stays tapped at own end without buddy');
 }
 
+/* เล่นอาวุธเพมมุจากมือ: ถ้าไม่มีเพมมุบนสนาม ต้องใช้ไม่ได้ (Deny) */
+{
+  const st = emptyState();
+  const gun = put(st, 'A.hand', 'BT09-067');
+  const sword = put(st, 'A.hand', 'BT10-069');
+  
+  // สนามว่าง
+  let fx = apply(st, { type: 'playMagic', k: gun, by: 'A' });
+  ok(!!fx.deny, 'gun without avatar on field denied: ' + fx.deny);
+
+  // มีแค่อวาตาร์ตัวอื่น (เช่น สไปรท์)
+  put(st, 'A.avatar', 'BT09-009');
+  fx = apply(st, { type: 'playMagic', k: gun, by: 'A' });
+  ok(!!fx.deny, 'gun with only sprite denied: ' + fx.deny);
+  fx = apply(st, { type: 'playMagic', k: sword, by: 'A' });
+  ok(!!fx.deny, 'sword with only sprite denied: ' + fx.deny);
+
+  // มีเพมมุ -> เล่นได้
+  put(st, 'A.avatar', 'BT09-008');
+  fx = apply(st, { type: 'playMagic', k: gun, by: 'A' });
+  ok(!fx.deny, 'gun with pemmu on field allowed: ' + (fx.deny || ''));
+  ok(zone(st, gun) === 'A.magic', 'gun in magic zone');
+}
+
 console.log('ALL PASS');
