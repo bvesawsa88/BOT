@@ -101,23 +101,24 @@
   }, false);
 
   // 5. 🛑 DEVTOOLS ANTI-DEBUGGING TRAP
-  // เมื่อมีผู้ใช้เปิด DevTools ดักไว้ ตัวตรวจจับจะหน่วงหรือหยุดการรัน
-  var devtoolsOpen = false;
-  function antiDebugCheck() {
-    var startTime = performance.now();
-    (function() {
-      return false;
-    }['constructor']('debugger')());
-    var diff = performance.now() - startTime;
-    if (diff > 100) {
-      devtoolsOpen = true;
-      console.clear();
-      console.warn('%c⚠️ Security Notice: Unauthorized debugging detected.', 'color:red; font-size:18px; font-weight:bold;');
+  // ทำงานเฉพาะโหมดโปรดักชันภายนอก (ข้าม localhost / local test เพื่อไม่ให้เบราว์เซอร์หรือเครื่องมือค้าง)
+  var isLocal = /^(localhost|127\.0\.0\.1|::1|192\.168\.|10\.|172\.)/i.test(window.location.hostname || '');
+  if (!isLocal) {
+    var devtoolsOpen = false;
+    function antiDebugCheck() {
+      var startTime = performance.now();
+      (function() {
+        return false;
+      }['constructor']('debugger')());
+      var diff = performance.now() - startTime;
+      if (diff > 100) {
+        devtoolsOpen = true;
+        console.clear();
+        console.warn('%c⚠️ Security Notice: Unauthorized debugging detected.', 'color:red; font-size:18px; font-weight:bold;');
+      }
     }
+    setInterval(antiDebugCheck, 4000);
   }
-
-  // รันตรวจจับเป็นระยะ (ไม่กิน CPU)
-  setInterval(antiDebugCheck, 2000);
 
   // 6. 🛡️ CONSOLE COPYRIGHT BANNER
   try {

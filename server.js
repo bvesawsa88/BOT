@@ -1028,17 +1028,19 @@ const server = http.createServer((req, res) => {
 
   let urlPath = req.url.split('?')[0];
 
-  // 🛡️ ป้องกันการเข้าถึงไฟล์และโฟลเดอร์ลับโดยตรง (data, tools, .git, server.js, etc.)
+  // 🛡️ ป้องกันการเข้าถึงไฟล์และโฟลเดอร์ลับโดยตรง (tools, .git, server.js, users.json, etc.)
   const cleanPath = urlPath.replace(/\\/g, '/');
   const forbiddenPatterns = [
-    /^\/data(\/|$)/i,
     /^\/tools(\/|$)/i,
     /^\/\./i,
     /\.env/i,
     /server\.js$/i,
     /download_assets\.js$/i,
     /package(-lock)?\.json$/i,
-    /users\.json$/i
+    /users\.json$/i,
+    /feedback-log\.json$/i,
+    /site-settings\.json$/i,
+    /custom-decks\.json$/i
   ];
   if (forbiddenPatterns.some(pat => pat.test(cleanPath))) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });

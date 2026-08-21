@@ -142,7 +142,7 @@
   }
 
   root.BotUtil = {
-    byId, $, esc, loadScript, loadCss, asset, CACHE_V: V,
+    byId, $, esc, loadScript, loadCss, asset, CACHE_V: DEFAULT_V,
     kwHtml, symHtml, magicHtml, formatEffect, cardMetaHtml, gemPrintColor,
     KW_FILE, SYM_FILE, MAGIC_FILE, KW_FILTER_ORDER
   };
