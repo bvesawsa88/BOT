@@ -2004,8 +2004,9 @@
           },
           "actions": [
             {
-              "op": "attach",
-              "from": "self",
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "permanent",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -2014,27 +2015,10 @@
               }
             }
           ]
-        },
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.attached"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "whileEquipped",
-              "target": {
-                "select": "equippedAvatar"
-              }
-            }
-          ]
         }
       ],
       "parseStatus": "auto",
-      "attachOnly": "Avatar",
-      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
     },
     {
       "code": "BT02-046",
@@ -25069,7 +25053,7 @@
         {
           "keyword": "เซ่นไหว้",
           "trigger": {
-            "on": "activated"
+            "on": "activatedFromHand"
           },
           "cost": [
             {
@@ -25100,7 +25084,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เซ่นไหว้ Avatar Cost≥3 -> ยึด Avatar ศัตรูมาสวม เปลี่ยนเป็น Mod / ออกจากสนามคืนยึด"
     },
     {
       "code": "CC02-046",
@@ -26223,8 +26208,9 @@
           },
           "actions": [
             {
-              "op": "attach",
-              "from": "self",
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "permanent",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -26233,27 +26219,10 @@
               }
             }
           ]
-        },
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.attached"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "whileEquipped",
-              "target": {
-                "select": "equippedAvatar"
-              }
-            }
-          ]
         }
       ],
       "parseStatus": "auto",
-      "attachOnly": "Avatar",
-      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
     },
     {
       "code": "KD01-015",
@@ -30274,8 +30243,9 @@
           },
           "actions": [
             {
-              "op": "attach",
-              "from": "self",
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "permanent",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -30284,27 +30254,10 @@
               }
             }
           ]
-        },
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.attached"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "whileEquipped",
-              "target": {
-                "select": "equippedAvatar"
-              }
-            }
-          ]
         }
       ],
       "parseStatus": "auto",
-      "attachOnly": "Avatar",
-      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
     },
     {
       "code": "ODY1-087",

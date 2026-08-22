@@ -11566,7 +11566,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const z = zoneOf(st, a.k) || '';
         // จากมือ (เมฟิสโต / เพนกวิ้น ฮัท ฯลฯ)
         if (z.endsWith('.hand')) {
-          const abH = abilitiesOf(c.code, 'activatedFromHand', c.name)[0];
+          const abH = abilitiesOf(c.code, 'activatedFromHand', c.name)[0]
+            || (c.type === 'Magic' ? abilitiesOf(c.code, 'activated', c.name)[0] : null);
           if (!abH) return deny(`"${c.name}" ไม่มีสั่งใช้จากมือ`);
           const ownerH = z[0];
           if (strict && isPlayer && ownerH !== by) return deny('สั่งใช้ได้เฉพาะการ์ดฝั่งตัวเอง');

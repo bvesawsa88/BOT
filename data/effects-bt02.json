@@ -935,8 +935,9 @@
           },
           "actions": [
             {
-              "op": "attach",
-              "from": "self",
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "permanent",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -945,27 +946,10 @@
               }
             }
           ]
-        },
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.attached"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "whileEquipped",
-              "target": {
-                "select": "equippedAvatar"
-              }
-            }
-          ]
         }
       ],
       "parseStatus": "auto",
-      "attachOnly": "Avatar",
-      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
     },
     {
       "code": "BT02-046",

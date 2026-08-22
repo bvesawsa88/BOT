@@ -862,7 +862,7 @@
         {
           "keyword": "เซ่นไหว้",
           "trigger": {
-            "on": "activated"
+            "on": "activatedFromHand"
           },
           "cost": [
             {
@@ -893,7 +893,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เซ่นไหว้ Avatar Cost≥3 -> ยึด Avatar ศัตรูมาสวม เปลี่ยนเป็น Mod / ออกจากสนามคืนยึด"
     },
     {
       "code": "CC02-042",

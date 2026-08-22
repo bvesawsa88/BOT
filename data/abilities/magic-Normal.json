@@ -364,6 +364,36 @@
       "parseStatus": "auto"
     },
     {
+      "name": "ความกล้าหาญ",
+      "codes": [
+        "BT02-045",
+        "KD01-014",
+        "ODY1-086"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "permanent",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
+    },
+    {
       "name": "ความจริงงงงงงง",
       "codes": [
         "BT04-047"
@@ -2893,7 +2923,7 @@
         {
           "keyword": "เซ่นไหว้",
           "trigger": {
-            "on": "activated"
+            "on": "activatedFromHand"
           },
           "cost": [
             {
@@ -2924,7 +2954,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เซ่นไหว้ Avatar Cost≥3 -> ยึด Avatar ศัตรูมาสวม เปลี่ยนเป็น Mod / ออกจากสนามคืนยึด"
     },
     {
       "name": "สุดยอดท่าไม้ตายผู้กล้า THE END",
