@@ -97,6 +97,7 @@
       ],
       "abilities": [
         {
+          "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==avatarZone"
@@ -116,7 +117,8 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ / POWER +2 ในเทิร์นคู่แข่ง"
     },
     {
       "name": "กุ่ย",
@@ -737,7 +739,12 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
+              "amountPer": "ownAvatarNameIncludesCount",
+              "nameIncludes": [
+                "ไอ้นัท",
+                "เซอร์นัท"
+              ],
+              "per": 1,
               "duration": "endOfTurn",
               "layer": 4,
               "target": {
@@ -747,7 +754,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เมื่อโจมตี : POWER +1 ตามจำนวน ไอ้นัท/เซอร์นัท ฝ่ายเรา"
     },
     {
       "name": "ชาวบ้านจ้าน",
@@ -946,9 +954,10 @@
         "โล่มนุษย์"
       ],
       "extraColors": [
-        "red"
+        "แดง"
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ / ถูกโจมตี -> ผู้โจมตี POWER -2 / นับว่าเป็นสีแดงด้วย"
     },
     {
       "name": "ไดโนกาฬสินธุ์ - กินรีมิมัส",
@@ -2569,7 +2578,7 @@
               "op": "hellPick",
               "filter": {
                 "type": "Avatar",
-                "color": "blue",
+                "color": "ฟ้า",
                 "nameIncludes": [
                   "อัศวินโต๊ะกลม"
                 ]
@@ -2580,7 +2589,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เมื่อถูกสวม ดาบศักดิ์สิทธิ์ : เซ่นไหว้ 1 ใบ อัญเชิญ อัศวินโต๊ะกลม สีฟ้า จากนรก"
     },
     {
       "name": "มาวิน เซียนเบ็ด",
@@ -3673,7 +3683,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "อัญเชิญจากสอดแนมแล้ว +1/จั่วตามสี — thenIfColor ยังหยาบ"
+      "note": "จุติ : สอดแนม 2 ใบ เรียก อัศวินโต๊ะกลม (แดง = ทั้งหมด POWER +1, ฟ้า = จั่ว 1)"
     },
     {
       "name": "ลิขวิดบอย",
@@ -4505,27 +4515,26 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activatedFromHand"
           },
+          "cost": [
+            {
+              "op": "discardCardsWithGemTotal",
+              "targetGem": 3
+            }
+          ],
           "actions": [
             {
-              "op": "destroy",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "powerMax": 3,
-                "count": 1
-              }
+              "op": "summonSelfFromHand",
+              "setBasePower": 3
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่มี POWER <= 3"
+      "note": "สั่งใช้จากมือ : ทิ้งการ์ดที่มี GEM รวมกันเท่ากับ 3 อัญเชิญลงสนาม POWER ตั้งต้น 3"
     },
     {
       "name": "อามัส มนุษย์ดาว R18",

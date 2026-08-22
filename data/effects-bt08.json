@@ -203,29 +203,31 @@
       "code": "BT08-008",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "activated"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
-          "oncePerTurn": true,
           "actions": [
             {
-              "op": "hellPick",
-              "filter": {
-                "type": "Magic",
-                "subtype": "Normal",
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              },
-              "dest": "hand"
+              "op": "modifyPower",
+              "amountPer": "distinctOwnMagicNameIncludes",
+              "nameIncludes": [
+                "ดาบศักดิ์สิทธิ์"
+              ],
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "กาลาฮัด อัศวินโต๊ะกลมแห่งความกล้าหาญ",
-      "note": "สั่งใช้ : นำ Normal Magic คาถา 1 ใบ จากนรกขึ้นมือ"
+      "note": "มี ดาบศักดิ์สิทธิ์ 2+ ใบใน Magic Zone Cost = 4 / POWER +1 ตามจำนวน ดาบศักดิ์สิทธิ์ ชื่อซ้ำไม่นับ",
+      "costFourIfOwnModMagicMin2": true
     },
     {
       "code": "BT08-009",
@@ -534,7 +536,7 @@
               "op": "hellPick",
               "filter": {
                 "type": "Avatar",
-                "color": "blue",
+                "color": "ฟ้า",
                 "nameIncludes": [
                   "อัศวินโต๊ะกลม"
                 ]
@@ -546,7 +548,8 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "มอเดรด อัศวินโต๊ะกลมแห่งการทรยศ"
+      "name": "มอเดรด อัศวินโต๊ะกลมแห่งการทรยศ",
+      "note": "เมื่อถูกสวม ดาบศักดิ์สิทธิ์ : เซ่นไหว้ 1 ใบ อัญเชิญ อัศวินโต๊ะกลม สีฟ้า จากนรก"
     },
     {
       "code": "BT08-018",
@@ -1793,12 +1796,9 @@
       ],
       "parseStatus": "auto",
       "name": "ดาบศักดิ์สิทธิ์ คาเรนต์",
-      "attachOnly": {
-        "nameIncludes": [
-          "อัศวินโต๊ะกลม"
-        ]
-      },
-      "note": "สวม อัศวินโต๊ะกลม / ทำลายศัตรูจากการต่อสู้ -> ทำลาย Magic ศัตรู / สวม มอเดรด ได้ เตะไข่ / สวมจากนรกได้"
+      "attachOnly": "Avatar",
+      "note": "สวม อัศวินโต๊ะกลม / ทำลายศัตรูจากการต่อสู้ -> ทำลาย Magic ศัตรู / สวม มอเดรด ได้ เตะไข่ / สวมจากนรกได้",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม"
     },
     {
       "code": "BT08-060",
@@ -1819,10 +1819,31 @@
               }
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อาเธอร์"
+                ]
+              }
+            }
+          ]
         }
       ],
       "parseStatus": "auto",
-      "name": "ดาบศักดิ์สิทธิ์ เอกซ์คาลิเบอร์"
+      "name": "ดาบศักดิ์สิทธิ์ เอกซ์คาลิเบอร์",
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อาเธอร์",
+      "protectReplace": true,
+      "note": "สวม อาเธอร์ / POWER +2 / ป้องกันการออกจากสนามแทน อาเธอร์ / สวมจากนรกได้",
+      "protectReplaceIfHostNameIncludes": "อาเธอร์"
     },
     {
       "code": "BT08-061",

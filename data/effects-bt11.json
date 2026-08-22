@@ -56,22 +56,56 @@
           },
           "actions": [
             {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ไอ้นัท"
+                ]
+              },
+              "dest": "attachToSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "enemyActivateAbility",
+            "if": "onlyTalingchanAvatarsOnField"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "exileAttachedCards",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "negateCardAbility"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
               "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
+              "amountPer": "attachedCardsCount",
+              "per": 1,
               "layer": 3,
               "target": {
-                "select": "choose",
-                "type": "Construct",
-                "side": "own",
-                "count": 1
+                "select": "self"
               }
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : เลือก Construct ฝ่ายเรา 1 ใบ POWER +2"
+      "note": "จุติ : นำ ไอ้นัท จากนรกมาสวม / ยกเลิกเอฟเฟกต์ศัตรูโดยเนรเทศการ์ดที่สวม 2 ใบ / POWER +1 ตามจำนวนการ์ดที่สวม"
     },
     {
       "code": "BT11-004",
@@ -668,7 +702,12 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
+              "amountPer": "ownAvatarNameIncludesCount",
+              "nameIncludes": [
+                "ไอ้นัท",
+                "เซอร์นัท"
+              ],
+              "per": 1,
               "duration": "endOfTurn",
               "layer": 4,
               "target": {
@@ -678,7 +717,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เมื่อโจมตี : POWER +1 ตามจำนวน ไอ้นัท/เซอร์นัท ฝ่ายเรา"
     },
     {
       "code": "BT11-019",
@@ -1282,7 +1322,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : สอดแนม 5 ใบ เอา ไอ้นัท/เซอร์นัท/อัศวินตลิ่งชัน ขึ้นมือ",
+      "note": "จุติ : สอดแนม 5 ใบ เอา ไอ้นัท/เซอร์นัท/อัศวินตลิ่งชัน ขึ้นมือ / มีชื่อ เลอร์ติ๊ก เด็กไม่ชอบแดรคคูลา ด้วย",
       "nameAliases": [
         "เลอร์ติ๊ก เด็กไม่ชอบแดรคคูลา"
       ]
@@ -2345,22 +2385,31 @@
         {
           "trigger": {
             "on": "static",
-            "if": "self.attached"
+            "if": "self.attachedTo:เซอร์นัท"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "layer": 3,
               "target": {
-                "select": "equippedAvatar"
+                "select": "allOther",
+                "side": "own",
+                "nameIncludes": [
+                  "อัศวินตลิ่งชัน"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": [
+        "ไอ้นัท",
+        "เซอร์นัท"
+      ],
+      "note": "สวม ไอ้นัท/เซอร์นัท (ถ้าสวม เซอร์นัท: อัศวินตลิ่งชัน อื่นทุกใบ POWER +1)"
     },
     {
       "code": "BT11-065",

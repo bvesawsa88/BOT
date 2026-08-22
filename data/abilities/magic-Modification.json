@@ -493,11 +493,8 @@
           ]
         }
       ],
-      "attachOnly": {
-        "nameIncludes": [
-          "อัศวินโต๊ะกลม"
-        ]
-      },
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
       "parseStatus": "auto",
       "note": "สวม อัศวินโต๊ะกลม / ไม่ถูกทำลายด้วยผลของ Magic ถ้าตื่นอยู่ / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod"
     },
@@ -552,11 +549,8 @@
           ]
         }
       ],
-      "attachOnly": {
-        "nameIncludes": [
-          "อัศวินโต๊ะกลม"
-        ]
-      },
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
       "parseStatus": "auto",
       "note": "สวม อัศวินโต๊ะกลม / ทำลายศัตรูจากการต่อสู้ -> ทำลาย Magic ศัตรู / สวม มอเดรด ได้ เตะไข่ / สวมจากนรกได้"
     },
@@ -575,6 +569,7 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "duration": "whileEquipped",
               "layer": 2,
               "target": {
                 "select": "equippedAvatar"
@@ -584,34 +579,33 @@
         },
         {
           "trigger": {
-            "on": "activated"
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
           },
-          "fromHell": true,
-          "requireNoModUsed": true,
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "mill",
-              "count": 1
-            },
-            {
-              "op": "attachSelfFromHell",
-              "filter": {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
                 "nameIncludes": [
                   "อัศวินโต๊ะกลม"
                 ]
               }
-            },
-            {
-              "op": "markModUsed"
             }
           ]
         }
       ],
-      "attachOnly": {
-        "nameIncludes": "อัศวินโต๊ะกลม"
-      },
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
+      "hostBlockReactUntilCombatEnd": true,
+      "hostBlockHumanShield": true,
       "parseStatus": "auto",
-      "note": "+1 และกันโล่มนุษย์ตอนโจมตี · ธรณีสูบจากนรกมาสวมยัง partial"
+      "note": "สวม อัศวินโต๊ะกลม / POWER +1 / ห้ามใช้โล่มนุษย์ป้องกัน / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod"
     },
     {
       "name": "ดาบศักดิ์สิทธิ์ เอกซ์คาลิเบอร์",
@@ -635,9 +629,30 @@
               }
             }
           ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อาเธอร์"
+                ]
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "auto"
+      "protectReplace": true,
+      "protectReplaceIfHostNameIncludes": "อาเธอร์",
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อาเธอร์",
+      "parseStatus": "auto",
+      "note": "สวม อาเธอร์ / POWER +2 / ป้องกันการออกจากสนามแทน อาเธอร์ / สวมจากนรกได้"
     },
     {
       "name": "ดาบแห่งแสงอรุณ & นัทคาลิเบอร์",
@@ -648,22 +663,31 @@
         {
           "trigger": {
             "on": "static",
-            "if": "self.attached"
+            "if": "self.attachedTo:เซอร์นัท"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileEquipped",
-              "layer": 2,
+              "layer": 3,
               "target": {
-                "select": "equippedAvatar"
+                "select": "allOther",
+                "side": "own",
+                "nameIncludes": [
+                  "อัศวินตลิ่งชัน"
+                ]
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": [
+        "ไอ้นัท",
+        "เซอร์นัท"
+      ],
+      "parseStatus": "auto",
+      "note": "สวม ไอ้นัท/เซอร์นัท (ถ้าสวม เซอร์นัท: อัศวินตลิ่งชัน อื่นทุกใบ POWER +1)"
     },
     {
       "name": "ตรีศูล ไตรตัน",

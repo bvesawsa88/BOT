@@ -110,6 +110,7 @@
             {
               "op": "deckPick",
               "filter": {
+                "type": "Magic",
                 "nameIncludes": [
                   "ดาบศักดิ์สิทธิ์"
                 ]
@@ -120,11 +121,13 @@
             {
               "op": "hellPick",
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "อัศวินโต๊ะกลม"
                 ]
               },
-              "dest": "deckTop"
+              "dest": "deckTop",
+              "optional": true
             },
             {
               "op": "modifyPower",
@@ -138,7 +141,8 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "เบดิเวียร์ อัศวินโต๊ะกลมแห่งความภักดี"
+      "name": "เบดิเวียร์ อัศวินโต๊ะกลมแห่งความภักดี",
+      "note": "จุติ : นำการ์ด Magic ดาบศักดิ์สิทธิ์ 1 ใบจาก Deck ลงนรก สับ Deck แล้วนำ Avatar อัศวินโต๊ะกลม 1 ใบจากนรกไว้บนสุดของ Deck และ POWER +1"
     },
     {
       "code": "BT05-004",
@@ -151,9 +155,10 @@
           },
           "actions": [
             {
-              "op": "destroyCard",
+              "op": "chooseDestroy",
               "target": {
-                "select": "oppAnyCard",
+                "select": "choose",
+                "side": "enemy",
                 "count": 1
               }
             }
@@ -167,7 +172,7 @@
           },
           "actions": [
             {
-              "op": "grantKeywordSelf",
+              "op": "grantKeywordToHost",
               "keyword": "สามัคคี"
             }
           ]
@@ -491,12 +496,13 @@
       ],
       "parseStatus": "auto",
       "name": "ลานเซลอต อัศวินโต๊ะกลมแห่งการปฏิวัติ",
-      "note": "อัญเชิญจากสอดแนมแล้ว +1/จั่วตามสี — thenIfColor ยังหยาบ"
+      "note": "จุติ : สอดแนม 2 ใบ เรียก อัศวินโต๊ะกลม (แดง = ทั้งหมด POWER +1, ฟ้า = จั่ว 1)"
     },
     {
       "code": "BT05-015",
       "abilities": [
         {
+          "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==avatarZone"
@@ -518,7 +524,8 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "powerPlusOnOppTurn": 2
+      "powerPlusOnOppTurn": 2,
+      "note": "โล่มนุษย์ / POWER +2 ในเทิร์นคู่แข่ง"
     },
     {
       "code": "BT05-016",
@@ -1865,6 +1872,7 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "duration": "whileEquipped",
               "layer": 2,
               "target": {
                 "select": "equippedAvatar"
@@ -1874,36 +1882,34 @@
         },
         {
           "trigger": {
-            "on": "activated"
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
           },
-          "fromHell": true,
-          "requireNoModUsed": true,
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "mill",
-              "count": 1
-            },
-            {
-              "op": "attachSelfFromHell",
-              "filter": {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
                 "nameIncludes": [
                   "อัศวินโต๊ะกลม"
                 ]
               }
-            },
-            {
-              "op": "markModUsed"
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "ดาบศักดิ์สิทธิ์ อาลอนไดร์ท",
-      "attachOnly": {
-        "nameIncludes": "อัศวินโต๊ะกลม"
-      },
+      "attachOnly": "Avatar",
       "hostBlockHumanShield": true,
-      "note": "+1 และกันโล่มนุษย์ตอนโจมตี · ธรณีสูบจากนรกมาสวมยัง partial"
+      "note": "สวม อัศวินโต๊ะกลม / POWER +1 / ห้ามใช้โล่มนุษย์ป้องกัน / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
+      "hostBlockReactUntilCombatEnd": true
     },
     {
       "code": "BT05-065",

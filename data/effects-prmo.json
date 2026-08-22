@@ -234,6 +234,7 @@
             {
               "op": "deckPick",
               "filter": {
+                "type": "Magic",
                 "nameIncludes": [
                   "ดาบศักดิ์สิทธิ์"
                 ]
@@ -244,11 +245,13 @@
             {
               "op": "hellPick",
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "อัศวินโต๊ะกลม"
                 ]
               },
-              "dest": "deckTop"
+              "dest": "deckTop",
+              "optional": true
             },
             {
               "op": "modifyPower",
@@ -261,7 +264,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "จุติ : นำการ์ด Magic ดาบศักดิ์สิทธิ์ 1 ใบจาก Deck ลงนรก สับ Deck แล้วนำ Avatar อัศวินโต๊ะกลม 1 ใบจากนรกไว้บนสุดของ Deck และ POWER +1"
     },
     {
       "code": "PRMO-022",
@@ -2320,27 +2324,26 @@
       "name": "อัศวินแบงค์",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activatedFromHand"
           },
+          "cost": [
+            {
+              "op": "discardCardsWithGemTotal",
+              "targetGem": 3
+            }
+          ],
           "actions": [
             {
-              "op": "destroy",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "powerMax": 3,
-                "count": 1
-              }
+              "op": "summonSelfFromHand",
+              "setBasePower": 3
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่มี POWER <= 3"
+      "note": "สั่งใช้จากมือ : ทิ้งการ์ดที่มี GEM รวมกันเท่ากับ 3 อัญเชิญลงสนาม POWER ตั้งต้น 3"
     },
     {
       "code": "PRMO-061",

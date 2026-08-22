@@ -138,40 +138,77 @@
             "on": "summoned",
             "if": "paidCost"
           },
+          "cost": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "ดาบศักดิ์สิทธิ์"
+                ]
+              },
+              "count": 2,
+              "dest": "hell",
+              "shuffleAfter": true
+            }
+          ],
           "actions": [
             {
-              "op": "hellPick",
+              "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "symbol": "เทพ"
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
               },
-              "dest": "hand"
+              "dest": "avatar",
+              "paidCost": false,
+              "restrictSameNameAttackAndEffectUntilEndOfTurn": true,
+              "shuffleAfter": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "อาเธอร์ ราชาแห่งอัศวินโต๊ะกลม",
-      "note": "จุติ : เลือก Avatar {symbol เทพ} 1 ใบ ในนรกเรา ขึ้นมือ"
+      "note": "จุติ : ส่ง ดาบศักดิ์สิทธิ์ 2 ใบจาก Deck ลงนรก แล้วเรียก อัศวินโต๊ะกลม 1 ใบจาก Deck (ห้ามโจมตี/ใช้ผลตัวชื่อซ้ำจนจบเทิร์น)",
+      "uniqueOnField": true
     },
     {
       "code": "BT06-007",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "targetedByAttack",
+            "if": "oppTurn"
           },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "sendMagicOnFieldToHell",
+              "filter": {
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "ดาบศักดิ์สิทธิ์"
+                ]
+              },
+              "count": 1
+            }
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amountPer": "otherOwnAvatarSymbol",
-              "symbol": "หมี",
-              "per": 1,
-              "layer": 3,
+              "amount": 2,
+              "duration": "endOfTurn",
               "target": {
-                "select": "self"
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
               }
             }
           ]
@@ -179,7 +216,7 @@
       ],
       "parseStatus": "auto",
       "name": "เคย์ อัศวินโต๊ะกลมแห่งความหลักแหลม",
-      "note": "ต่อเนื่อง POWER +1 ตามจำนวน Avatar {symbol หมี} ใบอื่นในสนามฝ่ายเรา"
+      "note": "ในเทิร์นศัตรูเมื่ออัศวินถูกโจมตี ส่ง ดาบศักดิ์สิทธิ์ ลงนรก : อัศวินโต๊ะกลม POWER +2"
     },
     {
       "code": "BT06-008",
@@ -1629,12 +1666,9 @@
       ],
       "parseStatus": "auto",
       "name": "ดาบศักดิ์สิทธิ์ แกลลาติน",
-      "attachOnly": {
-        "nameIncludes": [
-          "อัศวินโต๊ะกลม"
-        ]
-      },
-      "note": "สวม อัศวินโต๊ะกลม / ไม่ถูกทำลายด้วยผลของ Magic ถ้าตื่นอยู่ / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod"
+      "attachOnly": "Avatar",
+      "note": "สวม อัศวินโต๊ะกลม / ไม่ถูกทำลายด้วยผลของ Magic ถ้าตื่นอยู่ / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม"
     },
     {
       "code": "BT06-059",

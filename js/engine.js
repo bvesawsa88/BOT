@@ -2192,6 +2192,17 @@
       return c && c.faceUp !== false && needles.some(n => n && nameMatches(c, n));
     }).length;
   }
+  function countDistinctOwnMagicNameIncludes(st, owner, needle) {
+    const needles = Array.isArray(needle) ? needle : [needle];
+    const seen = new Set();
+    (st.zones[owner + '.magic'] || []).forEach(id => {
+      const c = st.inst[id];
+      if (c && c.faceUp !== false && needles.some(n => n && nameMatches(c, n))) {
+        seen.add(c.name);
+      }
+    });
+    return seen.size;
+  }
   function countOwnHellType(st, owner, type) {
     return (st.zones[owner + '.hell'] || []).filter(id => st.inst[id] && st.inst[id].type === type).length;
   }
@@ -2862,6 +2873,17 @@
         if (names.size >= (cfg.min || 2)) return 0;
       }
     }
+    if (e0 && e0.costFourIfOwnModMagicMin2) {
+      const z0 = zoneOf(st, k) || '';
+      const owner = z0[0];
+      if (owner) {
+        const count = (st.zones[owner + '.magic'] || []).filter(id => {
+          const m = st.inst[id];
+          return m && m.subtype === 'Modification' && nameMatches(m, 'ดาบศักดิ์สิทธิ์');
+        }).length;
+        if (count >= 2) return 4;
+      }
+    }
     let cost = (+c.cost || 0) + (+c.costDelta || 0);
     const z = zoneOf(st, k) || '';
     if (z.endsWith('.hand') && (st.handCostMods || []).length) {
@@ -3174,6 +3196,9 @@
               } else if (ac.amountPer === 'ownMagicNameIncludes') {
                 const needle = ac.nameIncludes || ac.nameIncludesAny || '';
                 amt = (ac.per || 1) * countOwnMagicNameIncludes(st, side, needle);
+              } else if (ac.amountPer === 'distinctOwnMagicNameIncludes') {
+                const needle = ac.nameIncludes || ac.nameIncludesAny || '';
+                amt = (ac.per || 1) * countDistinctOwnMagicNameIncludes(st, side, needle);
               }
               else amt = ac.amount || 0;
             }
