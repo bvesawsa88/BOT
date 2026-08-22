@@ -505,13 +505,14 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==avatarZone,oppTurn"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "oppTurn",
+              "duration": "whileOnField",
+              "layer": 3,
               "target": {
                 "select": "self"
               }

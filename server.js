@@ -1251,8 +1251,7 @@ const server = http.createServer((req, res) => {
     /package(-lock)?\.json$/i,
     /users\.json$/i,
     /feedback-log\.json$/i,
-    /site-settings\.json$/i,
-    /custom-decks\.json$/i
+    /site-settings\.json$/i
   ];
   if (forbiddenPatterns.some(pat => pat.test(cleanPath))) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });

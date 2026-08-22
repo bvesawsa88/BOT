@@ -111,12 +111,13 @@ const PATCHES = {
     abilities: [
       {
         keyword: 'ต่อเนื่อง',
-        trigger: { on: 'static', if: 'self.zone==avatarZone' },
+        trigger: { on: 'static', if: 'self.zone==avatarZone,oppTurn' },
         actions: [
           {
             op: 'modifyPower',
             amount: 2,
-            duration: 'oppTurn',
+            duration: 'whileOnField',
+            layer: 3,
             target: { select: 'self' }
           }
         ]
@@ -159,16 +160,16 @@ const PATCHES = {
       {
         keyword: 'จุติ',
         trigger: { on: 'summoned', if: 'paidCost' },
-        cost: [
+        actions: [
           {
             op: 'deckPick',
             filter: { type: 'Magic', subtype: 'Modification', nameIncludes: ['ดาบศักดิ์สิทธิ์'] },
             count: 2,
+            multiMax: 2,
+            multiExact: 2,
             dest: 'hell',
             shuffleAfter: true
-          }
-        ],
-        actions: [
+          },
           {
             op: 'deckPick',
             filter: { type: 'Avatar', nameIncludes: ['อัศวินโต๊ะกลม'] },

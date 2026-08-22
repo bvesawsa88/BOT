@@ -162,5 +162,83 @@ test('BT08-008 Galahad cost becomes 4 when 2 Holy Swords in Magic Zone', () => {
   if (reducedCost !== 4) throw new Error(`Cost with 2 Holy Swords should be 4, got ${reducedCost}`);
 });
 
+// Test 9: Gawain (BT05-015) POWER +2 in opponent turn
+test('BT05-015 Gawain gets POWER +2 only in opponent turn', () => {
+  const st = emptyState();
+  const gawain = put(st, 'A.avatar', 'BT05-015');
+
+  st.active = 'A'; // Own turn
+  const ownPower = BoT.effPower(st, gawain);
+  if (ownPower !== 4) throw new Error(`Own turn power should be 4, got ${ownPower}`);
+
+  st.active = 'B'; // Opponent turn
+  const oppPower = BoT.effPower(st, gawain);
+  if (oppPower !== 6) throw new Error(`Opponent turn power should be 6, got ${oppPower}`);
+});
+
+// Test 10: Activating Holy Swords (BT05-064, BT06-058, BT08-059, BT08-060) from hell
+test('Holy Swords can be activated from hell and attach to valid Avatar', () => {
+  ['BT05-064', 'BT06-058', 'BT08-059', 'BT08-060'].forEach(code => {
+    const st = emptyState();
+    const arthur = put(st, 'A.avatar', 'BT06-006'); // Arthur (Round Table Knight)
+    put(st, 'A.deck', 'SD01-001'); // Deck card
+    const sword = put(st, 'A.hell', code);
+
+    const actRes = BoT.applyAction(st, { type: 'activateAbility', k: sword, by: 'A' });
+    if (!st.prompts.length) throw new Error(`Activating ${code} from hell did not generate target prompt`);
+
+    const p = st.prompts[0];
+    if (p.dest !== 'attachTo' || p.attachMod !== sword) {
+      throw new Error(`Invalid prompt created for ${code} from hell`);
+    }
+
+    const chooseRes = BoT.applyAction(st, { type: 'chooseTarget', k: arthur, by: 'A' });
+    if (BoT.zoneOf(st, sword) !== 'A.magic') {
+      throw new Error(`${code} failed to move to A.magic after attaching from hell`);
+    }
+    if (st.inst[sword].attachedTo !== arthur) {
+      throw new Error(`${code} failed to set attachedTo to ${arthur}`);
+    }
+  });
+});
+
+// Test 11: BT06-006 Arthur Juti sends 2 Holy Swords to hell first, then summons Knight from deck
+test('BT06-006 Arthur Juti prompts 2 Holy Swords to hell first, then summons Knight', () => {
+  const st = emptyState();
+  const arthur = put(st, 'A.hand', 'BT06-006');
+  const s1 = put(st, 'A.deck', 'BT05-064'); // Alondite
+  const s2 = put(st, 'A.deck', 'BT06-058'); // Galatine
+  const rtk = put(st, 'A.deck', 'BT05-003'); // Bedivere
+
+  // Gems for cost (4 copies of BT05-003 = 8 Red gems)
+  const payGems = [];
+  for (let i = 0; i < 4; i++) payGems.push(put(st, 'A.hand', 'BT05-003'));
+  for (let i = 0; i < 5; i++) put(st, 'B.deck', 'SD01-001');
+
+  BoT.applyAction(st, { type: 'summon', k: arthur, by: 'A', to: 'A.avatar', payIds: payGems });
+  if (!st.prompts.length || st.prompts[0].dest !== 'hell') {
+    throw new Error('Arthur Juti should prompt to send Holy Swords to hell first');
+  }
+
+  // Pick 1st sword
+  BoT.applyAction(st, { type: 'chooseTarget', k: s1, by: 'A' });
+  // Pick 2nd sword
+  BoT.applyAction(st, { type: 'chooseTarget', k: s2, by: 'A' });
+
+  if (!st.prompts.length || st.prompts[0].dest !== 'avatar') {
+    throw new Error('Arthur Juti should prompt to summon Round Table Knight after sending Holy Swords to hell');
+  }
+
+  // Pick Bedivere to avatar
+  BoT.applyAction(st, { type: 'chooseTarget', k: rtk, by: 'A' });
+
+  if (BoT.zoneOf(st, s1) !== 'A.hell' || BoT.zoneOf(st, s2) !== 'A.hell') {
+    throw new Error('Holy Swords were not sent to hell');
+  }
+  if (BoT.zoneOf(st, rtk) !== 'A.avatar') {
+    throw new Error('Round Table Knight was not summoned to avatar zone');
+  }
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed.`);
 if (failed > 0) process.exit(1);

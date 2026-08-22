@@ -606,6 +606,8 @@
     }
     sv[name] = { main: DB.deck.main, life: DB.deck.life };
     CardDB.saveDecks(sv);
+    if (typeof window.fillDeckSelect === 'function') window.fillDeckSelect();
+    if (typeof window.fillMenuDeckSelects === 'function') window.fillMenuDeckSelects();
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }
     byId('dbName').value = name;
     DK.sel = { kind: 'saved', id: name };
@@ -977,6 +979,8 @@
           DK.sel = { kind: 'saved', id: it.name };
         }
         try { localStorage.setItem('bot_active_deck', key); } catch (err) { }
+        if (typeof window.fillDeckSelect === 'function') window.fillDeckSelect();
+        if (typeof window.fillMenuDeckSelects === 'function') window.fillMenuDeckSelects();
         renderDeckList();
         return;
       }
@@ -986,6 +990,8 @@
         delete sv[it.id];
         CardDB.saveDecks(sv);
         try { if (localStorage.getItem('bot_active_deck') === it.id) localStorage.removeItem('bot_active_deck'); } catch (err) { }
+        if (typeof window.fillDeckSelect === 'function') window.fillDeckSelect();
+        if (typeof window.fillMenuDeckSelects === 'function') window.fillMenuDeckSelects();
         DK.sel = pickDefaultSel();
         renderDeckList();
       }

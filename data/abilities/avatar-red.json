@@ -4907,7 +4907,7 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "cost": [
+          "actions": [
             {
               "op": "deckPick",
               "filter": {
@@ -4918,11 +4918,11 @@
                 ]
               },
               "count": 2,
+              "multiMax": 2,
+              "multiExact": 2,
               "dest": "hell",
               "shuffleAfter": true
-            }
-          ],
-          "actions": [
+            },
             {
               "op": "deckPick",
               "filter": {

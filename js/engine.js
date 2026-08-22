@@ -3073,18 +3073,19 @@
         const sz = zoneOf(st, src) || '';
         abil(st, src, 'static').forEach(ab => {
           const cond = (ab.trigger && ab.trigger.if) || '';
-          if (cond === 'self.zone==avatarZone' && !sz.endsWith('.avatar')) return;
-          if ((cond === 'self.zone==landZone' || cond === 'self.zone==land') && sz !== 'land') return;
-          if (cond === 'self.zone==construct' && !sz.endsWith('.construct')) return;
-          if ((cond === 'self.zone==magicZone' || cond === 'self.zone==magic') && !sz.endsWith('.magic')) return;
+          if (cond.includes('self.zone==avatarZone') && !sz.endsWith('.avatar')) return;
+          if ((cond.includes('self.zone==landZone') || cond.includes('self.zone==land')) && sz !== 'land') return;
+          if (cond.includes('self.zone==construct') && !sz.endsWith('.construct')) return;
+          if ((cond.includes('self.zone==magicZone') || cond.includes('self.zone==magic')) && !sz.endsWith('.magic')) return;
           if (ab.onlyBattlePhase && st.phase !== 'Battle') return;
-          if (cond === 'battlePhase' && st.phase !== 'Battle') return;
+          if (cond.includes('battlePhase') && st.phase !== 'Battle') return;
           if (ab.requireLandNameIncludes) {
             const landOk = (st.zones['land'] || []).some(id => st.inst[id] && st.inst[id].faceUp && nameMatches(st.inst[id], ab.requireLandNameIncludes));
             if (!landOk) return;
           }
           const srcOwn = sz === 'land' ? landSharedUser(side, landControllerOf(st, src, side)) : (sz[0] === 'A' || sz[0] === 'B' ? sz[0] : side);
-          if (ab.onlyOwnTurn && st.active !== srcOwn) return;
+          if ((ab.onlyOwnTurn || cond.includes('ownTurn')) && st.active !== srcOwn) return;
+          if ((ab.onlyOppTurn || cond.includes('oppTurn')) && st.active === srcOwn) return;
           if (ab.requireOtherAvatar) {
             const hasOther = ['A', 'B'].some(s => (st.zones[s + '.avatar'] || []).some(id => id !== src && st.inst[id]));
             if (!hasOther) return;
@@ -5059,11 +5060,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เปลี่ยนเป้าการโจมตีมาที่ตัวเอง`);
           refreshOnFightBuffs(st, st.pending.atk, ctx.src);
         }
-      } else if (ac.op === 'attachSelfFromHell') {
+      } else if (ac.op === 'attachSelfFromHell' || ac.op === 'attachFromHellToAvatar') {
         const z = zoneOf(st, ctx.src) || '';
         if (!z.endsWith('.hell')) addLog(st, 'S', `ดาบ: ไม่อยู่นรก`);
         else {
-          const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || {}, dest: 'attachTo', attachMod: ctx.src, optional: false };
+          const filt = ac.targetFilter || ac.filter || {};
+          const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: filt, dest: 'attachTo', attachMod: ctx.src, optional: false };
           if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
           else addLog(st, 'S', `ไม่มีอัศวินให้สวมดาบ`);
         }
@@ -6595,7 +6597,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           scheduleDestroyAfterOppTurn: !!ac.scheduleDestroyAfterOppTurn, thenIfColor: ac.thenIfColor || null,
           thenIfFound: ac.thenIfFound || null, thenIfExactName: ac.thenIfExactName || null,
           autoPickThenName: !!ac.autoPickThenName, autoPickOnly: !!ac.autoPickOnly,
-          multiMax: ac.multiMax || null, multiGot: 0,
+          multiMax: ac.multiMax || null, multiExact: ac.multiExact || null, multiGot: 0,
           costSumMax: ac.costSumMax != null ? ac.costSumMax : null, costGot: 0,
           summonedByAvatar: (st.inst[ctx.src] && st.inst[ctx.src].type === 'Avatar') ? st.inst[ctx.src] : null,
           then: ac.then || null
@@ -7301,7 +7303,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     if (!modK || st._pendingModMark.from === modK) delete st._pendingModMark;
   }
   function actionsAttachSelf(actions) {
-    return (actions || []).some(ac => ac && ac.op === 'attach' && (ac.from === 'self' || !ac.from));
+    return (actions || []).some(ac => ac && (
+      (ac.op === 'attach' && (ac.from === 'self' || !ac.from)) ||
+      ac.op === 'attachSelfFromHell' ||
+      ac.op === 'attachFromHellToAvatar'
+    ));
   }
   /* จุติ/เอฟเฟกต์ตอนอัญเชิญ — เรียกหลัง React ดักอัญเชิญ (อุบัติเหตุ) จบ; จุติยังทำงานแม้โดนทำลายแล้ว */
   function runAvatarSummonedAbilities(st, fx, k, owner, opts) {
@@ -9544,11 +9550,20 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             fx.snd = 'place';
           } else if (p.dest === 'hell') {
             doMove(st, a.k, p.chooser + '.hell', null, fx);
-            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ส่ง ${nameOf(st, a.k)} ลงนรก`);
-            if (p.shuffleAfter) {
-              seededShuffle(st.zones[p.chooser + '.deck'] || [], rng);
-              addLog(st, p.chooser, 'สับเด็ค');
-              syncHeimdall(st);
+            p.multiGot = (p.multiGot || 0) + 1;
+            const targetNeed = p.multiExact || p.multiMax || 1;
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ส่ง ${nameOf(st, a.k)} ลงนรก${targetNeed > 1 ? ` (${p.multiGot}/${targetNeed})` : ''}`);
+            if (p.multiGot < targetNeed && promptCandidates(st, p).length) {
+              st.prompts.unshift(p);
+            } else {
+              if (p.shuffleAfter) {
+                seededShuffle(st.zones[p.chooser + '.deck'] || [], rng);
+                addLog(st, p.chooser, 'สับเด็ค');
+                syncHeimdall(st);
+              }
+              if (p.then && p.then.length) {
+                runActions(st, fx, p.then, { src: p.src, owner: p.chooser, rng, toHellAfter: p.srcToHell });
+              }
             }
           } else if (p.dest === 'magic') {
             const prevOwn = ownerOf(st, a.k);
@@ -11684,9 +11699,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               return deny(`"${c.name}" สั่งใช้จากนรกไปแล้วในเทิร์นนี้`);
             const costsX = normalizeAbilityCost(ab.cost) || (Array.isArray(ab.cost) ? ab.cost : null);
             const markOrDeferMod = () => {
-              if (!ab.countsAsModification) return;
-              if (actionsAttachSelf(ab.actions)) beginDeferredModUse(st, ownerH, a.k);
-              else markMagicTypeUsed(st, ownerH, 'Modification');
+              if (c.subtype === 'Modification' || ab.countsAsModification || (e && e.attachOnly)) {
+                if (actionsAttachSelf(ab.actions)) beginDeferredModUse(st, ownerH, a.k);
+                else markMagicTypeUsed(st, ownerH, 'Modification');
+              }
             };
             if (costsX && costsX[0] && costsX[0].op === 'exileSelf') {
               doMove(st, a.k, ownerH + '.dark', null, fx);

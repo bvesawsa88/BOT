@@ -5833,13 +5833,14 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==avatarZone,oppTurn"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "oppTurn",
+              "duration": "whileOnField",
+              "layer": 3,
               "target": {
                 "select": "self"
               }
@@ -7634,7 +7635,7 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "cost": [
+          "actions": [
             {
               "op": "deckPick",
               "filter": {
@@ -7645,11 +7646,11 @@
                 ]
               },
               "count": 2,
+              "multiMax": 2,
+              "multiExact": 2,
               "dest": "hell",
               "shuffleAfter": true
-            }
-          ],
-          "actions": [
+            },
             {
               "op": "deckPick",
               "filter": {

@@ -6731,6 +6731,8 @@
       if (typeof window.openDeckList === 'function' && byId('decks') && !byId('decks').classList.contains('hidden')) {
         window.openDeckList();
       }
+      fillDeckSelect();
+      fillMenuDeckSelects();
     } catch (e) { }
   }
   async function checkAuth() {
@@ -7547,6 +7549,10 @@
     byId('lobbyMsg').textContent = 'กำลังเข้าห้อง ' + autoCode.toUpperCase() + '…';
     ensurePlayReady().then(() => joinLanRoom(autoCode)).catch(() => joinLanRoom(autoCode));
   }
+
+  window.fillDeckSelect = fillDeckSelect;
+  window.fillMenuDeckSelects = fillMenuDeckSelects;
+  window.syncCloudDecks = syncCloudDecks;
 
   // บันทึกก่อนปิดแท็บ/รีเฟรช
   window.addEventListener('beforeunload', () => persistUI(true));
