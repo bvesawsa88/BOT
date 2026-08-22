@@ -326,22 +326,37 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "endOfTurn",
+              "op": "attach",
+              "from": "self",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
                 "side": "own",
                 "count": 1
-              },
-              "destroyAtEnd": true
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT02-045"
+      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่",
+      "attachOnly": "Avatar"
     },
     {
       "code": "KD01-015",

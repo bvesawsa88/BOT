@@ -364,36 +364,6 @@
       "parseStatus": "auto"
     },
     {
-      "name": "ความกล้าหาญ",
-      "codes": [
-        "BT02-045",
-        "KD01-014",
-        "ODY1-086"
-      ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "endOfTurn",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "own",
-                "count": 1
-              },
-              "destroyAtEnd": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
-    },
-    {
       "name": "ความจริงงงงงงง",
       "codes": [
         "BT04-047"

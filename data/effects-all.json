@@ -2004,21 +2004,37 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "endOfTurn",
+              "op": "attach",
+              "from": "self",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
                 "side": "own",
                 "count": 1
-              },
-              "destroyAtEnd": true
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
     },
     {
       "code": "BT02-046",
@@ -26207,21 +26223,37 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "endOfTurn",
+              "op": "attach",
+              "from": "self",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
                 "side": "own",
                 "count": 1
-              },
-              "destroyAtEnd": true
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
     },
     {
       "code": "KD01-015",
@@ -30242,21 +30274,37 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 4,
-              "duration": "endOfTurn",
+              "op": "attach",
+              "from": "self",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
                 "side": "own",
                 "count": 1
-              },
-              "destroyAtEnd": true
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
     },
     {
       "code": "ODY1-087",

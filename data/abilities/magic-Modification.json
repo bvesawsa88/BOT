@@ -311,6 +311,52 @@
       "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
+      "name": "ความกล้าหาญ",
+      "codes": [
+        "BT02-045",
+        "KD01-014",
+        "ODY1-086"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "attach",
+              "from": "self",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "whileEquipped",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": "Avatar",
+      "parseStatus": "auto",
+      "note": "สวม Avatar / POWER +4 ถาวรตราบเท่าที่สวมอยู่"
+    },
+    {
       "name": "ค้อนโยเนียร์",
       "codes": [
         "BT09-064"

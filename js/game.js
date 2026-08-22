@@ -4994,6 +4994,9 @@
     if (!cardHasActivatedAbility(k)) return false;
     const own = BoTEngine.ownerOf(st, k);
     const zAct = BoTEngine.zoneOf(st, k) || '';
+    if (zAct.endsWith('.hell') || zAct.endsWith('.dark')) {
+      closePileView();
+    }
     sendAction({ type: 'activateAbility', k, by: mode === 'solo' ? (zAct === 'land' ? st.active : (own === 'S' ? my : own)) : undefined });
     return true;
   }
@@ -5299,6 +5302,16 @@
     const ov = byId('pileView');
     // โหมดเลือกจากเอฟเฟกต์ (สอดแนม/ค้นเด็ค/เลือกจากนรก) — เปิดค้างจนกว่าจะเลือกหรือข้าม
     const pp = st && (st.prompts || [])[0];
+    if (pp && (mode === 'solo' || seat === pp.chooser)) {
+      if (['attachTo', 'avatar', 'sacrifice', 'destroy', 'takeControl', 'coinDestroy'].includes(pp.dest) ||
+          ['ownAvatars', 'ownMagic'].includes(pp.from) ||
+          ['chooseBuff', 'chooseDestroy'].includes(pp.kind)) {
+        if (pileOverlayOpen() && !['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'dark'].includes(pp.from)) {
+          closePileView();
+          return;
+        }
+      }
+    }
     // ธรณีสูบแล้วมีผลพิเศษ (แว่น ฯลฯ) — การ์ดอยู่ในนรก มองไม่เห็นบนสนาม → เปิดหน้าต่างโชว์ใบนั้น
     if (pp && pp.kind === 'milledOptional' && (mode === 'solo' || seat === pp.chooser)) {
       const k = pp.src;
