@@ -563,10 +563,24 @@
     {
       "code": "PRMO-087",
       "name": "ไอ้นัท - คนใจเด็ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "controlImmuneExcept",
+              "name": "อีช่า - สาวน้อยคนเก่ง"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmune": true,
-      "controlImmuneExcept": "อีช่า"
+      "controlImmuneExcept": "อีช่า - สาวน้อยคนเก่ง",
+      "note": "ไม่ถูกเปลี่ยนการควบคุมยกเว้นจากอีช่า"
     },
     {
       "code": "PRMO-046",
@@ -803,10 +817,22 @@
     {
       "code": "PRMO-129",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunity"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmune": true,
-      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "PRMO-005",
@@ -1884,10 +1910,24 @@
     {
       "code": "PRMO-033",
       "name": "เทอราโนดอน จากต่างแดน",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyScoutCount",
+              "symbol": "กะปอม",
+              "bonus": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "scoutBonusOwnKapom": 1,
-      "note": "กะปอมฝ่ายเราสอดแนม +1"
+      "note": "สอดแนม Symbol กะปอม ฝ่ายเรา +1 ใบ"
     },
     {
       "code": "PRMO-067",
@@ -2003,16 +2043,33 @@
     {
       "code": "PRMO-132",
       "name": "ผู้เจริญ นาย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordAura": {
-        "keyword": "สามัคคี",
         "symbols": [
           "คน",
           "ต้นไม้"
         ],
-        "side": "own"
-      }
+        "keyword": "สามัคคี"
+      },
+      "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
     },
     {
       "code": "PRMO-089",
@@ -2134,12 +2191,24 @@
     {
       "code": "PRMO-001",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "PRMO-055",
@@ -2570,9 +2639,26 @@
     {
       "code": "PRMO-025",
       "name": "บัลเดอร์ เทพแสง แห่งแอสการ์ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "millInsteadDestroy",
+              "count": 9
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "millInsteadDestroy": 9
+      "millInsteadDestroy": 9,
+      "note": "เทิร์นละครั้ง ธรณีสูบ 9 ใบ แทนถูกทำลาย"
     },
     {
       "code": "PRMO-012",
@@ -3328,11 +3414,41 @@
     {
       "code": "PRMO-026",
       "name": "ทหารอาณาจักรของแพง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyEnemyCost",
+              "amount": -1
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "setBasePower",
+              "value": 2
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "enemyCostAura": -1,
-      "setPowerIfAllyNameIncludes": "ราชาอาณาจักรของแพง",
-      "setPowerTo": 2
+      "setPowerIfAllyNameIncludes": {
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "power": 2
+      },
+      "setPowerTo": 2,
+      "note": "อีกฝ่าย Cost -1 / มีนิโคไล POWER เป็น 2"
     },
     {
       "code": "PRMO-109",

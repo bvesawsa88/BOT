@@ -1959,9 +1959,26 @@
         "BT03-024",
         "PRMO-025"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "millInsteadDestroy",
+              "count": 9
+            }
+          ]
+        }
+      ],
       "millInsteadDestroy": 9,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง ธรณีสูบ 9 ใบ แทนถูกทำลาย"
     },
     {
       "name": "แบงค์ เทคนิคประทุมทู",
@@ -4296,9 +4313,24 @@
       "codes": [
         "BT03-025"
       ],
-      "abilities": [],
-      "revealDeckTops": true,
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "revealDeckTops",
+              "target": "both"
+            }
+          ]
+        }
+      ],
+      "revealDeckTops": "both",
+      "parseStatus": "auto",
+      "note": "หงายหน้าใบบนสุด Deck ทั้ง 2 ฝ่าย"
     },
     {
       "name": "เฮล่า เทพแอสการ์ดแห่งความตาย",

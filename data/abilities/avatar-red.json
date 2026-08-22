@@ -499,10 +499,27 @@
       "codes": [
         "BT03-009"
       ],
-      "abilities": [],
-      "attackIf": "emptyHand",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "restrictAttack",
+              "condition": {
+                "ownHandCount": 0
+              }
+            }
+          ]
+        }
+      ],
+      "attackIf": {
+        "ownHandEmpty": true
+      },
       "parseStatus": "auto",
-      "note": "โจมตีได้เมื่อมือว่าง"
+      "note": "โจมตีได้เฉพาะเมื่อไม่มีการ์ดบนมือ"
     },
     {
       "name": "เจนนี่ อย่าบู้บี้เลขา",
@@ -1329,14 +1346,44 @@
       "codes": [
         "BT05-004"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summonedByAvatarNameIncludes",
+            "name": "อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "destroyCard",
+              "target": {
+                "select": "oppAnyCard",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasOtherName:อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "อัศวินโต๊ะกลม",
+        "name": "อัศวินโต๊ะกลม",
         "keyword": "สามัคคี"
       },
       "destroyEnemyAnyOnSummonedByAvatarNameIncludes": "อัศวินโต๊ะกลม",
       "parseStatus": "auto",
-      "note": "ยิงทำลายเมื่อถูกอัศวินอัญเชิญ — ยัง partial ถ้าแหล่งอัญเชิญไม่ผ่าน triggerSummon ctx"
+      "note": "ทำลาย 1 ใบเมื่อจุติจากอัศวินโต๊ะกลม / ได้สามัคคีถ้ามีพวก"
     },
     {
       "name": "ทองเหม็น ขวานคลั่ง",
@@ -2159,11 +2206,24 @@
       "codes": [
         "BT04-006"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "สามัคคี"
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "สามัคคี"
     },
     {
       "name": "ป้าข้างบ้าน",
@@ -3044,6 +3104,7 @@
           "trigger": {
             "on": "activated"
           },
+          "requireLinked": true,
           "oncePerTurn": true,
           "countsAsModification": true,
           "actions": [
@@ -3063,7 +3124,7 @@
       ],
       "hostAttachNameIncludes": "อาวุธของเพมมุ",
       "parseStatus": "auto",
-      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
+      "note": "สวมได้เฉพาะอาวุธของเพมมุ · สวม {mod} แล้ว POWER +2 · [Link สไปรท์] สั่งใช้เทิร์นละครั้งค้นอาวุธจากเด็คมาสวม (นับเป็นใช้ Modification)"
     },
     {
       "name": "ฟูมะ นินจาแห่งสายลม",
@@ -3664,18 +3725,26 @@
       "codes": [
         "BT04-005"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "setPowerFromSacrificed"
+            }
+          ]
+        }
+      ],
       "noPaidSummon": true,
       "sacrificeSummon": {
-        "filter": {
-          "type": "Avatar",
-          "nameIncludes": [
-            "กบ"
-          ],
-          "powerBuffCountMin": 3
-        }
+        "symbol": "กบ",
+        "minBuffs": 3
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "สังเวยกบที่บัฟ 3+ ครั้งเพื่ออัญเชิญ"
     },
     {
       "name": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
@@ -3915,18 +3984,24 @@
       "codes": [
         "BT05-011"
       ],
-      "abilities": [],
-      "allowOppTurnMagic": {
-        "symbols": [
-          "ฤษี"
-        ],
-        "subtypes": [
-          "Normal",
-          "Modification",
-          "Land"
-        ]
-      },
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "allowOppTurnMagic",
+              "symbol": "ฤๅษี"
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "allowOppTurnMagic": "ฤๅษี",
+      "parseStatus": "auto",
+      "note": "ใช้ Magic ฤๅษี ในเทิร์นฝ่ายตรงข้ามได้"
     },
     {
       "name": "ฤาษีอังคต",
@@ -4153,13 +4228,8 @@
           ]
         }
       ],
-      "keywords": [
-        "โล่มนุษย์",
-        "ลูกฮึด",
-        "สามัคคี"
-      ],
       "parseStatus": "auto",
-      "note": "โล่มนุษย์ ลูกฮึด สามัคคี · [Link เพมนุ ยอดมนุษย์] อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar \"เพมนุ\" ไว้ใน Deck ด้วยเสมอ"
+      "note": "[Link เพมมุ ยอดมนุษย์] โล่มนุษย์ ลูกฮึด สามัคคี · อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar \"เพมมุ\" ไว้ใน Deck ด้วยเสมอ"
     },
     {
       "name": "สหายหุ่นผู้กล้า โฟเบีย",
@@ -4212,13 +4282,29 @@
       "codes": [
         "BT07-007"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownGraveCountDistinct>=10"
+          },
+          "actions": [
+            {
+              "op": "setGemValue",
+              "gem": 8,
+              "color": "colorless"
+            }
+          ]
+        }
+      ],
       "powerAsGemForSymbol": {
         "distinctHellAvatarsMin": 10,
         "gemValue": 8,
         "color": "colorless"
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ถ้าในนรกมี 10+ ชื่อ ถือเป็น Gem 8 ไร้สี"
     },
     {
       "name": "หนุ่มผมยาวนักวิ่ง",
@@ -4709,10 +4795,26 @@
         "BT03-007",
         "KD04-006"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        }
+      ],
+      "protectReplaceIfHostNameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน",
       "protectReplaceForNameIncludes": "ไมเกรน",
       "parseStatus": "auto",
-      "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)"
+      "note": "ทำลายใบนี้แทนเมื่อไม้ท์เกรนจะถูกทำลาย"
     },
     {
       "name": "อาจารย์ธรรมโชติ",
@@ -5019,10 +5121,24 @@
         "BT04-003",
         "PRMO-087"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "controlImmuneExcept",
+              "name": "อีช่า - สาวน้อยคนเก่ง"
+            }
+          ]
+        }
+      ],
       "controlImmune": true,
-      "controlImmuneExcept": "อีช่า",
-      "parseStatus": "auto"
+      "controlImmuneExcept": "อีช่า - สาวน้อยคนเก่ง",
+      "parseStatus": "auto",
+      "note": "ไม่ถูกเปลี่ยนการควบคุมยกเว้นจากอีช่า"
     },
     {
       "name": "ไอ้นัท - คนบ้าจั่ว",

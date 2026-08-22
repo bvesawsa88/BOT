@@ -592,13 +592,31 @@
     {
       "code": "KD03-019",
       "name": "ของขวัญจากโอตะ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attached"
+          },
+          "actions": [
+            {
+              "op": "drawCard",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
       "drawOnAttachIfHostNameIncludes": "ไอดอล",
       "parseStatus": "auto",
-      "note": "แมปจาก BT04-054"
+      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์",
+      "costOnlyForSymbol": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
+      "hostAttachNameIncludes": "ไอดอล"
     },
     {
       "code": "KD03-020",

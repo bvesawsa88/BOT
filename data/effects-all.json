@@ -159,10 +159,28 @@
     {
       "code": "BT01-008",
       "name": "รัททาทุย นางพญา",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "drawPhaseFirst"
+          },
+          "condition": {
+            "selfInDeck": true
+          },
+          "actions": [
+            {
+              "op": "replaceDrawWithSelf",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "replaceFirstDrawWithSelf": true,
-      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)"
+      "note": "Draw Phase แรก นำจาก Deck ขึ้นมือแทนการจั่ว"
     },
     {
       "code": "BT01-009",
@@ -199,12 +217,24 @@
     {
       "code": "BT01-010",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "BT01-011",
@@ -278,12 +308,24 @@
     {
       "code": "BT01-014",
       "name": "จ่ามะนาว",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
       ],
-      "note": "โล่มนุษย์ใช้จากเมนูตอนถูกประกาศโจมตี"
+      "note": "โล่มนุษย์"
     },
     {
       "code": "BT01-015",
@@ -735,12 +777,27 @@
     {
       "code": "BT01-044",
       "name": "รั้วของชาติ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
       ],
-      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม"
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์"
+      },
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ โล่มนุษย์"
     },
     {
       "code": "BT01-045",
@@ -862,11 +919,24 @@
     {
       "code": "BT01-049",
       "name": "มวยทะเลลลลลล",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "setGlobalAttackLimit",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "destroyAfterGlobalEndPhases": 4,
       "attackLimitPerTurn": 1,
-      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "โจมตีได้แค่ 1 ตัวต่อเทิร์น อยู่บนสนาม 4 เทิร์น"
     },
     {
       "code": "BT01-050",
@@ -1743,10 +1813,23 @@
     {
       "code": "BT02-029",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttackWithoutHost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
-      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่"
+      "hostCannotAttack": true,
+      "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ"
     },
     {
       "code": "BT02-030",
@@ -2149,9 +2232,25 @@
     {
       "code": "BT02-055",
       "name": "ประกันชั้นต่ำ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostCombatDestroy"
+          },
+          "actions": [
+            {
+              "op": "preventCombatDestroy"
+            },
+            {
+              "op": "sendSelfToHell"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "protectReplace": true
+      "protectReplace": true,
+      "note": "กันถูกทำลายจากการต่อสู้ 1 ครั้ง แล้วส่งลงนรก"
     },
     {
       "code": "BT02-056",
@@ -2450,10 +2549,26 @@
     {
       "code": "BT03-007",
       "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
+      "protectReplaceIfHostNameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน",
       "protectReplaceForNameIncludes": "ไมเกรน",
-      "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)"
+      "note": "ทำลายใบนี้แทนเมื่อไม้ท์เกรนจะถูกทำลาย"
     },
     {
       "code": "BT03-008",
@@ -2480,10 +2595,27 @@
     {
       "code": "BT03-009",
       "name": "จีสัส",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "restrictAttack",
+              "condition": {
+                "ownHandCount": 0
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "attackIf": "emptyHand",
-      "note": "โจมตีได้เมื่อมือว่าง"
+      "attackIf": {
+        "ownHandEmpty": true
+      },
+      "note": "โจมตีได้เฉพาะเมื่อไม่มีการ์ดบนมือ"
     },
     {
       "code": "BT03-010",
@@ -2862,16 +2994,48 @@
     {
       "code": "BT03-024",
       "name": "บัลเดอร์ เทพแสง แห่งแอสการ์ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "millInsteadDestroy",
+              "count": 9
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "millInsteadDestroy": 9
+      "millInsteadDestroy": 9,
+      "note": "เทิร์นละครั้ง ธรณีสูบ 9 ใบ แทนถูกทำลาย"
     },
     {
       "code": "BT03-025",
       "name": "ฮามดัล เทพผู้รู้เห็น แห่งแอสการ์ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "revealDeckTops",
+              "target": "both"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "revealDeckTops": true
+      "revealDeckTops": "both",
+      "note": "หงายหน้าใบบนสุด Deck ทั้ง 2 ฝ่าย"
     },
     {
       "code": "BT03-026",
@@ -2923,18 +3087,61 @@
     {
       "code": "BT03-028",
       "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "combatImmuneVsLowerCost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "combatImmuneVsLowerCost": true
+      "combatImmuneVsLowerCost": true,
+      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Avatar ที่ Cost น้อยกว่า"
     },
     {
       "code": "BT03-029",
       "name": "ทหารอาณาจักรของแพง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyEnemyCost",
+              "amount": -1
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "setBasePower",
+              "value": 2
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "enemyCostAura": -1,
-      "setPowerIfAllyNameIncludes": "ราชาอาณาจักรของแพง",
-      "setPowerTo": 2
+      "setPowerIfAllyNameIncludes": {
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "power": 2
+      },
+      "setPowerTo": 2,
+      "note": "อีกฝ่าย Cost -1 / มีนิโคไล POWER เป็น 2"
     },
     {
       "code": "BT03-030",
@@ -3432,16 +3639,43 @@
     {
       "code": "BT03-053",
       "name": "ยาแก้ไอน้ำดำ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "ignoreNegativePower"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "ignoreNegativePower": true
+      "ignoreNegativePower": true,
+      "note": "ไม่รับผลการลด POWER และเพิ่มคืนเท่าที่โดนลด"
     },
     {
       "code": "BT03-054",
       "name": "ขวานไม้เน่าๆเหม็นๆ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHostCost",
+              "amount": -1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "hostCostDelta": -1
+      "hostCostDelta": -1,
+      "note": "Avatar ที่สวมใส่ Cost -1"
     },
     {
       "code": "BT03-055",
@@ -3673,10 +3907,24 @@
     {
       "code": "BT04-003",
       "name": "ไอ้นัท - คนใจเด็ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "controlImmuneExcept",
+              "name": "อีช่า - สาวน้อยคนเก่ง"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmune": true,
-      "controlImmuneExcept": "อีช่า"
+      "controlImmuneExcept": "อีช่า - สาวน้อยคนเก่ง",
+      "note": "ไม่ถูกเปลี่ยนการควบคุมยกเว้นจากอีช่า"
     },
     {
       "code": "BT04-004",
@@ -3716,27 +3964,48 @@
     {
       "code": "BT04-005",
       "name": "ยายกบ 1954",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "setPowerFromSacrificed"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "noPaidSummon": true,
       "sacrificeSummon": {
-        "filter": {
-          "type": "Avatar",
-          "nameIncludes": [
-            "กบ"
-          ],
-          "powerBuffCountMin": 3
-        }
-      }
+        "symbol": "กบ",
+        "minBuffs": 3
+      },
+      "note": "สังเวยกบที่บัฟ 3+ ครั้งเพื่ออัญเชิญ"
     },
     {
       "code": "BT04-006",
       "name": "แบงค์ทีสต้า นักมวยปล้ำ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
-      ]
+      ],
+      "note": "สามัคคี"
     },
     {
       "code": "BT04-007",
@@ -3868,10 +4137,24 @@
     {
       "code": "BT04-011",
       "name": "เทอราโนดอน จากต่างแดน",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyScoutCount",
+              "symbol": "กะปอม",
+              "bonus": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "scoutBonusOwnKapom": 1,
-      "note": "กะปอมฝ่ายเราสอดแนม +1"
+      "note": "สอดแนม Symbol กะปอม ฝ่ายเรา +1 ใบ"
     },
     {
       "code": "BT04-012",
@@ -3996,10 +4279,22 @@
     {
       "code": "BT04-016",
       "name": "ริกกี้ คุณตา",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "immuneOppMagic"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "immuneOppMagicTarget": true,
-      "note": "กัน Magic ที่เล็งตัวนี้ — เวทสั่งผู้เล่น (เช่น จมน้ำ) ยังได้"
+      "note": "ไม่รับผลจาก Magic ฝ่ายตรงข้าม"
     },
     {
       "code": "BT04-017",
@@ -4035,11 +4330,35 @@
     {
       "code": "BT04-018",
       "name": "รัททาทุย 2 หัว",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "combatDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "preventCombatDestroy"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
-      ]
+      ],
+      "destroyHostIfPower0": true,
+      "note": "โล่มนุษย์ / ลด POWER 1 แทนถูกทำลายจากต่อสู้"
     },
     {
       "code": "BT04-019",
@@ -4364,12 +4683,27 @@
     {
       "code": "BT04-032",
       "name": "พลปืนอาณาจักรของแพง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
         "keyword": "เตะไข่"
-      }
+      },
+      "note": "ได้รับ เตะไข่ หากมี นิโคไล อยู่บนสนาม"
     },
     {
       "code": "BT04-033",
@@ -4802,33 +5136,99 @@
     {
       "code": "BT04-053",
       "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostLeavingFieldByOpp"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "rollDicePreventLeaving",
+              "required": "even"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "attachOnly": {
         "nameIncludes": "ผู้กล้า",
         "symbol": "เครื่องจักร"
       },
-      "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
+      "hostAttachNameIncludes": "ผู้กล้า",
+      "note": "สวมใส่ผู้กล้าหุ่นยนต์ / ทอยเต๋าเลขคู่ กันออกจากสนาม"
     },
     {
       "code": "BT04-054",
       "name": "ของขวัญจากโอตะ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attached"
+          },
+          "actions": [
+            {
+              "op": "drawCard",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
+      "costOnlyForSymbol": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
-      }
+      },
+      "hostAttachNameIncludes": "ไอดอล",
+      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
       "code": "BT04-055",
       "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHostCost",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "host.cost>=6"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "host"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "hostCostDelta": 2,
       "hostPowerIfEffCostMin": {
-        "min": 6,
-        "amount": 1
-      }
+        "minCost": 6,
+        "power": 1
+      },
+      "note": "Host Cost +2 / ถ้า Cost >= 6 POWER +1"
     },
     {
       "code": "BT04-056",
@@ -4878,9 +5278,22 @@
     {
       "code": "BT04-058",
       "name": "โรงบาลรัฐ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "blockLifeUnreveal"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "blockLifeUnreveal": true
+      "blockLifeUnreveal": true,
+      "note": "LIFE Card ทั้งสองฝ่ายห้ามเปลี่ยนเป็นสภาพคว่ำ"
     },
     {
       "code": "BT04-059",
@@ -5075,14 +5488,44 @@
     {
       "code": "BT05-004",
       "name": "ทริสทัน อัศวินโต๊ะกลมแห่งความแม่นยำ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summonedByAvatarNameIncludes",
+            "name": "อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "destroyCard",
+              "target": {
+                "select": "oppAnyCard",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasOtherName:อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "อัศวินโต๊ะกลม",
+        "name": "อัศวินโต๊ะกลม",
         "keyword": "สามัคคี"
       },
       "destroyEnemyAnyOnSummonedByAvatarNameIncludes": "อัศวินโต๊ะกลม",
-      "note": "ยิงทำลายเมื่อถูกอัศวินอัญเชิญ — ยัง partial ถ้าแหล่งอัญเชิญไม่ผ่าน triggerSummon ctx"
+      "note": "ทำลาย 1 ใบเมื่อจุติจากอัศวินโต๊ะกลม / ได้สามัคคีถ้ามีพวก"
     },
     {
       "code": "BT05-005",
@@ -5254,18 +5697,24 @@
     {
       "code": "BT05-011",
       "name": "ฤๅษี ภฤคุ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "allowOppTurnMagic",
+              "symbol": "ฤๅษี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "allowOppTurnMagic": {
-        "symbols": [
-          "ฤษี"
-        ],
-        "subtypes": [
-          "Normal",
-          "Modification",
-          "Land"
-        ]
-      }
+      "reactAnyWindow": true,
+      "allowOppTurnMagic": "ฤๅษี",
+      "note": "ใช้ Magic ฤๅษี ในเทิร์นฝ่ายตรงข้ามได้"
     },
     {
       "code": "BT05-012",
@@ -5291,16 +5740,33 @@
     {
       "code": "BT05-013",
       "name": "ผู้เจริญ นาย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordAura": {
-        "keyword": "สามัคคี",
         "symbols": [
           "คน",
           "ต้นไม้"
         ],
-        "side": "own"
-      }
+        "keyword": "สามัคคี"
+      },
+      "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
     },
     {
       "code": "BT05-014",
@@ -5383,9 +5849,22 @@
     {
       "code": "BT05-016",
       "name": "โคลัมบัส นักท่องเรือ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantAllColors"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "allColors": true
+      "allColors": true,
+      "note": "ถือเป็น Avatar ทุกสี"
     },
     {
       "code": "BT05-017",
@@ -5414,13 +5893,29 @@
     {
       "code": "BT05-018",
       "name": "ของขวัญที่เมียทิ้งไว้ให้",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "handSummon"
+          },
+          "condition": {
+            "ownControlName": "เจค นักฆ่ามือเก๋า",
+            "uniqueSelf": true
+          },
+          "actions": [
+            {
+              "op": "freeSummon"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "freeSummonIf": {
-        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
-        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
+        "ownControlName": "เจค นักฆ่ามือเก๋า",
+        "uniqueSelf": true
       },
-      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
+      "note": "ลงฟรีถ้ามี เจค และไม่มีตัวซ้ำบนสนาม"
     },
     {
       "code": "BT05-019",
@@ -6008,20 +6503,64 @@
     {
       "code": "BT05-037",
       "name": "หมาเครื่องบิน Super Air",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "เครื่องบิน Super Air",
+        "name": "Super Air",
         "keyword": "เตะไข่"
-      }
+      },
+      "note": "ได้รับ เตะไข่ ถ้ามี Super Air บนสนาม"
     },
     {
       "code": "BT05-038",
       "name": "ผู้โดยสาร Super Air",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "Super Air"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTarget"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "cannotBeAttackTargetIfOwnNameIncludes": "เครื่องบิน Super Air",
-      "protectReplaceForNameIncludes": "เครื่องบิน Super Air"
+      "cannotBeAttackTargetIfOwnNameIncludes": "Super Air",
+      "protectReplaceIfHostNameIncludes": "Super Air",
+      "protectReplaceForNameIncludes": "เครื่องบิน Super Air",
+      "note": "สังเวยแทน Super Air ถูกทำลาย / ห้ามตกเป็นเป้าการโจมตี"
     },
     {
       "code": "BT05-039",
@@ -6051,11 +6590,24 @@
     {
       "code": "BT05-040",
       "name": "วานรแบงค์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ลูกฮึด",
+          "trigger": {
+            "on": "fireInTheBellyActivated"
+          },
+          "actions": [
+            {
+              "op": "fireInTheBellyWin"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "ลูกฮึด"
-      ]
+      ],
+      "note": "ลูกฮึด"
     },
     {
       "code": "BT05-041",
@@ -6579,11 +7131,25 @@
     {
       "code": "BT05-063",
       "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "protectSymbolChange"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "attachOnly": {
         "symbol": "หุ่นยนต์"
-      }
+      },
+      "hostAttachNameIncludes": "หุ่นยนต์",
+      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol"
     },
     {
       "code": "BT05-064",
@@ -6744,9 +7310,23 @@
     {
       "code": "BT05-069",
       "name": "กรุงลงกา",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "allowPowerAsGem",
+              "symbol": "ยักษ์"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "powerAsGemForSymbol": "ยักษ์"
+      "powerAsGemForSymbol": "ยักษ์",
+      "note": "ใช้ POWER ของ Avatar ยักษ์ บนมือแทนค่า GEM"
     },
     {
       "code": "BT05-070",
@@ -7346,7 +7926,20 @@
     {
       "code": "BT06-017",
       "name": "วิลโล่ ปลาแกะ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "addSymbol",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "extraSymbols": [
         "สัตว์"
@@ -7972,10 +8565,25 @@
     {
       "code": "BT06-038",
       "name": "แมมมอธแช่แข็ง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            },
+            {
+              "op": "blockModification"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "cannotAttack": true,
-      "note": "ไม่สามารถโจมตีได้ / ไม่สามารถสวมใส่ Mod Magic"
+      "note": "โจมตีไม่ได้ และสวมใส่ Modification ไม่ได้"
     },
     {
       "code": "BT06-039",
@@ -8564,11 +9172,27 @@
     {
       "code": "BT06-061",
       "name": "สภาแบงค์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHandCostAndGem",
+              "nameIncludes": "แบงค์",
+              "costDelta": -1,
+              "gemColor": "colorless"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "gemAsCostForNameIncludes": "แบงค์",
       "gemAsCostColor": "colorless",
-      "note": "Avatar แบงค์ บนมือ Cost -1 และ Gem กลายเป็น Gem ไร้สี"
+      "hostCostDelta": -1,
+      "note": "Avatar แบงค์ บนมือ Cost -1 และ Gem เป็นไร้สี"
     },
     {
       "code": "BT06-062",
@@ -8998,13 +9622,29 @@
     {
       "code": "BT07-007",
       "name": "สัตว์ทดลอง #1",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownGraveCountDistinct>=10"
+          },
+          "actions": [
+            {
+              "op": "setGemValue",
+              "gem": 8,
+              "color": "colorless"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "powerAsGemForSymbol": {
         "distinctHellAvatarsMin": 10,
         "gemValue": 8,
         "color": "colorless"
-      }
+      },
+      "note": "ถ้าในนรกมี 10+ ชื่อ ถือเป็น Gem 8 ไร้สี"
     },
     {
       "code": "BT07-008",
@@ -10591,10 +11231,22 @@
     {
       "code": "BT07-065",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunity"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmune": true,
-      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "BT07-066",
@@ -10807,9 +11459,6 @@
       "freeSummonIf": {
         "requireOwnNameIncludes": "พี่หน่วง"
       },
-      "costZeroIfOwnNameIncludes": [
-        "พี่หน่วง"
-      ],
       "note": "มี พี่หน่วง Cost 0 / End Phase จั่ว 1 / สั่งใช้ ให้ โล่มนุษย์"
     },
     {
@@ -12254,14 +12903,28 @@
     {
       "code": "BT08-043",
       "name": "รถถังเฟืองเหล็ก",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "attachedCount<2"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "attachOnly": {
         "nameIncludes": [
           "Tank Ranger"
         ]
       },
-      "note": "ไม่มีอวตารสวม >= 2 ใบ โจมตีไม่ได้ / สวมใส่ได้เฉพาะ Tank Ranger"
+      "hostAttachNameIncludes": "Tank Ranger",
+      "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้"
     },
     {
       "code": "BT08-044",
@@ -13351,11 +14014,6 @@
         }
       ],
       "parseStatus": "auto",
-      "linkKeywords": [
-        "โล่มนุษย์",
-        "ลูกฮึด",
-        "สามัคคี"
-      ],
       "note": "[Link เพมมุ ยอดมนุษย์] โล่มนุษย์ ลูกฮึด สามัคคี · อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar \"เพมมุ\" ไว้ใน Deck ด้วยเสมอ"
     },
     {
@@ -14003,12 +14661,27 @@
     {
       "code": "BT09-029",
       "name": "สตางค์น้องชายแบงค์ ตัวเขียว",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคี / ศัตรูสีเขียวห้ามเลือกใบนี้เป็นเป้าโจมตี"
+      "cannotBeAttackTargetIf": {
+        "oppColor": "เขียว"
+      },
+      "note": "สามัคคี / Avatar สีเขียวอีกฝ่ายห้ามเลือกเป็นเป้าโจมตี"
     },
     {
       "code": "BT09-030",
@@ -14208,13 +14881,25 @@
     {
       "code": "BT09-036",
       "name": "ภูติผลไม้ มะม่วง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordIfLandNameIncludes": {
-        "keyword": "โล่มนุษย์",
-        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์"
+        "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+        "keyword": "โล่มนุษย์"
       },
-      "note": "ต่อเนื่อง ถ้า Land มีป่าพงไพร → ได้โล่มนุษย์"
+      "note": "ได้รับ โล่มนุษย์ ถ้ามี ป่าพงไพร"
     },
     {
       "code": "BT09-037",
@@ -14253,14 +14938,26 @@
     {
       "code": "BT09-038",
       "name": "ภูติผลไม้ มะเฟือง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "เตะไข่",
+          "trigger": {
+            "on": "nutKickActivated"
+          },
+          "actions": [
+            {
+              "op": "nutKickTarget"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordIfLandNameIncludes": {
+        "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
         "keyword": "เตะไข่",
-        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
-        "requireEnemyFaceDownLife": true
+        "condition": "oppHasFaceDownLife"
       },
-      "note": "ต่อเนื่อง ถ้ามีป่า + ศัตรูมี LIFE คว่ำ → ได้เตะไข่"
+      "note": "ได้รับ เตะไข่ ถ้ามี ป่าพงไพร และอีกฝ่ายมี Life คว่ำ"
     },
     {
       "code": "BT09-039",
@@ -14579,9 +15276,24 @@
     {
       "code": "BT09-049",
       "name": "ขอโทษสังคม",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "pipoApologyForgiven"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "ใช้ทิ้งเป็น Cost ได้เฉพาะ DJ ปีโป้"
+      "costOnlyForSymbol": [
+        "DJ ปีโป้"
+      ],
+      "note": "การขอโทษจาก DJ ปีโป้ ได้รับการยกโทษเสมอ"
     },
     {
       "code": "BT09-050",
@@ -15066,11 +15778,23 @@
     {
       "code": "BT09-065",
       "name": "กระสอบ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "hostCannotAttack"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "destroyAfterGlobalEndPhases": 4,
       "hostCannotAttack": true,
-      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "Host โจมตีไม่ได้ / ลงนรกหลัง 4 End Phases"
     },
     {
       "code": "BT09-066",
@@ -15166,11 +15890,23 @@
     {
       "code": "BT09-070",
       "name": "สวนกล้วยหนีภาษี",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "blockLandPlay"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "blockAllLandPlay": true,
       "destroyAfterGlobalEndPhases": 4,
-      "note": "บล็อกใช้ Land ทุกฝ่าย · End Phase รวมทุกฝ่ายครบ 4 ครั้ง → ลงนรก"
+      "note": "ห้ามทุกคนใช้ Land / ลงนรกหลัง 4 End Phases"
     },
     {
       "code": "BT09-071",
@@ -17963,18 +18699,29 @@
     {
       "code": "BT10-074",
       "name": "ZeedZad Server",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ลูกฮึด",
+          "trigger": {
+            "on": "fireInTheBellyActivated"
+          },
+          "actions": [
+            {
+              "op": "fireInTheBellyWin"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordAura": {
-        "keyword": "ลูกฮึด",
         "nameIncludes": "แก๊งขยะ",
-        "side": "own"
+        "keyword": "ลูกฮึด"
       },
       "costZeroIfDistinctOwnNameIncludes": {
-        "nameIncludes": "แก๊งขยะ",
-        "min": 2
+        "name": "แก๊งขยะ",
+        "count": 2
       },
-      "note": "Cost 0 ถ้าแก๊งขยะชื่อไม่ซ้ำ ≥2 · ออร่าลูกฮึดให้แก๊งขยะ"
+      "note": "Cost 0 ถ้ามีแก๊งขยะ 2+ ชื่อ / แก๊งขยะได้ลูกฮึด"
     },
     {
       "code": "BT10-075",
@@ -19685,11 +20432,25 @@
     {
       "code": "BT11-045",
       "name": "โคลัมแบงค์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHandGemColor",
+              "nameIncludes": "แบงค์",
+              "gemColor": "colorless"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "gemAsCostForNameIncludes": "แบงค์",
       "gemAsCostColor": "colorless",
-      "note": "Gem ของ Avatar แบงค์ ทุกใบบนมือ กลายเป็น Gem ไร้สี"
+      "note": "Gem ของ Avatar แบงค์ บนมือเป็นไร้สี"
     },
     {
       "code": "BT11-046",
@@ -20409,13 +21170,26 @@
     {
       "code": "BT11-067",
       "name": "อาวุธนคร ดินสอ 5H",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostAttacking"
+          },
+          "actions": [
+            {
+              "op": "blockOppReactMagicUntilCombatEnd"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "attachOnly": {
         "nameIncludes": "มือปืนนคร"
       },
+      "hostAttachNameIncludes": "มือปืนนคร",
       "hostBlockReactUntilCombatEnd": true,
-      "note": "สวมได้แค่มือปืนนคร · โจมตีแล้วอีกฝ่ายใช้ React ไม่ได้จนกว่าจะจบการต่อสู้"
+      "note": "สวมใส่ มือปืนนคร / โจมตีห้ามอีกฝ่ายใช้ React Magic"
     },
     {
       "code": "BT11-068",
@@ -20697,10 +21471,22 @@
     {
       "code": "BT11-073",
       "name": "รูปประจำบ้าน",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunityAllOwn"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmuneOwnAvatars": true,
-      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ฝ่ายเราจะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "BT11-074",
@@ -21529,12 +22315,24 @@
     {
       "code": "CC01-024",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "CC01-025",
@@ -23837,10 +24635,23 @@
     {
       "code": "CC02-037",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttackWithoutHost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
-      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่"
+      "hostCannotAttack": true,
+      "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ"
     },
     {
       "code": "CC02-038",
@@ -24565,11 +25376,24 @@
     {
       "code": "CC02-060",
       "name": "มวยทะเลลลลลล",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "setGlobalAttackLimit",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "destroyAfterGlobalEndPhases": 4,
       "attackLimitPerTurn": 1,
-      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "โจมตีได้แค่ 1 ตัวต่อเทิร์น อยู่บนสนาม 4 เทิร์น"
     },
     {
       "code": "CC02-061",
@@ -24899,9 +25723,21 @@
     {
       "code": "KD00-00B",
       "name": "เบียดเบียนผู้อื่น",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "leftHandCardStealCompareCost"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สุ่มหยิบการ์ดคนทางซ้ายมาเทียบ Cost"
     },
     {
       "code": "KD00-00C",
@@ -26796,11 +27632,30 @@
     {
       "code": "KD03-019",
       "name": "ของขวัญจากโอตะ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attached"
+          },
+          "actions": [
+            {
+              "op": "drawCard",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
+      "costOnlyForSymbol": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
-      }
+      },
+      "hostAttachNameIncludes": "ไอดอล",
+      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
       "code": "KD03-020",
@@ -27149,10 +28004,26 @@
     {
       "code": "KD04-006",
       "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
+      "protectReplaceIfHostNameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน",
       "protectReplaceForNameIncludes": "ไมเกรน",
-      "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)"
+      "note": "ทำลายใบนี้แทนเมื่อไม้ท์เกรนจะถูกทำลาย"
     },
     {
       "code": "KD04-007",
@@ -27342,11 +28213,25 @@
     {
       "code": "KD04-015",
       "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "protectSymbolChange"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "attachOnly": {
         "symbol": "หุ่นยนต์"
-      }
+      },
+      "hostAttachNameIncludes": "หุ่นยนต์",
+      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol"
     },
     {
       "code": "KD04-016",
@@ -27963,10 +28848,28 @@
     {
       "code": "ODY1-017",
       "name": "รัททาทุย นางพญา",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "drawPhaseFirst"
+          },
+          "condition": {
+            "selfInDeck": true
+          },
+          "actions": [
+            {
+              "op": "replaceDrawWithSelf",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "replaceFirstDrawWithSelf": true,
-      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)"
+      "note": "Draw Phase แรก นำจาก Deck ขึ้นมือแทนการจั่ว"
     },
     {
       "code": "ODY1-018",
@@ -28003,12 +28906,24 @@
     {
       "code": "ODY1-019",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "ODY1-020",
@@ -28082,12 +28997,24 @@
     {
       "code": "ODY1-023",
       "name": "จ่ามะนาว",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
       ],
-      "note": "โล่มนุษย์ใช้จากเมนูตอนถูกประกาศโจมตี"
+      "note": "โล่มนุษย์"
     },
     {
       "code": "ODY1-024",
@@ -28646,16 +29573,55 @@
     {
       "code": "ODY1-064",
       "name": "โอเดนย่า อร่อยมัก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attackTargeted",
+            "filter": {
+              "nameIncludes": "ทาโกะ"
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ ทาโกะ โดนเล็งโจมตี POWER +2 จนจบเทิร์น"
     },
     {
       "code": "ODY1-065",
       "name": "ถุงเกราะโอเดนย่า",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "host"
+              },
+              "until": "endOfOpponentNextTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทำลายตนเอง Host POWER +2 จนจบเทิร์นถัดไปอีกฝ่าย"
     },
     {
       "code": "ODY1-066",
@@ -29019,12 +29985,27 @@
     {
       "code": "ODY1-080",
       "name": "รั้วของชาติ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
       ],
-      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม"
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์"
+      },
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ โล่มนุษย์"
     },
     {
       "code": "ODY1-081",
@@ -29081,11 +30062,24 @@
     {
       "code": "ODY1-083",
       "name": "มวยทะเลลลลลล",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "setGlobalAttackLimit",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "destroyAfterGlobalEndPhases": 4,
       "attackLimitPerTurn": 1,
-      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "โจมตีได้แค่ 1 ตัวต่อเทิร์น อยู่บนสนาม 4 เทิร์น"
     },
     {
       "code": "ODY1-084",
@@ -29425,12 +30419,24 @@
     {
       "code": "PRMO-001",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "PRMO-002",
@@ -29942,18 +30948,65 @@
     {
       "code": "PRMO-025",
       "name": "บัลเดอร์ เทพแสง แห่งแอสการ์ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "millInsteadDestroy",
+              "count": 9
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "millInsteadDestroy": 9
+      "millInsteadDestroy": 9,
+      "note": "เทิร์นละครั้ง ธรณีสูบ 9 ใบ แทนถูกทำลาย"
     },
     {
       "code": "PRMO-026",
       "name": "ทหารอาณาจักรของแพง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyEnemyCost",
+              "amount": -1
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "setBasePower",
+              "value": 2
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "enemyCostAura": -1,
-      "setPowerIfAllyNameIncludes": "ราชาอาณาจักรของแพง",
-      "setPowerTo": 2
+      "setPowerIfAllyNameIncludes": {
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "power": 2
+      },
+      "setPowerTo": 2,
+      "note": "อีกฝ่าย Cost -1 / มีนิโคไล POWER เป็น 2"
     },
     {
       "code": "PRMO-027",
@@ -30138,10 +31191,24 @@
     {
       "code": "PRMO-033",
       "name": "เทอราโนดอน จากต่างแดน",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyScoutCount",
+              "symbol": "กะปอม",
+              "bonus": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "scoutBonusOwnKapom": 1,
-      "note": "กะปอมฝ่ายเราสอดแนม +1"
+      "note": "สอดแนม Symbol กะปอม ฝ่ายเรา +1 ใบ"
     },
     {
       "code": "PRMO-034",
@@ -31536,10 +32603,24 @@
     {
       "code": "PRMO-087",
       "name": "ไอ้นัท - คนใจเด็ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "controlImmuneExcept",
+              "name": "อีช่า - สาวน้อยคนเก่ง"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmune": true,
-      "controlImmuneExcept": "อีช่า"
+      "controlImmuneExcept": "อีช่า - สาวน้อยคนเก่ง",
+      "note": "ไม่ถูกเปลี่ยนการควบคุมยกเว้นจากอีช่า"
     },
     {
       "code": "PRMO-088",
@@ -32259,11 +33340,6 @@
         }
       ],
       "parseStatus": "auto",
-      "linkKeywords": [
-        "โล่มนุษย์",
-        "ลูกฮึด",
-        "สามัคคี"
-      ],
       "note": "[Link เพมมุ ยอดมนุษย์] โล่มนุษย์ ลูกฮึด สามัคคี · อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar \"เพมมุ\" ไว้ใน Deck ด้วยเสมอ"
     },
     {
@@ -32647,10 +33723,22 @@
     {
       "code": "PRMO-129",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunity"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "controlImmune": true,
-      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "PRMO-130",
@@ -32736,16 +33824,33 @@
     {
       "code": "PRMO-132",
       "name": "ผู้เจริญ นาย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "grantKeywordAura": {
-        "keyword": "สามัคคี",
         "symbols": [
           "คน",
           "ต้นไม้"
         ],
-        "side": "own"
-      }
+        "keyword": "สามัคคี"
+      },
+      "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
     },
     {
       "code": "PRMO-133",
@@ -37554,7 +38659,6 @@
                 "select": "choose",
                 "side": "own",
                 "type": "Avatar",
-                "symbol": "สัตว์วิเศษ",
                 "nameIncludes": [
                   "นาค"
                 ]

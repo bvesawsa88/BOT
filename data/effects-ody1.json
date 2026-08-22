@@ -534,12 +534,27 @@
     {
       "code": "ODY1-080",
       "name": "รั้วของชาติ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
       ],
-      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม"
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ โล่มนุษย์",
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์"
+      }
     },
     {
       "code": "ODY1-077",
@@ -807,9 +822,31 @@
     {
       "code": "ODY1-065",
       "name": "ถุงเกราะโอเดนย่า",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "host"
+              },
+              "until": "endOfOpponentNextTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทำลายตนเอง Host POWER +2 จนจบเทิร์นถัดไปอีกฝ่าย"
     },
     {
       "code": "ODY1-089",
@@ -948,9 +985,26 @@
     {
       "code": "ODY1-064",
       "name": "โอเดนย่า อร่อยมัก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attackTargeted",
+            "filter": {
+              "nameIncludes": "ทาโกะ"
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ ทาโกะ โดนเล็งโจมตี POWER +2 จนจบเทิร์น"
     },
     {
       "code": "ODY1-090",
@@ -1042,11 +1096,24 @@
     {
       "code": "ODY1-083",
       "name": "มวยทะเลลลลลล",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "setGlobalAttackLimit",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "destroyAfterGlobalEndPhases": 4,
       "attackLimitPerTurn": 1,
-      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "โจมตีได้แค่ 1 ตัวต่อเทิร์น อยู่บนสนาม 4 เทิร์น"
     },
     {
       "code": "ODY1-074",
@@ -1102,12 +1169,24 @@
     {
       "code": "ODY1-023",
       "name": "จ่ามะนาว",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "โล่มนุษย์"
       ],
-      "note": "โล่มนุษย์ใช้จากเมนูตอนถูกประกาศโจมตี"
+      "note": "โล่มนุษย์"
     },
     {
       "code": "ODY1-046",
@@ -1231,20 +1310,50 @@
     {
       "code": "ODY1-019",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "ODY1-017",
       "name": "รัททาทุย นางพญา",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "drawPhaseFirst"
+          },
+          "condition": {
+            "selfInDeck": true
+          },
+          "actions": [
+            {
+              "op": "replaceDrawWithSelf",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "replaceFirstDrawWithSelf": true,
-      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)"
+      "note": "Draw Phase แรก นำจาก Deck ขึ้นมือแทนการจั่ว"
     },
     {
       "code": "ODY1-051",

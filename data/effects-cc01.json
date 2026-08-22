@@ -1086,12 +1086,24 @@
     {
       "code": "CC01-024",
       "name": "รัททาทุย",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "code": "CC01-025",

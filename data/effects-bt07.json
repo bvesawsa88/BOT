@@ -190,14 +190,30 @@
     },
     {
       "code": "BT07-007",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownGraveCountDistinct>=10"
+          },
+          "actions": [
+            {
+              "op": "setGemValue",
+              "gem": 8,
+              "color": "colorless"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "สัตว์ทดลอง #1",
       "powerAsGemForSymbol": {
         "distinctHellAvatarsMin": 10,
         "gemValue": 8,
         "color": "colorless"
-      }
+      },
+      "note": "ถ้าในนรกมี 10+ ชื่อ ถือเป็น Gem 8 ไร้สี"
     },
     {
       "code": "BT07-008",
@@ -1790,10 +1806,22 @@
     {
       "code": "BT07-065",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunity"
+            }
+          ]
+        }
+      ],
       "controlImmune": true,
       "parseStatus": "auto",
-      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "BT07-066",

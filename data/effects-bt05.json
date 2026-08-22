@@ -142,15 +142,45 @@
     },
     {
       "code": "BT05-004",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summonedByAvatarNameIncludes",
+            "name": "อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "destroyCard",
+              "target": {
+                "select": "oppAnyCard",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasOtherName:อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ทริสทัน อัศวินโต๊ะกลมแห่งความแม่นยำ",
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "อัศวินโต๊ะกลม",
+        "name": "อัศวินโต๊ะกลม",
         "keyword": "สามัคคี"
       },
       "destroyEnemyAnyOnSummonedByNameIncludes": "อัศวินโต๊ะกลม",
-      "note": "ยิงทำลายเมื่อถูกอัศวินอัญเชิญ — ยัง partial ถ้าแหล่งอัญเชิญไม่ผ่าน triggerSummon ctx",
+      "note": "ทำลาย 1 ใบเมื่อจุติจากอัศวินโต๊ะกลม / ได้สามัคคีถ้ามีพวก",
       "destroyEnemyAnyOnSummonedByAvatarNameIncludes": "อัศวินโต๊ะกลม"
     },
     {
@@ -330,19 +360,23 @@
     },
     {
       "code": "BT05-011",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "allowOppTurnMagic",
+              "symbol": "ฤๅษี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ฤๅษี ภฤคุ",
-      "allowOppTurnMagic": {
-        "symbols": [
-          "ฤษี"
-        ],
-        "subtypes": [
-          "Normal",
-          "Modification",
-          "Land"
-        ]
-      },
+      "allowOppTurnMagic": "ฤๅษี",
       "expandReactOppTurn": {
         "symbol": "ฤษี",
         "windows": [
@@ -350,7 +384,9 @@
           "enemyActivateAbility",
           "enemyPlayMagic"
         ]
-      }
+      },
+      "reactAnyWindow": true,
+      "note": "ใช้ Magic ฤๅษี ในเทิร์นฝ่ายตรงข้ามได้"
     },
     {
       "code": "BT05-012",
@@ -376,17 +412,34 @@
     },
     {
       "code": "BT05-013",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ผู้เจริญ นาย",
       "grantKeywordAura": {
-        "keyword": "สามัคคี",
         "symbols": [
           "คน",
           "ต้นไม้"
         ],
-        "side": "own"
-      }
+        "keyword": "สามัคคี"
+      },
+      "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
     },
     {
       "code": "BT05-014",
@@ -469,10 +522,23 @@
     },
     {
       "code": "BT05-016",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantAllColors"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "โคลัมบัส นักท่องเรือ",
-      "allColors": true
+      "allColors": true,
+      "note": "ถือเป็น Avatar ทุกสี"
     },
     {
       "code": "BT05-017",
@@ -500,14 +566,30 @@
     },
     {
       "code": "BT05-018",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "handSummon"
+          },
+          "condition": {
+            "ownControlName": "เจค นักฆ่ามือเก๋า",
+            "uniqueSelf": true
+          },
+          "actions": [
+            {
+              "op": "freeSummon"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ของขวัญที่เมียทิ้งไว้ให้",
       "freeSummonIf": {
-        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
-        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
+        "ownControlName": "เจค นักฆ่ามือเก๋า",
+        "uniqueSelf": true
       },
-      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
+      "note": "ลงฟรีถ้ามี เจค และไม่มีตัวซ้ำบนสนาม"
     },
     {
       "code": "BT05-019",
@@ -1121,21 +1203,65 @@
     },
     {
       "code": "BT05-037",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "หมาเครื่องบิน Super Air",
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "เครื่องบิน Super Air",
+        "name": "Super Air",
         "keyword": "เตะไข่"
-      }
+      },
+      "note": "ได้รับ เตะไข่ ถ้ามี Super Air บนสนาม"
     },
     {
       "code": "BT05-038",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "Super Air"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTarget"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ผู้โดยสาร Super Air",
       "protectReplaceForNameIncludes": "เครื่องบิน Super Air",
-      "cannotBeAttackTargetIfOwnNameIncludes": "เครื่องบิน Super Air"
+      "cannotBeAttackTargetIfOwnNameIncludes": "Super Air",
+      "protectReplaceIfHostNameIncludes": "Super Air",
+      "note": "สังเวยแทน Super Air ถูกทำลาย / ห้ามตกเป็นเป้าการโจมตี"
     },
     {
       "code": "BT05-039",
@@ -1164,12 +1290,25 @@
     },
     {
       "code": "BT05-040",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ลูกฮึด",
+          "trigger": {
+            "on": "fireInTheBellyActivated"
+          },
+          "actions": [
+            {
+              "op": "fireInTheBellyWin"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "วานรแบงค์",
       "keywords": [
         "ลูกฮึด"
-      ]
+      ],
+      "note": "ลูกฮึด"
     },
     {
       "code": "BT05-041",
@@ -1692,13 +1831,27 @@
     },
     {
       "code": "BT05-063",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "protectSymbolChange"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
       "attachOnly": {
         "symbol": "หุ่นยนต์"
       },
-      "hostCannotChangeSymbol": true
+      "hostCannotChangeSymbol": true,
+      "hostAttachNameIncludes": "หุ่นยนต์",
+      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol"
     },
     {
       "code": "BT05-064",
@@ -1860,10 +2013,24 @@
     },
     {
       "code": "BT05-069",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "allowPowerAsGem",
+              "symbol": "ยักษ์"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "กรุงลงกา",
-      "powerAsGemForSymbol": "ยักษ์"
+      "powerAsGemForSymbol": "ยักษ์",
+      "note": "ใช้ POWER ของ Avatar ยักษ์ บนมือแทนค่า GEM"
     },
     {
       "code": "BT05-070",

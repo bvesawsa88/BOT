@@ -125,6 +125,9 @@
           ]
         }
       ],
+      "freeSummonIf": {
+        "requireOwnNameIncludes": "พี่หน่วง"
+      },
       "parseStatus": "auto",
       "note": "มี พี่หน่วง Cost 0 / End Phase จั่ว 1 / สั่งใช้ ให้ โล่มนุษย์"
     }

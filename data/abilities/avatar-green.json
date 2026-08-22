@@ -480,11 +480,25 @@
       "codes": [
         "BT11-045"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHandGemColor",
+              "nameIncludes": "แบงค์",
+              "gemColor": "colorless"
+            }
+          ]
+        }
+      ],
       "gemAsCostForNameIncludes": "แบงค์",
       "gemAsCostColor": "colorless",
       "parseStatus": "auto",
-      "note": "Gem ของ Avatar แบงค์ ทุกใบบนมือ กลายเป็น Gem ไร้สี"
+      "note": "Gem ของ Avatar แบงค์ บนมือเป็นไร้สี"
     },
     {
       "name": "จอมเวทย์ดอคู่",
@@ -1464,11 +1478,41 @@
         "BT03-029",
         "PRMO-026"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyEnemyCost",
+              "amount": -1
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "setBasePower",
+              "value": 2
+            }
+          ]
+        }
+      ],
       "enemyCostAura": -1,
-      "setPowerIfAllyNameIncludes": "ราชาอาณาจักรของแพง",
+      "setPowerIfAllyNameIncludes": {
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "power": 2
+      },
       "setPowerTo": 2,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "อีกฝ่าย Cost -1 / มีนิโคไล POWER เป็น 2"
     },
     {
       "name": "ท้าวเวสสุวรรณ",
@@ -2048,10 +2092,39 @@
       "codes": [
         "BT05-038"
       ],
-      "abilities": [],
-      "cannotBeAttackTargetIfOwnNameIncludes": "เครื่องบิน Super Air",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "Super Air"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTarget"
+            }
+          ]
+        }
+      ],
+      "cannotBeAttackTargetIfOwnNameIncludes": "Super Air",
+      "protectReplaceIfHostNameIncludes": "Super Air",
       "protectReplaceForNameIncludes": "เครื่องบิน Super Air",
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "สังเวยแทน Super Air ถูกทำลาย / ห้ามตกเป็นเป้าการโจมตี"
     },
     {
       "name": "ผู้พิทักษ์แห่งภาคีมะม่วง",
@@ -2290,12 +2363,27 @@
       "codes": [
         "BT04-032"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
         "keyword": "เตะไข่"
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ได้รับ เตะไข่ หากมี นิโคไล อยู่บนสนาม"
     },
     {
       "name": "พลเสบียง",
@@ -2590,27 +2678,51 @@
       "codes": [
         "BT09-038"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "เตะไข่",
+          "trigger": {
+            "on": "nutKickActivated"
+          },
+          "actions": [
+            {
+              "op": "nutKickTarget"
+            }
+          ]
+        }
+      ],
       "grantKeywordIfLandNameIncludes": {
+        "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
         "keyword": "เตะไข่",
-        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
-        "requireEnemyFaceDownLife": true
+        "condition": "oppHasFaceDownLife"
       },
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ถ้ามีป่า + ศัตรูมี LIFE คว่ำ → ได้เตะไข่"
+      "note": "ได้รับ เตะไข่ ถ้ามี ป่าพงไพร และอีกฝ่ายมี Life คว่ำ"
     },
     {
       "name": "ภูติผลไม้ มะม่วง",
       "codes": [
         "BT09-036"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "grantKeywordIfLandNameIncludes": {
-        "keyword": "โล่มนุษย์",
-        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์"
+        "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+        "keyword": "โล่มนุษย์"
       },
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ถ้า Land มีป่าพงไพร → ได้โล่มนุษย์"
+      "note": "ได้รับ โล่มนุษย์ ถ้ามี ป่าพงไพร"
     },
     {
       "name": "ภูติผลไม้ มะเหมี่ยว",
@@ -2878,7 +2990,8 @@
               "dest": "magic",
               "distinctNames": true,
               "multiMax": 99,
-              "optional": true
+              "optional": true,
+              "showAll": true
             }
           ]
         },
@@ -3085,10 +3198,25 @@
       "codes": [
         "BT06-038"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            },
+            {
+              "op": "blockModification"
+            }
+          ]
+        }
+      ],
       "cannotAttack": true,
       "parseStatus": "auto",
-      "note": "ไม่สามารถโจมตีได้ / ไม่สามารถสวมใส่ Mod Magic"
+      "note": "โจมตีไม่ได้ และสวมใส่ Modification ไม่ได้"
     },
     {
       "name": "แมรี่ พนักงานต้อนรับ",
@@ -3252,14 +3380,28 @@
       "codes": [
         "BT08-043"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "attachedCount<2"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": [
           "Tank Ranger"
         ]
       },
+      "hostAttachNameIncludes": "Tank Ranger",
       "parseStatus": "auto",
-      "note": "ไม่มีอวตารสวม >= 2 ใบ โจมตีไม่ได้ / สวมใส่ได้เฉพาะ Tank Ranger"
+      "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้"
     },
     {
       "name": "รถถัง A003",
@@ -3276,10 +3418,23 @@
         "BT02-029",
         "CC02-037"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttackWithoutHost"
+            }
+          ]
+        }
+      ],
       "uniqueAttachedNames": true,
+      "hostCannotAttack": true,
       "parseStatus": "auto",
-      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่"
+      "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ"
     },
     {
       "name": "รถถัง \"Tank Ranger\"",
@@ -3455,9 +3610,22 @@
       "codes": [
         "BT03-028"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "combatImmuneVsLowerCost"
+            }
+          ]
+        }
+      ],
       "combatImmuneVsLowerCost": true,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Avatar ที่ Cost น้อยกว่า"
     },
     {
       "name": "เรนะ นักล่าไดโนเสาร์",
@@ -3610,11 +3778,24 @@
       "codes": [
         "BT05-040"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ลูกฮึด",
+          "trigger": {
+            "on": "fireInTheBellyActivated"
+          },
+          "actions": [
+            {
+              "op": "fireInTheBellyWin"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "ลูกฮึด"
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ลูกฮึด"
     },
     {
       "name": "วานร ละโว้",
@@ -4035,12 +4216,27 @@
       "codes": [
         "BT05-037"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "เครื่องบิน Super Air",
+        "name": "Super Air",
         "keyword": "เตะไข่"
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ได้รับ เตะไข่ ถ้ามี Super Air บนสนาม"
     },
     {
       "name": "หมาฟู",

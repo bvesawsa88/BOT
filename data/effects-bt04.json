@@ -51,10 +51,24 @@
     {
       "code": "BT04-003",
       "name": "ไอ้นัท - คนใจเด็ด",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "controlImmuneExcept",
+              "name": "อีช่า - สาวน้อยคนเก่ง"
+            }
+          ]
+        }
+      ],
       "controlImmune": true,
-      "controlImmuneExcept": "อีช่า",
-      "parseStatus": "auto"
+      "controlImmuneExcept": "อีช่า - สาวน้อยคนเก่ง",
+      "parseStatus": "auto",
+      "note": "ไม่ถูกเปลี่ยนการควบคุมยกเว้นจากอีช่า"
     },
     {
       "code": "BT04-004",
@@ -94,18 +108,26 @@
     {
       "code": "BT04-005",
       "name": "ยายกบ 1954",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "setPowerFromSacrificed"
+            }
+          ]
+        }
+      ],
       "noPaidSummon": true,
       "sacrificeSummon": {
-        "filter": {
-          "type": "Avatar",
-          "nameIncludes": [
-            "กบ"
-          ],
-          "powerBuffCountMin": 3
-        }
+        "symbol": "กบ",
+        "minBuffs": 3
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "สังเวยกบที่บัฟ 3+ ครั้งเพื่ออัญเชิญ"
     },
     {
       "code": "BT04-006",
@@ -113,8 +135,21 @@
       "keywords": [
         "สามัคคี"
       ],
-      "abilities": [],
-      "parseStatus": "auto"
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สามัคคี"
     },
     {
       "code": "BT04-007",
@@ -247,10 +282,24 @@
     {
       "code": "BT04-011",
       "name": "เทอราโนดอน จากต่างแดน",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyScoutCount",
+              "symbol": "กะปอม",
+              "bonus": 1
+            }
+          ]
+        }
+      ],
       "scoutBonusOwnKapom": 1,
       "parseStatus": "auto",
-      "note": "กะปอมฝ่ายเราสอดแนม +1"
+      "note": "สอดแนม Symbol กะปอม ฝ่ายเรา +1 ใบ"
     },
     {
       "code": "BT04-012",
@@ -375,11 +424,23 @@
     },
     {
       "code": "BT04-016",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "immuneOppMagic"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ริกกี้ คุณตา",
       "immuneOppMagicTarget": true,
-      "note": "กัน Magic ที่เล็งตัวนี้ — เวทสั่งผู้เล่น (เช่น จมน้ำ) ยังได้"
+      "note": "ไม่รับผลจาก Magic ฝ่ายตรงข้าม"
     },
     {
       "code": "BT04-017",
@@ -418,9 +479,33 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "combatDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "preventCombatDestroy"
+            }
+          ]
+        }
+      ],
       "combatSurvivePowerMinus": -1,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "destroyHostIfPower0": true,
+      "note": "โล่มนุษย์ / ลด POWER 1 แทนถูกทำลายจากต่อสู้"
     },
     {
       "code": "BT04-019",
@@ -747,13 +832,28 @@
     },
     {
       "code": "BT04-032",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:ราชาอาณาจักรของแพง  พระเจ้านิโคไล"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "พลปืนอาณาจักรของแพง",
       "grantKeywordIfAllyNameIncludes": {
-        "nameIncludes": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
+        "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
         "keyword": "เตะไข่"
-      }
+      },
+      "note": "ได้รับ เตะไข่ หากมี นิโคไล อยู่บนสนาม"
     },
     {
       "code": "BT04-033",
@@ -1185,7 +1285,23 @@
     },
     {
       "code": "BT04-053",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostLeavingFieldByOpp"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "rollDicePreventLeaving",
+              "required": "even"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
       "attachOnly": {
@@ -1193,28 +1309,78 @@
         "symbol": "เครื่องจักร"
       },
       "protectLeaveDiceEven": true,
-      "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
+      "note": "สวมใส่ผู้กล้าหุ่นยนต์ / ทอยเต๋าเลขคู่ กันออกจากสนาม",
+      "hostAttachNameIncludes": "ผู้กล้า"
     },
     {
       "code": "BT04-054",
       "name": "ของขวัญจากโอตะ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attached"
+          },
+          "actions": [
+            {
+              "op": "drawCard",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
       "drawOnAttachIfHostNameIncludes": "ไอดอล",
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "hostAttachNameIncludes": "ไอดอล",
+      "costOnlyForSymbol": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
+      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
       "code": "BT04-055",
       "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHostCost",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "host.cost>=6"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "host"
+              }
+            }
+          ]
+        }
+      ],
       "hostCostDelta": 2,
       "hostPowerIfEffCostMin": {
-        "min": 6,
-        "amount": 1
+        "minCost": 6,
+        "power": 1
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Host Cost +2 / ถ้า Cost >= 6 POWER +1"
     },
     {
       "code": "BT04-056",
@@ -1264,9 +1430,22 @@
     {
       "code": "BT04-058",
       "name": "โรงบาลรัฐ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "blockLifeUnreveal"
+            }
+          ]
+        }
+      ],
       "blockLifeUnreveal": true,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "LIFE Card ทั้งสองฝ่ายห้ามเปลี่ยนเป็นสภาพคว่ำ"
     },
     {
       "code": "BT04-059",

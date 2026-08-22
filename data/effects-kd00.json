@@ -46,9 +46,21 @@
     {
       "code": "KD00-00B",
       "name": "เบียดเบียนผู้อื่น",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "leftHandCardStealCompareCost"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สุ่มหยิบการ์ดคนทางซ้ายมาเทียบ Cost"
     },
     {
       "code": "KD00-00C",

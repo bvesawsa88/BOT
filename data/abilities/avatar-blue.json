@@ -177,13 +177,29 @@
       "codes": [
         "BT05-018"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "handSummon"
+          },
+          "condition": {
+            "ownControlName": "เจค นักฆ่ามือเก๋า",
+            "uniqueSelf": true
+          },
+          "actions": [
+            {
+              "op": "freeSummon"
+            }
+          ]
+        }
+      ],
       "freeSummonIf": {
-        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
-        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
+        "ownControlName": "เจค นักฆ่ามือเก๋า",
+        "uniqueSelf": true
       },
       "parseStatus": "auto",
-      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
+      "note": "ลงฟรีถ้ามี เจค และไม่มีตัวซ้ำบนสนาม"
     },
     {
       "name": "ข้ารับใช้มนุษย์ดาว R18",
@@ -492,9 +508,22 @@
       "codes": [
         "BT05-016"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantAllColors"
+            }
+          ]
+        }
+      ],
       "allColors": true,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ถือเป็น Avatar ทุกสี"
     },
     {
       "name": "ง่อวซอรัส",
@@ -564,12 +593,24 @@
         "BT01-014",
         "ODY1-023"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "โล่มนุษย์"
       ],
       "parseStatus": "auto",
-      "note": "โล่มนุษย์ใช้จากเมนูตอนถูกประกาศโจมตี"
+      "note": "โล่มนุษย์"
     },
     {
       "name": "จ่ามะนาวแขนเหล็ก",
@@ -823,6 +864,29 @@
       ],
       "parseStatus": "auto",
       "note": "จุติ: เลือกการ์ดจากเด็คขึ้นมือได้ 2 ใบ แล้วสับ"
+    },
+    {
+      "name": "โซน่า โพลีกอน",
+      "codes": [
+        "BT09-022"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "เด็กไม่ชอบแมลงสาบ",
@@ -1386,10 +1450,24 @@
         "BT04-011",
         "PRMO-033"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyScoutCount",
+              "symbol": "กะปอม",
+              "bonus": 1
+            }
+          ]
+        }
+      ],
       "scoutBonusOwnKapom": 1,
       "parseStatus": "auto",
-      "note": "กะปอมฝ่ายเราสอดแนม +1"
+      "note": "สอดแนม Symbol กะปอม ฝ่ายเรา +1 ใบ"
     },
     {
       "name": "แท็กซี่ตีนเปล่า",
@@ -2029,16 +2107,33 @@
         "BT05-013",
         "PRMO-132"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
       "grantKeywordAura": {
-        "keyword": "สามัคคี",
         "symbols": [
           "คน",
           "ต้นไม้"
         ],
-        "side": "own"
+        "keyword": "สามัคคี"
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
     },
     {
       "name": "ผู้เจริญระดับ 3",
@@ -2924,12 +3019,24 @@
         "ODY1-019",
         "PRMO-001"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "สามัคคี"
       ],
       "parseStatus": "auto",
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ"
     },
     {
       "name": "รัททาทุย 2 แสนโวลต์",
@@ -2948,11 +3055,35 @@
       "codes": [
         "BT04-018"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "combatDestroying"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "preventCombatDestroy"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "โล่มนุษย์"
       ],
-      "parseStatus": "auto"
+      "destroyHostIfPower0": true,
+      "parseStatus": "auto",
+      "note": "โล่มนุษย์ / ลด POWER 1 แทนถูกทำลายจากต่อสู้"
     },
     {
       "name": "รัททาทุย นางพญา",
@@ -2960,10 +3091,28 @@
         "BT01-008",
         "ODY1-017"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "drawPhaseFirst"
+          },
+          "condition": {
+            "selfInDeck": true
+          },
+          "actions": [
+            {
+              "op": "replaceDrawWithSelf",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
       "replaceFirstDrawWithSelf": true,
       "parseStatus": "auto",
-      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)"
+      "note": "Draw Phase แรก นำจาก Deck ขึ้นมือแทนการจั่ว"
     },
     {
       "name": "รัททาทุย แบงค์",
@@ -3214,10 +3363,22 @@
       "codes": [
         "BT04-016"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "immuneOppMagic"
+            }
+          ]
+        }
+      ],
       "immuneOppMagicTarget": true,
       "parseStatus": "auto",
-      "note": "กัน Magic ที่เล็งตัวนี้ — เวทสั่งผู้เล่น (เช่น จมน้ำ) ยังได้"
+      "note": "ไม่รับผลจาก Magic ฝ่ายตรงข้าม"
     },
     {
       "name": "ริกกี้ คุณตาใจดี",
@@ -3709,7 +3870,20 @@
       "codes": [
         "BT06-017"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "addSymbol",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
       "extraSymbols": [
         "สัตว์"
       ],

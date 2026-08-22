@@ -743,11 +743,24 @@
     {
       "code": "BT02-029",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttackWithoutHost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่",
+      "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ",
       "cannotAttackIf": "noAttachedAvatar",
-      "uniqueAttachedNames": true
+      "uniqueAttachedNames": true,
+      "hostCannotAttack": true
     },
     {
       "code": "BT02-030",
@@ -1200,9 +1213,25 @@
     {
       "code": "BT02-055",
       "name": "ประกันชั้นต่ำ",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostCombatDestroy"
+          },
+          "actions": [
+            {
+              "op": "preventCombatDestroy"
+            },
+            {
+              "op": "sendSelfToHell"
+            }
+          ]
+        }
+      ],
       "protectReplace": true,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "กันถูกทำลายจากการต่อสู้ 1 ครั้ง แล้วส่งลงนรก"
     },
     {
       "code": "BT02-056",

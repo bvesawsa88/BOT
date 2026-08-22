@@ -62,29 +62,6 @@
       "note": "อัตโนมัติ เมื่อโจมตี Avatar Symbol ต่างชาติ : ทำลายเป้าหมาย"
     },
     {
-      "name": "โซน่า โพลีกอน",
-      "codes": [
-        "BT09-022"
-      ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "draw",
-              "count": 1,
-              "player": "owner"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
-    },
-    {
       "name": "โดมรัททาทุย",
       "codes": [
         "SD08-003"
@@ -516,12 +493,27 @@
       "codes": [
         "BT09-029"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "สามัคคี"
       ],
+      "cannotBeAttackTargetIf": {
+        "oppColor": "เขียว"
+      },
       "parseStatus": "auto",
-      "note": "สามัคคี / ศัตรูสีเขียวห้ามเลือกใบนี้เป็นเป้าโจมตี"
+      "note": "สามัคคี / Avatar สีเขียวอีกฝ่ายห้ามเลือกเป็นเป้าโจมตี"
     }
   ]
 }

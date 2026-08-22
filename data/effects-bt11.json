@@ -1689,9 +1689,23 @@
     {
       "code": "BT11-045",
       "name": "โคลัมแบงค์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHandGemColor",
+              "nameIncludes": "แบงค์",
+              "gemColor": "colorless"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "Gem ของ Avatar แบงค์ ทุกใบบนมือ กลายเป็น Gem ไร้สี",
+      "note": "Gem ของ Avatar แบงค์ บนมือเป็นไร้สี",
       "gemAsCostForNameIncludes": "แบงค์",
       "gemAsCostColor": "colorless"
     },
@@ -2414,13 +2428,26 @@
     {
       "code": "BT11-067",
       "name": "อาวุธนคร ดินสอ 5H",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostAttacking"
+          },
+          "actions": [
+            {
+              "op": "blockOppReactMagicUntilCombatEnd"
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "มือปืนนคร"
       },
       "hostBlockReactUntilCombatEnd": true,
       "parseStatus": "auto",
-      "note": "สวมได้แค่มือปืนนคร · โจมตีแล้วอีกฝ่ายใช้ React ไม่ได้จนกว่าจะจบการต่อสู้"
+      "note": "สวมใส่ มือปืนนคร / โจมตีห้ามอีกฝ่ายใช้ React Magic",
+      "hostAttachNameIncludes": "มือปืนนคร"
     },
     {
       "code": "BT11-068",
@@ -2702,9 +2729,21 @@
     {
       "code": "BT11-073",
       "name": "รูปประจำบ้าน",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunityAllOwn"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม",
+      "note": "Avatar ฝ่ายเราจะไม่ถูกเปลี่ยนการควบคุม",
       "controlImmuneOwnAvatars": true
     },
     {

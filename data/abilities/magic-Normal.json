@@ -265,9 +265,24 @@
       "codes": [
         "BT09-049"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "pipoApologyForgiven"
+            }
+          ]
+        }
+      ],
+      "costOnlyForSymbol": [
+        "DJ ปีโป้"
+      ],
       "parseStatus": "auto",
-      "note": "ใช้ทิ้งเป็น Cost ได้เฉพาะ DJ ปีโป้"
+      "note": "การขอโทษจาก DJ ปีโป้ ได้รับการยกโทษเสมอ"
     },
     {
       "name": "ขอมือเธอหน่อย~",
@@ -1192,9 +1207,31 @@
       "codes": [
         "ODY1-065"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "host"
+              },
+              "until": "endOfOpponentNextTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทำลายตนเอง Host POWER +2 จนจบเทิร์นถัดไปอีกฝ่าย"
     },
     {
       "name": "ทะลวงส้วม",
@@ -1461,9 +1498,21 @@
       "codes": [
         "KD00-00B"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "leftHandCardStealCompareCost"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สุ่มหยิบการ์ดคนทางซ้ายมาเทียบ Cost"
     },
     {
       "name": "แบงค์ Portal",
@@ -3317,9 +3366,26 @@
       "codes": [
         "ODY1-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attackTargeted",
+            "filter": {
+              "nameIncludes": "ทาโกะ"
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ ทาโกะ โดนเล็งโจมตี POWER +2 จนจบเทิร์น"
     },
     {
       "name": "โอน้อยออกแห่งโชคชะตา",

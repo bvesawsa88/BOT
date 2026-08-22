@@ -932,14 +932,29 @@
     },
     {
       "code": "BT09-029",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "สตางค์น้องชายแบงค์ ตัวเขียว",
       "keywords": [
         "สามัคคี"
       ],
-      "note": "สามัคคี / ศัตรูสีเขียวห้ามเลือกใบนี้เป็นเป้าโจมตี",
-      "cannotBeAttackTargetIfEnemyColor": "green"
+      "note": "สามัคคี / Avatar สีเขียวอีกฝ่ายห้ามเลือกเป็นเป้าโจมตี",
+      "cannotBeAttackTargetIfEnemyColor": "green",
+      "cannotBeAttackTargetIf": {
+        "oppColor": "เขียว"
+      }
     },
     {
       "code": "BT09-030",
@@ -1140,12 +1155,24 @@
     {
       "code": "BT09-036",
       "name": "ภูติผลไม้ มะม่วง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ถ้า Land มีป่าพงไพร → ได้โล่มนุษย์",
+      "note": "ได้รับ โล่มนุษย์ ถ้ามี ป่าพงไพร",
       "grantKeywordIfLandNameIncludes": {
-        "keyword": "โล่มนุษย์",
-        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์"
+        "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
+        "keyword": "โล่มนุษย์"
       }
     },
     {
@@ -1185,13 +1212,25 @@
     {
       "code": "BT09-038",
       "name": "ภูติผลไม้ มะเฟือง",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "เตะไข่",
+          "trigger": {
+            "on": "nutKickActivated"
+          },
+          "actions": [
+            {
+              "op": "nutKickTarget"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ถ้ามีป่า + ศัตรูมี LIFE คว่ำ → ได้เตะไข่",
+      "note": "ได้รับ เตะไข่ ถ้ามี ป่าพงไพร และอีกฝ่ายมี Life คว่ำ",
       "grantKeywordIfLandNameIncludes": {
+        "name": "ป่าพงไพร เผ่าพงศ์พันธุ์",
         "keyword": "เตะไข่",
-        "landNameIncludes": "ป่าพงไพร เผ่าพงศ์พันธุ์",
-        "requireEnemyFaceDownLife": true
+        "condition": "oppHasFaceDownLife"
       }
     },
     {
@@ -1510,11 +1549,26 @@
     },
     {
       "code": "BT09-049",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "pipoApologyForgiven"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "ขอโทษสังคม",
-      "note": "ใช้ทิ้งเป็น Cost ได้เฉพาะ DJ ปีโป้",
-      "costOnlyForNameIncludes": "DJ ปีโป้"
+      "note": "การขอโทษจาก DJ ปีโป้ ได้รับการยกโทษเสมอ",
+      "costOnlyForNameIncludes": "DJ ปีโป้",
+      "costOnlyForSymbol": [
+        "DJ ปีโป้"
+      ]
     },
     {
       "code": "BT09-050",
@@ -1998,12 +2052,24 @@
     },
     {
       "code": "BT09-065",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "hostCannotAttack"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "กระสอบ",
       "hostCannotAttack": true,
       "destroyAfterGlobalEndPhases": 4,
-      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "Host โจมตีไม่ได้ / ลงนรกหลัง 4 End Phases"
     },
     {
       "code": "BT09-066",
@@ -2099,11 +2165,23 @@
     {
       "code": "BT09-070",
       "name": "สวนกล้วยหนีภาษี",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "blockLandPlay"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "blockAllLandPlay": true,
       "destroyAfterGlobalEndPhases": 4,
-      "note": "บล็อกใช้ Land ทุกฝ่าย · End Phase รวมทุกฝ่ายครบ 4 ครั้ง → ลงนรก"
+      "note": "ห้ามทุกคนใช้ Land / ลงนรกหลัง 4 End Phases"
     },
     {
       "code": "BT09-071",

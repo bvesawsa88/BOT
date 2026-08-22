@@ -437,7 +437,20 @@
     },
     {
       "code": "BT06-017",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "addSymbol",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "วิลโล่ ปลาแกะ",
       "note": "นับเป็น Symbol สัตว์ ด้วย",
@@ -1064,10 +1077,25 @@
     },
     {
       "code": "BT06-038",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            },
+            {
+              "op": "blockModification"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "แมมมอธแช่แข็ง",
-      "note": "ไม่สามารถโจมตีได้ / ไม่สามารถสวมใส่ Mod Magic",
+      "note": "โจมตีไม่ได้ และสวมใส่ Modification ไม่ได้",
       "cannotAttack": true,
       "blockModification": true
     },
@@ -1657,10 +1685,25 @@
     },
     {
       "code": "BT06-061",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHandCostAndGem",
+              "nameIncludes": "แบงค์",
+              "costDelta": -1,
+              "gemColor": "colorless"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "สภาแบงค์",
-      "note": "Avatar แบงค์ บนมือ Cost -1 และ Gem กลายเป็น Gem ไร้สี",
+      "note": "Avatar แบงค์ บนมือ Cost -1 และ Gem เป็นไร้สี",
       "costDeltaInHand": {
         "nameIncludes": [
           "แบงค์"
@@ -1668,7 +1711,8 @@
         "amount": -1
       },
       "gemAsCostForNameIncludes": "แบงค์",
-      "gemAsCostColor": "colorless"
+      "gemAsCostColor": "colorless",
+      "hostCostDelta": -1
     },
     {
       "code": "BT06-062",

@@ -98,28 +98,51 @@
       "codes": [
         "BT11-073"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunityAllOwn"
+            }
+          ]
+        }
+      ],
       "controlImmuneOwnAvatars": true,
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ฝ่ายเราจะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "name": "ZeedZad Server",
       "codes": [
         "BT10-074"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ลูกฮึด",
+          "trigger": {
+            "on": "fireInTheBellyActivated"
+          },
+          "actions": [
+            {
+              "op": "fireInTheBellyWin"
+            }
+          ]
+        }
+      ],
       "grantKeywordAura": {
-        "keyword": "ลูกฮึด",
         "nameIncludes": "แก๊งขยะ",
-        "side": "own"
+        "keyword": "ลูกฮึด"
       },
       "costZeroIfDistinctOwnNameIncludes": {
-        "nameIncludes": "แก๊งขยะ",
-        "min": 2
+        "name": "แก๊งขยะ",
+        "count": 2
       },
       "parseStatus": "auto",
-      "note": "Cost 0 ถ้าแก๊งขยะชื่อไม่ซ้ำ ≥2 · ออร่าลูกฮึดให้แก๊งขยะ"
+      "note": "Cost 0 ถ้ามีแก๊งขยะ 2+ ชื่อ / แก๊งขยะได้ลูกฮึด"
     }
   ]
 }

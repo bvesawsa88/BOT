@@ -54,11 +54,23 @@
       "codes": [
         "BT09-065"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "hostCannotAttack"
+            }
+          ]
+        }
+      ],
       "destroyAfterGlobalEndPhases": 4,
       "hostCannotAttack": true,
       "parseStatus": "auto",
-      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
+      "note": "Host โจมตีไม่ได้ / ลงนรกหลัง 4 End Phases"
     },
     {
       "name": "กองถ่ายฤาษี",
@@ -249,9 +261,23 @@
       "codes": [
         "BT03-054"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHostCost",
+              "amount": -1
+            }
+          ]
+        }
+      ],
       "hostCostDelta": -1,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Avatar ที่สวมใส่ Cost -1"
     },
     {
       "name": "ของขวัญจากโอตะ",
@@ -259,11 +285,30 @@
         "BT04-054",
         "KD03-019"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "attached"
+          },
+          "actions": [
+            {
+              "op": "drawCard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "costOnlyForSymbol": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
-      "parseStatus": "auto"
+      "hostAttachNameIncludes": "ไอดอล",
+      "parseStatus": "auto",
+      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
       "name": "ค้อนโยเนียร์",
@@ -370,13 +415,43 @@
       "codes": [
         "BT04-055"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "modifyHostCost",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "host.cost>=6"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "host"
+              }
+            }
+          ]
+        }
+      ],
       "hostCostDelta": 2,
       "hostPowerIfEffCostMin": {
-        "min": 6,
-        "amount": 1
+        "minCost": 6,
+        "power": 1
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Host Cost +2 / ถ้า Cost >= 6 POWER +1"
     },
     {
       "name": "ดาบศักดิ์สิทธิ์ แกลลาติน",
@@ -969,9 +1044,25 @@
       "codes": [
         "BT02-055"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostCombatDestroy"
+          },
+          "actions": [
+            {
+              "op": "preventCombatDestroy"
+            },
+            {
+              "op": "sendSelfToHell"
+            }
+          ]
+        }
+      ],
       "protectReplace": true,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "กันถูกทำลายจากการต่อสู้ 1 ครั้ง แล้วส่งลงนรก"
     },
     {
       "name": "ปลอกคอซื่อสัตย์",
@@ -979,10 +1070,22 @@
         "BT07-065",
         "PRMO-129"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunity"
+            }
+          ]
+        }
+      ],
       "controlImmune": true,
       "parseStatus": "auto",
-      "note": "Avatar ที่สวมใส่ไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "name": "ปืนจักรวุทธ",
@@ -1224,9 +1327,22 @@
       "codes": [
         "BT03-053"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "ignoreNegativePower"
+            }
+          ]
+        }
+      ],
       "ignoreNegativePower": true,
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "ไม่รับผลการลด POWER และเพิ่มคืนเท่าที่โดนลด"
     },
     {
       "name": "รั้วของชาติ",
@@ -1234,12 +1350,27 @@
         "BT01-044",
         "ODY1-080"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "keywords": [
         "โล่มนุษย์"
       ],
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์"
+      },
       "parseStatus": "auto",
-      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม"
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ โล่มนุษย์"
     },
     {
       "name": "ลูกแก้วนาคา",
@@ -1631,13 +1762,26 @@
       "codes": [
         "BT11-067"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostAttacking"
+          },
+          "actions": [
+            {
+              "op": "blockOppReactMagicUntilCombatEnd"
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "มือปืนนคร"
       },
+      "hostAttachNameIncludes": "มือปืนนคร",
       "hostBlockReactUntilCombatEnd": true,
       "parseStatus": "auto",
-      "note": "สวมได้แค่มือปืนนคร · โจมตีแล้วอีกฝ่ายใช้ React ไม่ได้จนกว่าจะจบการต่อสู้"
+      "note": "สวมใส่ มือปืนนคร / โจมตีห้ามอีกฝ่ายใช้ React Magic"
     },
     {
       "name": "อาวุธนคร ปืนพกงูเห่า",
@@ -1723,13 +1867,30 @@
       "codes": [
         "BT04-053"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostLeavingFieldByOpp"
+          },
+          "condition": {
+            "oncePerTurn": true
+          },
+          "actions": [
+            {
+              "op": "rollDicePreventLeaving",
+              "required": "even"
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "ผู้กล้า",
         "symbol": "เครื่องจักร"
       },
+      "hostAttachNameIncludes": "ผู้กล้า",
       "parseStatus": "auto",
-      "note": "กันออกสนามจากใบศัตรู (ไม่กันต่อสู้) — ทอยคู่แล้วรอด"
+      "note": "สวมใส่ผู้กล้าหุ่นยนต์ / ทอยเต๋าเลขคู่ กันออกจากสนาม"
     },
     {
       "name": "อาวุธหุ่นนักรบผู้กล้า \"อีโบล่า ซอร์ด\"",
@@ -1767,11 +1928,25 @@
         "BT05-063",
         "KD04-015"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "protectSymbolChange"
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "symbol": "หุ่นยนต์"
       },
-      "parseStatus": "auto"
+      "hostAttachNameIncludes": "หุ่นยนต์",
+      "parseStatus": "auto",
+      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol"
     }
   ]
 }

@@ -1365,16 +1365,30 @@
     },
     {
       "code": "BT08-043",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "attachedCount<2"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
       "name": "รถถังเฟืองเหล็ก",
-      "note": "ไม่มีอวตารสวม >= 2 ใบ โจมตีไม่ได้ / สวมใส่ได้เฉพาะ Tank Ranger",
+      "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้",
       "cannotAttackIfAttachedCountMax": 1,
       "attachOnly": {
         "nameIncludes": [
           "Tank Ranger"
         ]
-      }
+      },
+      "hostAttachNameIncludes": "Tank Ranger"
     },
     {
       "code": "BT08-044",

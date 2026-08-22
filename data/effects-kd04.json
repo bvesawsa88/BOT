@@ -173,10 +173,26 @@
     {
       "code": "KD04-006",
       "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "กันทำลายแทนหุ่นนักรบผู้กล้า : ไมเกรน (ไม้ท์เกรน)",
-      "protectReplaceForNameIncludes": "ไมเกรน"
+      "note": "ทำลายใบนี้แทนเมื่อไม้ท์เกรนจะถูกทำลาย",
+      "protectReplaceForNameIncludes": "ไมเกรน",
+      "protectReplaceIfHostNameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน"
     },
     {
       "code": "KD04-007",
@@ -371,12 +387,26 @@
     {
       "code": "KD04-015",
       "name": "อาวุธหุ่นนักรบผู้กล้า \"GHD โคลค\"",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "protectSymbolChange"
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "symbol": "หุ่นยนต์"
       },
       "parseStatus": "auto",
-      "hostSymbolLock": true
+      "hostSymbolLock": true,
+      "hostAttachNameIncludes": "หุ่นยนต์",
+      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol"
     },
     {
       "code": "KD04-016",

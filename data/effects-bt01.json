@@ -158,9 +158,27 @@
     },
     {
       "code": "BT01-008",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "drawPhaseFirst"
+          },
+          "condition": {
+            "selfInDeck": true
+          },
+          "actions": [
+            {
+              "op": "replaceDrawWithSelf",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "Draw Phase แรกของเรา: นำใบนี้จากเด็คขึ้นมือแทนการจั่ว (ข้ามได้)",
+      "note": "Draw Phase แรก นำจาก Deck ขึ้นมือแทนการจั่ว",
       "name": "รัททาทุย นางพญา",
       "replaceFirstDrawWithSelf": true
     },
@@ -201,10 +219,23 @@
       "keywords": [
         "สามัคคี"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "สามัคคี",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "actions": [
+            {
+              "op": "unityBoost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "สามัคคีใช้จากเมนูการ์ดตอนโจมตี/บนสนาม",
-      "name": "รัททาทุย"
+      "note": "สามัคคี / ใส่ได้สูงสุด 50 ใบ",
+      "name": "รัททาทุย",
+      "customLimit": "50"
     },
     {
       "code": "BT01-011",
@@ -280,9 +311,21 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "โล่มนุษย์ใช้จากเมนูตอนถูกประกาศโจมตี",
+      "note": "โล่มนุษย์",
       "name": "จ่ามะนาว"
     },
     {
@@ -737,10 +780,25 @@
       "keywords": [
         "โล่มนุษย์"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "โล่มนุษย์",
+          "trigger": {
+            "on": "humanShieldActivated"
+          },
+          "actions": [
+            {
+              "op": "humanShieldRedirect"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "โฮสต์ที่สวมได้โล่มนุษย์ผ่าน hasKw จากใบสวม",
-      "name": "รั้วของชาติ"
+      "note": "Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ โล่มนุษย์",
+      "name": "รั้วของชาติ",
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์"
+      }
     },
     {
       "code": "BT01-045",
@@ -861,9 +919,22 @@
     },
     {
       "code": "BT01-049",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "setGlobalAttackLimit",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก",
+      "note": "โจมตีได้แค่ 1 ตัวต่อเทิร์น อยู่บนสนาม 4 เทิร์น",
       "name": "มวยทะเลลลลลล",
       "attackLimitPerTurn": 1,
       "destroyAfterGlobalEndPhases": 4

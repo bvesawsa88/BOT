@@ -1055,9 +1055,22 @@
     {
       "code": "CC02-060",
       "name": "มวยทะเลลลลลล",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "setGlobalAttackLimit",
+              "count": 1
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "แต่ละฝ่ายโจมตีได้ 1 ตัว/เทิร์น · End Phase รวม 4 ครั้งแล้วลงนรก",
+      "note": "โจมตีได้แค่ 1 ตัวต่อเทิร์น อยู่บนสนาม 4 เทิร์น",
       "destroyAfterGlobalEndPhases": 4,
       "attackLimitPerTurn": 1
     },
@@ -1949,10 +1962,23 @@
     {
       "code": "CC02-037",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "cannotAttackWithoutHost"
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto",
-      "note": "ถ้าไม่มี Avatar สวมใส่จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่",
-      "uniqueAttachedNames": true
+      "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ",
+      "uniqueAttachedNames": true,
+      "hostCannotAttack": true
     },
     {
       "code": "CC02-019",
