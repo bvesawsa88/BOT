@@ -3630,6 +3630,21 @@
   /** ห้ามเล่น/สั่งใช้ถ้าฮีลไม่มีไลฟ์หงาย หรือเด้งศัตรูโดยอีกฝ่ายไม่มีมอน หรือ chooseMode ไม่มีตัวเลือก (สำหรับการสั่งใช้) */
   function activatedTargetDeny(st, owner, ab, srcK, isPlayMagic) {
     if (!ab || !owner) return null;
+    if (ab.trigger && ab.trigger.if) {
+      const cond = ab.trigger.if;
+      const mDeckMax = cond.match(/^deckRemainingMax:(\d+)$/);
+      if (mDeckMax) {
+        const max = +mDeckMax[1];
+        const rem = (st.zones[owner + '.deck'] || []).length;
+        if (rem > max) return `เด็คต้องเหลือ ≤ ${max} ใบ (ตอนนี้มี ${rem} ใบ)`;
+      }
+      const mDeckMin = cond.match(/^deckRemainingMin:(\d+)$/);
+      if (mDeckMin) {
+        const min = +mDeckMin[1];
+        const rem = (st.zones[owner + '.deck'] || []).length;
+        if (rem < min) return `เด็คต้องเหลือ ≥ ${min} ใบ (ตอนนี้มี ${rem} ใบ)`;
+      }
+    }
     {
       const fd = fieldSummonDeny(st, owner, ab, srcK);
       if (fd) return fd;
@@ -6637,6 +6652,30 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             runActions(st, fx, ac.then, { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
           }
         }
+      } else if (ac.op === 'returnFromHellToDeck' || ac.op === 'returnToDeck') {
+        let filter = Object.assign({}, ac.filter || {});
+        const srcCard = st.inst[ctx.src];
+        if ((ac.exceptSelfName || ac.exceptOnly) && srcCard) {
+          filter.nameNotEquals = srcCard.name;
+        }
+        if (ac.exceptSelf && ctx.src) {
+          filter._srcK = ctx.src;
+        }
+        const max = ac.max || ac.count || 1;
+        const dest = ac.pos === 'bottom' ? 'deckBottom' : 'hellMultiDeck';
+        const p = {
+          kind: 'pick', from: 'hell', src: ctx.src, chooser: ctx.owner, filter,
+          dest, optional: true, multiMax: max, multiGot: 0,
+          shuffleAfter: !!ac.shuffle
+        };
+        const hell = (st.zones[ctx.owner + '.hell'] || []).filter(x => x !== ctx.src);
+        const cands = promptCandidates(st, p);
+        if (cands.length) {
+          st.prompts.push(p); prompted = true;
+          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เปิดนรก — เลือกการ์ดกลับเข้าเด็คสูงสุด ${max} ใบ (${cands.length}/${hell.length} ใบ)`);
+        } else {
+          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในนรกให้เลือกกลับเข้าเด็ค`);
+        }
       } else if (ac.op === 'summon') {
         // อัญเชิญการ์ดตรงเงื่อนไขจากเด็ค/นรก ลงสนาม (เลือกเป้าผ่าน prompt)
         const p = { kind: 'pick', from: ac.from === 'hell' ? 'hell' : 'deckAll', src: ctx.src, chooser: ctx.owner, filter: ac.filter, dest: 'avatar', shuffleAfter: ac.from !== 'hell', optional: true };
@@ -7126,10 +7165,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       } else if (ac.op === 'millAllAndZeroEnemyIfAvatarsMin4') {
         const count = ac.count || 3;
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทั้งสองฝ่ายธรณีสูบ ${count} ใบ`);
-        mill(st, fx, 'A', count, ctx.rng, 0, ctx.src);
-        mill(st, fx, 'B', count, ctx.rng, 0, ctx.src);
-        const ownAvatars = (st.zones[ctx.owner + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].faceUp).length;
-        if (ownAvatars >= 4) {
+        const milledA = mill(st, fx, 'A', count, ctx.rng, 0, ctx.src);
+        const milledB = mill(st, fx, 'B', count, ctx.rng, 0, ctx.src);
+        const allMilled = (milledA || []).concat(milledB || []);
+        const milledAvatars = allMilled.filter(id => st.inst[id] && st.inst[id].type === 'Avatar').length;
+        if (milledAvatars >= 4) {
           const p = {
             kind: 'pick', from: 'enemyAvatars', src: ctx.src, chooser: ctx.owner,
             dest: 'zeroPowerEnemy', optional: false
@@ -7137,7 +7177,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (promptCandidates(st, p).length) {
             st.prompts.push(p);
             prompted = true;
-            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: อวาตาร ≥ 4 ใบ — เลือก Avatar ศัตรูเพื่อปรับ POWER ตั้งต้นเป็น 0`);
+            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: การ์ดที่ถูกธรณีสูบมี Avatar ≥ 4 ใบ (${milledAvatars} ใบ) — เลือก Avatar ศัตรูเพื่อสูญเสียความสามารถและปรับ POWER ตั้งต้นเป็น 0`);
           }
         }
       } else if (ac.op === 'summonFromDarkDimensionIfVirusCountMin') {
@@ -8600,6 +8640,21 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           }
           break;
         }
+        if (ab.trigger && ab.trigger.if) {
+          const cond = ab.trigger.if;
+          const mDeckMax = cond.match(/^deckRemainingMax:(\d+)$/);
+          if (mDeckMax) {
+            const max = +mDeckMax[1];
+            const rem = (st.zones[owner + '.deck'] || []).length;
+            if (rem > max) return deny(`ใช้ "${c.name}" ไม่ได้ — เด็คต้องเหลือ ≤ ${max} ใบ (ตอนนี้มี ${rem} ใบ)`);
+          }
+          const mDeckMin = cond.match(/^deckRemainingMin:(\d+)$/);
+          if (mDeckMin) {
+            const min = +mDeckMin[1];
+            const rem = (st.zones[owner + '.deck'] || []).length;
+            if (rem < min) return deny(`ใช้ "${c.name}" ไม่ได้ — เด็คต้องเหลือ ≥ ${min} ใบ (ตอนนี้มี ${rem} ใบ)`);
+          }
+        }
         if (ab.requireOwnNameIncludes) {
           const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], ab.requireOwnNameIncludes));
           if (!ok) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar ชื่อมี "${ab.requireOwnNameIncludes}" บนสนาม`);
@@ -9316,7 +9371,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           } else if (p.dest === 'zeroPowerEnemy') {
             st.buffs = st.buffs || [];
             st.buffs.push({ k: a.k, lockPrinted: true, lockVal: 0, amt: 0, until: 'endOfTurn', from: p.src });
-            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ปรับ POWER ตั้งต้นของ ${nameOf(st, a.k)} เป็น 0 จนจบเทิร์น`);
+            if (st.inst[a.k]) st.inst[a.k].disabledUntilEOT = true;
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} สูญเสียความสามารถและปรับ POWER ตั้งต้นเป็น 0 จนจบเทิร์น`);
           } else if (p.dest === 'exileHellCost') {
             doMove(st, a.k, p.chooser + '.dark', null, fx);
             p.got = (p.got || 0) + 1;
@@ -11648,6 +11704,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 }).length;
                 if (count < min) return deny(`มิติมืดต้องมี "${needle}" ≥ ${min} ใบ (ตอนนี้มี ${count} ใบ)`);
               }
+            }
+            {
+              const tdDark = activatedTargetDeny(st, ownerD, ab, a.k);
+              if (tdDark) return deny(`ใช้ไม่ได้ — ${tdDark}`);
             }
             if (ab.oncePerTurn && !claimOncePerTurn(st, a.k, 'activatedFromDarkDimension'))
               return deny(`"${c.name}" สั่งใช้จากมิติมืดไปแล้วในเทิร์นนี้`);

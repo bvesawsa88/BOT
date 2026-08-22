@@ -3033,11 +3033,13 @@
       }),
       // สั่งใช้จากนรก (ถ้าการ์ดรองรับ)
       ...(st.zones['B.hell'] || []).filter(k => cardHasActivatedAbility(k)),
+      // สั่งใช้จากมิติมืด (ถ้าการ์ดรองรับ เช่น ไวรัส)
+      ...(st.zones['B.dark'] || []).filter(k => cardHasActivatedAbility(k)),
     ];
     return pools.slice().map(k => {
       const c = st.inst[k];
       const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
-      const actAb = (e && e.abilities || []).find(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'activatedFromHand' || ab.trigger.on === 'activatedFromHell' || ab.fromHell));
+      const actAb = (e && e.abilities || []).find(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'activatedFromHand' || ab.trigger.on === 'activatedFromHell' || ab.trigger.on === 'activatedFromDarkDimension' || ab.fromHell));
       const isDenied = actAb && BoTEngine.activatedTargetDeny && BoTEngine.activatedTargetDeny(st, 'B', actAb, k);
       return {
         a: { type: 'activateAbility', k, by: 'B' },
@@ -4106,12 +4108,20 @@
       return on === 'activatedFromHell' || ab.fromHell;
     });
     const hellActOk = hasHellAct && canControl(k) && !mullP && !st.awaitBattleStart;
+    const hasDarkAct = kz0.endsWith('.dark') && abs0.some(ab => {
+      const on = ab.trigger && ab.trigger.on;
+      return on === 'activatedFromDarkDimension';
+    });
+    const darkActOk = hasDarkAct && canControl(k) && !mullP && !st.awaitBattleStart;
     if (handActOk) {
       classes.push('hand-act');
       qa = `<div class="qa qa-hand"><button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้จากมือ (หรือคลิกขวา)">${BotUtil.kwHtml('สั่งใช้')}</button></div>`;
     } else if (hellActOk) {
       classes.push('hell-act');
       qa = `<div class="qa qa-hand"><button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้จากนรก (หรือคลิกขวา)">${BotUtil.kwHtml('สั่งใช้')}</button></div>`;
+    } else if (darkActOk) {
+      classes.push('dark-act');
+      qa = `<div class="qa qa-hand"><button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้จากมิติมืด (หรือคลิกขวา)">${BotUtil.kwHtml('สั่งใช้')}</button></div>`;
     } else if (qz && !opts.forceUp && !opts.noTap && canControl(k)) {
       const canPairBtn = cls === 'avatar' && hasBuddyAbility(c);
       const canUnityBtn = cls === 'avatar' && canUseUnity(k);
@@ -4975,6 +4985,7 @@
       if (on === 'activated' && onField) return true;
       if (on === 'activatedFromHand' && kz.endsWith('.hand')) return true;
       if ((on === 'activatedFromHell' || ab.fromHell) && kz.endsWith('.hell')) return true;
+      if (on === 'activatedFromDarkDimension' && kz.endsWith('.dark')) return true;
       return false;
     });
   }
@@ -5034,6 +5045,7 @@
         if (on === 'activated' && (onField || kzMenu === 'land')) return true;
         if (on === 'activatedFromHand' && kzMenu.endsWith('.hand')) return true;
         if ((on === 'activatedFromHell' || ab.fromHell) && kzMenu.endsWith('.hell')) return true;
+        if (on === 'activatedFromDarkDimension' && kzMenu.endsWith('.dark')) return true;
         return false;
       }));
     // เหลือเฉพาะสั่งใช้ + ความสามารถของการ์ด (สามัคคี / แทงหลัง / โล่มนุษย์ / สวมใส่ / คู่หู) — ไม่มีแมนนวล

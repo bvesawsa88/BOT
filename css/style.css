@@ -1012,11 +1012,11 @@ body.dragging .card.hand:hover{transform:none}
 /* มือที่มีสั่งใช้จากมือ — โชว์ ⚡ ตลอด (แทนคลิกขวา) */
 .card.hand.hand-act .qa.qa-hand{display:flex;top:4px;bottom:auto;left:auto;right:4px;transform:none}
 .card.hand.hand-act .qa-hand .qa-b{width:26px;height:26px;font-size:14px;border-color:var(--gold);background:rgba(30,22,12,.92);box-shadow:0 2px 8px rgba(0,0,0,.55)}
-.card.hand.hand-act .qa-hand .qa-b.qa-kw,.card.hell-act .qa-hand .qa-b.qa-kw{width:auto;height:22px;padding:2px 4px}
-.card.hand.hand-act .qa-hand .qa-b.qa-kw .bot-kw,.card.hell-act .qa-hand .qa-b.qa-kw .bot-kw{height:16px;max-width:70px}
-/* นรกที่มีสั่งใช้จากนรก (พี่ซี๊ด ฯลฯ) — โชว์ ⚡ ในหน้าต่างกอง */
-.card.hell-act .qa.qa-hand{display:flex;top:4px;bottom:auto;left:auto;right:4px;transform:none}
-.card.hell-act .qa-hand .qa-b{width:26px;height:26px;font-size:14px;border-color:var(--gold);background:rgba(30,22,12,.92);box-shadow:0 2px 8px rgba(0,0,0,.55)}
+.card.hand.hand-act .qa-hand .qa-b.qa-kw,.card.hell-act .qa-hand .qa-b.qa-kw,.card.dark-act .qa-hand .qa-b.qa-kw{width:auto;height:22px;padding:2px 4px}
+.card.hand.hand-act .qa-hand .qa-b.qa-kw .bot-kw,.card.hell-act .qa-hand .qa-b.qa-kw .bot-kw,.card.dark-act .qa-hand .qa-b.qa-kw .bot-kw{height:16px;max-width:70px}
+/* นรก/มิติมืดที่มีสั่งใช้ (พี่ซี๊ด, ไวรัส ฯลฯ) — โชว์ ⚡ ในหน้าต่างกอง */
+.card.hell-act .qa.qa-hand,.card.dark-act .qa.qa-hand{display:flex;top:4px;bottom:auto;left:auto;right:4px;transform:none}
+.card.hell-act .qa-hand .qa-b,.card.dark-act .qa-hand .qa-b{width:26px;height:26px;font-size:14px;border-color:var(--gold);background:rgba(30,22,12,.92);box-shadow:0 2px 8px rgba(0,0,0,.55)}
 body.dragging .card .qa{display:none!important}
 #clash{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:150;pointer-events:none;font-family:'IBM Plex Sans Thai',sans-serif;font-size:30px;font-weight:700;color:var(--gold);text-shadow:3px 3px 0 #7a1f1a,0 0 30px rgba(0,0,0,.8);background:rgba(22,16,12,.82);border:3px solid var(--red);border-radius:14px;padding:14px 28px;white-space:nowrap;text-align:center}
 

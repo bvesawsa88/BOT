@@ -34,7 +34,7 @@
     magicPick: ['search'], darkPick: ['search'], peekOwnTop: ['search'], revealDeckThenTop: ['search'],
     hellPick: ['recovery', 'search'], hellPickMulti: ['recovery'], hellReturnFilter: ['recovery'],
     summonSelfFromHell: ['summon', 'recovery'], summonSelfFromHandFree: ['summon'], summonSelfFromHandPaying: ['summon'],
-    summonSelfFromMagic: ['summon'], summonSelfFromDark: ['summon'], handSummon: ['summon'],
+    summonSelfFromMagic: ['summon'], summonSelfFromDark: ['summon'], summonSelfFromDarkDimension: ['summon'], handSummon: ['summon'],
     offerSummonSelfFromHell: ['summon', 'recovery'], bothDeckSummonCostMax: ['summon'],
     chooseDestroy: ['removal', 'destroy'], destroy: ['removal', 'destroy'], destroyTarget: ['removal', 'destroy'],
     destroyAllEnemyAvatars: ['removal', 'destroy', 'finisher'], destroyAllAvatarsExceptSelf: ['removal', 'destroy'],
