@@ -11336,7 +11336,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               if (ac.ifAttackerSymbol) {
                 if (A.symbol !== ac.ifAttackerSymbol) return;
               } else if (ac.ifAttackerNameIncludes) {
-                if (!nameMatches(A, ac.ifAttackerNameIncludes)) return;
+                const needles = Array.isArray(ac.ifAttackerNameIncludes)
+                  ? ac.ifAttackerNameIncludes : [ac.ifAttackerNameIncludes];
+                if (!needles.some(n => nameMatches(A, n))) return;
+              } else if (ac.ifAttackerExactNames) {
+                const names = Array.isArray(ac.ifAttackerExactNames)
+                  ? ac.ifAttackerExactNames : [ac.ifAttackerExactNames];
+                if (!names.includes(A.name || '')) return;
               } else return;
               st.buffs.push({ k: a.atk, amt: ac.amount || 0, until: ac.duration === 'combat' ? 'combat' : 'endOfTurn', from: lid });
               addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, lid)}: ${A.name} POWER +${ac.amount || 0} จนจบการต่อสู้`);

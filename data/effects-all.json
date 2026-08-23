@@ -20426,7 +20426,7 @@
     },
     {
       "code": "BT11-042",
-      "name": "อาเมอร์ ทศกัณท์",
+      "name": "อาเมอร์ ทศกัณฐ์",
       "abilities": [
         {
           "keyword": "จุติ",
@@ -34863,26 +34863,28 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
+            "on": "declareAttack"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
+              "duration": "combat",
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "any",
-                "zone": "avatarZone"
-              }
+                "select": "attacker"
+              },
+              "ifAttackerExactNames": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ]
             }
-          ]
+          ],
+          "fromLand": true
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Land: กุ่ย/ฮอล/นาย สั่งโจมตี → POWER +2 จนจบการต่อสู้ (ไม่บัฟใบอื่นบนสนาม)"
     },
     {
       "code": "SD02-021",

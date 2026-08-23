@@ -104,6 +104,21 @@ SD02['SD02-017'] = {
   parseStatus: 'manual'
 };
 
+SD02['SD02-020'] = {
+  code: 'SD02-020', name: 'สมชาย ห้องเช่าถูกๆ',
+  abilities: [{
+    trigger: { on: 'declareAttack' },
+    fromLand: true,
+    actions: [{
+      op: 'modifyPower', amount: 2, duration: 'combat',
+      target: { select: 'attacker' },
+      ifAttackerExactNames: GHN
+    }]
+  }],
+  parseStatus: 'manual',
+  note: 'Land: กุ่ย/ฮอล/นาย สั่งโจมตี → POWER +2 จนจบการต่อสู้ (ไม่บัฟใบอื่นบนสนาม)'
+};
+
 const SD03 = {
   'SD03-001': {
     code: 'SD03-001', name: 'พญายม',
