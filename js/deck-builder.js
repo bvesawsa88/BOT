@@ -192,18 +192,27 @@
   /* ★ ลิมิตนับต่อ "ชื่อการ์ด" ไม่ใช่ต่อ "รหัส"
      การ์ดชื่อเดียวกันมีหลายรหัส (ต่างซีรีส์/ความหายาก) เช่น "ชายจากอนาคต" มี 8 รหัส
      ถ้านับต่อรหัสจะใส่ได้ 8×4 = 32 ใบ และทะลุ banlist ด้วย (limit2 กลายเป็น 16 ใบ) */
-  function nameCountInDeck(name) {
+  function nameCountInDeck(cOrName) {
     let n = 0;
-    ['main', 'life'].forEach(sec => Object.entries(DB.deck[sec]).forEach(([k, ct]) => {
-      const cd = cardOf(k); if (cd && cd.name === name) n += ct;
+    const c = typeof cOrName === 'string' ? cardOf(cOrName) : cOrName;
+    const name = typeof cOrName === 'string' ? cOrName : (c ? c.name : '');
+    const code = c ? c.code : '';
+    ['main', 'life'].forEach(sec => Object.entries(DB.deck[sec] || {}).forEach(([k, ct]) => {
+      const cd = cardOf(k);
+      if (cd && ((name && cd.name === name) || (code && cd.code === code))) n += ct;
     }));
     return n;
   }
   /* Only #1 ในเด็ค — รายชื่อ Only ที่ใส่แล้ว (ปกติต้องมีพอดี 1 ชื่อ · ยกเว้นกรณีพิเศษลิมิต 3) */
   function onlyNamesInDeck(deck) {
     const names = new Set();
+    const seenCodes = new Set();
     ['main', 'life'].forEach(sec => Object.keys(deck[sec] || {}).forEach(k => {
-      const cd = cardOf(k); if (cd && isOnly(cd)) names.add(cd.name);
+      const cd = cardOf(k);
+      if (cd && isOnly(cd) && !seenCodes.has(cd.code)) {
+        seenCodes.add(cd.code);
+        names.add(cd.name);
+      }
     }));
     return [...names];
   }
@@ -212,7 +221,8 @@
     const out = {};
     ['main', 'life'].forEach(sec => Object.entries(deck[sec] || {}).forEach(([k, ct]) => {
       const cd = cardOf(k); if (!cd) return;
-      const e = out[cd.name] = out[cd.name] || { n: 0, lim: 0 };
+      const key = cd.name;
+      const e = out[key] = out[key] || { n: 0, lim: 0, code: cd.code };
       e.n += ct;
       e.lim = Math.max(e.lim, limitOf(cd));   // ชื่อเดียวกันต่างรหัส: CardDB รวม Only/customLimit ทุกพิมพ์แล้ว ค่าจึงเท่ากัน
     }));
@@ -232,14 +242,17 @@
     if (lim === 0) { msg(`"${c.name}" อยู่ในลิสต์ห้ามใส่ (การ์ดบาป)`); return; }
     // ★ Only #1: เด็คมีได้แค่ 1 ชื่อ — ห้ามผสม Only คนละใบ (ยกเว้นชื่อเดียวกันตามลิมิต)
     if (isOnly(c)) {
-      const others = onlyNamesInDeck(DB.deck).filter(nm => nm !== c.name);
+      const others = onlyNamesInDeck(DB.deck).filter(nm => {
+        const otherCard = DB.db && DB.db.cards && DB.db.cards.find(x => x.name === nm && isOnly(x));
+        return nm !== c.name && (!otherCard || otherCard.code !== c.code);
+      });
       if (others.length) {
         msg(`Only #1 ใส่ได้ชื่อเดียวต่อเด็ค — มี "${others[0]}" อยู่แล้ว เอาออกก่อนถึงจะใส่ "${c.name}" ได้`);
         return;
       }
     }
-    // ★ เทียบกับจำนวน "ชื่อนี้" ทั้งเด็ค (รวมทุกรหัส/ความหายาก) ไม่ใช่แค่รหัสนี้
-    const byName = nameCountInDeck(c.name);
+    // ★ เทียบกับจำนวน "ชื่อนี้/รหัสนี้" ทั้งเด็ค (รวมทุกรหัส/ความหายาก) ไม่ใช่แค่รหัสนี้
+    const byName = nameCountInDeck(c);
     if (byName >= lim) {
       const why = isOnly(c) ? (lim === 1 ? ' (Only #1)' : ` (Only #1 กรณีพิเศษ ลิมิต ${lim})`) : (lim === 1 ? ' (banlist)' : '');
       msg(`"${c.name}" ใส่ได้สูงสุด ${lim} ใบ${why} — ตอนนี้มี ${byName} ใบแล้ว (นับรวมทุกรหัส/ความหายากของชื่อนี้)`);
@@ -762,22 +775,23 @@
     //   ตัดส่วนเกินทิ้ง นับรวมต่อชื่อทุกรหัส แล้วรายงานว่าถูกตัดอะไรไปบ้าง
     //   Only #1: เก็บได้แค่ 1 ชื่อ — ชื่อ Only อื่นตัดทิ้ง
     const used = {}, asked = {}, lims = {};
-    let keptOnlyName = null;
+    let keptOnlyName = null, keptOnlyCode = null;
     const droppedOnly = [];
     ['main', 'life'].forEach(sec => Object.keys(r[sec]).forEach(code => {
       const cd = cardOf(code); if (!cd) return;
       if (isOnly(cd)) {
-        if (keptOnlyName == null) keptOnlyName = cd.name;
-        else if (cd.name !== keptOnlyName) {
+        if (keptOnlyName == null) { keptOnlyName = cd.name; keptOnlyCode = cd.code; }
+        else if (cd.name !== keptOnlyName && cd.code !== keptOnlyCode) {
           droppedOnly.push(cd.name);
           delete r[sec][code];
           return;
         }
       }
       const lim = limitOf(cd); lims[cd.name] = lim;
+      const cardKey = cd.code || cd.name;
       asked[cd.name] = (asked[cd.name] || 0) + r[sec][code];
-      const keep = Math.min(r[sec][code], Math.max(0, lim - (used[cd.name] || 0)));
-      used[cd.name] = (used[cd.name] || 0) + keep;
+      const keep = Math.min(r[sec][code], Math.max(0, lim - (used[cardKey] || 0)));
+      used[cardKey] = (used[cardKey] || 0) + keep;
       if (keep) r[sec][code] = keep; else delete r[sec][code];
     }));
     // รายงานเป็น "ชื่อ" ไม่ใช่ต่อรหัส (ชื่อเดียวมีได้หลายรหัส เดี๋ยวนับซ้ำ)

@@ -38,9 +38,13 @@
         const prints = all.filter(seriesOK).sort((a, b) =>
           a.code < b.code ? -1 : a.code > b.code ? 1 : (a.rarity || '').localeCompare(b.rarity || ''));
         const onlyNames = new Set();
+        const onlyCodes = new Set();
         const customLimitByName = {};
-        cards.forEach(c => {
-          if (isOnlyPrint(c)) onlyNames.add(c.name);
+        all.filter(seriesOK).forEach(c => {
+          if (isOnlyPrint(c)) {
+            onlyNames.add(c.name);
+            onlyCodes.add(c.code);
+          }
           if (c.customLimit) {
             const m = String(c.customLimit).match(/\d+/);
             if (m) customLimitByName[c.name] = Math.max(customLimitByName[c.name] || 0, +m[0]);
@@ -62,7 +66,7 @@
         cache = {
           all, cards, prints, byCode, byUid, byPrint, printsByCode,
           lookup, printsOf,
-          onlyNames, customLimitByName,
+          onlyNames, onlyCodes, customLimitByName,
           ban: {
             banned: ban.banned || [], limit1: ban.limit1 || [],
             limit2: ban.limit2 || [], chooseOne: ban.chooseOne || []
@@ -76,6 +80,7 @@
     function isOnlyPrint(c) {
       if (!c) return false;
       if (/Only\s*#?\s*1/i.test(c.ex || '')) return true;
+      if (/Only\s*#?\s*1/i.test(c.effect || '')) return true;
       if (c.customLimit && /only/i.test(String(c.customLimit)) && !/\d/.test(String(c.customLimit))) return true;
       return false;
     }
@@ -85,7 +90,7 @@
     function isOnly(c) {
       if (!c) return false;
       if (isOnlyPrint(c)) return true;
-      return !!(cache && cache.onlyNames && cache.onlyNames.has(c.name));
+      return !!(cache && ((cache.onlyNames && cache.onlyNames.has(c.name)) || (cache.onlyCodes && cache.onlyCodes.has(c.code))));
     }
     function limitOf(db, c) {
       let lim = 4;
@@ -94,16 +99,18 @@
       if (namedCustom != null) {
         lim = namedCustom;
         fromCustom = true;
-      } else if (c.customLimit) {
+      } else if (c && c.customLimit) {
         const m = String(c.customLimit).match(/\d+/);
         if (m) { lim = +m[0]; fromCustom = true; }
         else if (/only/i.test(c.customLimit)) lim = 1;
       }
       // Only #1 → 1 ใบ เว้นมี customLimit ตัวเลข (กรณีพิเศษใส่ได้ 3 ฯลฯ)
       if (!fromCustom && isOnly(c)) lim = 1;
-      if (db.ban.banned.includes(c.name)) return 0;
-      if (db.ban.limit1.includes(c.name)) lim = Math.min(lim, 1);
-      if (db.ban.limit2.includes(c.name)) lim = Math.min(lim, 2);
+      if (db && db.ban) {
+        if (db.ban.banned && db.ban.banned.includes(c.name)) return 0;
+        if (db.ban.limit1 && db.ban.limit1.includes(c.name)) lim = Math.min(lim, 1);
+        if (db.ban.limit2 && db.ban.limit2.includes(c.name)) lim = Math.min(lim, 2);
+      }
       return lim;
     }
     let userMaxDecks = 5;
