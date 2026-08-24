@@ -2137,6 +2137,17 @@
       });
       if (!ok) return false;
     }
+    /* (symbol + printed power) OR nameIncludes — อาเมอร์ ทศกัณฐ์ ฯลฯ */
+    if (f.matchSymbolPowerOrName) {
+      const m = f.matchSymbolPowerOrName;
+      const needles = m.nameIncludes
+        ? (Array.isArray(m.nameIncludes) ? m.nameIncludes : [m.nameIncludes])
+        : (m.name ? [m.name] : []);
+      const nameOk = needles.some(n => nameMatches(c, n));
+      const symOk = !m.symbol || cardSymbols(st, k).includes(m.symbol);
+      const powOk = m.power == null || (+c.power || 0) === +m.power;
+      if (!(nameOk || (symOk && powOk))) return false;
+    }
     if (f.costMax != null && effCost(st, k) > f.costMax) return false;
     if (f.costMin != null && effCost(st, k) < f.costMin) return false;
     if (f.costLteSrc && f._srcK) {
@@ -3100,8 +3111,30 @@
           }
           if (!abilityMagicReqOk(st, srcOwn, ab)) return;
           (ab.actions || []).forEach(ac => {
-            if (ac.op !== 'modifyPower') return;
             const t = ac.target || {};
+            /* มียักษ์อื่นหรือมณโฑ → +amountIf · ไม่มี → amountElse (อาเมอร์ ทศกัณฐ์) */
+            if (ac.op === 'modifyPowerIfAllySymbolOrNameElse') {
+              if (!(t.select === 'self' && src === k)) return;
+              const needles = ac.nameIncludes
+                ? (Array.isArray(ac.nameIncludes) ? ac.nameIncludes : [ac.nameIncludes])
+                : (ac.name ? [ac.name] : []);
+              const hasAlly = (st.zones[side + '.avatar'] || []).some(id => {
+                if (id === k) return false;
+                const o = st.inst[id];
+                if (!o || o.faceUp === false) return false;
+                if (ac.symbol && cardSymbols(st, id).includes(ac.symbol)) return true;
+                return needles.some(n => nameMatches(o, n));
+              });
+              const amtIfElse = hasAlly ? (ac.amountIf || 0) : (ac.amountElse || 0);
+              if (amtIfElse) {
+                add(amtIfElse, hasAlly
+                  ? `มี${ac.symbol ? ' ' + ac.symbol : ''}${needles.length ? ' / ' + needles.join('|') : ''} อื่น`
+                  : `ไม่มี${ac.symbol ? ' ' + ac.symbol : ''} อื่น`);
+                p += amtIfElse;
+              }
+              return;
+            }
+            if (ac.op !== 'modifyPower') return;
             let amt = 0;
             if (t.select === 'all') {
               if (t.side === 'own' && sz[0] !== side && sz !== 'land') return;
@@ -6064,7 +6097,20 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         st.scheduled.push({ player: st.active, op: 'destroyCard', k: ctx.src, when: 'endPhase' });
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: จะถูกทำลายช่วง End Phase`);
       } else if (ac.op === 'grantKeyword') {
-        const p = { kind: 'pick', from: ac.from === 'any' ? 'allAvatars' : 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || { type: 'Avatar' }, dest: 'grantKeyword', keyword: ac.keyword || 'สามัคคี', until: ac.until || ac.duration || 'endOfTurn', optional: false, srcToHell: !!ctx.toHellAfter, includeSelf: ac.includeSelf !== false };
+        const sideSel = (ac.target && ac.target.side) || ac.from || 'own';
+        const from = sideSel === 'enemy' ? 'enemyAvatars' : sideSel === 'any' ? 'allAvatars' : 'ownAvatars';
+        let until = ac.until || ac.duration || 'endOfTurn';
+        let untilOpp = null;
+        if (until === 'untilNextEnemyTurnEnd') {
+          until = 'oppNextEnd';
+          untilOpp = other(ctx.owner);
+        }
+        const p = {
+          kind: 'pick', from, src: ctx.src, chooser: ctx.owner,
+          filter: ac.filter || { type: 'Avatar' }, dest: 'grantKeyword',
+          keyword: ac.keyword || 'สามัคคี', until, untilOpp,
+          optional: false, srcToHell: !!ctx.toHellAfter, includeSelf: ac.includeSelf !== false
+        };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ให้รับ "${ac.keyword}"`);
       } else if (ac.op === 'grantCannotChangeState') {
@@ -6564,7 +6610,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             ? Object.assign({}, ac.filter || {}, { nameIncludes: [ac.buffFromNameIncludes] })
             : ac.filter;
           const dest = ac.dest === 'nongSam' ? 'hand' : (ac.dest || 'hand');
-          const restTo = ac.restTo === 'choose' ? 'bottom' : (ac.restTo || 'bottom');
+          /* restTo: deck = คืนเข้าเด็คแล้วสับ (เทียบเท่า bottom + shuffle) */
+          let restTo = ac.restTo === 'choose' ? 'bottom' : (ac.restTo || 'bottom');
+          const shuffleAfter = !!(ac.shuffleAfter || ac.shuffle || restTo === 'deck');
+          if (restTo === 'deck') restTo = 'bottom';
           const fieldFull = dest === 'avatar' && restTo === 'hell'
             && !!quotaDeny(st, ctx.owner + '.avatar', { type: 'Avatar' });
           if (fieldFull) addLog(st, ctx.owner, `Avatar Zone เต็ม — สอดแนมให้ดูได้ แต่ลงสนามไม่ได้ (เลือก/ข้ามแล้วลงนรก ไม่ขึ้นมือ)`);
@@ -6572,7 +6621,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             kind: 'pick', from: 'ids', ids, src: ctx.src, chooser: ctx.owner, filter: pickFilter,
             dest,
             restTo,
-            shuffleAfter: !!ac.shuffleAfter,
+            shuffleAfter,
             optional: ac.multiExact ? false : true, srcToHell: !!ctx.toHellAfter, paidCost: !!ac.paidCost,
             thenIfFound: ac.thenIfFound || null, thenIfColor: ac.thenIfColor || null,
             attacker: ctx.attacker || null,
@@ -9993,8 +10042,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} Cost +${p.costDelta || 1} POWER +${p.powerDelta || 1} (จนกว่าออกจากสนาม)`);
           } else if (p.dest === 'grantKeyword') {
             st.inst[a.k].grantedKeywords = st.inst[a.k].grantedKeywords || [];
-            st.inst[a.k].grantedKeywords.push({ kw: p.keyword || 'สามัคคี', until: p.until || 'endOfTurn' });
-            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} ได้ "${p.keyword || 'สามัคคี'}" จนจบเทิร์น`);
+            const gkw = { kw: p.keyword || 'สามัคคี', until: p.until || 'endOfTurn' };
+            if (p.untilOpp) gkw.opp = p.untilOpp;
+            st.inst[a.k].grantedKeywords.push(gkw);
+            const untilNote = gkw.until === 'oppNextEnd'
+              ? 'จนจบเทิร์นถัดไปของฝ่ายตรงข้าม'
+              : gkw.until === 'permanent' ? 'ถาวร' : 'จนจบเทิร์น';
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} ได้ "${p.keyword || 'สามัคคี'}" ${untilNote}`);
           } else if (p.dest === 'grantCannotChangeState') {
             if (st.inst[a.k]) {
               st.inst[a.k].cannotChangeStateUntilEOT = true;
@@ -12502,7 +12556,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (c.milledThisTurn) delete c.milledThisTurn;
           if (c.cannotChangeStateUntilEOT) delete c.cannotChangeStateUntilEOT;
           if (!c.grantedKeywords) continue;
-          c.grantedKeywords = c.grantedKeywords.filter(g => g.until === 'permanent');
+          c.grantedKeywords = c.grantedKeywords.filter(g => {
+            if (g.until === 'permanent') return true;
+            /* จนจบเทิร์นถัดไปของฝ่ายตรงข้าม — หมดเมื่อฝ่ายนั้น (opp) จบเทิร์น */
+            if (g.until === 'oppNextEnd') return g.opp !== ending;
+            return false;
+          });
           if (!c.grantedKeywords.length) delete c.grantedKeywords;
         }
         for (const id in st.inst) {

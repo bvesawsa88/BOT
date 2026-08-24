@@ -114,10 +114,11 @@
             {
               "op": "grantKeyword",
               "keyword": "โล่มนุษย์",
+              "from": "any",
               "target": {
                 "select": "choose",
                 "type": "Avatar",
-                "side": "own",
+                "side": "any",
                 "count": 1
               },
               "duration": "untilNextEnemyTurnEnd"
