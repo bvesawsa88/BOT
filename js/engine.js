@@ -3439,7 +3439,19 @@
     if (st.pending.blockReact) return [];
     return (st.zones[owner + '.hand'] || []).filter(k => {
       const c = st.inst[k];
-      if (!c || c.type !== 'Magic' || magicSubtype(c) !== 'React') return false;
+      if (!c) return false;
+      if (c.type === 'Avatar') {
+        const ab0 = abilitiesOf(c.code, 'activated', c.name)[0];
+        if (ab0 && (ab0.actions || []).some(ac => ac.op === 'bounceOwnThenSummonSelf')) {
+          if (oncePerTurnCardBlocked(st, k, owner)) return false;
+          const actB = (ab0.actions || []).find(ac => ac.op === 'bounceOwnThenSummonSelf');
+          const filter = Object.assign({ type: 'Avatar' }, (actB && actB.filter) || {});
+          const cands = (st.zones[owner + '.avatar'] || []).filter(id => matchFilterEx(st, id, filter));
+          if (cands.length >= (actB ? actB.count || 1 : 1)) return true;
+        }
+        return false;
+      }
+      if (c.type !== 'Magic' || magicSubtype(c) !== 'React') return false;
       const e = fxCard(c);
       const ab0 = abilitiesOf(c.code, 'activated', c.name)[0];
       const any = (e && e.reactAnyWindow) || (ab0 && ab0.reactAnyWindow);
@@ -4673,6 +4685,12 @@
   }
 
   function declareBuffs(st, atkId) {
+    if (!atkId) return;
+    const atkCount = (st.attacksThisTurn && st.attacksThisTurn.total) || 0;
+    const atkKey = `${atkId}_${atkCount}_${st.turnSeq || 0}`;
+    st._declaredBuffKeys = st._declaredBuffKeys || {};
+    if (st._declaredBuffKeys[atkKey]) return;
+    st._declaredBuffKeys[atkKey] = true;
     abil(st, atkId, 'declareAttack').forEach(ab => {
         if (ab.trigger && ab.trigger.if === 'targetIsAvatar') {
           const def0 = st.pending && st.pending.def;
@@ -7649,7 +7667,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
   }
   /* โล่มนุษย์ / เปลี่ยนเป้า: ถอด onFight คู่เดิม แล้วใส่ใหม่ตามผู้ต่อสู้ปัจจุบัน */
   function refreshOnFightBuffs(st, atkId, defId) {
-    st.buffs = (st.buffs || []).filter(b => !b.onFight && !(b.lockPrinted && b.until === 'combat'));
+    st.buffs = (st.buffs || []).filter(b => (!b.onFight || b.until === 'permanent') && !(b.lockPrinted && b.until === 'combat'));
     applyOnFightBuffs(st, atkId, defId);
   }
   /* ไพรมอล ฯลฯ: เสนอสั่งใช้ whenAttacking ตอนประกาศโจมตี (ก่อนปะทะ/ทำลาย) */
@@ -8630,6 +8648,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               delete st._ownAvatarLeftFieldWindow;
               const actsL = [];
               leftAbs.forEach(abL => { (abL.actions || []).forEach(ac => actsL.push(ac)); });
+              if (c.type === 'Avatar') {
+                const costList = normalizeAbilityCost(leftAbs[0].cost) || [];
+                if (costList.length) payCostAndRunActivated(st, fx, owner, a.k, costList, actsL, rng);
+                else runActions(st, fx, actsL, { src: a.k, owner, rng });
+                fx.snd = 'place'; break;
+              }
               doMove(st, a.k, owner + '.magic', null, fx); c.faceUp = true;
               addLog(st, owner, `ใช้การ์ดสวน "${c.name}"!`);
               if (offerMagicNegateReact(st, fx, owner, a.k)) {
@@ -10938,8 +10962,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         st._surviveAsk[k + ':' + st.turn] = true;
         delete st._survivePending;
         if (st.inst[k]) {
-          st.inst[k].powerDelta = (st.inst[k].powerDelta || 0) + (p.amt || -1);
-          addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, k)}: POWER ${p.amt || -1} (จนกว่าออกจากสนาม) → P${effPower(st, k)}`);
+          const decAmt = p.amt < 0 ? p.amt : -Math.abs(p.amt || 1);
+          st.inst[k].powerDelta = (st.inst[k].powerDelta || 0) + decAmt;
+          addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, k)}: POWER ${decAmt} (ถาวร) รอดจากการถูกทำลาย → P${effPower(st, k)}`);
           if (effPower(st, k) <= 0) {
             addLog(st, 'S', `${nameOf(st, k)} POWER 0 — ทำลายทันที`);
             destroyCard(st, fx, k, { ignoreSurvive: true, ignoreProtect: true });

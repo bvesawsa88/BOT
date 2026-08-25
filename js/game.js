@@ -2023,33 +2023,23 @@
     return Object.keys(STARTERS || {}).filter(k => STARTER_KEYS.indexOf(k) < 0);
   }
   function starterOptionHtml(prefix) {
-    const starters = STARTER_KEYS.map(k => {
-      const s = STARTERS && STARTERS[k];
-      const label = (s && s.label) || (k + ' Starter');
-      return `<option value="starter:${k}">${prefix ? esc(prefix) : ''}${esc(label)}</option>`;
-    }).join('');
-    const presets = presetDeckKeys();
-    const extra = presets.length
-      ? `<option disabled>── เด็คพิเศษ ──</option>` +
-        presets.map(k => {
-          const s = STARTERS[k];
-          const label = (s && (s.label || s.name)) || k;
-          return `<option value="starter:${esc(k)}">${prefix ? esc(prefix) : ''}${esc(label)}</option>`;
-        }).join('')
-      : '';
-    return starters + extra;
+    return '';
   }
   function fillDeckSelect() {
     const sel = byId('selDeck');
+    if (!sel) return;
     let saved = {};
     try { saved = CardDB.savedDecks(); } catch (e) { }
     const names = Object.keys(saved);
-    sel.innerHTML = starterOptionHtml('') +
-      (names.length ? `<option disabled>── เด็คที่บันทึก ──</option>` : '') +
-      names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    if (names.length) {
+      sel.innerHTML = names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    } else {
+      sel.innerHTML = `<option value="starter:SD01">SD01 Starter (50+5)</option>`;
+    }
     try {
       const act = localStorage.getItem('bot_active_deck');
-      if (act && (act.indexOf('starter:') === 0 || saved[act])) sel.value = act;
+      if (act && (saved[act] || (names.length === 0 && act.indexOf('starter:') === 0))) sel.value = act;
+      else if (names.length) sel.value = names[0];
       else sel.value = 'starter:SD01';
     } catch (e) { sel.value = 'starter:SD01'; }
   }
@@ -2177,40 +2167,33 @@
     const real = byId('selRealDeck');
     const botYou = byId('selBotDeckYou');
     const botBot = byId('selBotDeckBot');
+    const lan = byId('selLanDeck');
     let saved = {};
     try { saved = CardDB.savedDecks(); } catch (e) { }
     const names = Object.keys(saved);
-    const savedOpts = (names.length ? `<option disabled>── เด็คที่บันทึก ──</option>` : '') +
-      names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
-    const opts = starterOptionHtml('') + savedOpts;
-    const ok = v => v && (v.indexOf('starter:') === 0 || saved[v]);
-    let act = 'starter:SD01', opp = 'starter:SD01';
+    const opts = names.length
+      ? names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('')
+      : `<option value="starter:SD01">SD01 Starter (50+5)</option>`;
+    const ok = v => v && (saved[v] || (names.length === 0 && v.indexOf('starter:') === 0));
+    let act = names.length ? names[0] : 'starter:SD01';
+    let opp = names.length ? names[0] : 'starter:SD01';
     try {
-      act = localStorage.getItem('bot_active_deck') || 'starter:SD01';
-      opp = localStorage.getItem('bot_opp_deck') || 'starter:SD01';
+      const actSaved = localStorage.getItem('bot_active_deck');
+      if (actSaved && ok(actSaved)) act = actSaved;
+      const oppSaved = localStorage.getItem('bot_opp_deck');
+      if (oppSaved && ok(oppSaved)) opp = oppSaved;
     } catch (e) { }
-    if (a && b) {
-      a.innerHTML = opts;
-      b.innerHTML = opts;
-      a.value = ok(act) ? act : 'starter:SD01';
-      b.value = ok(opp) ? opp : 'starter:SD01';
-    }
-    if (botYou && botBot) {
-      botYou.innerHTML = opts;
-      botBot.innerHTML = opts;
-      botYou.value = ok(act) ? act : 'starter:SD01';
-      const lvEl = byId('selBotLevel');
-      if (lvEl) {
-        try { lvEl.value = localStorage.getItem('bot_level') || 'normal'; } catch (e) { lvEl.value = 'normal'; }
-      }
-      const hardDefault = STARTERS && STARTERS[HARD_BOT_DECK_KEY] && hardBotDeckVal();
-      if (botLvHard() && hardDefault) botBot.value = hardDefault;
-      else botBot.value = ok(opp) ? opp : (hardDefault || 'starter:SD01');
+    [a, b, real, botYou, botBot, lan].forEach(el => {
+      if (!el) return;
+      el.innerHTML = opts;
+      if (ok(act)) el.value = act;
+      else if (names.length) el.value = names[0];
+    });
+    if (b && ok(opp)) b.value = opp;
+    if (botBot) {
+      if (ok(opp)) botBot.value = opp;
+      else if (names.length) botBot.value = names[0];
       updateBotDeckHint();
-    }
-    if (real) {
-      real.innerHTML = opts;
-      real.value = ok(act) ? act : 'starter:SD01';
     }
   }
   function selectedDeck() {
@@ -6719,7 +6702,32 @@
 
   /* ── ล็อกอิน / สมัครสมาชิก ── */
   let authMode = 'login';
-  const authToken = () => { try { return localStorage.getItem('bot_auth_token') || ''; } catch (e) { return ''; } };
+  const getAuthToken = () => {
+    try {
+      const t = localStorage.getItem('bot_auth_token');
+      if (t) return t;
+    } catch (e) { }
+    try {
+      const m = document.cookie.match(/(?:^|;\s*)bot_auth_token=([^;]+)/);
+      if (m) {
+        const t = decodeURIComponent(m[1]);
+        try { localStorage.setItem('bot_auth_token', t); } catch (e) { }
+        return t;
+      }
+    } catch (e) { }
+    return '';
+  };
+  const setAuthToken = (t) => {
+    if (t) {
+      try { localStorage.setItem('bot_auth_token', t); } catch (e) { }
+      try { document.cookie = 'bot_auth_token=' + encodeURIComponent(t) + '; Path=/; Max-Age=2592000; SameSite=Lax'; } catch (e) { }
+    } else {
+      try { localStorage.removeItem('bot_auth_token'); } catch (e) { }
+      try { document.cookie = 'bot_auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'; } catch (e) { }
+    }
+  };
+  const authToken = getAuthToken;
+
   function setAuthUI(username, admin, isSupporter) {
     const on = !!username;
     byId('btnLogin').classList.toggle('hidden', on);
@@ -6732,9 +6740,15 @@
       byId('userName').textContent = username;
       try { localStorage.setItem('bot_user', username); } catch (e) { }
       if (byId('inpNick') && !byId('inpNick').value) byId('inpNick').value = username;
+    } else {
+      try { localStorage.removeItem('bot_user'); } catch (e) { }
+    }
+    if (window.CardDB && typeof CardDB.setAuthUser === 'function') {
+      CardDB.setAuthUser(username || '');
     }
     if (window.BotSkins) BotSkins.setLoggedIn(on);
   }
+
   async function syncCloudDecks() {
     if (!window.CardDB || typeof CardDB.pullDecks !== 'function') return;
     try {
@@ -6748,15 +6762,36 @@
       fillMenuDeckSelects();
     } catch (e) { }
   }
+
   async function checkAuth() {
-    const t = authToken(); if (!t) return setAuthUI(null);
+    const t = getAuthToken();
+    const cachedUser = (() => { try { return localStorage.getItem('bot_user') || ''; } catch (e) { return ''; } })();
+    if (!t) {
+      setAuthUI(null);
+      return;
+    }
     try {
       const r = await fetch('/auth/me', { headers: { Authorization: 'Bearer ' + t } });
+      if (r.status === 401 || r.status === 403) {
+        setAuthToken('');
+        setAuthUI(null);
+        return;
+      }
       const j = await r.json();
-      if (j.ok) { setAuthUI(j.username, j.admin, j.isSupporter); syncCloudDecks(); }
-      else { try { localStorage.removeItem('bot_auth_token'); } catch (e) { } setAuthUI(null); }
-    } catch (e) { setAuthUI(null); }
+      if (j.ok) {
+        setAuthUI(j.username, j.admin, j.isSupporter);
+        syncCloudDecks();
+      } else {
+        setAuthToken('');
+        setAuthUI(null);
+      }
+    } catch (e) {
+      if (cachedUser) {
+        setAuthUI(cachedUser, false, false);
+      }
+    }
   }
+
   function setAuthTab() {
     const reg = authMode === 'register';
     byId('tabLogin').classList.toggle('on', !reg); byId('tabRegister').classList.toggle('on', reg);
@@ -6774,7 +6809,7 @@
       const r = await fetch('/auth/' + (authMode === 'register' ? 'register' : 'login'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: pw }) });
       const j = await r.json();
       if (j.ok) {
-        try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+        setAuthToken(j.token);
         setAuthUI(j.username, j.admin, j.isSupporter);
         closeAuth();
         toast('👤 สวัสดี ' + j.username + (j.isSupporter ? ' (☕ ผู้สนับสนุน)' : ''));
@@ -6800,7 +6835,7 @@
               });
               const j = await r.json();
               if (j.ok) {
-                try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+                setAuthToken(j.token);
                 setAuthUI(j.username, j.admin, j.isSupporter);
                 closeAuth();
                 toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
@@ -6834,7 +6869,7 @@
       });
       const j = await r.json();
       if (j.ok) {
-        try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+        setAuthToken(j.token);
         setAuthUI(j.username, j.admin, j.isSupporter);
         closeAuth();
         toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
@@ -6870,7 +6905,7 @@
       });
       const j = await r.json();
       if (j.ok) {
-        try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+        setAuthToken(j.token);
         setAuthUI(j.username, j.admin, j.isSupporter);
         closeAuth();
         toast('👤 เข้าสู่ระบบด้วย Discord: ' + j.username);
@@ -6886,7 +6921,7 @@
   window.addEventListener('message', (e) => {
     if (e.data && e.data.type === 'oauth_success' && e.data.session) {
       const j = e.data.session;
-      try { localStorage.setItem('bot_auth_token', j.token); } catch (e) { }
+      setAuthToken(j.token);
       setAuthUI(j.username, j.admin, j.isSupporter);
       closeAuth();
       toast('👤 สวัสดี ' + j.username + (j.isSupporter ? ' (☕ ผู้สนับสนุน)' : ''));
@@ -6905,10 +6940,19 @@
   window.checkAuth = checkAuth;
 
   byId('btnLogin').onclick = () => openAuth('login');
-  byId('btnLogout').onclick = () => { try { localStorage.removeItem('bot_auth_token'); localStorage.removeItem('bot_user'); } catch (e) { } setAuthUI(null); toast('ออกจากระบบแล้ว'); };
+  byId('btnLogout').onclick = () => {
+    setAuthToken('');
+    setAuthUI(null);
+    toast('ออกจากระบบแล้ว');
+    if (typeof window.fillDeckSelect === 'function') window.fillDeckSelect();
+    if (typeof window.fillMenuDeckSelects === 'function') window.fillMenuDeckSelects();
+    if (typeof window.openDeckList === 'function' && byId('decks') && !byId('decks').classList.contains('hidden')) {
+      window.openDeckList();
+    }
+  };
   if (window.BotSkins) {
     BotSkins.setOnNeedLogin(() => { toast('ล็อกอินก่อนจึงนำเข้าสกินได้'); openAuth('login'); });
-    BotSkins.setLoggedIn(!!authToken());
+    BotSkins.setLoggedIn(!!getAuthToken());
   }
   byId('tabLogin').onclick = () => { authMode = 'login'; setAuthTab(); };
   byId('tabRegister').onclick = () => { authMode = 'register'; setAuthTab(); };

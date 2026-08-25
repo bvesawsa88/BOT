@@ -14338,7 +14338,7 @@
             "on": "ownAvatarLeftField"
           },
           "cost": {
-            "discardGemSum": 3
+            "discardGemSumExact": 3
           },
           "actions": [
             {
@@ -18493,8 +18493,7 @@
         }
       ],
       "parseStatus": "auto",
-      "reactAnyWindow": true,
-      "note": "React เมื่อถูกโจมตีได้: เลือกนินจาฝ่ายเรา เตะไข่จนจบเทิร์น หรือเนรเทศหนีแล้วคืนช่วง End Phase (ถ้าเนรเทศตัวที่ถูกโจมตี การโจมตีสลาย)"
+      "note": "เลือกนินจาฝ่ายเรา เตะไข่จนจบเทิร์น หรือเนรเทศหนีแล้วคืนช่วง End Phase"
     },
     {
       "code": "BT10-066",
@@ -32173,7 +32172,7 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "exactName": "นาย"
+                "nameIncludes": "นาย"
               },
               "dest": "hand",
               "shuffleAfter": true
@@ -34589,7 +34588,7 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "exactName": "นาย"
+                "nameIncludes": "นาย"
               },
               "dest": "hand",
               "shuffleAfter": true

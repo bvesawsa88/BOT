@@ -214,8 +214,26 @@
 <script>
 (function () {
   const TOKEN_KEY = 'bot_auth_token';
-  const token = () => { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } };
-  const setToken = (t) => { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) { } };
+  const token = () => {
+    try {
+      const t = localStorage.getItem(TOKEN_KEY);
+      if (t) return t;
+    } catch (e) { }
+    try {
+      const m = document.cookie.match(/(?:^|;\s*)bot_auth_token=([^;]+)/);
+      if (m) return decodeURIComponent(m[1]);
+    } catch (e) { }
+    return '';
+  };
+  const setToken = (t) => {
+    if (t) {
+      try { localStorage.setItem(TOKEN_KEY, t); } catch (e) { }
+      try { document.cookie = 'bot_auth_token=' + encodeURIComponent(t) + '; Path=/; Max-Age=2592000; SameSite=Lax'; } catch (e) { }
+    } else {
+      try { localStorage.removeItem(TOKEN_KEY); } catch (e) { }
+      try { document.cookie = 'bot_auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'; } catch (e) { }
+    }
+  };
   const byId = (id) => document.getElementById(id);
   let settings = null;
   let allUsers = [];

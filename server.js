@@ -273,7 +273,11 @@ function newToken() {
 function bearer(req) {
   const h = req.headers.authorization || '';
   const m = String(h).match(/^Bearer\s+(\S+)/i);
-  return m ? m[1] : '';
+  if (m) return m[1];
+  const cookieHeader = req.headers.cookie || '';
+  const matchCookie = cookieHeader.match(/(?:^|;\s*)bot_auth_token=([^;]+)/);
+  if (matchCookie) return decodeURIComponent(matchCookie[1]);
+  return '';
 }
 
 function findByToken(users, token) {
@@ -281,7 +285,12 @@ function findByToken(users, token) {
   const now = Date.now();
   for (const key of Object.keys(users)) {
     const u = users[key];
-    if (u && u.token === token && u.tokenExp && u.tokenExp > now) return { key, user: u };
+    if (!u) continue;
+    if (u.token === token && u.tokenExp && u.tokenExp > now) return { key, user: u };
+    if (Array.isArray(u.tokens)) {
+      const found = u.tokens.find(t => t && t.token === token && t.exp && t.exp > now);
+      if (found) return { key, user: u };
+    }
   }
   return null;
 }
@@ -324,12 +333,31 @@ function isAdminUser(u) {
   return !!(u && u.role === 'admin');
 }
 
-function issueSession(user) {
-  user.token = newToken();
-  user.tokenExp = Date.now() + TOKEN_TTL_MS;
+function issueSession(user, res) {
+  const token = newToken();
+  const tokenExp = Date.now() + TOKEN_TTL_MS;
+
+  if (!Array.isArray(user.tokens)) {
+    user.tokens = [];
+    if (user.token && user.tokenExp) {
+      user.tokens.push({ token: user.token, exp: user.tokenExp });
+    }
+  }
+  const now = Date.now();
+  user.tokens = user.tokens.filter(t => t && t.token && t.exp && t.exp > now);
+  if (user.tokens.length >= 20) user.tokens.shift();
+  user.tokens.push({ token, exp: tokenExp });
+
+  user.token = token;
+  user.tokenExp = tokenExp;
+
+  if (res && typeof res.setHeader === 'function') {
+    res.setHeader('Set-Cookie', `bot_auth_token=${token}; Path=/; SameSite=Lax; Max-Age=${Math.floor(TOKEN_TTL_MS / 1000)}`);
+  }
+
   return {
     ok: true,
-    token: user.token,
+    token: token,
     username: user.username,
     admin: isAdminUser(user),
     isSupporter: isSupporterUser(user),
@@ -425,7 +453,7 @@ async function handleAuth(req, res, urlPath) {
           }
         }
         if (matchedKey && users[matchedKey]) {
-          return issueSession(users[matchedKey]);
+          return issueSession(users[matchedKey], res);
         }
         let finalUsername = cleanName;
         let baseKey = finalUsername.toLowerCase();
@@ -444,7 +472,7 @@ async function handleAuth(req, res, urlPath) {
           decks: {},
           createdAt: new Date().toISOString()
         };
-        return issueSession(users[baseKey]);
+        return issueSession(users[baseKey], res);
       });
 
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -515,7 +543,7 @@ async function handleAuth(req, res, urlPath) {
 
         if (matchedKey && users[matchedKey]) {
           const u = users[matchedKey];
-          return { status: 200, body: issueSession(u) };
+          return { status: 200, body: issueSession(u, res) };
         }
 
         let finalUsername = cleanName;
@@ -537,7 +565,7 @@ async function handleAuth(req, res, urlPath) {
           createdAt: new Date().toISOString()
         };
 
-        return { status: 200, body: issueSession(users[baseKey]) };
+        return { status: 200, body: issueSession(users[baseKey], res) };
       });
       json(res, out.status, out.body);
     } catch (e) {
@@ -580,7 +608,7 @@ async function handleAuth(req, res, urlPath) {
             decks: {},
             createdAt: new Date().toISOString(),
           };
-          return { status: 200, body: issueSession(users[key]) };
+          return { status: 200, body: issueSession(users[key], res) };
         }
         const u = users[key];
         if (!u || !u.salt || !u.hash) return { status: 401, body: { ok: false, error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' } };
@@ -591,7 +619,7 @@ async function handleAuth(req, res, urlPath) {
         } catch (e) { ok = false; }
         if (!ok) return { status: 401, body: { ok: false, error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' } };
         u.username = u.username || username;
-        return { status: 200, body: issueSession(u) };
+        return { status: 200, body: issueSession(u, res) };
       });
       json(res, out.status, out.body);
     } catch (e) {

@@ -4939,7 +4939,7 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "exactName": "นาย"
+                "nameIncludes": "นาย"
               },
               "dest": "hand",
               "shuffleAfter": true

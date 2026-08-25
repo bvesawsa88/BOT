@@ -904,7 +904,6 @@
     const savedNames = Object.keys(saved);
     const maxDecks = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
     const isSupp = CardDB.getIsSupporter ? CardDB.getIsSupporter() : false;
-    const presets = Object.keys(STARTERS_DB || {}).filter(k => !STARTER_KEYS.includes(k));
     let html = `<div class="dk-sec">เด็คที่บันทึก (${savedNames.length}/${maxDecks}${isSupp ? ' · ☕' : ''})</div>`;
     if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
       html += `<div class="dk-empty-mini">ยังไม่ล็อกอิน (เก็บได้สูงสุด ${maxDecks} เด็คบนเครื่องนี้) — <button type="button" class="btn-dark mini" style="display:inline-block;padding:2px 8px;font-size:11.5px;margin-left:4px" onclick="if(window.openAuth)window.openAuth('login')">เข้าสู่ระบบ</button> เพื่อจัดเด็คเพิ่มและซิงค์ข้ามเครื่อง</div>`;
@@ -913,19 +912,6 @@
     }
     if (!savedNames.length) html += `<div class="dk-empty-mini">ยังไม่มีเด็คที่บันทึก — กด «จัดเด็คใหม่» มุมบนขวา</div>`;
     else html += savedNames.map(n => itemBtn('saved', n, n, saved[n])).join('');
-    html += `<div class="dk-sec">เด็คตัวอย่าง (Starter)</div>`;
-    html += STARTER_KEYS.map(k => {
-      const p = STARTERS_DB && STARTERS_DB[k];
-      if (!p) return '';
-      return itemBtn('preset', k, p.label || p.name || k, p);
-    }).join('');
-    if (presets.length) {
-      html += `<div class="dk-sec">เด็คพิเศษ</div>`;
-      html += presets.map(k => {
-        const p = STARTERS_DB[k];
-        return itemBtn('preset', k, (p && (p.label || p.name)) || k, p);
-      }).join('');
-    }
     byId('dkList').innerHTML = html;
     renderDeckView();
   }

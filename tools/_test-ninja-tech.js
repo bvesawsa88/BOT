@@ -152,7 +152,7 @@ function skipNegate(st, seed) {
   ok(!st.pending, 'หนี: โจมตีสลาย');
 }
 
-/* 3b) วิชานินจา รุกรับพลิกผัน — React ตอนถูกโจมตี เนรเทศตัวที่โดนโจมตีหนีได้ */
+/* 3b) วิชานินจา รุกรับพลิกผัน — เป็น Normal Magic (เล่นใน Main Phase) ไม่เด้งถาม React ตอนถูกโจมตี */
 {
   const st = emptyState();
   st.active = 'B';
@@ -160,26 +160,9 @@ function skipNegate(st, seed) {
   const atk = put(st, 'B.avatar', 'BT04-036');
   const tech = put(st, 'A.hand', 'BT10-065');
   let fx = BoT.applyAction(st, { type: 'declareAttack', atk, def, by: 'B', seed: 1 });
-  if (fx.deny) fail('รุกรับ declareAttack deny: ' + fx.deny);
   const react = (st.prompts || [])[0];
-  ok(react && react.kind === 'react' && (react.options || []).includes(tech),
-    'รุกรับพลิกผัน in attack react: ' + ((react && react.options) || []).join(','));
-  fx = BoT.applyAction(st, { type: 'chooseTarget', k: tech, by: 'A', seed: 2 });
-  if (fx.deny) fail('play รุกรับ deny: ' + fx.deny);
-  skipNegate(st, 3);
-  const mode = (st.prompts || [])[0];
-  ok(mode && mode.kind === 'chooseMode', 'รุกรับ: เลือกปฏิบัติ — ' + ((mode && mode.kind) || 'no-prompt'));
-  fx = BoT.applyAction(st, { type: 'chooseMode', k: tech, opt: 1, by: 'A', seed: 10 });
-  if (fx.deny) fail('chooseMode รุกรับ deny: ' + fx.deny);
-  const pick = (st.prompts || [])[0];
-  ok(pick && pick.kind === 'pick' && pick.dest === 'exileThenReturnEnd',
-    'รุกรับ: เลือกนินจาเนรเทศ — ' + ((pick && pick.dest) || 'no-prompt'));
-  const cands = BoT.promptCandidates(st, pick);
-  ok(cands.includes(def), 'รุกรับ: เลือกตัวที่ถูกโจมตีได้');
-  fx = BoT.applyAction(st, { type: 'chooseTarget', k: def, by: 'A', seed: 11 });
-  if (fx.deny) fail('exile รุกรับ deny: ' + fx.deny);
-  ok(BoT.zoneOf(st, def) === 'A.dark', 'รุกรับ: ตัวที่ถูกโจมตีเข้ามิติมืด (' + BoT.zoneOf(st, def) + ')');
-  ok(!st.pending, 'รุกรับ: โจมตีสลายเพราะหนี');
+  const options = (react && react.options) || [];
+  ok(!options.includes(tech), 'รุกรับพลิกผัน ไม่ถาม React ตอนถูกโจมตี');
 }
 
 /* 4) โรงบาล — ขึ้นมือแล้วอัญเชิญชื่อนั้นไม่ได้ */

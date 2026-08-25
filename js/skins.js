@@ -113,8 +113,15 @@
     return SLOTS.some(slot => !!c[slot]);
   }
   function authToken() {
-    try { return localStorage.getItem('bot_auth_token') || ''; }
-    catch (e) { return ''; }
+    try {
+      const t = localStorage.getItem('bot_auth_token');
+      if (t) return t;
+    } catch (e) { }
+    try {
+      const m = document.cookie.match(/(?:^|;\s*)bot_auth_token=([^;]+)/);
+      if (m) return decodeURIComponent(m[1]);
+    } catch (e) { }
+    return '';
   }
   function isDefaultSel(sel) {
     const id = officialId();

@@ -115,22 +115,71 @@
     }
     let userMaxDecks = 5;
     let isSupporter = false;
+    let currentAuthUser = '';
 
-    function authToken() {
-      try { return localStorage.getItem('bot_auth_token') || ''; }
-      catch (e) { return ''; }
+    function getAuthToken() {
+      try {
+        const t = localStorage.getItem('bot_auth_token');
+        if (t) return t;
+      } catch (e) { }
+      try {
+        const m = document.cookie.match(/(?:^|;\s*)bot_auth_token=([^;]+)/);
+        if (m) {
+          const t = decodeURIComponent(m[1]);
+          try { localStorage.setItem('bot_auth_token', t); } catch (e) { }
+          return t;
+        }
+      } catch (e) { }
+      return '';
     }
-    function isLoggedIn() { return !!authToken(); }
+
+    function setAuthUser(user) {
+      currentAuthUser = (user || '').trim().toLowerCase();
+    }
+
+    function getActiveUser() {
+      if (currentAuthUser) return currentAuthUser;
+      try {
+        const u = localStorage.getItem('bot_user');
+        if (u) { currentAuthUser = u.trim().toLowerCase(); return currentAuthUser; }
+      } catch (e) { }
+      return '';
+    }
+
+    function deckStorageKey() {
+      const u = getActiveUser();
+      return u ? ('bot_decks_user_' + u) : 'bot_decks_guest';
+    }
+
+    function isLoggedIn() { return !!getAuthToken(); }
+
     function savedDecks() {
-      try { return JSON.parse(localStorage.getItem('bot_decks_v1') || '{}'); }
-      catch (e) { return {}; }
+      const key = deckStorageKey();
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) return JSON.parse(raw);
+      } catch (e) { }
+      if (key === 'bot_decks_guest') {
+        try {
+          const legacy = localStorage.getItem('bot_decks_v1');
+          if (legacy) return JSON.parse(legacy);
+        } catch (e) { }
+      }
+      return {};
     }
+
     function writeLocalDecks(sv) {
-      try { localStorage.setItem('bot_decks_v1', JSON.stringify(sv)); }
+      const key = deckStorageKey();
+      try { localStorage.setItem(key, JSON.stringify(sv)); }
       catch (e) { }
+      if (key === 'bot_decks_guest') {
+        try { localStorage.setItem('bot_decks_v1', JSON.stringify(sv)); }
+        catch (e) { }
+      }
     }
+
     function pushDecks(sv) {
-      const t = authToken();
+      const t = getAuthToken();
       if (!t) return Promise.resolve({ ok: true });
       return fetch('/auth/decks', {
         method: 'PUT',
@@ -144,12 +193,17 @@
         return j;
       }).catch(() => ({ ok: false }));
     }
+
     function saveDecks(sv) {
       writeLocalDecks(sv);
-      return pushDecks(sv);
+      if (isLoggedIn()) {
+        return pushDecks(sv);
+      }
+      return Promise.resolve({ ok: true });
     }
+
     function pullDecks() {
-      const t = authToken();
+      const t = getAuthToken();
       if (!t) return Promise.resolve(savedDecks());
       return fetch('/auth/decks', { headers: { Authorization: 'Bearer ' + t } })
         .then(r => r.json())
@@ -157,22 +211,31 @@
           if (!j.ok) return savedDecks();
           if (j.maxDecks) userMaxDecks = j.maxDecks;
           isSupporter = !!j.isSupporter;
-          const local = savedDecks();
           const remote = (j.decks && typeof j.decks === 'object') ? j.decks : {};
-          const merged = Object.assign({}, remote, local);
-          writeLocalDecks(merged);
-          try {
-            if (JSON.stringify(merged) !== JSON.stringify(remote)) pushDecks(merged);
-          } catch (e) { pushDecks(merged); }
-          return merged;
+
+          // If brand new account on server has no decks, check for local guest decks to migrate once:
+          if (Object.keys(remote).length === 0) {
+            let guestDecks = {};
+            try { guestDecks = JSON.parse(localStorage.getItem('bot_decks_guest') || localStorage.getItem('bot_decks_v1') || '{}'); } catch (e) { }
+            if (Object.keys(guestDecks).length > 0) {
+              writeLocalDecks(guestDecks);
+              pushDecks(guestDecks);
+              return guestDecks;
+            }
+          }
+
+          writeLocalDecks(remote);
+          return remote;
         })
         .catch(() => savedDecks());
     }
+
     function getMaxDecks() {
       if (!isLoggedIn()) return 2;
       return userMaxDecks;
     }
     function getIsSupporter() { return isSupporter; }
-    return { load, limitOf, isOnly, savedDecks, saveDecks, pullDecks, isLoggedIn, getMaxDecks, getIsSupporter };
+
+    return { load, limitOf, isOnly, savedDecks, saveDecks, pullDecks, isLoggedIn, getMaxDecks, getIsSupporter, setAuthUser };
   })();
 })(typeof self !== 'undefined' ? self : this);
