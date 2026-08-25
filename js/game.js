@@ -6823,7 +6823,10 @@
     byId('authMsg').textContent = 'กำลังเชื่อมต่อ Google...';
     try {
       const confRes = await fetch('/auth/oauth/config').then(r => r.json()).catch(() => ({}));
-      if (confRes.googleClientId) {
+      const cid = (confRes.googleClientId || '').trim();
+      const isValidCid = cid.endsWith('.apps.googleusercontent.com');
+
+      if (isValidCid) {
         if (!window.google || !window.google.accounts || !window.google.accounts.id) {
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
@@ -6833,58 +6836,69 @@
             script.onload = resolve;
             script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
             document.head.appendChild(script);
-          });
+          }).catch(() => {});
         }
         if (window.google && window.google.accounts && window.google.accounts.id) {
-          window.google.accounts.id.initialize({
-            client_id: confRes.googleClientId,
-            auto_select: false,
-            callback: async (res) => {
-              if (res.credential) {
-                const r = await fetch('/auth/social-login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ provider: 'google', credential: res.credential })
-                });
-                const j = await r.json();
-                if (j.ok) {
-                  setAuthToken(j.token);
-                  setAuthUI(j.username, j.admin, j.isSupporter);
-                  closeAuth();
-                  toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
-                  syncCloudDecks();
-                } else {
-                  byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
+          try {
+            window.google.accounts.id.initialize({
+              client_id: cid,
+              auto_select: false,
+              callback: async (res) => {
+                if (res.credential) {
+                  const r = await fetch('/auth/social-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: 'google', credential: res.credential })
+                  });
+                  const j = await r.json();
+                  if (j.ok) {
+                    setAuthToken(j.token);
+                    setAuthUI(j.username, j.admin, j.isSupporter);
+                    closeAuth();
+                    toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
+                    syncCloudDecks();
+                  } else {
+                    byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
+                  }
                 }
               }
+            });
+            let btnWrapper = byId('_googleBtnWrapper');
+            if (!btnWrapper) {
+              btnWrapper = document.createElement('div');
+              btnWrapper.id = '_googleBtnWrapper';
+              btnWrapper.style.position = 'fixed';
+              btnWrapper.style.opacity = '0';
+              btnWrapper.style.pointerEvents = 'none';
+              btnWrapper.style.top = '-9999px';
+              document.body.appendChild(btnWrapper);
             }
-          });
-          let btnWrapper = byId('_googleBtnWrapper');
-          if (!btnWrapper) {
-            btnWrapper = document.createElement('div');
-            btnWrapper.id = '_googleBtnWrapper';
-            btnWrapper.style.position = 'fixed';
-            btnWrapper.style.opacity = '0';
-            btnWrapper.style.pointerEvents = 'none';
-            btnWrapper.style.top = '-9999px';
-            document.body.appendChild(btnWrapper);
+            btnWrapper.innerHTML = '';
+            window.google.accounts.id.renderButton(btnWrapper, { theme: 'outline', size: 'large', type: 'standard' });
+            const googleBtn = btnWrapper.querySelector('div[role=button]') || btnWrapper.querySelector('iframe');
+            if (googleBtn) {
+              googleBtn.click();
+              byId('authMsg').textContent = '';
+              return;
+            }
+          } catch (e) {
+            console.warn('GSI initialize failed, fallback to social login prompt', e);
           }
-          btnWrapper.innerHTML = '';
-          window.google.accounts.id.renderButton(btnWrapper, { theme: 'outline', size: 'large', type: 'standard' });
-          const googleBtn = btnWrapper.querySelector('div[role=button]') || btnWrapper.querySelector('iframe');
-          if (googleBtn) googleBtn.click();
-          else window.google.accounts.id.prompt();
-          byId('authMsg').textContent = '';
-          return;
         }
       }
 
-      const name = prompt('กรอกชื่อผู้ใช้สำหรับบัญชี Google (หรืออีเมล):', 'GoogleUser');
+      const name = prompt('กรอกอีเมลหรือชื่อบัญชี Google ของคุณเพื่อเข้าสู่ระบบ:', 'GoogleUser');
       if (!name || !name.trim()) { byId('authMsg').textContent = ''; return; }
+      const cleanInput = name.trim();
       const r = await fetch('/auth/social-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'google', name: name.trim(), id: 'g_' + name.trim().toLowerCase() })
+        body: JSON.stringify({
+          provider: 'google',
+          name: cleanInput.split('@')[0],
+          email: cleanInput.includes('@') ? cleanInput : undefined,
+          id: 'g_' + cleanInput.toLowerCase().replace(/[^a-z0-9]/g, '')
+        })
       });
       const j = await r.json();
       if (j.ok) {
