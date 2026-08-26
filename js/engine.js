@@ -9399,6 +9399,29 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 runActions(st, fx, p.thenIfOwnNameIncludes.actions || [], { src: p.src, owner: p.chooser, rng });
               }
             }
+          } else if (p.dest === 'copyAbilitiesFromHell' || p.dest === 'copyAbilities') {
+            const targetInst = st.inst[p.src];
+            const pickedCard = st.inst[a.k];
+            if (targetInst && pickedCard) {
+              const pickedEff = resolveEffect(pickedCard.code, pickedCard.name);
+              const abilitiesToCopy = ((pickedEff && pickedEff.abilities) || []).concat(pickedCard.granted || []);
+              if (abilitiesToCopy.length) {
+                targetInst.granted = (targetInst.granted || []).concat(JSON.parse(JSON.stringify(abilitiesToCopy)));
+                targetInst.inheritedFrom = (targetInst.inheritedFrom || []).concat(pickedCard.name);
+                addLog(st, p.chooser, `เอฟเฟกต์ ${targetInst.name}: ได้รับความสามารถของ ${pickedCard.name} ในนรก (${abilitiesToCopy.length} ความสามารถ)`);
+                
+                // หากการ์ดใบที่เลือกมีความสามารถจุติให้แสดงผลความสามารถทันที
+                const jutiAbilities = abilitiesToCopy.filter(ab => (ab && ab.keyword === 'จุติ') || (ab && ab.trigger && ab.trigger.on === 'summoned'));
+                jutiAbilities.forEach(ab => {
+                  if (ab.actions && ab.actions.length) {
+                    addLog(st, p.chooser, `ความสามารถจุติของ ${pickedCard.name} ที่สืบทอดมา แสดงผลทันที`);
+                    runActions(st, fx, ab.actions, { src: p.src, owner: p.chooser, rng });
+                  }
+                });
+              } else {
+                addLog(st, p.chooser, `เอฟเฟกต์ ${targetInst.name}: เลือก ${pickedCard.name} ในนรกแต่การ์ดไม่มีความสามารถ`);
+              }
+            }
           } else if (p.dest === 'naraiSacSummon') {
             // ส่งนารายณ์ที่เลือกลงนรก → อัญเชิญใบจากมือ (p.src) → รัน then
             doMove(st, a.k, p.chooser + '.hell', null, fx);

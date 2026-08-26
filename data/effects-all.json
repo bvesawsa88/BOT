@@ -12270,20 +12270,26 @@
       "name": "มฤตยูเทวี",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "activated"
+            "on": "summoned",
+            "if": "paidCost"
           },
-          "oncePerTurn": true,
           "actions": [
             {
-              "op": "negateTargetMagicUntilTurnEnd"
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "นรก",
+                "cost": 5
+              },
+              "dest": "copyAbilitiesFromHell"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "สั่งใช้ : ยกเลิกความสามารถการ์ด Magic ศัตรู 1 ใบจนจบเทิร์น"
+      "note": "จุติ : เลือก Avatar {symbol นรก} Cost 5 จำนวน 1 ใบ ในนรกฝ่ายเรา Avatar ใบนี้ได้รับความสามารถของการ์ดใบที่เลือก หากความสามารถของการ์ดใบที่เลือกมีความสามารถจุติให้แสดงผลความสามารถทันที"
     },
     {
       "code": "BT08-024",
