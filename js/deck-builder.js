@@ -605,7 +605,7 @@
     const name = (byId('dbName').value.trim() || 'เด็คไม่มีชื่อ');
     const sv = CardDB.savedDecks();
     const isNew = !sv[name];
-    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : (CardDB.isLoggedIn && CardDB.isLoggedIn() ? 5 : 2);
+    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
     if (isNew && Object.keys(sv).length >= max) {
       if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
         msg(`⚠️ โหมดไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — กรุณาล็อกอินเพื่อจัดเด็คเพิ่ม`);
@@ -941,7 +941,7 @@
   byId('dkBack').onclick = () => BOT.showScreen('menu');
   byId('dkNew').onclick = () => {
     const sv = CardDB.savedDecks();
-    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : (CardDB.isLoggedIn && CardDB.isLoggedIn() ? 5 : 2);
+    const max = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
     if (!(CardDB.isLoggedIn && CardDB.isLoggedIn()) && Object.keys(sv).length >= max) {
       if (typeof root.toast === 'function') root.toast(`⚠️ ไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — ล็อกอินเพื่อจัดเด็คเพิ่ม`);
       if (typeof window.openAuth === 'function') window.openAuth('login');

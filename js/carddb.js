@@ -231,7 +231,7 @@
     }
 
     function getMaxDecks() {
-      if (!isLoggedIn()) return 2;
+      if (!isLoggedIn()) return 5;
       return userMaxDecks;
     }
     function getIsSupporter() { return isSupporter; }
