@@ -398,7 +398,16 @@
         });
       }
       return `<div class="db-card" data-code="${esc(cardKey)}">
-        <img src="${esc(c.imageUrl)}" loading="lazy" alt="">
+        <div class="db-card-fb">
+          <div class="db-fb-top"><span class="db-fb-code">${esc(c.code || cardKey)}</span><span class="db-fb-type">${esc(c.type || '')}</span></div>
+          <div class="db-fb-name">${esc(c.name || cardKey)}</div>
+          <div class="db-fb-stats">
+            ${c.cost !== '' && c.cost != null ? `<span>C${c.cost}</span>` : ''}
+            ${c.gem !== '' && c.gem != null ? `<span>G${c.gem}</span>` : ''}
+            ${c.power !== '' && c.power != null ? `<span>P${c.power}</span>` : ''}
+          </div>
+        </div>
+        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="this.classList.add('img-err')">
         <div class="db-rar">${esc(c.rarity)}</div>
         ${n ? `<div class="db-badge">×${n}</div>` : ''}
         <div class="db-qty"><button class="db-pm" data-q="sub">−</button><span>${n ? '×' + n : ''}</span><button class="db-pm" data-q="add">+</button></div>
@@ -466,7 +475,10 @@
     const entry = (k, n) => {
       const c = cardOf(k) || {};
       return `<div class="db-deck-card" data-code="${esc(k)}" title="${esc(c.name || k)}">
-        <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="">
+        <div class="db-card-fb mini">
+          <div class="db-fb-name">${esc(c.name || k)}</div>
+        </div>
+        <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="" onerror="this.classList.add('img-err')">
         ${n > 1 ? `<span class="db-deck-n">×${n}</span>` : ''}
         <div class="db-qty"><button class="db-pm" data-act="sub">−</button><span>×${n}</span><button class="db-pm" data-act="add">+</button></div>
       </div>`;

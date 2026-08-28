@@ -117,8 +117,17 @@
     byId('glResult').textContent = `${filtered.length} ใบ · แสดง ${Math.min(GL.shown, filtered.length)} · คลิกการ์ดเพื่อดูเต็มจอ`;
     byId('glGrid').innerHTML = filtered.slice(0, GL.shown).map(c =>
       `<div class="gl-card" data-uid="${esc(c.uid || '')}" data-code="${esc(c.code)}">
-        <div class="gl-img" style="background-image:url('${esc(c.imageUrl)}')"></div>
-        <div class="gl-rar">${esc(c.rarity)}</div>
+        <div class="db-card-fb">
+          <div class="db-fb-top"><span class="db-fb-code">${esc(c.code)}</span><span class="db-fb-type">${esc(c.type || '')}</span></div>
+          <div class="db-fb-name">${esc(c.name || c.code)}</div>
+          <div class="db-fb-stats">
+            ${c.cost !== '' && c.cost != null ? `<span>C${c.cost}</span>` : ''}
+            ${c.gem !== '' && c.gem != null ? `<span>G${c.gem}</span>` : ''}
+            ${c.power !== '' && c.power != null ? `<span>P${c.power}</span>` : ''}
+          </div>
+        </div>
+        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="this.classList.add('img-err')">
+        <div class="db-rar">${esc(c.rarity)}</div>
       </div>`).join('');
     byId('glMore').classList.toggle('hidden', filtered.length <= GL.shown);
   }
