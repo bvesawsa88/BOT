@@ -875,29 +875,6 @@
       "note": "จุติ: เลือกการ์ดจากเด็คขึ้นมือได้ 2 ใบ แล้วสับ"
     },
     {
-      "name": "โซน่า โพลีกอน",
-      "codes": [
-        "BT09-022"
-      ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "draw",
-              "count": 1,
-              "player": "owner"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
-    },
-    {
       "name": "เด็กไม่ชอบแมลงสาบ",
       "codes": [
         "CC01-037",
@@ -1674,23 +1651,8 @@
       "codes": [
         "SD05-002"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "whenAttacking": true,
-          "requireOwnNameIncludes": "บึงทมิฬ People",
-          "actions": [
-            {
-              "op": "optionalDiscardUntapSelf"
-            }
-          ],
-          "note": "ทอยคี่→ตื่น — ใช้ optionalDiscardUntapSelf เป็น proxy (ผู้เล่นกดสั่งใช้เมื่อรอดการต่อสู้)"
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "manual",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Avatar ใบนี้สั่งโจมตีและไม่ถูกทำลายจากการต่อสู้ ถ้าบน Avatar Zone ฝ่ายเรา มี Avatar \"บึงทมิฬ"
     },
     {
@@ -1906,31 +1868,8 @@
       "codes": [
         "SD05-005"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "tap",
-              "target": "self"
-            },
-            {
-              "op": "grantCombatImmune",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "บึงทมิฬ People"
-                ]
-              },
-              "excludeSelf": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "manual",
       "note": "เทิร์นละครั้ง สั่งใช้ เปลี่ยนการ์ดใบนี้จากสภาพตื่นเป็นสภาพนอน เลือก Avatar \"บึงทมิฬ People\" ใบอื่นบนสนามฝ่ายเรา 1 ใบ : A"
     },
     {
@@ -1939,10 +1878,7 @@
         "SD05-004"
       ],
       "abilities": [],
-      "keywords": [
-        "โล่มนุษย์"
-      ],
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "\"โล่มนุษย์\" อัติโนมัติ เมื่อการ์ดใบนี้ใช้ความสามารถ \"โล่มนุษย์\" POWER+2 จนจบการต่อสู้นั้น"
     },
     {
@@ -1957,23 +1893,12 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "scout",
-              "count": 3,
-              "from": "bottom",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "ปลา"
-              },
-              "dest": "hand",
-              "shuffleAfter": true
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
-      "note": "จำนวนสอดแนมตาม Avatar นอน — ใช้ 3 ใบเป็นค่ากลาง"
+      "parseStatus": "partial",
+      "note": "จุติ : แสดงการ์ดจากล่างสุดของ Deck ตามจำนวน Avatar ที่อยู่ในสภาพนอนทั้งสนาม เลือก Avatar {symbol ปลา"
     },
     {
       "name": "บึงทมิฬ  People - CEO คุณจิระ",
@@ -3849,31 +3774,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "บึงทมิฬ People"
-                ]
-              },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true,
-              "multiMax": 2,
-              "summonUntappedIfLandNameIncludes": "บึงทมิฬ"
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "nameAliases": [
-        "บึงทมิฬ People"
-      ],
-      "extraSymbols": [
-        "ปลา"
-      ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ : อัญเชิญ \"บึงทมิฬ People\" จากใน Deck เรา 2 ใบ ในสภาพนอน แต่ถ้า Land Magic Zone มี \"บึงทมิฬ\" ให"
     },
     {
@@ -3913,24 +3818,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "กุ่ย",
-                  "ฮอล",
-                  "นาย"
-                ]
-              },
-              "dest": "hand",
-              "multiMax": 3
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : นำ Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" ได้ส"
     },
     {
@@ -4467,46 +4359,12 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "scout",
-              "count": 3,
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ขุนพล"
-                ],
-                "symbol": "ต่างชาติ"
-              },
-              "dest": "hand",
-              "shuffleAfter": true,
-              "thenIfColor": {
-                "ฟ้า": [
-                  {
-                    "op": "deckPick",
-                    "filter": {
-                      "type": "Avatar",
-                      "nameIncludes": [
-                        "ขุนพล"
-                      ],
-                      "symbol": "ต่างชาติ",
-                      "color": "ฟ้า"
-                    },
-                    "dest": "avatar",
-                    "paidCost": false,
-                    "shuffleAfter": true
-                  }
-                ]
-              }
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "keywords": [
-        "แทงหลัง"
-      ],
-      "parseStatus": "auto",
-      "note": "ถ้าได้สีฟ้าสามารถอัญเชิญแทนขึ้นมือ — thenIfColor ทำงานเมื่อเลือกจาก scout"
+      "parseStatus": "partial",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มใ"
     },
     {
       "name": "อัศวินแบงค์",
@@ -5055,10 +4913,8 @@
         "SD07-003"
       ],
       "abilities": [],
-      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
-      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ",
-      "parseStatus": "auto",
-      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ"
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
       "name": "แฮหัวเอี๋ยน ขุนพลธนูแห่งวุยก๊ก",
@@ -5066,11 +4922,7 @@
         "SD07-004"
       ],
       "abilities": [],
-      "keywords": [
-        "แทงหลัง"
-      ],
-      "drawOnSummonedByAvatarNameIncludes": "ขุนพล",
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
     }
   ]

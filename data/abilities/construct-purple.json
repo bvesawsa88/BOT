@@ -25,7 +25,10 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "ขุนพล"
+                ]
               }
             }
           ]

@@ -1,0 +1,343 @@
+{
+  "cards": [
+    {
+      "code": "SD09-001",
+      "name": "หนุมาน วานรวายุ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-002",
+      "name": "นิลพัท วานรสีกาฬ",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "สัตว์"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-003",
+      "name": "สุครีพ วานรปากแซ่บ",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
+    },
+    {
+      "code": "SD09-004",
+      "name": "พาลี วานรแห่งเมืองขีดขิน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ : ทำลาย Avatar ที่มี Cost ต่ำที่สุดบนสนามฝ่ายตรงข้ามทุกใบ อัตโนมัติ เมื่อเริ่มต้น Main Phase เร"
+    },
+    {
+      "code": "SD09-005",
+      "name": "คิงคา วานรเจ้าป่า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ {red (ทำงานเมื่อ Avatar ใบนี้ถูกอัญเชิญลง Avatar Zone แบบจ่าย Cost ด้วยตัวผู้เล่นเอง)} : ถ้าในน"
+    },
+    {
+      "code": "SD09-006",
+      "name": "วานรกินซากลากอเวจี",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : ถ้าในนรกเรามี Avatar \"วานร\" 4 ใบหรือมากกว่า อัญ"
+    },
+    {
+      "code": "SD09-007",
+      "name": "วานรถลกหนังฝังกระดูก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อ Avatar ใบนี้ถูกใช้เป็นค่า Cost ในการอัญเชิญ Avatar \"วานร\" : อัญเชิญ Token วานร สีเขียว Cost 1 Gem 0 POWE"
+    },
+    {
+      "code": "SD09-008",
+      "name": "วานรหมวกเหล็ก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE"
+    },
+    {
+      "code": "SD09-009",
+      "name": "ดารา นางชั่ว",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ Avatar {Symbol สัตว์} 2 ใบ บน Avatar Zone เรา : อัญเชิญ \"พาลี\" 1 ใบ จากนรกเรา ลงบน Avatar"
+    },
+    {
+      "code": "SD09-010",
+      "name": "วานร ซีซ่าสลัด",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : สอดแนม {red (แสดงการ์ดใบบนสุดของ Deck ตามจำนวนท"
+    },
+    {
+      "code": "SD09-011",
+      "name": "ยายทองวานรจอมหักกระดูก",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD09-012",
+      "name": "ยักษ์แบงค์",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "SD09-013",
+      "name": "หนุมานถวายแหวน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ทิ้งการ์ด \"วานร\" 1 ใบ จากมือ : ทำลาย Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ"
+    },
+    {
+      "code": "SD09-014",
+      "name": "เลือกตั้งเจ้าป่า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ สอดแนม 7 "
+    },
+    {
+      "code": "SD09-015",
+      "name": "เตรียมเสบียง",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ผู้เล่นทุกคน นำ Avatar ในนรก 1 ใบ ที่ Cost 4 หรือต่ำกว่า ที่ไม่ใช่ {only} วางไว้บนสุดของ Deck ตนเอง"
+    },
+    {
+      "code": "SD09-016",
+      "name": "ชีวิตเหนือหน้าที่",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อ ฝ่ายตรงข้าม โจมตี นำ Avatar \"วานร\" 1 ใบ บน Avatar Zone เรา ไปไว้บนสุดของ Deck : ยกเลิกการโจมตีนั้น"
+    },
+    {
+      "code": "SD09-017",
+      "name": "วานรร้อนรัก",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เมื่อ Avatar \"วานร\" ฝ่ายเราทำการต่อสู้เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} Ava"
+    },
+    {
+      "code": "SD09-018",
+      "name": "ตรีเพชร",
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "วานร"
+      },
+      "parseStatus": "partial"
+    },
+    {
+      "code": "SD09-019",
+      "name": "ดาบพระขรรค์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": "วานร"
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-020",
+      "name": "ป่าแห่งเมืองขีดขิน",
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ : จั่วก"
+    },
+    {
+      "code": "SD09-021",
+      "name": "ไม่นะ หนุมาน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-022",
+      "name": "ไม่นะ นิลพัท",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-023",
+      "name": "ไม่นะ คิงคา",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-024",
+      "name": "นังชั่ว ตายแล้ว (ดารา)",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-025",
+      "name": "ไม่นะ สุครีพ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "SD09-026",
+      "name": "วานร",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    }
+  ]
+}

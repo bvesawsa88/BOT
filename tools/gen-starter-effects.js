@@ -286,7 +286,7 @@ function buildSeries(series) {
   return { cards: out, stats: { total: cards.length, aliased, parsed, empty, manual } };
 }
 
-const TARGETS = ['SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'KD01', 'KD02', 'KD03', 'KD04'];
+const TARGETS = ['SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD09', 'KD01', 'KD02', 'KD03', 'KD04'];
 const allNew = [];
 for (const ser of TARGETS) {
   const { cards, stats } = buildSeries(ser);
@@ -301,7 +301,7 @@ for (const ser of TARGETS) {
 }
 
 // rebuild effects-all
-const sets = ['sd01', 'sd02', 'sd03', 'sd04', 'sd05', 'sd06', 'sd07', 'sd08',
+const sets = ['sd01', 'sd02', 'sd03', 'sd04', 'sd05', 'sd06', 'sd07', 'sd08', 'sd09',
   'kd01', 'kd02', 'kd03', 'kd04',
   'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11', 'cc01'];
 const merged = [];

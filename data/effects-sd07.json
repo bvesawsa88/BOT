@@ -40,55 +40,22 @@
       "code": "SD07-003",
       "name": "แฮหัวตุ้น ขุนพลตาเดียวแห่งวุยก๊ก",
       "abilities": [],
-      "parseStatus": "auto",
-      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
-      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ",
-      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ"
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
       "code": "SD07-004",
       "name": "แฮหัวเอี๋ยน ขุนพลธนูแห่งวุยก๊ก",
       "abilities": [],
-      "parseStatus": "auto",
-      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง",
-      "keywords": [
-        "แทงหลัง"
-      ],
-      "drawOnSummonedByAvatarNameIncludes": "ขุนพล"
+      "parseStatus": "manual",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง"
     },
     {
       "code": "SD07-005",
       "name": "ซุนเกี๋ยน ขุนพลพยัคฆ์แห่งง่อก๊ก",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ขุนพล"
-                ],
-                "symbol": "ต่างชาติ",
-                "side": "own",
-                "count": 1
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "โล่มนุษย์ คำสั่งเสีย : เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา Avatar ใบที่เลือก POW",
-      "keywords": [
-        "โล่มนุษย์"
-      ]
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "โล่มนุษย์ คำสั่งเสีย : เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา Avatar ใบที่เลือก POW"
     },
     {
       "code": "SD07-006",
@@ -98,8 +65,7 @@
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั่ง",
       "keywords": [
         "แทงหลัง"
-      ],
-      "untapAfterBackstabColor": "แดง"
+      ]
     },
     {
       "code": "SD07-007",
@@ -150,56 +116,19 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "scout",
-              "count": 3,
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ขุนพล"
-                ],
-                "symbol": "ต่างชาติ"
-              },
-              "dest": "hand",
-              "shuffleAfter": true,
-              "thenIfColor": {
-                "ฟ้า": [
-                  {
-                    "op": "deckPick",
-                    "filter": {
-                      "type": "Avatar",
-                      "nameIncludes": [
-                        "ขุนพล"
-                      ],
-                      "symbol": "ต่างชาติ",
-                      "color": "ฟ้า"
-                    },
-                    "dest": "avatar",
-                    "paidCost": false,
-                    "shuffleAfter": true
-                  }
-                ]
-              }
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
-      "note": "ถ้าได้สีฟ้าสามารถอัญเชิญแทนขึ้นมือ — thenIfColor ทำงานเมื่อเลือกจาก scout",
-      "keywords": [
-        "แทงหลัง"
-      ]
+      "parseStatus": "partial",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอน และนำ POWER การ์ดนี้ +1 ไปเพิ่มใ"
     },
     {
       "code": "SD07-009",
       "name": "ขุนศึกแบงค์ แซ่อู๋",
       "abilities": [],
-      "parseStatus": "auto",
-      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั",
-      "keywords": [
-        "แทงหลัง"
-      ]
+      "parseStatus": "manual",
+      "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั"
     },
     {
       "code": "SD07-010",
@@ -225,104 +154,22 @@
     {
       "code": "SD07-013",
       "name": "คำสาบานสวนท้อ",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "chooseMode"
-          },
-          "options": [
-            {
-              "label": "ค้นขุนพลสีเดียวกันขึ้นมือ (ไม่ Only)",
-              "actions": [
-                {
-                  "op": "deckPick",
-                  "filter": {
-                    "type": "Avatar",
-                    "nameIncludes": [
-                      "ขุนพล"
-                    ],
-                    "symbol": "ต่างชาติ",
-                    "excludeOnly": true
-                  },
-                  "dest": "hand",
-                  "shuffleAfter": true
-                }
-              ]
-            },
-            {
-              "label": "ค้นขุนพล Only สีเดียวกันขึ้นมือ",
-              "actions": [
-                {
-                  "op": "deckPick",
-                  "filter": {
-                    "type": "Avatar",
-                    "nameIncludes": [
-                      "ขุนพล"
-                    ],
-                    "symbol": "ต่างชาติ"
-                  },
-                  "dest": "hand",
-                  "shuffleAfter": true
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "manual",
       "note": "เลือกปฏิบัติ : 1) เลือก Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ 1 ใบ บน Avatar Zone ฝ่ายเรา นำ Avatar \"ขุนพล\" ที่เป็น "
     },
     {
       "code": "SD07-014",
       "name": "ยืมมือสังหาร",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "requireOwnNameIncludes": "ขุนพล",
-          "cost": [
-            {
-              "op": "discard",
-              "count": 1
-            }
-          ],
-          "actions": [
-            {
-              "op": "takeControl",
-              "filter": {
-                "type": "Avatar"
-              },
-              "until": "endOfTurn",
-              "keepTapped": false
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เงื่อนไขต้องมี Mod ศัตรูสวม — ผู้เล่นเลือกเป้าที่มี Mod"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สามารถใช้การ์ดใบนี้ได้เมื่อ Avatar Zone ฝ่ายเรามี Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ เท่านั้น ทิ้งการ์ดบนมือ 1 ใบ"
     },
     {
       "code": "SD07-015",
       "name": "เสบียงหลวง",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "actions": [
-            {
-              "op": "drawProvisions",
-              "nameIncludes": "ขุนพล",
-              "symbol": "ต่างชาติ",
-              "min": 2,
-              "countBoost": 2,
-              "countNormal": 1
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "manual",
       "note": "ผู้เล่นทุกคน จั่วการ์ด 1 ใบ ถ้าบน Avatar Zone ฝ่ายเรามี \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ ตั้งแต่ 2 ใบขึ้นไป เปลี่ยนควา"
     },
     {
@@ -330,19 +177,16 @@
       "name": "หนีคือยอดกลยุทธ์",
       "abilities": [
         {
+          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "react": true,
-          "actions": [
-            {
-              "op": "bounceAttackTarget"
-            }
-          ]
+          "actions": [],
+          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
         }
       ],
-      "parseStatus": "auto",
-      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
+      "parseStatus": "partial",
+      "note": "เมื่อ Avatar ฝ่ายเรา ถูกโจมตี : นำ Avatar ใบที่ถูกโจมตี กลับขึ้นมือ"
     },
     {
       "code": "SD07-017",
@@ -361,7 +205,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
+      "note": "แมปจาก BT01-040"
     },
     {
       "code": "SD07-018",
@@ -437,7 +281,10 @@
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "ขุนพล"
+                ]
               }
             }
           ]

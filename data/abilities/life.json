@@ -47,6 +47,28 @@
       "parseStatus": "auto"
     },
     {
+      "name": "นังชั่ว ตายแล้ว (ดารา)",
+      "codes": [
+        "SD09-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ไม่นะ กัปตันไกร !",
       "codes": [
         "SD05-021"
@@ -94,6 +116,28 @@
       "name": "ไม่นะ ครู !",
       "codes": [
         "SD02-024"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ คิงคา",
+      "codes": [
+        "SD09-023"
       ],
       "abilities": [
         {
@@ -441,6 +485,28 @@
       "name": "ไม่นะ นาย !",
       "codes": [
         "SD02-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ นิลพัท",
+      "codes": [
+        "SD09-022"
       ],
       "abilities": [
         {
@@ -913,6 +979,50 @@
       "name": "ไม่นะ วอเตอร์แมน !",
       "codes": [
         "SD05-023"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ สุครีพ",
+      "codes": [
+        "SD09-025"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไม่นะ หนุมาน",
+      "codes": [
+        "SD09-021"
       ],
       "abilities": [
         {

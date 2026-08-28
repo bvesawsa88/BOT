@@ -8,36 +8,9 @@
       "codes": [
         "SD06-020"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "lifeRevealedByAttack"
-          },
-          "oncePerTurn": true,
-          "cost": [
-            {
-              "op": "discard",
-              "count": 1
-            }
-          ],
-          "actions": [
-            {
-              "op": "scout",
-              "count": 1,
-              "filter": {
-                "type": "Avatar",
-                "effectIncludes": "ค่ายบางระจัน",
-                "costMax": 4
-              },
-              "dest": "avatar",
-              "paidCost": false,
-              "restTo": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เงื่อนไข Avatar Zone ว่าง — ผู้เล่นกดเมื่อเข้าเงื่อนไข"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อ LIFE Card ของเราถูกหงาย และบน Avatar Zone ฝ่ายเรา ไม่มี Avatar อยู่ ทิ้งการ์ดบนมือ 1 ใบ : "
     },
     {
       "name": "ค่ายบางระจัน",
@@ -266,9 +239,8 @@
         "SD06-019"
       ],
       "abilities": [],
-      "scoutBonusConstruct": 2,
-      "parseStatus": "auto",
-      "note": "Construct ฝ่ายเราสอดแนม +2"
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ"
     },
     {
       "name": "เวทีเพื่อชีวิต",

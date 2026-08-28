@@ -2014,7 +2014,7 @@
   }
 
   /* ── ห้องรอ ── */
-  const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'KD01', 'KD02', 'KD03', 'KD04'];
+  const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'SD09', 'KD01', 'KD02', 'KD03', 'KD04'];
   const HARD_BOT_DECK_KEY = 'ป่าพงไพร';
   function hardBotDeckVal() { return 'starter:' + HARD_BOT_DECK_KEY; }
   function presetDeckKeys() {

@@ -3,45 +3,9 @@
     {
       "code": "KD04-001",
       "name": "ราชันย์หุ่นนักรบผู้กล้า : คริติคอล ไมเกรน",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "chooseMode"
-          },
-          "oncePerTurn": true,
-          "cost": {
-            "exileHellDistinctNames": {
-              "nameIncludes": "ไมเกรน",
-              "count": 3
-            }
-          },
-          "options": [
-            {
-              "label": "สวมอาวุธจากนรกสูงสุด 2",
-              "actions": [
-                {
-                  "op": "hellAttachMods",
-                  "nameIncludes": "อาวุธหุ่นนักรบผู้กล้า",
-                  "max": 2,
-                  "toSelf": true
-                }
-              ]
-            },
-            {
-              "label": "ฆ่าแล้วโจมตี LIFE 1 ครั้ง จนจบเทิร์น",
-              "actions": [
-                {
-                  "op": "grantBattleDestroyLifeHit",
-                  "until": "endOfTurn"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 ",
-      "controlImmune": true
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 "
     },
     {
       "code": "KD04-002",
@@ -53,44 +17,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "scout",
-              "count": 5,
-              "filter": {
-                "nameIncludes": [
-                  "ไมเกรน"
-                ],
-                "type": "Avatar"
-              },
-              "dest": "hand",
-              "shuffleAfter": true
-            }
-          ]
-        },
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "cost": {
-            "discardHand": 1
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "nameIncludes": [
-                  "อาวุธหุ่นนักรบผู้กล้า"
-                ],
-                "subtype": "Modification"
-              },
-              "dest": "hand"
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ : สอดแนม 5 ใบ เลือก Avatar \"ไมเกรน\" 1 ใบจากที่ สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำกลับเข้า Deck"
     },
     {
@@ -191,8 +122,8 @@
       ],
       "parseStatus": "auto",
       "note": "ทำลายใบนี้แทนเมื่อไม้ท์เกรนจะถูกทำลาย",
-      "protectReplaceForNameIncludes": "ไมเกรน",
-      "protectReplaceIfHostNameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน"
+      "protectReplaceIfHostNameIncludes": "หุ่นนักรบผู้กล้า : ไม้ท์เกรน",
+      "protectReplaceForNameIncludes": "ไมเกรน"
     },
     {
       "code": "KD04-007",
@@ -309,41 +240,9 @@
     {
       "code": "KD04-012",
       "name": "สุดยอดท่าไม้ตายผู้กล้า THE END",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "playMagic"
-          },
-          "actions": [
-            {
-              "op": "grantAttackAllEnemy",
-              "filter": {
-                "nameIncludes": [
-                  "ไมเกรน"
-                ]
-              },
-              "until": "endOfTurn"
-            }
-          ]
-        },
-        {
-          "trigger": {
-            "on": "activatedFromHell"
-          },
-          "cost": {
-            "exileSelf": true
-          },
-          "actions": [
-            {
-              "op": "hellAttachAllDistinctWeaponMods",
-              "toNameIncludes": "ไมเกรน"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar",
-      "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar"
     },
     {
       "code": "KD04-013",
@@ -378,11 +277,9 @@
       "name": "อาวุธนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
       "abilities": [],
       "attachOnly": {
-        "nameIncludes": "ผู้กล้า",
-        "symbol": "หุ่นยนต์"
+        "nameIncludes": "ผู้กล้า"
       },
-      "parseStatus": "auto",
-      "protectLeaveDiceEven": true
+      "parseStatus": "partial"
     },
     {
       "code": "KD04-015",
@@ -400,13 +297,12 @@
           ]
         }
       ],
+      "parseStatus": "auto",
+      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol",
       "attachOnly": {
         "symbol": "หุ่นยนต์"
       },
-      "parseStatus": "auto",
-      "hostSymbolLock": true,
-      "hostAttachNameIncludes": "หุ่นยนต์",
-      "note": "สวมใส่หุ่นยนต์ ห้ามถูกเปลี่ยน Symbol"
+      "hostAttachNameIncludes": "หุ่นยนต์"
     },
     {
       "code": "KD04-016",

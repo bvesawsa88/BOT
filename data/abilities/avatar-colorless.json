@@ -62,6 +62,29 @@
       "note": "อัตโนมัติ เมื่อโจมตี Avatar Symbol ต่างชาติ : ทำลายเป้าหมาย"
     },
     {
+      "name": "โซน่า โพลีกอน",
+      "codes": [
+        "BT09-022"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "โดมรัททาทุย",
       "codes": [
         "SD08-003"
@@ -130,9 +153,7 @@
         "SD03-004"
       ],
       "abilities": [],
-      "millBonusExtra": 2,
-      "millBonusExceptSelf": true,
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์"
     },
     {
@@ -179,22 +200,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "นายนิรยบาล"
-                ]
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {

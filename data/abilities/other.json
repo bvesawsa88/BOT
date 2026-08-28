@@ -1,0 +1,72 @@
+{
+  "category": "other",
+  "type": "Token",
+  "entries": [
+    {
+      "name": "วานร",
+      "codes": [
+        "SD09-026"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "อาเมอร์ ทศกัณฐ์",
+      "codes": [
+        "BT11-042"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "matchSymbolPowerOrName": {
+                  "symbol": "ยักษ์",
+                  "power": 3,
+                  "nameIncludes": [
+                    "ทศกัณฐ์"
+                  ]
+                }
+              },
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerIfAllySymbolOrNameElse",
+              "symbol": "ยักษ์",
+              "name": "มณโฑ",
+              "amountIf": 2,
+              "amountElse": -2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 5 ใบ อัญเชิญ ยักษ์ P3 หรือ ทศกัณฐ์ / มี ยักษ์ อื่น หรือ มณโฑ P+2 / ไม่มี P-2"
+    }
+  ]
+}

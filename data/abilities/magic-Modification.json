@@ -391,24 +391,38 @@
       "codes": [
         "SD06-017"
       ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น เมื่อ Avatar ที่สวมใส่การ์ดใบนี้ทำลาย Avatar ฝ่ายตรง"
+    },
+    {
+      "name": "ดาบพระขรรค์",
+      "codes": [
+        "SD09-019"
+      ],
       "abilities": [
         {
           "trigger": {
-            "on": "battleDestroy"
+            "on": "static",
+            "if": "self.attached"
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
             }
           ]
         }
       ],
       "attachOnly": {
-        "effectIncludes": "ค่ายบางระจัน"
+        "nameIncludes": "วานร"
       },
-      "parseStatus": "auto",
-      "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ"
+      "parseStatus": "auto"
     },
     {
       "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
@@ -690,41 +704,26 @@
       "note": "สวม ไอ้นัท/เซอร์นัท (ถ้าสวม เซอร์นัท: อัศวินตลิ่งชัน อื่นทุกใบ POWER +1)"
     },
     {
+      "name": "ตรีเพชร",
+      "codes": [
+        "SD09-018"
+      ],
+      "abilities": [],
+      "attachOnly": {
+        "nameIncludes": "วานร"
+      },
+      "parseStatus": "partial"
+    },
+    {
       "name": "ตรีศูล ไตรตัน",
       "codes": [
         "SD05-018"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "requireNoModUsed": true,
-          "cost": [
-            {
-              "op": "exileSelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "บึงทมิฬ"
-                ],
-                "subtype": "Land"
-              },
-              "dest": "hand",
-              "shuffleAfter": true
-            }
-          ],
-          "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
-        }
-      ],
+      "abilities": [],
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "ตีพ่อ",
@@ -1176,30 +1175,11 @@
       "codes": [
         "SD05-017"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.attached"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileEquipped",
-              "layer": 2,
-              "target": {
-                "select": "equippedAvatar"
-              }
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "auto",
-      "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
+      "parseStatus": "partial"
     },
     {
       "name": "ปืนเล็กยาว",
@@ -1337,13 +1317,7 @@
         "SD06-016"
       ],
       "abilities": [],
-      "keywords": [
-        "ลูกฮึด"
-      ],
-      "attachOnly": {
-        "effectIncludes": "ค่ายบางระจัน"
-      },
-      "parseStatus": "auto",
+      "parseStatus": "manual",
       "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
     },
     {
@@ -1597,37 +1571,9 @@
               }
             }
           ]
-        },
-        {
-          "trigger": {
-            "on": "activatedFromHell"
-          },
-          "requireMilledThisTurn": true,
-          "requireNoModUsed": true,
-          "countsAsModification": true,
-          "actions": [
-            {
-              "op": "attach",
-              "from": "self"
-            }
-          ]
         }
       ],
-      "milledOptional": {
-        "requireNoModUsed": true,
-        "countsAsModification": true,
-        "actions": [
-          {
-            "op": "attach",
-            "from": "self"
-          }
-        ]
-      },
-      "attachOnly": {
-        "symbol": "นรก"
-      },
-      "parseStatus": "verified",
-      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ + ยังไม่ใช้ Mod → ใช้จากนรกได้"
+      "parseStatus": "auto"
     },
     {
       "name": "หอกแหลมแทงทุกวัน ทุกวัน",
@@ -1881,10 +1827,9 @@
       ],
       "abilities": [],
       "attachOnly": {
-        "nameIncludes": "ผู้กล้า",
-        "symbol": "หุ่นยนต์"
+        "nameIncludes": "ผู้กล้า"
       },
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",

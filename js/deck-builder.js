@@ -11,7 +11,7 @@
   const COLOR_HEX = { 'แดง': '#c0392b', 'ฟ้า': '#3a7abf', 'ม่วง': '#8e5aa8', 'เขียว': '#3f8f5a' };
   const TYPE_ORDER = { Avatar: 0, Magic: 1, Construct: 2 };
   const MAGIC_ORDER = { Normal: 0, React: 1, Land: 2, Modification: 3 };
-  const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'KD01', 'KD02', 'KD03', 'KD04'];
+  const STARTER_KEYS = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'SD09', 'KD01', 'KD02', 'KD03', 'KD04'];
 
   function cardOf(code) {
     if (!DB.db) return null;

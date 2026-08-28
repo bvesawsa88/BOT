@@ -124,30 +124,9 @@
       "codes": [
         "SD04-020"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "phase": "Main",
-          "actions": [
-            {
-              "op": "tap",
-              "from": "own",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "คน"
-              }
-            },
-            {
-              "op": "scoutOneTopOrHell"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "สอดแนม 1 แล้วเลือกบน/ล่าง — ใช้ scoutOneTopOrHell (บนหรือนรก) เป็น proxy"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ใน Main Phase สามารถเลือก Avatar {Symbol คน} บนสนามฝ่ายเรา 1 ใบ : เปลี่ยน Avatar ใบนั้นเป็นสภาพนอน"
     },
     {
       "name": "คาเฟ่หมาแมว",
@@ -794,6 +773,15 @@
       "note": "ออร่าภูติผลไม้ +2 และสามัคคี · สั่งใช้: เนรเทศใบบนสุดเด็ค → อัญเชิญภูติจากนรก (ได้คำสั่งเสียเนรเทศตัวเอง)"
     },
     {
+      "name": "ป่าแห่งเมืองขีดขิน",
+      "codes": [
+        "SD09-020"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ : จั่วก"
+    },
+    {
       "name": "พิภพรัททาทุย",
       "codes": [
         "BT04-059",
@@ -1257,47 +1245,8 @@
       "codes": [
         "KD03-020"
       ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "chooseMode"
-          },
-          "oncePerTurn": true,
-          "cost": {
-            "discardHand": 1
-          },
-          "options": [
-            {
-              "label": "สอดแนม 5 — สวมโอตะสูงสุด 2 ให้ไอดอล",
-              "actions": [
-                {
-                  "op": "scoutAttachOta",
-                  "scout": 5,
-                  "maxOta": 2
-                }
-              ]
-            },
-            {
-              "label": "สอดแนม 7 — ไอดอลขึ้นมือ",
-              "actions": [
-                {
-                  "op": "scout",
-                  "count": 7,
-                  "filter": {
-                    "type": "Avatar",
-                    "nameIncludes": [
-                      "ไอดอล"
-                    ]
-                  },
-                  "dest": "hand",
-                  "shuffleAfter": true
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "manual",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
     },
     {
@@ -1365,28 +1314,26 @@
       "abilities": [
         {
           "trigger": {
-            "on": "declareAttack"
+            "on": "static",
+            "if": "self.zone==landZone"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "combat",
+              "duration": "whileOnField",
+              "layer": 3,
               "target": {
-                "select": "attacker"
-              },
-              "ifAttackerExactNames": [
-                "กุ่ย",
-                "ฮอล",
-                "นาย"
-              ]
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
             }
-          ],
-          "fromLand": true
+          ]
         }
       ],
-      "parseStatus": "auto",
-      "note": "Land: กุ่ย/ฮอล/นาย สั่งโจมตี → POWER +2 จนจบการต่อสู้ (ไม่บัฟใบอื่นบนสนาม)"
+      "parseStatus": "auto"
     },
     {
       "name": "สมชายห้องเช่าพันล้าน",

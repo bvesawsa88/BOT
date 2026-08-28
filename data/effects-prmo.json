@@ -610,22 +610,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "นายนิรยบาล"
-                ]
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
@@ -958,19 +947,16 @@
       "name": "หนีคือยอดกลยุทธ์",
       "abilities": [
         {
+          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "react": true,
-          "actions": [
-            {
-              "op": "bounceAttackTarget"
-            }
-          ]
+          "actions": [],
+          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
         }
       ],
-      "parseStatus": "auto",
-      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
+      "parseStatus": "partial",
+      "note": "เมื่อ Avatar ฝ่ายเรา ถูกโจมตี : นำ Avatar ใบที่ถูกโจมตี กลับขึ้นมือ"
     },
     {
       "code": "PRMO-035",
@@ -989,7 +975,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
+      "note": "แมปจาก BT01-040"
     },
     {
       "code": "PRMO-133",

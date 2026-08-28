@@ -3,79 +3,16 @@
     {
       "code": "KD02-001",
       "name": "ปีศาจแห่งพันรเลือด เมฟิสโตเฟเลส",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activatedFromHand"
-          },
-          "requireUniqueHellSymbolNames": {
-            "symbol": "นรก",
-            "min": 7
-          },
-          "cost": {
-            "discardHand": 2
-          },
-          "actions": [
-            {
-              "op": "summonSelfFromHandFree",
-              "noJuti": true
-            }
-          ]
-        },
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "mill",
-              "count": 5,
-              "who": "self"
-            },
-            {
-              "op": "destroyAllAvatarsExceptSelf"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "สั่งใช้ จากมือ ถ้าในนรกฝ่ายเรา มี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 7 ชื่อขึ้นไป ทั้งการ์ดจากบนมือ 2 ใบ : อัญเ",
-      "noPaidSummon": true,
-      "addToHandWhenScoutedByNameIncludes": "สุวรรณ"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สั่งใช้ จากมือ ถ้าในนรกฝ่ายเรา มี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 7 ชื่อขึ้นไป ทั้งการ์ดจากบนมือ 2 ใบ : อัญเ"
     },
     {
       "code": "KD02-002",
       "name": "ลิลิธ ปีศาจสาวตนแรก",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "requireUniqueHellSymbolNames": {
-            "symbol": "นรก",
-            "min": 4
-          },
-          "cost": {
-            "exileHell": 2
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "symbol": "นรก"
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในนรกฝ่ายเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 4 ใบขึ้นไป เนรเทศ การ์ดในนรกฝ่ายเรา ",
-      "nameAliases": [
-        "นายนิรยบาล"
-      ]
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในนรกฝ่ายเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 4 ใบขึ้นไป เนรเทศ การ์ดในนรกฝ่ายเรา "
     },
     {
       "code": "KD02-003",
@@ -87,22 +24,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "นายนิรยบาล"
-                ]
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
@@ -250,10 +176,8 @@
       "code": "KD02-008",
       "name": "นายนิรยบาล อ้วน",
       "abilities": [],
-      "parseStatus": "auto",
-      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์",
-      "millBonusExtra": 2,
-      "millBonusExceptSelf": true
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์"
     },
     {
       "code": "KD02-009",
@@ -306,46 +230,9 @@
     {
       "code": "KD02-014",
       "name": "สัญญาเลือด",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "actions": [
-            {
-              "op": "mill",
-              "count": 3,
-              "who": "self"
-            },
-            {
-              "op": "drawHellUnique",
-              "symbol": "นรก",
-              "threshold": 5,
-              "countBelow": 1,
-              "countAtLeast": 2
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์",
-      "milledOptional": {
-        "actions": [
-          {
-            "op": "exileSelf"
-          },
-          {
-            "op": "hellPick",
-            "filter": {
-              "nameIncludes": [
-                "นายนิรยบาล"
-              ]
-            },
-            "dest": "avatar",
-            "paidCost": false
-          }
-        ]
-      }
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์"
     },
     {
       "code": "KD02-015",
@@ -432,8 +319,8 @@
       ],
       "parseStatus": "auto",
       "note": "แมปจาก BT05-058",
-      "ignoreReactOncePerTurnLimit": true,
-      "oncePerTurnCard": true
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
     },
     {
       "code": "KD02-018",
@@ -491,10 +378,6 @@
         }
       ],
       "parseStatus": "verified",
-      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)",
-      "attachOnly": {
-        "symbol": "นรก"
-      },
       "milledOptional": {
         "requireNoModUsed": true,
         "countsAsModification": true,
@@ -504,7 +387,11 @@
             "from": "self"
           }
         ]
-      }
+      },
+      "attachOnly": {
+        "symbol": "นรก"
+      },
+      "note": "+1 ขณะสวมบน {symbol นรก} · โดนธรณีสูบ → ใช้จากนรกสวมได้ (นับใช้ Modification เมื่อสวมสำเร็จ)"
     },
     {
       "code": "KD02-020",

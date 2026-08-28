@@ -78,44 +78,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "scout",
-              "count": 5,
-              "filter": {
-                "nameIncludes": [
-                  "จ่ามะนาว",
-                  "จ่าแดงเดือด"
-                ]
-              },
-              "dest": "attachHost",
-              "attachHostFilter": {
-                "nameIncludes": [
-                  "รถถัง"
-                ]
-              },
-              "restTo": "bottom"
-            }
-          ]
-        },
-        {
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "attachSelfTo",
-              "filter": {
-                "nameIncludes": [
-                  "รถถัง"
-                ]
-              }
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : สอดแนม (แสดงการ์ดใบบนสุดของ Deck) 5 ใบ นำ \"จ่ามะนาว\" ห"
     },
     {
@@ -360,6 +327,25 @@
       ],
       "parseStatus": "auto",
       "note": "เมื่อสัตว์เราจะถูกทำลาย ทิ้งมือ 1: อัญเชิญใบนี้แล้วยกเลิกการทำลาย"
+    },
+    {
+      "name": "คิงคา วานรเจ้าป่า",
+      "codes": [
+        "SD09-005"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ {red (ทำงานเมื่อ Avatar ใบนี้ถูกอัญเชิญลง Avatar Zone แบบจ่าย Cost ด้วยตัวผู้เล่นเอง)} : ถ้าในน"
     },
     {
       "name": "คุณเชิดชัย Super Air",
@@ -1125,6 +1111,15 @@
       "note": "จุติ : เลือก Avatar 1 ใบ ที่มี Cost 2 หรือ ต่ำกว่า บน Avatar Zone ฝ่ายตรงข้าม ทำลาย Avatar ใบที่เลือ"
     },
     {
+      "name": "ดารา นางชั่ว",
+      "codes": [
+        "SD09-009"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ Avatar {Symbol สัตว์} 2 ใบ บน Avatar Zone เรา : อัญเชิญ \"พาลี\" 1 ใบ จากนรกเรา ลงบน Avatar"
+    },
+    {
       "name": "ต้นมะม่วง",
       "codes": [
         "BT02-036",
@@ -1765,6 +1760,37 @@
                 "powerMax": 3
               },
               "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "นิลพัท วานรสีกาฬ",
+      "codes": [
+        "SD09-002"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "สัตว์"
+              }
             }
           ]
         }
@@ -2458,6 +2484,25 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "พาลี วานรแห่งเมืองขีดขิน",
+      "codes": [
+        "SD09-004"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [],
+          "note": "จุติซับซ้อน"
+        }
+      ],
+      "parseStatus": "partial",
+      "note": "จุติ : ทำลาย Avatar ที่มี Cost ต่ำที่สุดบนสนามฝ่ายตรงข้ามทุกใบ อัตโนมัติ เมื่อเริ่มต้น Main Phase เร"
     },
     {
       "name": "พิเภก",
@@ -3364,6 +3409,15 @@
       "note": "จุติ : อัญเชิญ Avatar {Symbol ยักษ์} 2 ใบ Cost <= 3 ไม่มี Text Box จาก Deck"
     },
     {
+      "name": "ยักษ์แบงค์",
+      "codes": [
+        "SD09-012"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
       "name": "ยักษ์หินแผ่นดินใหญ่",
       "codes": [
         "CC01-017"
@@ -3374,6 +3428,15 @@
       ],
       "parseStatus": "auto",
       "note": "โล่มนุษย์ · เมื่อยักษ์ฝ่ายเราถูกเวทเล็ง — นอนยักษ์หินแล้วเปลี่ยนเป้าเวทมาที่ตัวเอง"
+    },
+    {
+      "name": "ยายทองวานรจอมหักกระดูก",
+      "codes": [
+        "SD09-011"
+      ],
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
     },
     {
       "name": "รถถังเฟืองเหล็ก",
@@ -3743,6 +3806,15 @@
       "parseStatus": "verified"
     },
     {
+      "name": "วานรกินซากลากอเวจี",
+      "codes": [
+        "SD09-006"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : ถ้าในนรกเรามี Avatar \"วานร\" 4 ใบหรือมากกว่า อัญ"
+    },
+    {
       "name": "วานรช่องแชท",
       "codes": [
         "BT05-034"
@@ -3772,6 +3844,24 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "วานร ซีซ่าสลัด",
+      "codes": [
+        "SD09-010"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : สอดแนม {red (แสดงการ์ดใบบนสุดของ Deck ตามจำนวนท"
+    },
+    {
+      "name": "วานรถลกหนังฝังกระดูก",
+      "codes": [
+        "SD09-007"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อ Avatar ใบนี้ถูกใช้เป็นค่า Cost ในการอัญเชิญ Avatar \"วานร\" : อัญเชิญ Token วานร สีเขียว Cost 1 Gem 0 POWE"
     },
     {
       "name": "วานรแบงค์",
@@ -3804,6 +3894,15 @@
       ],
       "abilities": [],
       "parseStatus": "verified"
+    },
+    {
+      "name": "วานรหมวกเหล็ก",
+      "codes": [
+        "SD09-008"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE"
     },
     {
       "name": "วาฬทมิฬ ก้า",
@@ -3948,6 +4047,15 @@
       "abilities": [],
       "parseStatus": "verified",
       "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "สุครีพ วานรปากแซ่บ",
+      "codes": [
+        "SD09-003"
+      ],
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
     },
     {
       "name": "เสนาธิการ อาณาจักรของแพง",
@@ -4157,6 +4265,33 @@
         }
       ],
       "cannotAttack": true,
+      "parseStatus": "auto"
+    },
+    {
+      "name": "หนุมาน วานรวายุ",
+      "codes": [
+        "SD09-001"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
       "parseStatus": "auto"
     },
     {
@@ -4403,7 +4538,7 @@
       "note": "อัตโนมัติ เมื่อโจมตี POWER +1 / ย้ายเป้าโจมตีมาที่ตัวเอง"
     },
     {
-      "name": "อาเมอร์ ทศกัณฐ์",
+      "name": "อาเมอร์ ทศกัณท์",
       "codes": [
         "BT11-042"
       ],
@@ -4587,25 +4722,11 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "Tank Ranger"
-                ]
-              },
-              "dest": "attachSelf",
-              "shuffleAfter": true
-            }
-          ]
+          "actions": [],
+          "note": "จุติซับซ้อน"
         }
       ],
-      "nameAliases": [
-        "รถถัง"
-      ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให"
     }
   ]

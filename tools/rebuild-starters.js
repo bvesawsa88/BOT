@@ -61,7 +61,7 @@ function countOf(c, ser) {
 }
 
 const starters = {};
-const series = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'KD01', 'KD02', 'KD03', 'KD04'];
+const series = ['SD01', 'SD02', 'SD03', 'SD04', 'SD05', 'SD06', 'SD07', 'SD08', 'SD09', 'KD01', 'KD02', 'KD03', 'KD04'];
 for (const ser of series) {
   const list = uniqSeries(ser);
   const main = {}, life = {};
