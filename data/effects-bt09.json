@@ -821,8 +821,9 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "destroyedInBattleBySelf"
+            "on": "battleDestroy"
           },
+          "requireLinked": true,
           "actions": [
             {
               "op": "destroyEnemyCostScaledByHellOrRevealLife"
@@ -865,7 +866,8 @@
       ],
       "cannotAttack": true,
       "unityOnlyNameIncludes": "ธอร์",
-      "note": "สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]"
+      "note": "สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]",
+      "cannotBeAttackTargetIfLinked": true
     },
     {
       "code": "BT09-026",

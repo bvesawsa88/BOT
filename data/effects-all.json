@@ -14083,6 +14083,11 @@
         }
       ],
       "parseStatus": "auto",
+      "linkKeywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด",
+        "สามัคคี"
+      ],
       "note": "[Link เพมมุ ยอดมนุษย์] โล่มนุษย์ ลูกฮึด สามัคคี · อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar \"เพมมุ\" ไว้ใน Deck ด้วยเสมอ"
     },
     {
@@ -14620,8 +14625,9 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "destroyedInBattleBySelf"
+            "on": "battleDestroy"
           },
+          "requireLinked": true,
           "actions": [
             {
               "op": "destroyEnemyCostScaledByHellOrRevealLife"
@@ -14663,6 +14669,7 @@
       ],
       "cannotAttack": true,
       "unityOnlyNameIncludes": "ธอร์",
+      "cannotBeAttackTargetIfLinked": true,
       "note": "สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]"
     },
     {
@@ -33434,6 +33441,7 @@
       ],
       "cannotAttack": true,
       "unityOnlyNameIncludes": "ธอร์",
+      "cannotBeAttackTargetIfLinked": true,
       "note": "สามัคคีได้เฉพาะธอร์ · โจมตีไม่ได้ · สั่งใช้เทิร์นละครั้ง POWER +1 จนจบเทิร์น และ +1 ต่อนรกเราทุก 5 ใบ · [Link ธอร์ บุตรแห่งโอดิน]"
     },
     {
@@ -33463,6 +33471,11 @@
         }
       ],
       "parseStatus": "auto",
+      "linkKeywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด",
+        "สามัคคี"
+      ],
       "note": "[Link เพมมุ ยอดมนุษย์] โล่มนุษย์ ลูกฮึด สามัคคี · อัตโนมัติ ในช่วง End Phase เรา : เปลี่ยน Avatar ใบนี้เป็นสภาพตื่น และ/หรือ POWER +2 จนถึง Draw Phase ต่อไปของเรา · # จะต้องใส่การ์ด Avatar \"เพมมุ\" ไว้ใน Deck ด้วยเสมอ"
     },
     {

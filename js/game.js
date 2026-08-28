@@ -54,19 +54,17 @@
     return playReady;
   }
 
-  function starterDeck(series) {
-    const s = (STARTERS && STARTERS[series]) || null;
-    if (!s) return null;
-    return { name: s.name || (series + ' Starter'), spec: { main: s.main || {}, life: s.life || {} } };
-  }
   function resolveDeckChoice(val) {
-    if (!val) return starterDeck('SD01');
-    if (val.indexOf('starter:') === 0) return starterDeck(val.slice(8)) || starterDeck('SD01');
+    if (!val) val = 'SD01';
+    const key = val.replace(/^starter:/, '');
     try {
       const sv = CardDB.savedDecks();
       if (sv[val]) return { name: val, spec: sv[val] };
+      if (sv[key]) return { name: key, spec: sv[key] };
     } catch (e) { }
-    return starterDeck('SD01');
+    const s = (STARTERS && (STARTERS[key] || STARTERS[val])) || (STARTERS && STARTERS['SD01']) || null;
+    if (s) return { name: s.name || (key + ' Starter'), spec: { main: s.main || {}, life: s.life || {} } };
+    return { name: key || 'SD01', spec: { main: {}, life: {} } };
   }
 
   let toolsReady = null;
@@ -1429,8 +1427,8 @@
       return;
     }
     Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
-      const dA = lanDecks.A || (starterDeck('SD01') || {}).spec;
-      const dB = lanDecks.B || (starterDeck('SD01') || {}).spec;
+      const dA = lanDecks.A || (resolveDeckChoice('SD01') || {}).spec;
+      const dB = lanDecks.B || (resolveDeckChoice('SD01') || {}).spec;
       st = BoTEngine.buildInitialState(db.all, Math.random, { A: dA, B: dB });
       seqNum = 0;
       gameStart = Date.now();
@@ -2129,11 +2127,11 @@
     try { saved = CardDB.savedDecks(); } catch (e) { }
     Object.keys(saved).forEach(n => rows.push(scoreDeckForBot(n, { name: n, spec: saved[n] })));
     STARTER_KEYS.forEach(k => {
-      const d = starterDeck(k);
+      const d = resolveDeckChoice(k);
       if (d) rows.push(scoreDeckForBot('starter:' + k, d));
     });
     presetDeckKeys().forEach(k => {
-      const d = starterDeck(k);
+      const d = resolveDeckChoice(k);
       if (d) rows.push(scoreDeckForBot('starter:' + k, d));
     });
     return rows.filter(r => r.score >= 0).sort((a, b) => b.score - a.score);
@@ -2171,12 +2169,29 @@
     let saved = {};
     try { saved = CardDB.savedDecks(); } catch (e) { }
     const names = Object.keys(saved);
-    const opts = names.length
-      ? names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('')
-      : `<option value="starter:SD01">SD01 Starter (50+5)</option>`;
-    const ok = v => v && (saved[v] || (names.length === 0 && v.indexOf('starter:') === 0));
-    let act = names.length ? names[0] : 'starter:SD01';
-    let opp = names.length ? names[0] : 'starter:SD01';
+
+    const userHtml = names.map(n => `<option value="${esc(n)}">💾 ${esc(n)}</option>`).join('');
+    const presetKeys = STARTERS ? Object.keys(STARTERS) : [];
+    const presetHtml = presetKeys.map(k => {
+      const d = STARTERS[k];
+      const lbl = (d && (d.label || d.name)) || k;
+      return `<option value="starter:${esc(k)}">📦 ${esc(lbl)}</option>`;
+    }).join('');
+
+    let opts = '';
+    if (userHtml && presetHtml) {
+      opts = `<optgroup label="เด็คของคุณ">${userHtml}</optgroup><optgroup label="เด็คแนะนำ / บอท">${presetHtml}</optgroup>`;
+    } else if (userHtml) {
+      opts = userHtml;
+    } else if (presetHtml) {
+      opts = presetHtml;
+    } else {
+      opts = `<option value="starter:SD01">SD01 Starter (50+5)</option>`;
+    }
+
+    const ok = v => v && (saved[v] || (v.indexOf('starter:') === 0 && STARTERS && STARTERS[v.slice(8)]) || (STARTERS && STARTERS[v]));
+    let act = names.length ? names[0] : (presetKeys.length ? 'starter:' + presetKeys[0] : 'starter:SD01');
+    let opp = presetKeys.includes('ป่าพงไพร') ? 'starter:ป่าพงไพร' : (names.length ? names[0] : 'starter:SD01');
     try {
       const actSaved = localStorage.getItem('bot_active_deck');
       if (actSaved && ok(actSaved)) act = actSaved;
@@ -2201,15 +2216,15 @@
   }
   function menuDeckA() {
     const el = byId('selMenuDeck');
-    return resolveDeckChoice(el ? el.value : null) || starterDeck('SD01');
+    return resolveDeckChoice(el ? el.value : null);
   }
   function menuDeckB() {
     const el = byId('selMenuDeckB');
-    return resolveDeckChoice(el ? el.value : null) || starterDeck('SD01');
+    return resolveDeckChoice(el ? el.value : null);
   }
   function menuRealDeck() {
     const el = byId('selRealDeck');
-    return resolveDeckChoice(el ? el.value : null) || starterDeck('SD01');
+    return resolveDeckChoice(el ? el.value : null);
   }
   function renderRoom() {
     if (!roomSt) return;
@@ -6410,7 +6425,7 @@
     try { d = typeof getter === 'function' ? getter() : getter; } catch (e) { d = null; }
     if (d && d.spec && typeof d.spec === 'object') return d;
     if (d && (d.main || d.life)) return { name: d.name || 'เด็ค', spec: { main: d.main || {}, life: d.life || {} } };
-    const fb = starterDeck('SD01') || starterDeck('SD04') || starterDeck('KD04');
+    const fb = resolveDeckChoice('SD01') || resolveDeckChoice('SD04') || resolveDeckChoice('KD04');
     if (fb && fb.spec) return fb;
     return { name: 'สำรอง', spec: { main: {}, life: {} } };
   }
@@ -7161,14 +7176,14 @@
       const name = localStorage.getItem('bot_active_deck');
       if (name) return resolveDeckChoice(name);
     } catch (e) { }
-    return starterDeck('SD01');
+    return resolveDeckChoice('SD01');
   }
   function oppDeckSpec() {
     try {
       const name = localStorage.getItem('bot_opp_deck');
       if (name) return resolveDeckChoice(name);
     } catch (e) { }
-    return starterDeck('SD01');
+    return resolveDeckChoice('SD01');
   }
   function startSoloMatch() {
     Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
@@ -7193,8 +7208,8 @@
     Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
       soloCards = db.cards || db.all;
       setBotLevel(getBotLevel());
-      const you = resolveDeckChoice(byId('selBotDeckYou').value) || starterDeck('SD01');
-      const botD = resolveDeckChoice(byId('selBotDeckBot').value) || starterDeck('SD01');
+      const you = resolveDeckChoice(byId('selBotDeckYou').value);
+      const botD = resolveDeckChoice(byId('selBotDeckBot').value);
       try {
         localStorage.setItem('bot_active_deck', byId('selBotDeckYou').value);
         localStorage.setItem('bot_opp_deck', byId('selBotDeckBot').value);
@@ -7286,7 +7301,7 @@
       const act = menuRealDeck();
       try { localStorage.setItem('bot_active_deck', byId('selRealDeck').value); } catch (e) { }
       mode = 'solo'; seat = 'A';
-      st = BoTEngine.buildInitialState(db.all, Math.random, { A: act.spec, B: starterDeck('SD01').spec });
+      st = BoTEngine.buildInitialState(db.all, Math.random, { A: act.spec, B: (resolveDeckChoice('SD01') || {}).spec });
       gameStart = Date.now(); selMap = {};
       realMode = true; soloBot = false;
       startTable();

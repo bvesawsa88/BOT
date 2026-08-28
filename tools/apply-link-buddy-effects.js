@@ -190,11 +190,30 @@ const BY_SET = {
       parseStatus: 'auto',
       note: 'จุติ: เลือกเมย์จากมิติมืด หรืออาวุธของเพมมุจากนรก กลับเด็คแล้วสับ จากนั้นจั่ว 1 · ต่อเนื่องในเทิร์นเรา: เพมมุ/สไปรท์/เมย์ ที่ Link แล้ว POWER +2'
     },
+    'BT09-024': {
+      code: 'BT09-024',
+      name: 'ธอร์ บุตรแห่งโอดิน',
+      abilities: [
+        {
+          keyword: 'อัตโนมัติ',
+          trigger: { on: 'battleDestroy' },
+          requireLinked: true,
+          actions: [
+            {
+              op: 'destroyEnemyCostScaledByHellOrRevealLife'
+            }
+          ]
+        }
+      ],
+      parseStatus: 'auto',
+      note: 'Link โลกิ / เมื่อทำลายศัตรูจากการต่อสู้ : ทำลาย Avatar Cost ตามจำนวนนรก หรือ หงาย LIFE ศัตรู 1'
+    },
     'BT09-025': {
       code: 'BT09-025',
       name: 'โลกิ เจ้าชายยักษ์น้ำแข็ง',
       keywords: ['สามัคคี'],
       cannotAttack: true,
+      cannotBeAttackTargetIfLinked: true,
       unityOnlyNameIncludes: 'ธอร์',
       abilities: [
         {

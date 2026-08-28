@@ -2399,6 +2399,9 @@
     if (oa && (ot === oa || ot === 'S' || oa === 'S')) return 'ต้องเลือกฝ่ายตรงข้าม';
     const eDef = fxCard(T);
     const cond = eDef && eDef.cannotBeAttackTargetIf;
+    if ((eDef && eDef.cannotBeAttackTargetIfLinked) || (cond && cond.linked)) {
+      if (inLinkStatus(st, defId)) return `"${T.name}" อยู่ในสถานะคู่หู ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`;
+    }
     if (cond) {
       const hasAttach = !cond.selfAttachedNameIncludes || hasAttachedNameIncludes(st, defId, cond.selfAttachedNameIncludes);
       const hasAlly = !cond.allyNameIncludes || (st.zones[ot + '.avatar'] || []).some(id => id !== defId && nameMatches(st.inst[id], cond.allyNameIncludes));
@@ -2732,7 +2735,7 @@
       if (!ok) return `ใช้ไม่ได้ — ต้องมี "${opt.requireOwnNameIncludes}" บนสนาม`;
     } else {
       // เผื่อเทควางเงื่อนไขไว้ใน action (เช่น forceDuelNoTap.ownNameIncludes)
-      const acNeed = (opt.actions || []).map(x => x.requireOwnNameIncludes || x.ownNameIncludes).find(Boolean);
+      const acNeed = (opt.actions || []).map(x => x.requireOwnNameIncludes || x.ownNameIncludes || x.allyName).find(Boolean);
       if (acNeed) {
         const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], acNeed));
         if (!ok) return `ใช้ไม่ได้ — ต้องมี "${acNeed}" บนสนาม`;
@@ -5541,6 +5544,47 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           st.inst[top].faceUp = true;
           addLog(st, 'S', `หงาย LIFE ใบบนสุดของ ${opp}: "${nameOf(st, top)}"`);
         } else addLog(st, 'S', 'หงาย LIFE ไม่ได้ (ว่างหรือหงายอยู่แล้ว)');
+      } else if (ac.op === 'destroyEnemyCostScaledByHellOrRevealLife') {
+        const opp = other(ctx.owner);
+        const hellCount = (st.zones[ctx.owner + '.hell'] || []).length;
+        const maxCost = 3 + Math.floor(hellCount / 10);
+        const candidates = (st.zones[opp + '.avatar'] || []).filter(id => {
+          const c = st.inst[id];
+          return c && effCost(st, id) <= maxCost && !protectedFromOppLeave(st, id, ctx.owner);
+        });
+        if (!candidates.length) {
+          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar Cost ≤ ${maxCost} ฝ่ายตรงข้ามให้ทำลาย → หงาย LIFE Card ใบบนสุดฝ่ายตรงข้าม`);
+          const life = st.zones[opp + '.life'] || [];
+          const top = life.find(id => st.inst[id] && !st.inst[id].faceUp) || null;
+          if (top) {
+            st.inst[top].faceUp = true;
+            addLog(st, 'S', `หงาย LIFE ใบบนสุดของ ${opp}: "${nameOf(st, top)}"`);
+          } else addLog(st, 'S', 'หงาย LIFE ไม่ได้ (ว่างหรือหงายอยู่แล้ว)');
+        } else {
+          st.prompts.push({
+            kind: 'chooseMode',
+            src: ctx.src,
+            chooser: ctx.owner,
+            optional: false,
+            options: [
+              {
+                label: `ทำลาย Avatar ฝ่ายตรงข้าม (Cost ≤ ${maxCost})`,
+                actions: [{
+                  op: 'chooseDestroy',
+                  filter: { type: 'Avatar', costMax: maxCost },
+                  zones: ['avatar'],
+                  side: 'enemy',
+                  dest: 'destroy'
+                }]
+              },
+              {
+                label: `หงาย LIFE Card ใบบนสุดของฝ่ายตรงข้าม 1 ใบ`,
+                actions: [{ op: 'revealOppLifeTop' }]
+              }
+            ]
+          });
+          prompted = true;
+        }
       } else if (ac.op === 'revealOwnHandNameIncludes') {
         const need = ac.nameIncludes || '';
         const hand = (st.zones[ctx.owner + '.hand'] || []).filter(id => nameMatches(st.inst[id], need));
@@ -6705,7 +6749,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             st.prompts.push(p); prompted = true;
           }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในเด็คหรือนรก`);
-      } else if (ac.op === 'hellPick') {
+      } else if (ac.op === 'hellPick' || ac.op === 'hellPickIfAllyOnField') {
+        if (ac.op === 'hellPickIfAllyOnField' && ac.allyName) {
+          const hasAlly = (st.zones[ctx.owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], ac.allyName));
+          if (!hasAlly) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ต้องมี "${ac.allyName}" บนสนาม`);
+            return;
+          }
+        }
         let filter = Object.assign({}, ac.filter || {});
         if (ctx.sacrificed) {
           if (filter.sameSymbolAs === 'sacrificed') { filter.symbol = ctx.sacrificed.symbol; delete filter.sameSymbolAs; }
@@ -7852,6 +7903,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       const runBattle = (srcK) => {
         abil(st, srcK, 'battleDestroy').forEach(ab => {
           if (ab.oncePerTurn && !claimOncePerTurn(st, srcK, ab.oncePerTurnTag || 'battleDestroy')) return;
+          if (ab.requireLinked && !inLinkStatus(st, srcK)) return;
           if (ab.requireLandNameIncludes) {
             const ok = (st.zones['land'] || []).some(id => st.inst[id] && st.inst[id].faceUp && nameMatches(st.inst[id], ab.requireLandNameIncludes));
             if (!ok) return;
@@ -8725,7 +8777,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         // playMagic = alias ของ activated สำหรับเวท Normal (สัญญาเลือด / THE END ใน JSON เก่า)
         const ab = (c.subtype === 'Modification')
           ? (abilitiesOf(c.code, 'playMagic', c.name)[0] || null)
-          : (abilitiesOf(c.code, 'activated')[0] || abilitiesOf(c.code, 'playMagic')[0]);
+          : (abilitiesOf(c.code, 'activated')[0] || abilitiesOf(c.code, 'playMagic')[0] || abilitiesOf(c.code, 'chooseMode')[0]);
         if (!ab) {
           doMove(st, a.k, owner + '.magic', null, fx); c.faceUp = true;
           const hellAfter = magicHellAfterPlay(c);
@@ -8871,6 +8923,21 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             doMove(st, a.k, owner + '.magic', null, fx);
             addLog(st, owner, `ใช้เวท ${c.name} — เนรเทศจากนรก ${need} ใบเพื่อจ่ายค่า`);
             st.prompts.push(p);
+          } else if (costOp.op === 'mill' || costOp.op === 'millSelf') {
+            const n = costOp.count || 1;
+            const who = costOp.who === 'opp' ? other(owner) : owner;
+            if ((st.zones[who + '.deck'] || []).length < n) return deny(`ใช้ "${c.name}" ไม่ได้ — เด็คไม่พอธรณีสูบ ${n} ใบ`);
+            doMove(st, a.k, owner + '.magic', null, fx);
+            addLog(st, owner, `ใช้เวท ${c.name} — จ่ายค่า: ธรณีสูบ ${n} ใบ`);
+            mill(st, fx, who, n, rng, 0, a.k);
+            const magicActions = (ab && ab.actions) || (ab && ab.options ? [{ op: 'chooseMode', options: ab.options }] : []);
+            if (offerMagicNegateReact(st, fx, owner, a.k)) {
+              st._pendingMagic = { type: 'activated', src: a.k, owner, actions: magicActions, toHellAfter: magicHellAfterPlay(c) };
+              break;
+            }
+            enterChainOrResolve(st, fx, { src: a.k, owner, actions: magicActions });
+            fireEnemyActivate(st, fx, owner, rng);
+            fx.snd = 'place'; break;
           }
           fireEnemyActivate(st, fx, owner, rng); // ศัตรูใช้ความสามารถ (เวทมีค่าใช้จ่าย)
           fx.snd = 'place'; break;
@@ -8878,11 +8945,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         doMove(st, a.k, owner + '.magic', null, fx);
         addLog(st, owner, `ใช้เวท ${c.name}`);
         fx.snd = 'place';
+        const magicActions = (ab && ab.actions) || (ab && ab.options ? [{ op: 'chooseMode', options: ab.options }] : []);
         if (offerMagicNegateReact(st, fx, owner, a.k)) {
-          st._pendingMagic = { type: 'activated', src: a.k, owner, actions: ab.actions, toHellAfter: magicHellAfterPlay(c) };
+          st._pendingMagic = { type: 'activated', src: a.k, owner, actions: magicActions, toHellAfter: magicHellAfterPlay(c) };
           break;
         }
-        enterChainOrResolve(st, fx, { src: a.k, owner, actions: ab.actions });
+        enterChainOrResolve(st, fx, { src: a.k, owner, actions: magicActions });
         fireEnemyActivate(st, fx, owner, rng); // ศัตรูใช้ความสามารถ (เวทปกติ)
         break;
       }
