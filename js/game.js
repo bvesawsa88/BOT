@@ -2126,10 +2126,6 @@
     let saved = {};
     try { saved = CardDB.savedDecks(); } catch (e) { }
     Object.keys(saved).forEach(n => rows.push(scoreDeckForBot(n, { name: n, spec: saved[n] })));
-    STARTER_KEYS.forEach(k => {
-      const d = resolveDeckChoice(k);
-      if (d) rows.push(scoreDeckForBot('starter:' + k, d));
-    });
     presetDeckKeys().forEach(k => {
       const d = resolveDeckChoice(k);
       if (d) rows.push(scoreDeckForBot('starter:' + k, d));
@@ -2171,7 +2167,7 @@
     const names = Object.keys(saved);
 
     const userHtml = names.map(n => `<option value="${esc(n)}">💾 ${esc(n)}</option>`).join('');
-    const presetKeys = STARTERS ? Object.keys(STARTERS) : [];
+    const presetKeys = presetDeckKeys();
     const presetHtml = presetKeys.map(k => {
       const d = STARTERS[k];
       const lbl = (d && (d.label || d.name)) || k;
@@ -2186,12 +2182,12 @@
     } else if (presetHtml) {
       opts = presetHtml;
     } else {
-      opts = `<option value="starter:SD01">SD01 Starter (50+5)</option>`;
+      opts = `<option value="starter:ป่าพงไพร">ป่าพงไพร</option>`;
     }
 
     const ok = v => v && (saved[v] || (v.indexOf('starter:') === 0 && STARTERS && STARTERS[v.slice(8)]) || (STARTERS && STARTERS[v]));
-    let act = names.length ? names[0] : (presetKeys.length ? 'starter:' + presetKeys[0] : 'starter:SD01');
-    let opp = presetKeys.includes('ป่าพงไพร') ? 'starter:ป่าพงไพร' : (names.length ? names[0] : 'starter:SD01');
+    let act = names.length ? names[0] : (presetKeys.length ? 'starter:' + presetKeys[0] : 'starter:ป่าพงไพร');
+    let opp = presetKeys.includes('ธอร์อีสาน') ? 'starter:ธอร์อีสาน' : (presetKeys.includes('ป่าพงไพร') ? 'starter:ป่าพงไพร' : (names.length ? names[0] : 'starter:ป่าพงไพร'));
     try {
       const actSaved = localStorage.getItem('bot_active_deck');
       if (actSaved && ok(actSaved)) act = actSaved;

@@ -638,14 +638,14 @@
     const sel = byId('dbFillStarter');
     if (!sel || !db) return;
     const cur = sel.value;
-    const keys = Object.keys(db);
+    const keys = Object.keys(db).filter(k => STARTER_KEYS.indexOf(k) < 0);
     sel.innerHTML = keys.map(k => {
       const p = db[k];
       const label = (p && (p.label || p.name)) || k;
       return `<option value="${esc(k)}">${esc(label)}</option>`;
     }).join('');
     if (keys.includes(cur)) sel.value = cur;
-    else if (keys.includes('SD01')) sel.value = 'SD01';
+    else if (keys[0]) sel.value = keys[0];
   }
   function loadStarters() {
     if (STARTERS_DB) return Promise.resolve(STARTERS_DB);
