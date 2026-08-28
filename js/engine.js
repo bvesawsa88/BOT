@@ -1807,7 +1807,7 @@
     if (!ac) return false;
     if (ac.op === 'mill' && ac.who === 'both') return true;
     if (ac.op === 'returnSelfToDeck' || ac.op === 'returnSelfToHand') return true;
-    if (ac.op === 'offerSummonSelfFromHell' || ac.op === 'banishSelfFromHell') return true;
+    if (ac.op === 'offerSummonSelfFromHell' || ac.op === 'banishSelfFromHell' || ac.op === 'buildSelfAsConstruct') return true;
     if (ac.op === 'returnToHand' && (ac.target === 'self' || (ac.target && ac.target.select === 'self'))) return true;
     return false;
   }
@@ -1884,6 +1884,14 @@
                 actions: [{ op: 'summonSelfFromHell' }]
               });
               addLog(st, player, `เอฟเฟกต์ ${nameOf(st, k)}: โดนธรณีสูบ — จะอัญเชิญจากนรกไหม?`);
+            }
+          } else if (ac.op === 'buildSelfAsConstruct') {
+            const qd = quotaDeny(st, player + '.construct', st.inst[k]);
+            if (qd) addLog(st, 'S', `${nameOf(st, k)}: ก่อสร้างไม่ได้ (${qd})`);
+            else {
+              doMove(st, k, player + '.construct', null, fx);
+              if (st.inst[k]) { st.inst[k].type = 'Construct'; st.inst[k].faceUp = true; }
+              addLog(st, player, `เอฟเฟกต์ ${nameOf(st, k)}: โดนธรณีสูบ — ก่อสร้างลง Construct Zone`);
             }
           } else if (ac.op === 'banishSelfFromHell') {
             if ((zoneOf(st, k) || '') === player + '.hell') {
@@ -3148,7 +3156,9 @@
               if (t.type && c.type !== t.type) return;
               if (t.symbol && !cardSymbols(st, k).includes(t.symbol)) return;
               if (t.symbols && !t.symbols.some(sy => cardSymbols(st, k).includes(sy))) return;
+              if (t.color && c.color !== t.color) return;
               if (t.nameIncludes && !t.nameIncludes.some(n => nameMatches(c, n))) return;
+              if (t.nameNotIncludes && t.nameNotIncludes.some(n => nameMatches(c, n))) return;
               if (t.requireLinked && !inLinkStatus(st, k)) return;
               if (t.requireAttachedNameIncludes && !hasAttachedNameIncludes(st, k, t.requireAttachedNameIncludes)) return;
               if (t.cost != null && (+c.cost || 0) !== +t.cost) return;
@@ -4237,6 +4247,10 @@
           actions, optional: false
         }));
         addLog(st, owner, `เนรเทศ "${costOp.nameIncludes}" ชื่อไม่ซ้ำ ${costOp.count || 3} จากนรก`);
+      } else if (costOp.op === 'destroySelf' || (costOp.op === 'destroy' && costOp.target && costOp.target.select === 'self')) {
+        destroyCard(st, fx, srcK, destroyOptsFromSrc(st, srcK, srcK));
+        addLog(st, owner, `จ่ายค่า: ทำลาย ${nameOf(st, srcK)}`);
+        continueAfterPaidCost(st, fx, contBase, rng);
       } else if (costOp.op === 'exileSelf') {
         doMove(st, srcK, owner + '.dark', null, fx);
         continueAfterPaidCost(st, fx, contBase, rng);

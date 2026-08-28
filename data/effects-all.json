@@ -13762,8 +13762,9 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==constructZone"
           },
+          "onlyBattlePhase": true,
           "actions": [
             {
               "op": "modifyPower",
@@ -13775,8 +13776,63 @@
                 "type": "Avatar",
                 "side": "own",
                 "zone": "avatarZone",
-                "symbol": "เทพ"
+                "symbol": "เทพ",
+                "color": "ม่วง",
+                "nameNotIncludes": [
+                  "โอดิน"
+                ]
               }
+            },
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "zone": "avatarZone",
+                "symbol": "เทพ",
+                "color": "ม่วง",
+                "nameIncludes": [
+                  "โอดิน"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "dest": "hand",
+              "filter": {
+                "nameIncludes": [
+                  "โอดิน"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "buildSelfAsConstruct"
             }
           ]
         }
