@@ -7202,6 +7202,7 @@
   }
   function startBotMatch() {
     Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
+      if (window.BotAnalytics) window.BotAnalytics.trackEvent('play_bot', 'เล่นกับบอท (' + (getBotLevel() || 'normal') + ')');
       soloCards = db.cards || db.all;
       setBotLevel(getBotLevel());
       const you = resolveDeckChoice(byId('selBotDeckYou').value);

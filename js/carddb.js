@@ -113,7 +113,7 @@
       }
       return lim;
     }
-    let userMaxDecks = 5;
+    let userMaxDecks = 20;
     let isSupporter = false;
     let currentAuthUser = '';
 
@@ -195,6 +195,7 @@
     }
 
     function saveDecks(sv) {
+      if (window.BotAnalytics) window.BotAnalytics.trackEvent('save_deck', 'บันทึกเด็ค');
       writeLocalDecks(sv);
       if (isLoggedIn()) {
         return pushDecks(sv);
@@ -231,7 +232,7 @@
     }
 
     function getMaxDecks() {
-      if (!isLoggedIn()) return 5;
+      if (!isLoggedIn()) return 10;
       return userMaxDecks;
     }
     function getIsSupporter() { return isSupporter; }

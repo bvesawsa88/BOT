@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=20260821">
 <script src="js/security.js?v=20260821"></script>
+<script src="js/analytics.js?v=20260831"></script>
 <style>
   html,body{overflow:auto;height:auto;min-height:100%;-webkit-user-select:text;user-select:text}
   .ad{max-width:680px;margin:0 auto;padding:20px 14px 60px}
@@ -68,7 +69,25 @@
   .um-modal{background:#fffdf8;border:2px solid var(--ink);border-radius:16px;max-width:480px;width:100%;padding:20px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.3)}
   .um-modal-title{font-size:18px;font-weight:700;font-family:'IBM Plex Sans Thai',sans-serif;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
   .um-modal-close{cursor:pointer;font-size:20px;border:none;background:none}
-  .um-perk-box{background:rgba(212,157,43,.1);border:1.5px dashed #d49d2b;border-radius:10px;padding:12px;margin:10px 0}
+  /* Analytics Styles */
+  .an-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:10px;margin-bottom:14px}
+  .an-card{background:rgba(255,255,255,.85);border:1.5px solid rgba(26,22,18,.15);border-radius:12px;padding:12px 10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+  .an-card.active{background:linear-gradient(135deg, #f0fff4, #dcfce7);border-color:#16a34a}
+  .an-card.highlight{background:linear-gradient(135deg, #fffdf0, #fff7d6);border-color:#d49d2b}
+  .an-num{font-size:22px;font-weight:700;font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink)}
+  .an-card.active .an-num{color:#15803d}
+  .an-card.highlight .an-num{color:#b45309}
+  .an-label{font-size:11.5px;opacity:.8;margin-top:2px}
+  .an-sublabel{font-size:10px;opacity:.65;margin-top:1px}
+  .an-sec{font-size:14px;font-weight:700;font-family:'IBM Plex Sans Thai',sans-serif;margin:16px 0 8px;display:flex;align-items:center;justify-content:space-between}
+  .an-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+  .an-table th{background:rgba(26,22,18,.06);padding:8px 8px;text-align:left;font-weight:600;font-family:'IBM Plex Sans Thai',sans-serif;border-bottom:2px solid rgba(26,22,18,.1)}
+  .an-table td{padding:8px 8px;border-bottom:1px solid rgba(26,22,18,.08);vertical-align:top}
+  .an-act-badge{display:inline-block;font-size:10.5px;padding:2px 6px;border-radius:6px;background:rgba(26,22,18,.06);margin:2px 1px;font-weight:500}
+  .an-act-badge.bot{background:#e0f2fe;color:#0369a1}
+  .an-act-badge.online{background:#fef3c7;color:#92400e}
+  .an-act-badge.deck{background:#fce7f3;color:#be185d}
+  .an-act-badge.page{background:#f3f4f6;color:#4b5563}
 </style>
 </head>
 <body>
@@ -93,7 +112,8 @@
     <!-- Tabs Header -->
     <div class="ad-tabs">
       <button type="button" class="ad-tab on" data-tab="settings">🎨 ตั้งค่าสปอนเซอร์ & เว็บ</button>
-      <button type="button" class="ad-tab" data-tab="users">👥 จัดการยูสเซอร์ & สิทธิ์ (เลี้ยงกาแฟ)</button>
+      <button type="button" class="ad-tab" data-tab="users">👥 จัดการยูสเซอร์ & สิทธิ์</button>
+      <button type="button" class="ad-tab" data-tab="analytics">📊 สถิติคนเข้าใช้งาน</button>
     </div>
 
     <!-- TAB 1: Site & Sponsor Settings -->
@@ -166,6 +186,77 @@
         <!-- User Cards Rendered Here -->
       </div>
     </div>
+
+    <!-- TAB 3: Analytics Dashboard -->
+    <div id="tabContentAnalytics" class="hidden">
+      <h1>📊 สถิติคนเข้าใช้งาน & การเล่นเกม</h1>
+      <p class="ad-sub">ระบบติดตามสถิติ Real-time, ยอดผู้เข้าชม, ออนไลน์สูงสุด, สัดส่วนอุปกรณ์ และประวัติกิจกรรม</p>
+
+      <div class="an-sec">⚡ สถิติปัจจุบัน & ผู้เข้าชม</div>
+      <div class="an-grid">
+        <div class="an-card active">
+          <div id="anActiveOnline" class="an-num">0</div>
+          <div class="an-label">🟢 ออนไลน์ขณะนี้</div>
+        </div>
+        <div class="an-card highlight">
+          <div id="anPeakOnline" class="an-num">0</div>
+          <div class="an-label">🚀 ออนไลน์สูงสุด</div>
+          <div id="anPeakTime" class="an-sublabel">—</div>
+        </div>
+        <div class="an-card">
+          <div id="anTodayVisits" class="an-num">0</div>
+          <div class="an-label">👥 เข้าชมวันนี้</div>
+          <div id="anTodayUniques" class="an-sublabel">0 ไม่ซ้ำ</div>
+        </div>
+        <div class="an-card">
+          <div id="anTotalVisits" class="an-num">0</div>
+          <div class="an-label">🌐 เข้าชมทั้งหมด</div>
+          <div id="anTotalUniques" class="an-sublabel">0 ไม่ซ้ำ</div>
+        </div>
+      </div>
+
+      <div class="an-sec">🎮 สถิติกิจกรรม & การเล่น</div>
+      <div class="an-grid">
+        <div class="an-card">
+          <div id="anBotGames" class="an-num">0</div>
+          <div class="an-label">🤖 เกมสู้บอท</div>
+        </div>
+        <div class="an-card">
+          <div id="anOnlineGames" class="an-num">0</div>
+          <div class="an-label">⚔️ เกมออนไลน์</div>
+        </div>
+        <div class="an-card">
+          <div id="anDeckSaves" class="an-num">0</div>
+          <div class="an-label">🎴 บันทึกเด็ค</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(26,22,18,.04);border-radius:10px;padding:10px 12px;font-size:12px;margin-bottom:14px">
+        <div id="anDeviceStat" style="margin-bottom:4px">💻 คอม: 0 · 📱 มือถือ: 0 · 📑 แท็บเล็ต: 0</div>
+        <div id="anAuthStat">👤 Guest: 0 · 🔑 สมัครสมาชิก: 0 · 🌐 Google: 0 · 💬 Discord: 0</div>
+      </div>
+
+      <div class="an-sec">
+        <span>📜 ประวัติกิจกรรมล่าสุด (Live Sessions)</span>
+        <button type="button" id="anReload" class="btn-dark small">🔄 รีเฟรชสถิติ</button>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="an-table">
+          <thead>
+            <tr>
+              <th>ผู้ใช้งาน</th>
+              <th>อุปกรณ์ / สิทธิ์</th>
+              <th>เวลาเข้า / สภาพ</th>
+              <th>กิจกรรมใน Session</th>
+            </tr>
+          </thead>
+          <tbody id="anSessionList">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -188,8 +279,8 @@
     </div>
 
     <label for="edMaxDecks">จำนวนเด็คสูงสุด (Max Decks)</label>
-    <input type="number" id="edMaxDecks" min="1" max="100" value="5">
-    <small style="font-size:11.5px;opacity:.7">ค่าเริ่มต้น: ฟรี = 5 เด็ค, ผู้สนับสนุน = 40 เด็ค</small>
+    <input type="number" id="edMaxDecks" min="1" max="100" value="20">
+    <small style="font-size:11.5px;opacity:.7">ค่าเริ่มต้น: ฟรี = 20 เด็ค, ผู้สนับสนุน = 40 เด็ค</small>
 
     <label class="ad-row" style="margin-top:12px">
       <input type="checkbox" id="edCustomSkins">
@@ -264,7 +355,9 @@
       const target = tab.dataset.tab;
       byId('tabContentSettings').classList.toggle('hidden', target !== 'settings');
       byId('tabContentUsers').classList.toggle('hidden', target !== 'users');
+      byId('tabContentAnalytics').classList.toggle('hidden', target !== 'analytics');
       if (target === 'users') loadUsers();
+      if (target === 'analytics') loadAnalyticsData();
     };
   });
 
@@ -436,7 +529,7 @@
           <button type="button" class="btn-dark small btn-edit-user" data-user="${escapeHtml(u.username)}">⚙️ แก้ไขสิทธิ์</button>
         </div>
         <div class="um-meta">
-          <span>📦 เด็ค: <b>${u.deckCount || 0} / ${u.maxDecks || 5}</b></span>
+          <span>📦 เด็ค: <b>${u.deckCount || 0} / ${u.maxDecks || 20}</b></span>
           <span>${customBadge}</span>
         </div>
         ${noteHtml}
@@ -460,7 +553,7 @@
     currentEditUser = u;
     byId('edUsername').textContent = u.username;
     byId('edIsSupporter').checked = !!u.isSupporter;
-    byId('edMaxDecks').value = u.maxDecks || (u.isSupporter ? 40 : 5);
+    byId('edMaxDecks').value = u.maxDecks || (u.isSupporter ? 40 : 20);
     byId('edCustomSkins').checked = !!u.customSkinsAllowed;
     byId('edNote').value = u.supporterNote || '';
     byId('edNewPass').value = '';
@@ -523,12 +616,83 @@
     } catch (e) { alert('เชื่อมต่อไม่ได้'); }
   }
 
+  /* ═══ ANALYTICS LOGIC ═══ */
+  async function loadAnalyticsData() {
+    try {
+      const r = await fetch('/admin/analytics', { headers: authHeaders() });
+      const j = await r.json();
+      if (!j.ok || !j.analytics) return;
+      renderAnalytics(j.analytics);
+    } catch (e) { }
+  }
+
+  function renderAnalytics(an) {
+    const active = an.activeOnline || 0;
+    const peak = (an.peakOnline && an.peakOnline.count) || 0;
+    const peakTime = an.peakOnline && an.peakOnline.timestamp ? new Date(an.peakOnline.timestamp).toLocaleString('th-TH') : '—';
+    const today = an.today || {};
+    const totals = an.totals || {};
+
+    if (byId('anActiveOnline')) byId('anActiveOnline').textContent = active;
+    if (byId('anPeakOnline')) byId('anPeakOnline').textContent = peak;
+    if (byId('anPeakTime')) byId('anPeakTime').textContent = peak ? `เมื่อ ${peakTime}` : 'ยังไม่มีสถิติ';
+
+    if (byId('anTodayVisits')) byId('anTodayVisits').textContent = today.visits || 0;
+    if (byId('anTodayUniques')) byId('anTodayUniques').textContent = `${today.uniques || 0} ไม่ซ้ำ`;
+    if (byId('anTotalVisits')) byId('anTotalVisits').textContent = totals.visits || 0;
+    if (byId('anTotalUniques')) byId('anTotalUniques').textContent = `${totals.uniques || 0} ไม่ซ้ำ`;
+
+    if (byId('anBotGames')) byId('anBotGames').textContent = totals.botGames || 0;
+    if (byId('anOnlineGames')) byId('anOnlineGames').textContent = totals.onlineGames || 0;
+    if (byId('anDeckSaves')) byId('anDeckSaves').textContent = totals.deckSaves || 0;
+
+    const dev = an.devices || {};
+    if (byId('anDeviceStat')) byId('anDeviceStat').textContent = `💻 คอม: ${dev.desktop || 0} · 📱 มือถือ: ${dev.mobile || 0} · 📑 แท็บเล็ต: ${dev.tablet || 0}`;
+
+    const auth = an.authTypes || {};
+    if (byId('anAuthStat')) byId('anAuthStat').textContent = `👤 Guest: ${auth.guest || 0} · 🔑 สมัครสมาชิก: ${auth.local || 0} · 🌐 Google: ${auth.google || 0} · 💬 Discord: ${auth.discord || 0}`;
+
+    const sessions = an.recentSessions || [];
+    const listEl = byId('anSessionList');
+    if (!listEl) return;
+
+    if (!sessions.length) {
+      listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;opacity:.6">ยังไม่มีประวัติการเข้าใช้งาน</td></tr>';
+      return;
+    }
+
+    listEl.innerHTML = sessions.map((s) => {
+      const isOnlineNow = Date.now() - s.lastPing < 60000;
+      const statusDot = isOnlineNow ? '🟢 <b style="color:#16a34a">ออนไลน์</b>' : '⚪ จบ Session';
+      const devIcon = s.device === 'mobile' ? '📱 มือถือ' : s.device === 'tablet' ? '📑 แท็บเล็ต' : '💻 คอม';
+      const userText = s.username !== 'Guest' ? `<b>${escapeHtml(s.username)}</b>` : `<span style="opacity:.7">Guest (${(s.visitorId || '').slice(0, 8)})</span>`;
+      const startT = s.startTime ? new Date(s.startTime).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '—';
+      const durationMin = s.startTime ? Math.max(1, Math.round((s.lastPing - new Date(s.startTime).getTime()) / 60000)) : 1;
+
+      const actionsHtml = (s.actions || []).map(act => {
+        let cls = 'page';
+        if (act.name === 'play_bot') cls = 'bot';
+        else if (act.name === 'play_online') cls = 'online';
+        else if (act.name === 'save_deck') cls = 'deck';
+        return `<span class="an-act-badge ${cls}">${escapeHtml(act.label)}</span>`;
+      }).join('') || '<span style="opacity:.5;font-size:11px">เข้าชมเว็บ</span>';
+
+      return `<tr>
+        <td>${userText}<br><small style="opacity:.65">${statusDot}</small></td>
+        <td>${devIcon}<br><small style="opacity:.65">${s.authType}</small></td>
+        <td>${startT}<br><small style="opacity:.65">${durationMin} นาที</small></td>
+        <td><div>${actionsHtml}</div></td>
+      </tr>`;
+    }).join('');
+  }
+
   byId('btnDoLogin').onclick = doLogin;
   byId('loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
   byId('btnSave').onclick = save;
   byId('btnPw').onclick = changePw;
   byId('umSearch').oninput = renderUsers;
   byId('umReload').onclick = loadUsers;
+  if (byId('anReload')) byId('anReload').onclick = loadAnalyticsData;
   byId('edClose').onclick = closeEditUser;
   byId('edSave').onclick = saveEditUser;
   byId('edDelete').onclick = deleteUser;

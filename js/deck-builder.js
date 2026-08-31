@@ -914,7 +914,7 @@
     if (!DB.db) return;
     const saved = CardDB.savedDecks();
     const savedNames = Object.keys(saved);
-    const maxDecks = CardDB.getMaxDecks ? CardDB.getMaxDecks() : 5;
+    const maxDecks = CardDB.getMaxDecks ? CardDB.getMaxDecks() : (CardDB.isLoggedIn && CardDB.isLoggedIn() ? 20 : 10);
     const isSupp = CardDB.getIsSupporter ? CardDB.getIsSupporter() : false;
     let html = `<div class="dk-sec">เด็คที่บันทึก (${savedNames.length}/${maxDecks}${isSupp ? ' · ☕' : ''})</div>`;
     if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {

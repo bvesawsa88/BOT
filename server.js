@@ -190,7 +190,7 @@ const USER_RE = /^[A-Za-z0-9_\u0E00-\u0E7F]{3,20}$/;
 const CODE_RE = /^[A-Za-z0-9]{2,12}-\d{2,4}$/;
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MAX_DECKS = 40;
-const FREE_MAX_DECKS = 5;
+const FREE_MAX_DECKS = 20;
 const SUPPORTER_MAX_DECKS = 40;
 
 const SETTINGS_FILE = path.join(ROOT, 'data', 'site-settings.json');
@@ -1231,7 +1231,196 @@ async function handleAdminApi(req, res, urlPath) {
     return;
   }
 
+  if (route === '/admin/analytics') {
+    if (req.method !== 'GET') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+    const analytics = loadAnalytics();
+    const now = Date.now();
+    let currentActiveCount = 0;
+    for (const [sId, sData] of activeAnalyticsSessions.entries()) {
+      if (now - sData.lastPing < 60000) {
+        currentActiveCount++;
+      }
+    }
+
+    const dateKey = new Date().toISOString().slice(0, 10);
+    const today = analytics.daily[dateKey] || { visits: 0, uniques: 0, botGames: 0, onlineGames: 0, deckSaves: 0, peakOnline: 0 };
+
+    json(res, 200, {
+      ok: true,
+      analytics: {
+        activeOnline: currentActiveCount,
+        peakOnline: analytics.peakOnline || { count: 0, timestamp: null },
+        today,
+        totals: analytics.totals,
+        devices: analytics.devices,
+        authTypes: analytics.authTypes,
+        recentSessions: (analytics.recentSessions || []).slice(0, 100),
+        daily: analytics.daily,
+      }
+    });
+    return;
+  }
+
   json(res, 404, { ok: false, error: 'not found' });
+}
+
+/* ── Analytics Engine ── */
+const ANALYTICS_FILE = path.join(ROOT, 'data', 'analytics.json');
+const activeAnalyticsSessions = new Map();
+
+function loadAnalytics() {
+  const defaultData = {
+    totals: { visits: 0, uniques: 0, botGames: 0, onlineGames: 0, deckSaves: 0 },
+    peakOnline: { count: 0, timestamp: null },
+    daily: {},
+    devices: { desktop: 0, mobile: 0, tablet: 0 },
+    authTypes: { guest: 0, local: 0, google: 0, discord: 0 },
+    uniqueVisitorsSet: [],
+    recentSessions: [],
+  };
+  try {
+    if (!fs.existsSync(ANALYTICS_FILE)) return defaultData;
+    const raw = fs.readFileSync(ANALYTICS_FILE, 'utf8');
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj !== 'object') return defaultData;
+    return Object.assign({}, defaultData, obj);
+  } catch (e) {
+    return defaultData;
+  }
+}
+
+function saveAnalytics(data) {
+  const dir = path.dirname(ANALYTICS_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const tmp = ANALYTICS_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+  try { fs.renameSync(tmp, ANALYTICS_FILE); }
+  catch (e) {
+    try { fs.unlinkSync(ANALYTICS_FILE); } catch (e2) { }
+    fs.renameSync(tmp, ANALYTICS_FILE);
+  }
+}
+
+async function handleAnalyticsPing(req, res) {
+  if (req.method !== 'POST') { json(res, 405, { ok: false, error: 'method not allowed' }); return; }
+  let body;
+  try { body = JSON.parse(await readBody(req, 16384) || '{}'); }
+  catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+
+  const visitorId = String(body.visitorId || '').slice(0, 64);
+  const sessionId = String(body.sessionId || '').slice(0, 64);
+  const device = ['desktop', 'mobile', 'tablet'].includes(body.device) ? body.device : 'desktop';
+  const token = String(body.token || '');
+  const action = body.action && typeof body.action === 'object' ? body.action : null;
+
+  if (!visitorId || !sessionId) {
+    json(res, 400, { ok: false, error: 'missing visitorId or sessionId' });
+    return;
+  }
+
+  const users = loadUsers();
+  const hit = findByToken(users, token);
+  let username = 'Guest';
+  let authType = 'guest';
+  if (hit && hit.user) {
+    username = hit.user.username || hit.key;
+    if (hit.user.provider === 'google') authType = 'google';
+    else if (hit.user.provider === 'discord') authType = 'discord';
+    else authType = 'local';
+  }
+
+  const now = Date.now();
+  const dateKey = new Date().toISOString().slice(0, 10);
+  const analytics = loadAnalytics();
+
+  if (!analytics.daily[dateKey]) {
+    analytics.daily[dateKey] = { visits: 0, uniques: 0, botGames: 0, onlineGames: 0, deckSaves: 0, peakOnline: 0 };
+  }
+  const today = analytics.daily[dateKey];
+
+  let sess = activeAnalyticsSessions.get(sessionId);
+  if (!sess) {
+    analytics.totals.visits = (analytics.totals.visits || 0) + 1;
+    today.visits = (today.visits || 0) + 1;
+
+    if (!Array.isArray(analytics.uniqueVisitorsSet)) analytics.uniqueVisitorsSet = [];
+    if (!analytics.uniqueVisitorsSet.includes(visitorId)) {
+      analytics.uniqueVisitorsSet.push(visitorId);
+      if (analytics.uniqueVisitorsSet.length > 50000) analytics.uniqueVisitorsSet.shift();
+      analytics.totals.uniques = (analytics.totals.uniques || 0) + 1;
+      today.uniques = (today.uniques || 0) + 1;
+    }
+
+    if (!analytics.devices) analytics.devices = { desktop: 0, mobile: 0, tablet: 0 };
+    analytics.devices[device] = (analytics.devices[device] || 0) + 1;
+
+    if (!analytics.authTypes) analytics.authTypes = { guest: 0, local: 0, google: 0, discord: 0 };
+    analytics.authTypes[authType] = (analytics.authTypes[authType] || 0) + 1;
+
+    sess = {
+      sessionId,
+      visitorId,
+      device,
+      authType,
+      username,
+      startTime: new Date().toISOString(),
+      lastPing: now,
+      actions: []
+    };
+    activeAnalyticsSessions.set(sessionId, sess);
+
+    if (!Array.isArray(analytics.recentSessions)) analytics.recentSessions = [];
+    analytics.recentSessions.unshift(sess);
+    if (analytics.recentSessions.length > 200) analytics.recentSessions.pop();
+  } else {
+    sess.lastPing = now;
+    sess.username = username;
+    sess.authType = authType;
+  }
+
+  if (action && action.name) {
+    const actName = String(action.name).slice(0, 32);
+    const actLabel = String(action.label || actName).slice(0, 64);
+    sess.actions.push({ time: new Date().toISOString(), name: actName, label: actLabel });
+    if (sess.actions.length > 50) sess.actions.shift();
+
+    if (actName === 'play_bot') {
+      analytics.totals.botGames = (analytics.totals.botGames || 0) + 1;
+      today.botGames = (today.botGames || 0) + 1;
+    } else if (actName === 'play_online') {
+      analytics.totals.onlineGames = (analytics.totals.onlineGames || 0) + 1;
+      today.onlineGames = (today.onlineGames || 0) + 1;
+    } else if (actName === 'save_deck') {
+      analytics.totals.deckSaves = (analytics.totals.deckSaves || 0) + 1;
+      today.deckSaves = (today.deckSaves || 0) + 1;
+    }
+  }
+
+  let currentActiveCount = 0;
+  for (const [sId, sData] of activeAnalyticsSessions.entries()) {
+    if (now - sData.lastPing < 60000) {
+      currentActiveCount++;
+    } else if (now - sData.lastPing > 1800000) {
+      activeAnalyticsSessions.delete(sId);
+    }
+  }
+
+  if (!analytics.peakOnline || typeof analytics.peakOnline !== 'object') {
+    analytics.peakOnline = { count: 0, timestamp: null };
+  }
+  if (currentActiveCount > (analytics.peakOnline.count || 0)) {
+    analytics.peakOnline.count = currentActiveCount;
+    analytics.peakOnline.timestamp = new Date().toISOString();
+  }
+  today.peakOnline = Math.max(today.peakOnline || 0, currentActiveCount);
+
+  saveAnalytics(analytics);
+
+  json(res, 200, {
+    ok: true,
+    activeOnline: currentActiveCount,
+    peakOnline: analytics.peakOnline
+  });
 }
 
 const SERVER_BOOT_TIME = Date.now().toString(36);
@@ -1277,13 +1466,22 @@ const server = http.createServer((req, res) => {
     /server\.js$/i,
     /download_assets\.js$/i,
     /package(-lock)?\.json$/i,
-    /users\.json$/i,
-    /feedback-log\.json$/i,
-    /site-settings\.json$/i
+    /users.json$/i,
+    /analytics.json$/i,
+    /feedback-log.json$/i,
+    /site-settings.json$/i
   ];
   if (forbiddenPatterns.some(pat => pat.test(cleanPath))) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('403 Forbidden: Protected Resource');
+    return;
+  }
+
+  if (urlPath === '/api/analytics/ping') {
+    handleAnalyticsPing(req, res).catch((err) => {
+      console.error('[analytics]', err);
+      if (!res.headersSent) json(res, 500, { ok: false, error: 'server error' });
+    });
     return;
   }
 
