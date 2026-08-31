@@ -243,6 +243,7 @@
             "on": "static",
             "if": "self.zone==landZone"
           },
+          "requireOwnAvatarColorsMin": 4,
           "actions": [
             {
               "op": "modifyPower",
@@ -259,7 +260,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified",
+      "note": "ตราบเท่าที่มี Avatar ครบ 4 สีบนสนามฝ่ายเรา Avatar ทุกใบบน Avatar Zone เรา POWER +2 (โคลัมบัส ถือเป็นทุกสี)"
     },
     {
       "code": "SD07-020",

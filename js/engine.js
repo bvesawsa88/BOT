@@ -565,6 +565,23 @@
     if (e && e.extraColors) e.extraColors.forEach(col => { if (col && !out.includes(col)) out.push(col); });
     return out;
   }
+  function ownAvatarColors(st, player) {
+    const colors = new Set();
+    const ALL_4_COLORS = ['แดง', 'ฟ้า', 'เขียว', 'ม่วง'];
+    (st.zones[player + '.avatar'] || []).forEach(id => {
+      const c = st.inst[id]; if (!c || c.faceUp === false) return;
+      const e = fxCard(c);
+      if ((e && e.allColors) || (c.granted && c.granted.some(g => g && g.op === 'grantAllColors'))) {
+        ALL_4_COLORS.forEach(col => colors.add(col));
+      } else {
+        if (c.color && ALL_4_COLORS.includes(c.color)) colors.add(c.color);
+        if (e && e.extraColors) {
+          e.extraColors.forEach(col => { if (ALL_4_COLORS.includes(col)) colors.add(col); });
+        }
+      }
+    });
+    return colors;
+  }
   function landPowerAsGemSymbol(st) {
     let powerAsGemSym = null;
     (st.zones['land'] || []).forEach(lid => {
@@ -2024,6 +2041,22 @@
     return null;
   }
 
+  function uniqueOnFieldDeny(st, player, c) {
+    if (!c || (player !== 'A' && player !== 'B')) return null;
+    const instObj = typeof c === 'string' ? st.inst[c] : c;
+    if (!instObj) return null;
+    const e = fxCard(instObj);
+    if (e && e.uniqueOnField) {
+      const existing = (st.zones[player + '.avatar'] || []).some(id => {
+        if (id === instObj.k || id === instObj.id) return false;
+        const o = st.inst[id]; if (!o) return false;
+        return o.name === instObj.name || nameMatches(o, instObj.name);
+      });
+      if (existing) return `ควบคุม "${instObj.name}" บนสนามได้เพียง 1 ใบ`;
+    }
+    return null;
+  }
+
   /* Land Magic Zone มีได้แค่ 1 ใบ — วางใบใหม่ = ทำลายใบเดิมทั้งหมด (ยกเว้นใบที่กำลังจะวาง) */
   function clearLandZoneFor(st, fx, keepK) {
     const lands = (st.zones['land'] || []).slice().filter(id => id !== keepK);
@@ -3120,6 +3153,10 @@
             const ok = (st.zones[srcOwn + '.avatar'] || []).some(id => nameMatches(st.inst[id], need));
             if (!ok) return;
           }
+          if (ab.requireOwnAvatarColorsMin) {
+            const colors = ownAvatarColors(st, srcOwn);
+            if (colors.size < ab.requireOwnAvatarColorsMin) return;
+          }
           if (!abilityMagicReqOk(st, srcOwn, ab)) return;
           (ab.actions || []).forEach(ac => {
             const t = ac.target || {};
@@ -3616,6 +3653,8 @@
         if (p.dest === 'avatar' && (p.from === 'hell' || p.from === 'anyHell' || p.from === 'deckOrHell') && noHellSummonCard(st, k))
           return false;
         if (p.dest === 'avatar' && (zoneOf(st, k) || '').endsWith('.deck') && deckSummonBlocked(st))
+          return false;
+        if ((p.dest === 'avatar' || p.dest === 'multiAvatar' || p.dest === 'resurrect') && uniqueOnFieldDeny(st, p.chooser, st.inst[k]))
           return false;
         if (p.dest === 'avatar' && p.mustPayRemain && (p.costReduce || 0)) {
           const remain = Math.max(0, effCost(st, k) - (p.costReduce || 0));
@@ -8572,6 +8611,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (enforceType) {
           const typeDeny = claimMagicTypeOrDeny(st, owner, c, mtype, { allowWeaponExtra: true });
           if (typeDeny) return deny(typeDeny);
+          if (mtype === 'Modification') st._justPlayedModK = a.k;
         }
         if (oncePerTurnCardBlocked(st, a.k, owner))
           return deny('ใช้ใบนี้ครบ 1 ครั้งแล้วในเทิร์นนี้');
@@ -8981,6 +9021,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (st.active !== by) return deny('สวมใส่ได้ในเทิร์นของคุณ');
         }
         ensureMain();
+        if (!c.attachedTo) {
+          const owner = from[0];
+          if (isMagicTypeUsed(st, owner, 'Modification') && st._justPlayedModK !== a.k) {
+            return deny('เทิร์นนี้ใช้ Modification Magic ไปแล้ว (สวมใส่ได้ 1 ใบ/เทิร์น)');
+          }
+        }
         {
           const ad = attachOnlyDeny(st, c.code, a.to, c.name);
           if (ad) return deny(`"${c.name}" ${ad}`);
@@ -8998,6 +9044,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               if ((m.name || '') === (c.name || '')) return deny(`"${host.name}" สวมชื่อซ้ำ "${c.name}" ไม่ได้`);
             }
           }
+        }
+        if (!c.attachedTo) {
+          const owner = from[0];
+          markMagicTypeUsed(st, owner, 'Modification');
+          if (st._justPlayedModK === a.k) delete st._justPlayedModK;
         }
         // ★ การ์ดที่สวมใส่ "ไม่หายจาก Magic Zone" ตอนสวม — ค้างอยู่ที่เดิม แค่ผูกกับ Avatar (client ลากเส้น)
         //    แต่ถ้าโฮสต์ออกจากสนาม ใบสวมจะถูกย้ายลงนรกตาม (ดู doMove)
@@ -9378,15 +9429,17 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               if (blkDeck) { addLog(st, 'S', `อัญเชิญ Avatar จากเด็คไม่ได้ — ${blkDeck} บล็อก`); break; }
             }
             const qd = quotaDeny(st, p.chooser + '.avatar', st.inst[a.k]);
-            if (qd) {
+            const uDeny = uniqueOnFieldDeny(st, p.chooser, st.inst[a.k]);
+            if (qd || uDeny) {
+              const denyMsg = uDeny || qd;
               if (p.restTo === 'hell') {
-                addLog(st, 'S', `ลงสนามไม่ได้ (${qd}) — ${nameOf(st, a.k)} ลงนรก`);
+                addLog(st, 'S', `ลงสนามไม่ได้ (${denyMsg}) — ${nameOf(st, a.k)} ลงนรก`);
                 doMove(st, a.k, p.chooser + '.hell', null, fx);
               } else if (p.restTo === 'bottom') {
-                addLog(st, 'S', `ลงสนามไม่ได้ (${qd}) — ${nameOf(st, a.k)} ลงใต้เด็ค`);
+                addLog(st, 'S', `ลงสนามไม่ได้ (${denyMsg}) — ${nameOf(st, a.k)} ลงใต้เด็ค`);
                 doMove(st, a.k, p.chooser + '.deck', 'bottom', fx);
               } else {
-                addLog(st, 'S', `ลงสนามไม่ได้ (${qd}) — ${nameOf(st, a.k)} ขึ้นมือแทน`);
+                addLog(st, 'S', `ลงสนามไม่ได้ (${denyMsg}) — ${nameOf(st, a.k)} ขึ้นมือแทน`);
                 doMove(st, a.k, p.chooser + '.hand', null, fx);
               }
             } else {
