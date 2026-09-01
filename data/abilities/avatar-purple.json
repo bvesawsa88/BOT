@@ -107,7 +107,10 @@
         "SD07-009"
       ],
       "abilities": [],
-      "parseStatus": "manual",
+      "keywords": [
+        "แทงหลัง"
+      ],
+      "parseStatus": "auto",
       "note": "แทงหลัง (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ +1 ไปเพิ่มให้กับ Avatar ที่สั"
     },
     {
@@ -3587,8 +3590,27 @@
       "codes": [
         "SD03-005"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "hellDistinctNameIncludes",
+              "nameIncludes": "นายนิรยบาล",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้จะ เพื่ม POWER ตามจำนวน Avatar \"นายนิรยบาล\" ที่ชื่อต่างกันในนรกเราชื่อละ 1"
     },
     {

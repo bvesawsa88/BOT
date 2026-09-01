@@ -391,9 +391,24 @@
       "codes": [
         "SD06-017"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น เมื่อ Avatar ที่สวมใส่การ์ดใบนี้ทำลาย Avatar ฝ่ายตรง"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
+      "parseStatus": "auto",
+      "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ"
     },
     {
       "name": "ดาบพระขรรค์",
@@ -719,11 +734,37 @@
       "codes": [
         "SD05-018"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireNoModUsed": true,
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "บึงทมิฬ"
+                ],
+                "subtype": "Land"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "note": "ค้น Land บึงทมิฬขึ้นมือ — ผู้เล่นวางลง Land Zone เอง (นับเป็นการใช้ Land)"
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "partial"
+      "parseStatus": "auto"
     },
     {
       "name": "ตีพ่อ",
@@ -1175,11 +1216,30 @@
       "codes": [
         "SD05-017"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
       "attachOnly": {
         "nameIncludes": "บึงทมิฬ People"
       },
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "note": "+1 ถาวรขณะสวม (proxy ของโจมตีเป้าที่นอน +1/−1)"
     },
     {
       "name": "ปืนเล็กยาว",
@@ -1317,7 +1377,13 @@
         "SD06-016"
       ],
       "abilities": [],
-      "parseStatus": "manual",
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
+      "parseStatus": "auto",
       "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
     },
     {

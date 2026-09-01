@@ -44,7 +44,7 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "nameIncludes": "นาย"
+                "exactName": "นาย"
               },
               "dest": "hand",
               "shuffleAfter": true
@@ -118,11 +118,24 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย"
+                ]
+              },
+              "dest": "hand",
+              "multiMax": 3
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : นำ Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" ได้ส"
     },
     {
@@ -198,8 +211,29 @@
     {
       "code": "SD02-016",
       "name": "ระเบิดVery Fat Man",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "sacrificeNamesOneEach",
+              "names": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ],
+              "then": [
+                {
+                  "op": "destroyAllEnemyAvatars"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ส่ง Avatar \"กุ่ย\",\"ฮอล\" และ \"นาย\" อย่างละ 1 ใบ จากบนมือเรา และ,หรือ บนสนามเราลงนรก : ทำลาย Avatar ทุกใบบนสนามฝ่ายตรงข้าม"
     },
     {
@@ -249,8 +283,34 @@
     {
       "code": "SD02-019",
       "name": "สละเพื่อนเพื่อช่วยเพื่อน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "sacrificeHandOrField",
+              "nameIncludesAny": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ],
+              "then": [
+                {
+                  "op": "bounce",
+                  "from": "any",
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือเรา หรือ บนสนามเราลงนรก : นำ Avatar 1 ใบบนสนามกลับขึ้นมือ"
     },
     {
@@ -259,26 +319,28 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
+            "on": "declareAttack"
           },
+          "fromLand": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
+              "duration": "combat",
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "any",
-                "zone": "avatarZone"
-              }
+                "select": "attacker"
+              },
+              "ifAttackerExactNames": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Land: กุ่ย/ฮอล/นาย สั่งโจมตี → POWER +2 จนจบการต่อสู้ (ไม่บัฟใบอื่นบนสนาม)"
     },
     {
       "code": "SD02-021",

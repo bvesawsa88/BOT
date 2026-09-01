@@ -112,11 +112,28 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "discard",
+              "count": 2,
+              "then": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Construct",
+                    "nameIncludes": [
+                      "ค่ายบางระจัน"
+                    ]
+                  },
+                  "dest": "buildConstructFree",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ ทิ้งการ์ดบนมือ 2 ใบ : ก่อสร้าง Construct Card \"ค่ายบางระจัน\" 1 ใบ จาก Deck เรา จากนั้นสับ Deck"
     },
     {
@@ -150,23 +167,87 @@
     {
       "code": "SD06-006",
       "name": "พ่อแท่น ผู้นำอาวุโส",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน",
+                "nameNotIncludes": "พ่อแท่น"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย : สอดแนม 5 ใบ เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box 1 ใบ ยกเว้น พ่อแท่น ผู้นำอาวุโส ขึ้นมือ การ์ด"
     },
     {
       "code": "SD06-007",
       "name": "อาจารย์ธรรมโชติ",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "returnSelfToDeck"
+            }
+          ],
+          "note": "สั่งใช้เมื่อค่ายจะถูกทำลาย — ส่งตัวเองใต้เด็คแล้วค่ายรอด (ผู้เล่นกดเมื่อเงื่อนไขครบ; protect ทำมือได้)"
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เมื่อ Construct \"ค่ายบางระจัน\" จะถูกทำลายจากความสามารถของ Avatar หรือ การ์ด Magic ส่งการ์ดใบนี้จาก"
     },
     {
       "code": "SD06-008",
       "name": "บุญช่วย ควายรักชาติ",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ : นำ Avatar ใบนี้ ไปสวมใส่ให้ Avatar ใบอื่นบน Avatar Zone ฝ่ายเรา Avatar ที่สวมใส่การ์ดใบนี้ POWER"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "+1 ขณะสวม; ถ้ามีค่ายบนสนาม ผู้เล่นบวกเพิ่มมือได้ (+2 ตามข้อความ)"
     },
     {
       "code": "SD06-009",
@@ -192,8 +273,31 @@
     {
       "code": "SD06-012",
       "name": "ผู้นำของเหล่าวีรชน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ดบนมือ 2 ใบ : เลือก Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากใน Deck เรา 1 ใบ ขึ้นมือ จากนั้นสับ Deck"
     },
     {
@@ -201,16 +305,30 @@
       "name": "วิญญาณวีรชน",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "scheduleDestroyAfterOppTurn": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ดบนมือ 1 ใบ : อัญเชิญ จุติ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box จากในนรกเรา 1 ใบ ลงบน"
     },
     {
@@ -243,32 +361,74 @@
       "name": "ปืนใหญ่ไทยประดิษฐ์",
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
-            "on": "avatarSummoned",
-            "if": "any"
+            "on": "avatarSummoned"
           },
           "react": true,
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "requireOwn": {
+            "effectIncludes": "ค่ายบางระจัน"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "own",
+              "filter": {
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "zones": [
+                "avatar"
+              ]
+            },
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ]
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เมื่อฝ่ายตรงข้ามอัญเชิญ Avatar และเราควบคุม Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน T"
     },
     {
       "code": "SD06-016",
       "name": "ยันต์ผ้าประเจียด",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด"
+      "parseStatus": "auto",
+      "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น Avatar ที่สวมใส่การ์ดใบนี้ได้รับความสามารถ ลูกฮึด",
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      },
+      "keywords": [
+        "ลูกฮึด"
+      ]
     },
     {
       "code": "SD06-017",
       "name": "ดาบใบข้าว X",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "สวมใส่ได้เฉพาะ Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน Text Box เท่านั้น เมื่อ Avatar ที่สวมใส่การ์ดใบนี้ทำลาย Avatar ฝ่ายตรง"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "battleDestroy บนใบสวม — engine ยิงจากโฮสต์; ถ้าไม่ติดใช้เมนูจั่วมือ",
+      "attachOnly": {
+        "effectIncludes": "ค่ายบางระจัน"
+      }
     },
     {
       "code": "SD06-018",
@@ -302,15 +462,43 @@
       "code": "SD06-019",
       "name": "วัดคู่บ้านคู่เมือง",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ"
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ",
+      "scoutBonusConstruct": 2
     },
     {
       "code": "SD06-020",
       "name": "กำแพงด่านสุดท้าย",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อ LIFE Card ของเราถูกหงาย และบน Avatar Zone ฝ่ายเรา ไม่มี Avatar อยู่ ทิ้งการ์ดบนมือ 1 ใบ : "
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "effectIncludes": "ค่ายบางระจัน",
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restTo": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เงื่อนไข Avatar Zone ว่าง — ผู้เล่นกดเมื่อเข้าเงื่อนไข"
     },
     {
       "code": "SD06-021",

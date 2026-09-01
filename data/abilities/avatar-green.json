@@ -78,11 +78,44 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "จ่ามะนาว",
+                  "จ่าแดงเดือด"
+                ]
+              },
+              "dest": "attachHost",
+              "attachHostFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              },
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : สอดแนม (แสดงการ์ดใบบนสุดของ Deck) 5 ใบ นำ \"จ่ามะนาว\" ห"
     },
     {
@@ -4722,11 +4755,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ]
+              },
+              "dest": "attachSelf",
+              "shuffleAfter": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "nameAliases": [
+        "รถถัง"
+      ],
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให"
     }
   ]

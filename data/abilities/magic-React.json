@@ -207,8 +207,37 @@
       "codes": [
         "SD04-018"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireOwnNameIncludes": "รถถัง",
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ]
+              },
+              "dest": "attachHost",
+              "attachHostFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              },
+              "thenDestroyAttackerIfAttached": true,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar รถถังเป็นเป้าโจมตี : สอดแนม (ดูการ์ดใบบนสุดของเด็ค) 5 ใบ เลือก Avatar {symbol คน} ที่ติดชื่อ \"Tank Ranger\" "
     },
     {
@@ -706,15 +735,22 @@
       ],
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "react": true,
+          "requireOwnNameIncludes": "บึงทมิฬ People",
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "flipTapsExceptAttacker"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar \"บึงทมิฬ People\" เป็นเป้าหมายการโจมตี : ยกเลิกการโจมตีนั้น และเปลี่"
     },
     {
@@ -724,17 +760,38 @@
       ],
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
-            "on": "avatarSummoned",
-            "if": "any"
+            "on": "avatarSummoned"
           },
           "react": true,
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "requireOwn": {
+            "effectIncludes": "ค่ายบางระจัน"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "own",
+              "filter": {
+                "effectIncludes": "ค่ายบางระจัน"
+              },
+              "zones": [
+                "avatar"
+              ]
+            },
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "filter": {
+                "type": "Avatar"
+              },
+              "zones": [
+                "avatar"
+              ]
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เมื่อฝ่ายตรงข้ามอัญเชิญ Avatar และเราควบคุม Avatar ที่มี \"ค่ายบางระจัน\" อยู่ใน T"
     },
     {
@@ -961,15 +1018,28 @@
       ],
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "react": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เมื่ออีกฝ่ายประกาศโจมตี ทำลาย Avatar \"รถถัง\" บนสนามฝ่ายเรา 1 ใบ : ทำลาย Avatar ท"
     },
     {
@@ -1058,8 +1128,29 @@
       "codes": [
         "SD02-016"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "sacrificeNamesOneEach",
+              "names": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ],
+              "then": [
+                {
+                  "op": "destroyAllEnemyAvatars"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ส่ง Avatar \"กุ่ย\",\"ฮอล\" และ \"นาย\" อย่างละ 1 ใบ จากบนมือเรา และ,หรือ บนสนามเราลงนรก : ทำลาย Avatar ทุกใบบนสนามฝ่ายตรงข้าม"
     },
     {
@@ -1366,8 +1457,34 @@
       "codes": [
         "SD02-019"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "sacrificeHandOrField",
+              "nameIncludesAny": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ],
+              "then": [
+                {
+                  "op": "bounce",
+                  "from": "any",
+                  "filter": {
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ส่ง Avatar ชื่อ \"กุ่ย\",\"ฮอล\" หรือ \"นาย\" 1 ใบ จากบนมือเรา หรือ บนสนามเราลงนรก : นำ Avatar 1 ใบบนสนามกลับขึ้นมือ"
     },
     {
@@ -1443,16 +1560,19 @@
       ],
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "react": true,
+          "actions": [
+            {
+              "op": "bounceAttackTarget"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "เมื่อ Avatar ฝ่ายเรา ถูกโจมตี : นำ Avatar ใบที่ถูกโจมตี กลับขึ้นมือ"
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar ฝ่ายเราถูกโจมตี: นำตัวที่ถูกโจมตีกลับขึ้นมือ"
     },
     {
       "name": "หมอมาแล้วววว",
@@ -1476,7 +1596,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT01-040"
+      "note": "เมื่อ Avatar บนสนามจะถูกทำลาย : Avatar ใบนั้นจะไม่ถูกทำลาย"
     },
     {
       "name": "เหตุผลที่ยังหายใจ",

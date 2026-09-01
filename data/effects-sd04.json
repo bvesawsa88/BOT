@@ -10,11 +10,44 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "จ่ามะนาว",
+                  "จ่าแดงเดือด"
+                ]
+              },
+              "dest": "attachHost",
+              "attachHostFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              },
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "attachSelfTo",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : สอดแนม (แสดงการ์ดใบบนสุดของ Deck) 5 ใบ นำ \"จ่ามะนาว\" ห"
     },
     {
@@ -120,7 +153,8 @@
       "abilities": [],
       "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้",
-      "uniqueAttachedNames": true
+      "uniqueAttachedNames": true,
+      "cannotAttackUnlessAttached": true
     },
     {
       "code": "SD04-005",
@@ -132,12 +166,26 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ]
+              },
+              "dest": "attachSelf",
+              "shuffleAfter": true
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให"
+      "parseStatus": "auto",
+      "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให",
+      "nameAliases": [
+        "รถถัง"
+      ]
     },
     {
       "code": "SD04-006",
@@ -270,22 +318,64 @@
       "name": "เพื่อชาติ",
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "enemyDeclareAttack"
           },
-          "actions": [],
-          "note": "ผลซับซ้อน — เล่นมือ/รอเติม"
+          "react": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "destroyAllEnemyAvatars"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เมื่ออีกฝ่ายประกาศโจมตี ทำลาย Avatar \"รถถัง\" บนสนามฝ่ายเรา 1 ใบ : ทำลาย Avatar ท"
     },
     {
       "code": "SD04-018",
       "name": "ขึ้นมาเร็ว ไอ้ลูกลิง !!",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireOwnNameIncludes": "รถถัง",
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน",
+                "nameIncludes": [
+                  "Tank Ranger"
+                ]
+              },
+              "dest": "attachHost",
+              "attachHostFilter": {
+                "nameIncludes": [
+                  "รถถัง"
+                ]
+              },
+              "thenDestroyAttackerIfAttached": true,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar รถถังเป็นเป้าโจมตี : สอดแนม (ดูการ์ดใบบนสุดของเด็ค) 5 ใบ เลือก Avatar {symbol คน} ที่ติดชื่อ \"Tank Ranger\" "
     },
     {
@@ -315,9 +405,30 @@
     {
       "code": "SD04-020",
       "name": "เขาชนไก่",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ ใน Main Phase สามารถเลือก Avatar {Symbol คน} บนสนามฝ่ายเรา 1 ใบ : เปลี่ยน Avatar ใบนั้นเป็นสภาพนอน"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "phase": "Main",
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน"
+              }
+            },
+            {
+              "op": "scoutOneTopOrHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สอดแนม 1 แล้วเลือกบน/ล่าง — ใช้ scoutOneTopOrHell (บนหรือนรก) เป็น proxy"
     },
     {
       "code": "SD04-021",

@@ -10,11 +10,22 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
@@ -94,14 +105,35 @@
       "code": "SD03-004",
       "name": "นายนิรยบาล อ้วน",
       "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์"
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Avatar Zone แล้วมีการ ธรณีสูบ (ส่งการ์ดใบบนสุดจาก Deck ตกนรก) จากความสามารถของการ์",
+      "millBonusExtra": 2,
+      "millBonusExceptSelf": true
     },
     {
       "code": "SD03-005",
       "name": "สุวาน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "hellDistinctNameIncludes",
+              "nameIncludes": "นายนิรยบาล",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้จะ เพื่ม POWER ตามจำนวน Avatar \"นายนิรยบาล\" ที่ชื่อต่างกันในนรกเราชื่อละ 1"
     },
     {
@@ -212,9 +244,29 @@
     {
       "code": "SD03-017",
       "name": "บัญชีหนังหมา",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "นำ Avatar \"นายนิรยบาล\" Cost 4 หรือต่ำกว่า 1 ใบจาก Deck ขึ้นมือหลังจากนั้นสับ Deck จนกว่าจะจบเกมนี้ Avatar ชื่อที่นำขึ้นม"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ล็อกห้ามใช้ชื่อที่ค้นเป็น Cost — เล่นมือจนกว่าจะเติม flag ภายหลัง"
     },
     {
       "code": "SD03-018",

@@ -124,9 +124,30 @@
       "codes": [
         "SD04-020"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ ใน Main Phase สามารถเลือก Avatar {Symbol คน} บนสนามฝ่ายเรา 1 ใบ : เปลี่ยน Avatar ใบนั้นเป็นสภาพนอน"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "phase": "Main",
+          "actions": [
+            {
+              "op": "tap",
+              "from": "own",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน"
+              }
+            },
+            {
+              "op": "scoutOneTopOrHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สอดแนม 1 แล้วเลือกบน/ล่าง — ใช้ scoutOneTopOrHell (บนหรือนรก) เป็น proxy"
     },
     {
       "name": "คาเฟ่หมาแมว",
@@ -1316,26 +1337,28 @@
       "abilities": [
         {
           "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
+            "on": "declareAttack"
           },
+          "fromLand": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
+              "duration": "combat",
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "any",
-                "zone": "avatarZone"
-              }
+                "select": "attacker"
+              },
+              "ifAttackerExactNames": [
+                "กุ่ย",
+                "ฮอล",
+                "นาย"
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "Land: กุ่ย/ฮอล/นาย สั่งโจมตี → POWER +2 จนจบการต่อสู้ (ไม่บัฟใบอื่นบนสนาม)"
     },
     {
       "name": "สมชายห้องเช่าพันล้าน",
