@@ -126,7 +126,7 @@
             ${c.power !== '' && c.power != null ? `<span>P${c.power}</span>` : ''}
           </div>
         </div>
-        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="this.classList.add('img-err')">
+        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
         <div class="db-rar">${esc(c.rarity)}</div>
       </div>`).join('');
     byId('glMore').classList.toggle('hidden', filtered.length <= GL.shown);

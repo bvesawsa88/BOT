@@ -208,27 +208,10 @@
     {
       "code": "BT03-009",
       "name": "จีสัส",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "restrictAttack",
-              "condition": {
-                "ownHandCount": 0
-              }
-            }
-          ]
-        }
-      ],
-      "attackIf": {
-        "ownHandEmpty": true
-      },
+      "abilities": [],
+      "attackIf": "emptyHand",
       "parseStatus": "auto",
-      "note": "โจมตีได้เฉพาะเมื่อไม่มีการ์ดบนมือ"
+      "note": "โจมตีได้เมื่อมือว่าง"
     },
     {
       "code": "BT03-010",
@@ -700,22 +683,9 @@
     {
       "code": "BT03-028",
       "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "combatImmuneVsLowerCost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "combatImmuneVsLowerCost": true,
-      "parseStatus": "auto",
-      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Avatar ที่ Cost น้อยกว่า"
+      "parseStatus": "auto"
     },
     {
       "code": "BT03-029",
@@ -1272,23 +1242,9 @@
     {
       "code": "BT03-054",
       "name": "ขวานไม้เน่าๆเหม็นๆ",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "modifyHostCost",
-              "amount": -1
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "hostCostDelta": -1,
-      "parseStatus": "auto",
-      "note": "Avatar ที่สวมใส่ Cost -1"
+      "parseStatus": "auto"
     },
     {
       "code": "BT03-055",

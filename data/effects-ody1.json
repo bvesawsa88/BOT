@@ -822,31 +822,9 @@
     {
       "code": "ODY1-065",
       "name": "ถุงเกราะโอเดนย่า",
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "cost": [
-            {
-              "op": "destroySelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "target": {
-                "select": "host"
-              },
-              "until": "endOfOpponentNextTurn"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "ทำลายตนเอง Host POWER +2 จนจบเทิร์นถัดไปอีกฝ่าย"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
     },
     {
       "code": "ODY1-089",
@@ -985,26 +963,9 @@
     {
       "code": "ODY1-064",
       "name": "โอเดนย่า อร่อยมัก",
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "attackTargeted",
-            "filter": {
-              "nameIncludes": "ทาโกะ"
-            }
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "until": "endOfTurn"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เมื่อ ทาโกะ โดนเล็งโจมตี POWER +2 จนจบเทิร์น"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
     },
     {
       "code": "ODY1-090",

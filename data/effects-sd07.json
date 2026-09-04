@@ -41,8 +41,9 @@
       "name": "แฮหัวตุ้น ขุนพลตาเดียวแห่งวุยก๊ก",
       "abilities": [],
       "parseStatus": "auto",
-      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ",
-      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล"
+      "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
+      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ",
+      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
       "code": "SD07-004",
@@ -398,7 +399,6 @@
             "on": "static",
             "if": "self.zone==landZone"
           },
-          "requireOwnAvatarColorsMin": 4,
           "actions": [
             {
               "op": "modifyPower",
@@ -412,11 +412,11 @@
                 "zone": "avatarZone"
               }
             }
-          ]
+          ],
+          "requireOwnAvatarColorsMin": 4
         }
       ],
-      "parseStatus": "verified",
-      "note": "ตราบเท่าที่มี Avatar ครบ 4 สีบนสนามฝ่ายเรา Avatar ทุกใบบน Avatar Zone เรา POWER +2 (โคลัมบัส ถือเป็นทุกสี)"
+      "parseStatus": "auto"
     },
     {
       "code": "SD07-020",

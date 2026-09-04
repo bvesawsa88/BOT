@@ -54,23 +54,11 @@
       "codes": [
         "BT09-065"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "hostCannotAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "destroyAfterGlobalEndPhases": 4,
       "hostCannotAttack": true,
       "parseStatus": "auto",
-      "note": "Host โจมตีไม่ได้ / ลงนรกหลัง 4 End Phases"
+      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "name": "กองถ่ายฤาษี",
@@ -261,23 +249,9 @@
       "codes": [
         "BT03-054"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "modifyHostCost",
-              "amount": -1
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "hostCostDelta": -1,
-      "parseStatus": "auto",
-      "note": "Avatar ที่สวมใส่ Cost -1"
+      "parseStatus": "auto"
     },
     {
       "name": "ของขวัญจากโอตะ",
@@ -435,7 +409,10 @@
         }
       ],
       "attachOnly": {
-        "nameIncludes": "วานร"
+        "type": "Avatar",
+        "nameIncludes": [
+          "วานร"
+        ]
       },
       "parseStatus": "auto"
     },
@@ -444,43 +421,13 @@
       "codes": [
         "BT04-055"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "modifyHostCost",
-              "amount": 2
-            }
-          ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "host.cost>=6"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "target": {
-                "select": "host"
-              }
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "hostCostDelta": 2,
       "hostPowerIfEffCostMin": {
-        "minCost": 6,
-        "power": 1
+        "min": 6,
+        "amount": 1
       },
-      "parseStatus": "auto",
-      "note": "Host Cost +2 / ถ้า Cost >= 6 POWER +1"
+      "parseStatus": "auto"
     },
     {
       "name": "ดาบศักดิ์สิทธิ์ แกลลาติน",
@@ -723,11 +670,34 @@
       "codes": [
         "SD09-018"
       ],
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "destroyHostAvatar": true
+          },
+          "actions": [
+            {
+              "op": "summonFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "หนุมาน",
+                  "นิลพัท"
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "attachOnly": {
-        "nameIncludes": "วานร"
+        "type": "Avatar",
+        "nameIncludes": [
+          "วานร"
+        ]
       },
-      "parseStatus": "partial"
+      "parseStatus": "auto"
     },
     {
       "name": "ตรีศูล ไตรตัน",
@@ -1893,9 +1863,10 @@
       ],
       "abilities": [],
       "attachOnly": {
-        "nameIncludes": "ผู้กล้า"
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
       },
-      "parseStatus": "partial"
+      "parseStatus": "auto"
     },
     {
       "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",

@@ -5033,8 +5033,9 @@
       ],
       "abilities": [],
       "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
+      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ",
       "parseStatus": "auto",
-      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
+      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
       "name": "แฮหัวเอี๋ยน ขุนพลธนูแห่งวุยก๊ก",

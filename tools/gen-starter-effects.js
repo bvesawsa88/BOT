@@ -259,7 +259,28 @@ function buildSeries(series) {
   const cards = uniqSeries(series);
   const out = [];
   let aliased = 0, parsed = 0, empty = 0, manual = 0;
+  
+  // Load existing series file if available to preserve manual/verified cards
+  const existingFile = path.join(ROOT, `data/effects-${series.toLowerCase()}.json`);
+  const existingMap = new Map();
+  if (fs.existsSync(existingFile)) {
+    try {
+      const j = JSON.parse(fs.readFileSync(existingFile, 'utf8'));
+      (j.cards || []).forEach(c => {
+        if (c && c.code) existingMap.set(c.code, c);
+      });
+    } catch(e) {}
+  }
+
   for (const card of cards) {
+    const existing = existingMap.get(card.code);
+    if (existing && ((existing.abilities && existing.abilities.length > 0) || existing.parseStatus === 'manual' || existing.parseStatus === 'verified')) {
+      out.push(existing);
+      if (existing.parseStatus === 'manual') manual++;
+      else parsed++;
+      continue;
+    }
+
     const alias = findAlias(card);
     if (alias && (alias.abilities || []).length) {
       const entry = {

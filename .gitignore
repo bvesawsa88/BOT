@@ -10,5 +10,7 @@ data/users.json.tmp
 data/site-settings.json
 data/site-settings.json.tmp
 data/uploads/
+data/analytics.json
+scratch/
 .vscode/
 .idea/

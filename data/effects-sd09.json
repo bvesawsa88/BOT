@@ -5,6 +5,21 @@
       "name": "หนุมาน วานรวายุ",
       "abilities": [
         {
+          "keyword": "Link",
+          "link": {
+            "partner": "SD09-002"
+          },
+          "trigger": {
+            "on": "leavingFieldByEnemyCard"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scoutPreventLeaveIfMonkey"
+            }
+          ]
+        },
+        {
           "keyword": "อัตโนมัติ",
           "trigger": {
             "on": "declareAttack",
@@ -23,12 +38,47 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-001.png",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "specialSummon": {
+        "from": "hand",
+        "cost": {
+          "sacrificeOwnAvatar": {
+            "count": 2,
+            "nameIncludes": [
+              "วานร"
+            ]
+          }
+        }
+      }
     },
     {
       "code": "SD09-002",
       "name": "นิลพัท วานรสีกาฬ",
       "abilities": [
+        {
+          "keyword": "Link",
+          "link": {
+            "partner": "SD09-001"
+          },
+          "trigger": {
+            "on": "linkActivated"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 2,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        },
         {
           "keyword": "ต่อเนื่อง",
           "trigger": {
@@ -37,29 +87,52 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
+              "op": "modifyPowerPerMonkeyToken",
+              "amountPerToken": 1,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone",
-                "symbol": "สัตว์"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-002.png",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "specialSummon": {
+        "from": "hand",
+        "cost": {
+          "sacrificeOwnAvatar": {
+            "count": 2,
+            "nameIncludes": [
+              "วานร"
+            ]
+          }
+        }
+      }
     },
     {
       "code": "SD09-003",
       "name": "สุครีพ วานรปากแซ่บ",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "setChosenEnemyCostsToLowest",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น ",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-003.png"
     },
     {
       "code": "SD09-004",
@@ -71,12 +144,27 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "destroyEnemyLowestCost"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyLowestCost"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ : ทำลาย Avatar ที่มี Cost ต่ำที่สุดบนสนามฝ่ายตรงข้ามทุกใบ อัตโนมัติ เมื่อเริ่มต้น Main Phase เร"
+      "parseStatus": "auto",
+      "note": "จุติ : ทำลาย Avatar ที่มี Cost ต่ำที่สุดบนสนามฝ่ายตรงข้ามทุกใบ อัตโนมัติ เมื่อเริ่มต้น Main Phase เร",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-004.png"
     },
     {
       "code": "SD09-005",
@@ -88,115 +176,369 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "requireOwnHellMonkeyMin": 4,
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "จุติ {red (ทำงานเมื่อ Avatar ใบนี้ถูกอัญเชิญลง Avatar Zone แบบจ่าย Cost ด้วยตัวผู้เล่นเอง)} : ถ้าในน"
+      "parseStatus": "auto",
+      "note": "จุติ {red (ทำงานเมื่อ Avatar ใบนี้ถูกอัญเชิญลง Avatar Zone แบบจ่าย Cost ด้วยตัวผู้เล่นเอง)} : ถ้าในน",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-005.png"
     },
     {
       "code": "SD09-006",
       "name": "วานรกินซากลากอเวจี",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : ถ้าในนรกเรามี Avatar \"วานร\" 4 ใบหรือมากกว่า อัญ"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "requireOwnHellMonkeyMin": 4,
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : ถ้าในนรกเรามี Avatar \"วานร\" 4 ใบหรือมากกว่า อัญ",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-006.png"
     },
     {
       "code": "SD09-007",
       "name": "วานรถลกหนังฝังกระดูก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "อัตโนมัติ เมื่อ Avatar ใบนี้ถูกใช้เป็นค่า Cost ในการอัญเชิญ Avatar \"วานร\" : อัญเชิญ Token วานร สีเขียว Cost 1 Gem 0 POWE"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "sacrificedForMonkeySummon"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อ Avatar ใบนี้ถูกใช้เป็นค่า Cost ในการอัญเชิญ Avatar \"วานร\" : อัญเชิญ Token วานร สีเขียว Cost 1 Gem 0 POWE",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-007.png"
     },
     {
       "code": "SD09-008",
       "name": "วานรหมวกเหล็ก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE"
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "ลูกฮึด",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "วานร"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-008.png"
     },
     {
       "code": "SD09-009",
       "name": "ดารา นางชั่ว",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ Avatar {Symbol สัตว์} 2 ใบ บน Avatar Zone เรา : อัญเชิญ \"พาลี\" 1 ใบ จากนรกเรา ลงบน Avatar"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 2,
+              "symbol": "สัตว์"
+            }
+          },
+          "actions": [
+            {
+              "op": "summonFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "พาลี"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ Avatar {Symbol สัตว์} 2 ใบ บน Avatar Zone เรา : อัญเชิญ \"พาลี\" 1 ใบ จากนรกเรา ลงบน Avatar",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-009.png"
     },
     {
       "code": "SD09-010",
       "name": "วานร ซีซ่าสลัด",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : สอดแนม {red (แสดงการ์ดใบบนสุดของ Deck ตามจำนวนท"
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummon",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วานร"
+                ],
+                "maxCost": 4
+              },
+              "restToBottom": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : สอดแนม {red (แสดงการ์ดใบบนสุดของ Deck ตามจำนวนท",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-010.png"
     },
     {
       "code": "SD09-011",
       "name": "ยายทองวานรจอมหักกระดูก",
       "abilities": [],
       "parseStatus": "verified",
-      "note": "ไม่มีข้อความเอฟเฟกต์"
+      "note": "ไม่มีข้อความเอฟเฟกต์",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-011.png"
     },
     {
       "code": "SD09-012",
       "name": "ยักษ์แบงค์",
       "abilities": [],
       "parseStatus": "verified",
-      "note": "ไม่มีข้อความเอฟเฟกต์"
+      "note": "ไม่มีข้อความเอฟเฟกต์",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-012.png"
     },
     {
       "code": "SD09-013",
       "name": "หนุมานถวายแหวน",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ทิ้งการ์ด \"วานร\" 1 ใบ จากมือ : ทำลาย Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "discardFromHand": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyAvatar",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทิ้งการ์ด \"วานร\" 1 ใบ จากมือ : ทำลาย Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-013.png"
     },
     {
       "code": "SD09-014",
       "name": "เลือกตั้งเจ้าป่า",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "scoutAndPickOrSummonKingka",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วานร"
+                ],
+                "maxCost": 5
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
-      "note": "เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ สอดแนม 7 "
+      "parseStatus": "auto",
+      "note": "เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ สอดแนม 7 ",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-014.png"
     },
     {
       "code": "SD09-015",
       "name": "เตรียมเสบียง",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "ผู้เล่นทุกคน นำ Avatar ในนรก 1 ใบ ที่ Cost 4 หรือต่ำกว่า ที่ไม่ใช่ {only} วางไว้บนสุดของ Deck ตนเอง"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothPlayersPutHellAvatarToTopDeck",
+              "maxCost": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ผู้เล่นทุกคน นำ Avatar ในนรก 1 ใบ ที่ Cost 4 หรือต่ำกว่า ที่ไม่ใช่ {only} วางไว้บนสุดของ Deck ตนเอง",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-015.png"
     },
     {
       "code": "SD09-016",
       "name": "ชีวิตเหนือหน้าที่",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อ ฝ่ายตรงข้าม โจมตี นำ Avatar \"วานร\" 1 ใบ บน Avatar Zone เรา ไปไว้บนสุดของ Deck : ยกเลิกการโจมตีนั้น"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "cost": {
+            "putOwnAvatarToTopDeck": {
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ ฝ่ายตรงข้าม โจมตี นำ Avatar \"วานร\" 1 ใบ บน Avatar Zone เรา ไปไว้บนสุดของ Deck : ยกเลิกการโจมตีนั้น",
+      "keywords": [
+        "React"
+      ],
+      "reactAnyWindow": true,
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-016.png"
     },
     {
       "code": "SD09-017",
       "name": "วานรร้อนรัก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เมื่อ Avatar \"วานร\" ฝ่ายเราทำการต่อสู้เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} Ava"
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "cost": {
+            "sacrificeOtherOwnAvatar": {
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "battlingAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อ Avatar \"วานร\" ฝ่ายเราทำการต่อสู้เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} Ava",
+      "keywords": [
+        "React"
+      ],
+      "reactAnyWindow": true,
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-017.png"
     },
     {
       "code": "SD09-018",
       "name": "ตรีเพชร",
-      "abilities": [],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "destroyHostAvatar": true
+          },
+          "actions": [
+            {
+              "op": "summonFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "หนุมาน",
+                  "นิลพัท"
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "attachOnly": {
-        "nameIncludes": "วานร"
+        "type": "Avatar",
+        "nameIncludes": [
+          "วานร"
+        ]
       },
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-018.png"
     },
     {
       "code": "SD09-019",
@@ -221,16 +563,42 @@
         }
       ],
       "attachOnly": {
-        "nameIncludes": "วานร"
+        "type": "Avatar",
+        "nameIncludes": [
+          "วานร"
+        ]
       },
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-019.png"
     },
     {
       "code": "SD09-020",
       "name": "ป่าแห่งเมืองขีดขิน",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ : จั่วก"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ : จั่วก",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-020.png"
     },
     {
       "code": "SD09-021",
@@ -250,7 +618,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-021.png"
     },
     {
       "code": "SD09-022",
@@ -270,7 +639,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-022.png"
     },
     {
       "code": "SD09-023",
@@ -280,17 +650,23 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
+          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
-              "op": "draw",
+              "op": "summonToken",
               "count": 1,
-              "player": "owner",
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์",
               "schedule": "nextOwnMainPhase"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-023.png"
     },
     {
       "code": "SD09-024",
@@ -300,17 +676,23 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
+          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
-              "op": "draw",
+              "op": "summonToken",
               "count": 1,
-              "player": "owner",
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์",
               "schedule": "nextOwnMainPhase"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-024.png"
     },
     {
       "code": "SD09-025",
@@ -330,14 +712,16 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-025.png"
     },
     {
       "code": "SD09-026",
       "name": "วานร",
       "abilities": [],
       "parseStatus": "verified",
-      "note": "ไม่มีข้อความเอฟเฟกต์"
+      "note": "ไม่มีข้อความเอฟเฟกต์",
+      "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-026.png"
     }
   ]
 }

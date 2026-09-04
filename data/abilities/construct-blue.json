@@ -98,22 +98,10 @@
       "codes": [
         "BT11-073"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunityAllOwn"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "controlImmuneOwnAvatars": true,
       "parseStatus": "auto",
-      "note": "Avatar ฝ่ายเราจะไม่ถูกเปลี่ยนการควบคุม"
+      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "name": "ZeedZad Server",

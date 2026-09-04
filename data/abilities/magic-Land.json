@@ -798,8 +798,29 @@
       "codes": [
         "SD09-020"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ : จั่วก"
     },
     {
@@ -992,7 +1013,6 @@
             "on": "static",
             "if": "self.zone==landZone"
           },
-          "requireOwnAvatarColorsMin": 4,
           "actions": [
             {
               "op": "modifyPower",
@@ -1006,11 +1026,11 @@
                 "zone": "avatarZone"
               }
             }
-          ]
+          ],
+          "requireOwnAvatarColorsMin": 4
         }
       ],
-      "parseStatus": "verified",
-      "note": "ตราบเท่าที่มี Avatar ครบ 4 สีบนสนามฝ่ายเรา Avatar ทุกใบบน Avatar Zone เรา POWER +2 (โคลัมบัส ถือเป็นทุกสี)"
+      "parseStatus": "auto"
     },
     {
       "name": "ยุคกาฬสินธุ์โซอิค",
@@ -1268,8 +1288,47 @@
       "codes": [
         "KD03-020"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "options": [
+            {
+              "label": "สอดแนม 5 — สวมโอตะสูงสุด 2 ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "scoutAttachOta",
+                  "scout": 5,
+                  "maxOta": 2
+                }
+              ]
+            },
+            {
+              "label": "สอดแนม 7 — ไอดอลขึ้นมือ",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 7,
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
     },
     {

@@ -24,9 +24,88 @@
     {
       "code": "KD03-002",
       "name": "โอตะคูลา",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "options": [
+            {
+              "label": "สวมใส่ให้ไอดอล/บีมมิ",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludesAny": [
+                      "ไอดอล",
+                      "บีมมิ"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "equippedAvatar"
+              },
+              "ifHostNameIncludes": "ไอดอล"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "equippedAvatar"
+              },
+              "ifHostNameIncludes": "บีมมิ"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "exileSelf": true,
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "บีมมิ"
+                ],
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone",
+      "costOnlyForNameIncludes": "ไอดอล"
     },
     {
       "code": "KD03-003",
@@ -540,8 +619,47 @@
     {
       "code": "KD03-020",
       "name": "เวทีแห่งความฝัน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "options": [
+            {
+              "label": "สอดแนม 5 — สวมโอตะสูงสุด 2 ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "scoutAttachOta",
+                  "scout": 5,
+                  "maxOta": 2
+                }
+              ]
+            },
+            {
+              "label": "สอดแนม 7 — ไอดอลขึ้นมือ",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 7,
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
     },
     {

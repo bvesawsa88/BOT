@@ -1156,8 +1156,20 @@
       "codes": [
         "SD09-015"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothPlayersPutHellAvatarToTopDeck",
+              "maxCost": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ผู้เล่นทุกคน นำ Avatar ในนรก 1 ใบ ที่ Cost 4 หรือต่ำกว่า ที่ไม่ใช่ {only} วางไว้บนสุดของ Deck ตนเอง"
     },
     {
@@ -1216,31 +1228,9 @@
       "codes": [
         "ODY1-065"
       ],
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "cost": [
-            {
-              "op": "destroySelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "target": {
-                "select": "host"
-              },
-              "until": "endOfOpponentNextTurn"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "ทำลายตนเอง Host POWER +2 จนจบเทิร์นถัดไปอีกฝ่าย"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
     },
     {
       "name": "ทะลวงส้วม",
@@ -1507,21 +1497,9 @@
       "codes": [
         "KD00-00B"
       ],
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "playMagic"
-          },
-          "actions": [
-            {
-              "op": "leftHandCardStealCompareCost"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "สุ่มหยิบการ์ดคนทางซ้ายมาเทียบ Cost"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
     },
     {
       "name": "แบงค์ Portal",
@@ -2743,16 +2721,33 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "scoutAndPickOrSummonKingka",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วานร"
+                ],
+                "maxCost": 5
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ สอดแนม 7 "
     },
     {
@@ -2901,8 +2896,45 @@
       "codes": [
         "KD02-014"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "drawHellUnique",
+              "symbol": "นรก",
+              "threshold": 5,
+              "countBelow": 1,
+              "countAtLeast": 2
+            }
+          ]
+        }
+      ],
+      "milledOptional": {
+        "actions": [
+          {
+            "op": "exileSelf"
+          },
+          {
+            "op": "hellPick",
+            "filter": {
+              "nameIncludes": [
+                "นายนิรยบาล"
+              ]
+            },
+            "dest": "avatar",
+            "paidCost": false
+          }
+        ]
+      },
+      "parseStatus": "auto",
       "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์"
     },
     {
@@ -2953,8 +2985,40 @@
       "codes": [
         "KD04-012"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "grantAttackAllEnemy",
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ]
+              },
+              "until": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cost": {
+            "exileSelf": true
+          },
+          "actions": [
+            {
+              "op": "hellAttachAllDistinctWeaponMods",
+              "toNameIncludes": "ไมเกรน"
+            }
+          ]
+        }
+      ],
+      "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน",
+      "parseStatus": "auto",
       "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar"
     },
     {
@@ -3100,8 +3164,28 @@
       "codes": [
         "SD09-013"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "discardFromHand": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyAvatar",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ด \"วานร\" 1 ใบ จากมือ : ทำลาย Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ"
     },
     {
@@ -3335,26 +3419,9 @@
       "codes": [
         "ODY1-064"
       ],
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "attackTargeted",
-            "filter": {
-              "nameIncludes": "ทาโกะ"
-            }
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "until": "endOfTurn"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เมื่อ ทาโกะ โดนเล็งโจมตี POWER +2 จนจบเทิร์น"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
     },
     {
       "name": "โอน้อยออกแห่งโชคชะตา",

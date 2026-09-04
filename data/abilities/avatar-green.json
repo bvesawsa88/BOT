@@ -373,11 +373,21 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "requireOwnHellMonkeyMin": 4,
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ {red (ทำงานเมื่อ Avatar ใบนี้ถูกอัญเชิญลง Avatar Zone แบบจ่าย Cost ด้วยตัวผู้เล่นเอง)} : ถ้าในน"
     },
     {
@@ -1148,8 +1158,31 @@
       "codes": [
         "SD09-009"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 2,
+              "symbol": "สัตว์"
+            }
+          },
+          "actions": [
+            {
+              "op": "summonFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "พาลี"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ Avatar {Symbol สัตว์} 2 ใบ บน Avatar Zone เรา : อัญเชิญ \"พาลี\" 1 ใบ จากนรกเรา ลงบน Avatar"
     },
     {
@@ -1806,6 +1839,26 @@
       ],
       "abilities": [
         {
+          "keyword": "Link",
+          "link": {
+            "partner": "SD09-001"
+          },
+          "trigger": {
+            "on": "linkActivated"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 2,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
@@ -1813,20 +1866,17 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
+              "op": "modifyPowerPerMonkeyToken",
+              "amountPerToken": 1,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone",
-                "symbol": "สัตว์"
+                "select": "self"
               }
             }
           ]
         }
+      ],
+      "keywords": [
+        "สามัคคี"
       ],
       "parseStatus": "auto"
     },
@@ -2530,11 +2580,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "destroyEnemyLowestCost"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyLowestCost"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ : ทำลาย Avatar ที่มี Cost ต่ำที่สุดบนสนามฝ่ายตรงข้ามทุกใบ อัตโนมัติ เมื่อเริ่มต้น Main Phase เร"
     },
     {
@@ -3068,8 +3132,7 @@
               "dest": "magic",
               "distinctNames": true,
               "multiMax": 99,
-              "optional": true,
-              "showAll": true
+              "optional": true
             }
           ]
         },
@@ -3706,22 +3769,9 @@
       "codes": [
         "BT03-028"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "combatImmuneVsLowerCost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "combatImmuneVsLowerCost": true,
-      "parseStatus": "auto",
-      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Avatar ที่ Cost น้อยกว่า"
+      "parseStatus": "auto"
     },
     {
       "name": "เรนะ นักล่าไดโนเสาร์",
@@ -3843,8 +3893,27 @@
       "codes": [
         "SD09-006"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "requireOwnHellMonkeyMin": 4,
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : ถ้าในนรกเรามี Avatar \"วานร\" 4 ใบหรือมากกว่า อัญ"
     },
     {
@@ -3883,8 +3952,29 @@
       "codes": [
         "SD09-010"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummon",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วานร"
+                ],
+                "maxCost": 4
+              },
+              "restToBottom": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : สอดแนม {red (แสดงการ์ดใบบนสุดของ Deck ตามจำนวนท"
     },
     {
@@ -3892,8 +3982,26 @@
       "codes": [
         "SD09-007"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "sacrificedForMonkeySummon"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อ Avatar ใบนี้ถูกใช้เป็นค่า Cost ในการอัญเชิญ Avatar \"วานร\" : อัญเชิญ Token วานร สีเขียว Cost 1 Gem 0 POWE"
     },
     {
@@ -3933,8 +4041,33 @@
       "codes": [
         "SD09-008"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "ลูกฮึด",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "วานร"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE"
     },
     {
@@ -4086,8 +4219,21 @@
       "codes": [
         "SD09-003"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "setChosenEnemyCostsToLowest",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
     },
     {
@@ -4307,6 +4453,21 @@
       ],
       "abilities": [
         {
+          "keyword": "Link",
+          "link": {
+            "partner": "SD09-002"
+          },
+          "trigger": {
+            "on": "leavingFieldByEnemyCard"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scoutPreventLeaveIfMonkey"
+            }
+          ]
+        },
+        {
           "keyword": "อัตโนมัติ",
           "trigger": {
             "on": "declareAttack",
@@ -4324,6 +4485,9 @@
             }
           ]
         }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
       ],
       "parseStatus": "auto"
     },

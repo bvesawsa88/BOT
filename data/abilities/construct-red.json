@@ -268,7 +268,7 @@
       "abilities": [],
       "scoutBonusConstruct": 2,
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ"
+      "note": "Construct ฝ่ายเราสอดแนม +2"
     },
     {
       "name": "เวทีเพื่อชีวิต",

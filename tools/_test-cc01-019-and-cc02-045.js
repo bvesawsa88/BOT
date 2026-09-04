@@ -95,6 +95,7 @@ function skipNegate(st) {
   // Sacrifice prompt
   let pr = (st.prompts || [])[0];
   ok(pr && pr.dest === 'sacrifice', 'sac prompt open');
+
   fx = apply(st, { type: 'chooseTarget', k: sacAvatar, by: 'A' });
   if (fx.deny) fail('sac target: ' + fx.deny);
 

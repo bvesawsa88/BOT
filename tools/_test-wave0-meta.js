@@ -113,7 +113,7 @@ function padDecks(st) {
 /* 5) นัท: กันยึด ยกเว้นอีช่า */
 {
   const e = BoT.effectOf('BT04-003');
-  ok(e && e.controlImmune && e.controlImmuneExcept === 'อีช่า', 'nut controlImmune except eisha');
+  ok(e && e.controlImmune && (e.controlImmuneExcept || '').includes('อีช่า'), 'nut controlImmune except eisha');
 }
 
 /* 6) ดาบ: Cost +2 และถ้า Cost≥6 POWER +1 */

@@ -56,11 +56,16 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
+          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
-              "op": "draw",
+              "op": "summonToken",
               "count": 1,
-              "player": "owner",
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์",
               "schedule": "nextOwnMainPhase"
             }
           ]
@@ -144,11 +149,16 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
+          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
-              "op": "draw",
+              "op": "summonToken",
               "count": 1,
-              "player": "owner",
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์",
               "schedule": "nextOwnMainPhase"
             }
           ]

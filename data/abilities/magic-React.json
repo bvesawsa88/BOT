@@ -567,8 +567,31 @@
       "codes": [
         "SD09-016"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "cost": {
+            "putOwnAvatarToTopDeck": {
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "React"
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto",
       "note": "เมื่อ ฝ่ายตรงข้าม โจมตี นำ Avatar \"วานร\" 1 ใบ บน Avatar Zone เรา ไปไว้บนสุดของ Deck : ยกเลิกการโจมตีนั้น"
     },
     {
@@ -1364,8 +1387,37 @@
       "codes": [
         "SD09-017"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "cost": {
+            "sacrificeOtherOwnAvatar": {
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "battlingAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "React"
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto",
       "note": "เมื่อ Avatar \"วานร\" ฝ่ายเราทำการต่อสู้เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} Ava"
     },
     {
@@ -1402,7 +1454,6 @@
       ],
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "activated"
           },

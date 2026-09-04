@@ -356,7 +356,7 @@
             "on": "ownAvatarLeftField"
           },
           "cost": {
-            "discardGemSumExact": 3
+            "discardGemSum": 3
           },
           "actions": [
             {

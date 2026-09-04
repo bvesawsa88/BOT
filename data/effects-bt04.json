@@ -1344,43 +1344,13 @@
     {
       "code": "BT04-055",
       "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "modifyHostCost",
-              "amount": 2
-            }
-          ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "host.cost>=6"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "target": {
-                "select": "host"
-              }
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "hostCostDelta": 2,
       "hostPowerIfEffCostMin": {
-        "minCost": 6,
-        "power": 1
+        "min": 6,
+        "amount": 1
       },
-      "parseStatus": "auto",
-      "note": "Host Cost +2 / ถ้า Cost >= 6 POWER +1"
+      "parseStatus": "auto"
     },
     {
       "code": "BT04-056",

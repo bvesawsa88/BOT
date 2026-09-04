@@ -111,7 +111,8 @@
                 "type": "Avatar",
                 "nameIncludes": [
                   "นาค"
-                ]
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]
@@ -286,6 +287,36 @@
       ],
       "parseStatus": "auto",
       "note": "เลือก 1) เซ่นไหว้ตัวเอง จั่ว 2 2) ได้รับ เตะไข่ แล้วทำลายตัวเองตอน End Phase"
+    },
+    {
+      "code": "BT06-003",
+      "name": "เอรา นาคเกล็ดเขียว",
+      "parseStatus": "auto",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

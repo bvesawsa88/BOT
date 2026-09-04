@@ -94,7 +94,7 @@ function toLocalCard(c) {
     creator: c.creator || '',
     series: (code || '').split('-')[0] || '',
     image,
-    imageUrl: `${CDN}/${image}`,
+    imageUrl: (code || '').startsWith('SD09-') ? `https://cdn.bottcg.com/cards/123v1k1/${image}` : `${CDN}/${image}`,
   };
 }
 

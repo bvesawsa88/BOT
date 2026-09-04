@@ -2595,27 +2595,10 @@
     {
       "code": "BT03-009",
       "name": "จีสัส",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "restrictAttack",
-              "condition": {
-                "ownHandCount": 0
-              }
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
-      "attackIf": {
-        "ownHandEmpty": true
-      },
-      "note": "โจมตีได้เฉพาะเมื่อไม่มีการ์ดบนมือ"
+      "attackIf": "emptyHand",
+      "note": "โจมตีได้เมื่อมือว่าง"
     },
     {
       "code": "BT03-010",
@@ -3087,22 +3070,9 @@
     {
       "code": "BT03-028",
       "name": "ราชาอาณาจักรของแพง  พระเจ้านิโคไล",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "combatImmuneVsLowerCost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
-      "combatImmuneVsLowerCost": true,
-      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Avatar ที่ Cost น้อยกว่า"
+      "combatImmuneVsLowerCost": true
     },
     {
       "code": "BT03-029",
@@ -3659,23 +3629,9 @@
     {
       "code": "BT03-054",
       "name": "ขวานไม้เน่าๆเหม็นๆ",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "modifyHostCost",
-              "amount": -1
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
-      "hostCostDelta": -1,
-      "note": "Avatar ที่สวมใส่ Cost -1"
+      "hostCostDelta": -1
     },
     {
       "code": "BT03-055",
@@ -5192,43 +5148,13 @@
     {
       "code": "BT04-055",
       "name": "ดาบพิฆาตสวรรค์ ราคา 4000 เหรียญทอง",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "modifyHostCost",
-              "amount": 2
-            }
-          ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "host.cost>=6"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "target": {
-                "select": "host"
-              }
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "hostCostDelta": 2,
       "hostPowerIfEffCostMin": {
-        "minCost": 6,
-        "power": 1
-      },
-      "note": "Host Cost +2 / ถ้า Cost >= 6 POWER +1"
+        "min": 6,
+        "amount": 1
+      }
     },
     {
       "code": "BT04-056",
@@ -7558,7 +7484,8 @@
                 "type": "Avatar",
                 "nameIncludes": [
                   "นาค"
-                ]
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]
@@ -14405,7 +14332,7 @@
             "on": "ownAvatarLeftField"
           },
           "cost": {
-            "discardGemSumExact": 3
+            "discardGemSum": 3
           },
           "actions": [
             {
@@ -15910,23 +15837,11 @@
     {
       "code": "BT09-065",
       "name": "กระสอบ",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "hostCannotAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "destroyAfterGlobalEndPhases": 4,
       "hostCannotAttack": true,
-      "note": "Host โจมตีไม่ได้ / ลงนรกหลัง 4 End Phases"
+      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "BT09-066",
@@ -17655,8 +17570,7 @@
               "dest": "magic",
               "distinctNames": true,
               "multiMax": 99,
-              "optional": true,
-              "showAll": true
+              "optional": true
             }
           ]
         },
@@ -18514,7 +18428,6 @@
       "name": "วิชานินจา รุกรับพลิกผัน",
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "activated"
           },
@@ -21652,22 +21565,10 @@
     {
       "code": "BT11-073",
       "name": "รูปประจำบ้าน",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunityAllOwn"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "controlImmuneOwnAvatars": true,
-      "note": "Avatar ฝ่ายเราจะไม่ถูกเปลี่ยนการควบคุม"
+      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม"
     },
     {
       "code": "BT11-074",
@@ -25905,21 +25806,9 @@
     {
       "code": "KD00-00B",
       "name": "เบียดเบียนผู้อื่น",
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "playMagic"
-          },
-          "actions": [
-            {
-              "op": "leftHandCardStealCompareCost"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "สุ่มหยิบการ์ดคนทางซ้ายมาเทียบ Cost"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "สุ่มหยิบมือซ้ายแล้วเทียบ Cost / เนรเทศ / คืนมืด / ทิ้งพร้อมกัน — กิ่งปาร์ตี้ซับซ้อน เล่นมือ"
     },
     {
       "code": "KD00-00C",
@@ -25962,22 +25851,114 @@
     {
       "code": "KD01-001",
       "name": "พระนารายณ์ เทพผดุงธรรม",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "scoutNaraiExile",
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
     },
     {
       "code": "KD01-002",
       "name": "ร่างอวตารพระนารายณ์ - นรสิงห์",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - นรสิง",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "enemy",
+                    "costMax": 4,
+                    "count": 1
+                  },
+                  "optional": true,
+                  "then": [
+                    {
+                      "op": "schedule",
+                      "when": "ownEndPhase",
+                      "actions": [
+                        {
+                          "op": "replaceSelfWithHellNarai"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
       "code": "KD01-003",
       "name": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "untap",
+                  "from": "own",
+                  "filter": {
+                    "symbol": "เทพ",
+                    "requireTapped": true
+                  },
+                  "optional": true
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
@@ -26483,15 +26464,78 @@
     {
       "code": "KD02-001",
       "name": "ปีศาจแห่งพันรเลือด เมฟิสโตเฟเลส",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "requireUniqueHellSymbolNames": {
+            "symbol": "นรก",
+            "min": 7
+          },
+          "cost": {
+            "discardHand": 2
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "noJuti": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "mill",
+              "count": 5,
+              "who": "self"
+            },
+            {
+              "op": "destroyAllAvatarsExceptSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "noPaidSummon": true,
+      "addToHandWhenScoutedByNameIncludes": "สุวรรณ",
       "note": "สั่งใช้ จากมือ ถ้าในนรกฝ่ายเรา มี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 7 ชื่อขึ้นไป ทั้งการ์ดจากบนมือ 2 ใบ : อัญเ"
     },
     {
       "code": "KD02-002",
       "name": "ลิลิธ ปีศาจสาวตนแรก",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireUniqueHellSymbolNames": {
+            "symbol": "นรก",
+            "min": 4
+          },
+          "cost": {
+            "exileHell": 2
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "symbol": "นรก"
+              },
+              "dest": "hand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "nameAliases": [
+        "นายนิรยบาล"
+      ],
       "note": "เทิร์นละครั้ง สั่งใช้ ถ้าในนรกฝ่ายเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 4 ใบขึ้นไป เนรเทศ การ์ดในนรกฝ่ายเรา "
     },
     {
@@ -26719,8 +26763,45 @@
     {
       "code": "KD02-014",
       "name": "สัญญาเลือด",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "drawHellUnique",
+              "symbol": "นรก",
+              "threshold": 5,
+              "countBelow": 1,
+              "countAtLeast": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "milledOptional": {
+        "actions": [
+          {
+            "op": "exileSelf"
+          },
+          {
+            "op": "hellPick",
+            "filter": {
+              "nameIncludes": [
+                "นายนิรยบาล"
+              ]
+            },
+            "dest": "avatar",
+            "paidCost": false
+          }
+        ]
+      },
       "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์"
     },
     {
@@ -27067,8 +27148,86 @@
     {
       "code": "KD03-002",
       "name": "โอตะคูลา",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "options": [
+            {
+              "label": "สวมใส่ให้ไอดอล/บีมมิ",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludesAny": [
+                      "ไอดอล",
+                      "บีมมิ"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "equippedAvatar"
+              },
+              "ifHostNameIncludes": "ไอดอล"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "equippedAvatar"
+              },
+              "ifHostNameIncludes": "บีมมิ"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "exileSelf": true,
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "บีมมิ"
+                ],
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone"
     },
     {
@@ -27572,8 +27731,47 @@
     {
       "code": "KD03-020",
       "name": "เวทีแห่งความฝัน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "options": [
+            {
+              "label": "สอดแนม 5 — สวมโอตะสูงสุด 2 ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "scoutAttachOta",
+                  "scout": 5,
+                  "maxOta": 2
+                }
+              ]
+            },
+            {
+              "label": "สอดแนม 7 — ไอดอลขึ้นมือ",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 7,
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ ทิ้งการ์ดบนมือ 1 ใบ : 1) สอดแนม 5 ใบ เลือก การ์ด \"โอตะ\" ได้สูงสุด 2 ใบ จากที่ สอดแนม ไปสวมใส่"
     },
     {
@@ -27709,8 +27907,44 @@
     {
       "code": "KD04-001",
       "name": "ราชันย์หุ่นนักรบผู้กล้า : คริติคอล ไมเกรน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "exileHellDistinctNames": {
+              "nameIncludes": "ไมเกรน",
+              "count": 3
+            }
+          },
+          "options": [
+            {
+              "label": "สวมอาวุธจากนรกสูงสุด 2",
+              "actions": [
+                {
+                  "op": "hellAttachMods",
+                  "nameIncludes": "อาวุธหุ่นนักรบผู้กล้า",
+                  "max": 2,
+                  "toSelf": true
+                }
+              ]
+            },
+            {
+              "label": "ฆ่าแล้วโจมตี LIFE 1 ครั้ง จนจบเทิร์น",
+              "actions": [
+                {
+                  "op": "grantBattleDestroyLifeHit",
+                  "until": "endOfTurn"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "controlImmune": true,
       "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 "
     },
     {
@@ -27723,11 +27957,44 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ],
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ],
+                "subtype": "Modification"
+              },
+              "dest": "hand"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ : สอดแนม 5 ใบ เลือก Avatar \"ไมเกรน\" 1 ใบจากที่ สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำกลับเข้า Deck"
     },
     {
@@ -27941,8 +28208,40 @@
     {
       "code": "KD04-012",
       "name": "สุดยอดท่าไม้ตายผู้กล้า THE END",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "grantAttackAllEnemy",
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ]
+              },
+              "until": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cost": {
+            "exileSelf": true
+          },
+          "actions": [
+            {
+              "op": "hellAttachAllDistinctWeaponMods",
+              "toNameIncludes": "ไมเกรน"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "addToHandWhenMilledOrScoutedByNameIncludes": "ไมเกรน",
       "note": "เลือก Avatar \"ไมเกรน\" 1 ใบ บน Avatar Zone ฝ่ายเรา : Avatar ใบที่เลือก ได้รับ \"อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : Avatar"
     },
     {
@@ -27976,9 +28275,10 @@
       "code": "KD04-014",
       "name": "อาวุธนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",
       "abilities": [],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "attachOnly": {
-        "nameIncludes": "ผู้กล้า"
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
       }
     },
     {
@@ -29344,55 +29644,16 @@
     {
       "code": "ODY1-064",
       "name": "โอเดนย่า อร่อยมัก",
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "attackTargeted",
-            "filter": {
-              "nameIncludes": "ทาโกะ"
-            }
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "until": "endOfTurn"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เมื่อ ทาโกะ โดนเล็งโจมตี POWER +2 จนจบเทิร์น"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
     },
     {
       "code": "ODY1-065",
       "name": "ถุงเกราะโอเดนย่า",
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "cost": [
-            {
-              "op": "destroySelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "target": {
-                "select": "host"
-              },
-              "until": "endOfOpponentNextTurn"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "ทำลายตนเอง Host POWER +2 จนจบเทิร์นถัดไปอีกฝ่าย"
+      "abilities": [],
+      "parseStatus": "manual",
+      "note": "พิมพ์ Normal แต่ทำงานตอนถูกทำลายในสภาพสวมใส่ — ต้องเป็น Modification/ใบสวม"
     },
     {
       "code": "ODY1-066",
@@ -36581,7 +36842,7 @@
       "abilities": [],
       "parseStatus": "auto",
       "scoutBonusConstruct": 2,
-      "note": "ต่อเนื่อง ตราบเท่าที่การ์ดใบนี้อยู่บน Construct Zone ฝ่ายเรา ความสามารถ สอดแนม ของ Construct ฝ่ายเรา เพิ่มขึ้น 2 ใบ"
+      "note": "Construct ฝ่ายเราสอดแนม +2"
     },
     {
       "code": "SD06-020",
@@ -36759,7 +37020,8 @@
       "abilities": [],
       "parseStatus": "auto",
       "destroyAnyOnSummonedByAvatarNameIncludes": "ขุนพล",
-      "note": "อัตโนมัติ เมื่อการ์ดใบนี้ถูกอัญเชิญมาด้วยความสามารถของ Avatar \"ขุนพล\" ที่เป็น Symbol ชาวต่างชาติ : ทำลายการ์ดบนสนาม 1 ใบ"
+      "destroyAnyOnSummonedByAvatarSymbol": "ต่างชาติ",
+      "note": "ถูกอัญเชิญโดยขุนพล ต่างชาติ → ทำลายการ์ดบนสนาม 1 ใบ"
     },
     {
       "code": "SD07-004",
@@ -37114,7 +37376,6 @@
             "on": "static",
             "if": "self.zone==landZone"
           },
-          "requireOwnAvatarColorsMin": 4,
           "actions": [
             {
               "op": "modifyPower",
@@ -37128,11 +37389,11 @@
                 "zone": "avatarZone"
               }
             }
-          ]
+          ],
+          "requireOwnAvatarColorsMin": 4
         }
       ],
-      "parseStatus": "verified",
-      "note": "ตราบเท่าที่มี Avatar ครบ 4 สีบนสนามฝ่ายเรา Avatar ทุกใบบน Avatar Zone เรา POWER +2 (โคลัมบัส ถือเป็นทุกสี)"
+      "parseStatus": "auto"
     },
     {
       "code": "SD07-020",
@@ -37948,6 +38209,21 @@
       "name": "หนุมาน วานรวายุ",
       "abilities": [
         {
+          "keyword": "Link",
+          "link": {
+            "partner": "SD09-002"
+          },
+          "trigger": {
+            "on": "leavingFieldByEnemyCard"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scoutPreventLeaveIfMonkey"
+            }
+          ]
+        },
+        {
           "keyword": "อัตโนมัติ",
           "trigger": {
             "on": "declareAttack",
@@ -37966,12 +38242,35 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์"
+      ]
     },
     {
       "code": "SD09-002",
       "name": "นิลพัท วานรสีกาฬ",
       "abilities": [
+        {
+          "keyword": "Link",
+          "link": {
+            "partner": "SD09-001"
+          },
+          "trigger": {
+            "on": "linkActivated"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 2,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        },
         {
           "keyword": "ต่อเนื่อง",
           "trigger": {
@@ -37980,28 +38279,38 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
+              "op": "modifyPowerPerMonkeyToken",
+              "amountPerToken": 1,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone",
-                "symbol": "สัตว์"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "keywords": [
+        "สามัคคี"
+      ]
     },
     {
       "code": "SD09-003",
       "name": "สุครีพ วานรปากแซ่บ",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "setChosenEnemyCostsToLowest",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
     },
     {
@@ -38014,11 +38323,25 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "destroyEnemyLowestCost"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyLowestCost"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ : ทำลาย Avatar ที่มี Cost ต่ำที่สุดบนสนามฝ่ายตรงข้ามทุกใบ อัตโนมัติ เมื่อเริ่มต้น Main Phase เร"
     },
     {
@@ -38031,46 +38354,162 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "requireOwnHellMonkeyMin": 4,
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ {red (ทำงานเมื่อ Avatar ใบนี้ถูกอัญเชิญลง Avatar Zone แบบจ่าย Cost ด้วยตัวผู้เล่นเอง)} : ถ้าในน"
     },
     {
       "code": "SD09-006",
       "name": "วานรกินซากลากอเวจี",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "requireOwnHellMonkeyMin": 4,
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : ถ้าในนรกเรามี Avatar \"วานร\" 4 ใบหรือมากกว่า อัญ"
     },
     {
       "code": "SD09-007",
       "name": "วานรถลกหนังฝังกระดูก",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "sacrificedForMonkeySummon"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "count": 1,
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อ Avatar ใบนี้ถูกใช้เป็นค่า Cost ในการอัญเชิญ Avatar \"วานร\" : อัญเชิญ Token วานร สีเขียว Cost 1 Gem 0 POWE"
     },
     {
       "code": "SD09-008",
       "name": "วานรหมวกเหล็ก",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "ลูกฮึด",
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "วานร"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
       "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE"
     },
     {
       "code": "SD09-009",
       "name": "ดารา นางชั่ว",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 2,
+              "symbol": "สัตว์"
+            }
+          },
+          "actions": [
+            {
+              "op": "summonFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "พาลี"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ Avatar {Symbol สัตว์} 2 ใบ บน Avatar Zone เรา : อัญเชิญ \"พาลี\" 1 ใบ จากนรกเรา ลงบน Avatar"
     },
     {
       "code": "SD09-010",
       "name": "วานร ซีซ่าสลัด",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummon",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วานร"
+                ],
+                "maxCost": 4
+              },
+              "restToBottom": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "คำสั่งเสีย {red (ทำงานหลังจาก การ์ดใบนี้ถูกทำลายจากบนสนามและส่งลงนรก)} : สอดแนม {red (แสดงการ์ดใบบนสุดของ Deck ตามจำนวนท"
     },
     {
@@ -38090,8 +38529,28 @@
     {
       "code": "SD09-013",
       "name": "หนุมานถวายแหวน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "discardFromHand": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyAvatar",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ทิ้งการ์ด \"วานร\" 1 ใบ จากมือ : ทำลาย Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ"
     },
     {
@@ -38099,46 +38558,150 @@
       "name": "เลือกตั้งเจ้าป่า",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "scoutAndPickOrSummonKingka",
+              "count": 7,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วานร"
+                ],
+                "maxCost": 5
+              }
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ สอดแนม 7 "
     },
     {
       "code": "SD09-015",
       "name": "เตรียมเสบียง",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothPlayersPutHellAvatarToTopDeck",
+              "maxCost": 4
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "ผู้เล่นทุกคน นำ Avatar ในนรก 1 ใบ ที่ Cost 4 หรือต่ำกว่า ที่ไม่ใช่ {only} วางไว้บนสุดของ Deck ตนเอง"
     },
     {
       "code": "SD09-016",
       "name": "ชีวิตเหนือหน้าที่",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "cost": {
+            "putOwnAvatarToTopDeck": {
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "React"
+      ],
+      "reactAnyWindow": true,
       "note": "เมื่อ ฝ่ายตรงข้าม โจมตี นำ Avatar \"วานร\" 1 ใบ บน Avatar Zone เรา ไปไว้บนสุดของ Deck : ยกเลิกการโจมตีนั้น"
     },
     {
       "code": "SD09-017",
       "name": "วานรร้อนรัก",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "cost": {
+            "sacrificeOtherOwnAvatar": {
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "battlingAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "React"
+      ],
+      "reactAnyWindow": true,
       "note": "เมื่อ Avatar \"วานร\" ฝ่ายเราทำการต่อสู้เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} Ava"
     },
     {
       "code": "SD09-018",
       "name": "ตรีเพชร",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "cost": {
+            "destroyHostAvatar": true
+          },
+          "actions": [
+            {
+              "op": "summonFromHell",
+              "filter": {
+                "nameIncludes": [
+                  "หนุมาน",
+                  "นิลพัท"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "attachOnly": {
-        "nameIncludes": "วานร"
+        "type": "Avatar",
+        "nameIncludes": [
+          "วานร"
+        ]
       }
     },
     {
@@ -38165,14 +38728,38 @@
       ],
       "parseStatus": "auto",
       "attachOnly": {
-        "nameIncludes": "วานร"
+        "type": "Avatar",
+        "nameIncludes": [
+          "วานร"
+        ]
       }
     },
     {
       "code": "SD09-020",
       "name": "ป่าแห่งเมืองขีดขิน",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "sacrificeOwnAvatar": {
+              "count": 1,
+              "nameIncludes": [
+                "วานร"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "เทิร์นละครั้ง สั่งใช้ เซ่นไหว้ {red (ทำลายการ์ดบน Avatar Zone และส่งลงนรก ตามเงื่อนไขที่การ์ดกำหนด)} \"วานร\" 1 ใบ : จั่วก"
     },
     {
@@ -38223,11 +38810,16 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
+          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
-              "op": "draw",
+              "op": "summonToken",
               "count": 1,
-              "player": "owner",
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์",
               "schedule": "nextOwnMainPhase"
             }
           ]
@@ -38243,11 +38835,16 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
+          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
-              "op": "draw",
+              "op": "summonToken",
               "count": 1,
-              "player": "owner",
+              "name": "วานร",
+              "power": 1,
+              "cost": 1,
+              "color": "เขียว",
+              "symbol": "สัตว์",
               "schedule": "nextOwnMainPhase"
             }
           ]
@@ -38758,7 +39355,8 @@
                 "type": "Avatar",
                 "nameIncludes": [
                   "นาค"
-                ]
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]

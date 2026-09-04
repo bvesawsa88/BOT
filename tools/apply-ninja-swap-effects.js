@@ -545,10 +545,8 @@ const effects = {
     code: 'BT10-065',
     name: 'วิชานินจา รุกรับพลิกผัน',
     parseStatus: 'manual',
-    reactAnyWindow: true,
     abilities: [
       {
-        keyword: 'React',
         trigger: { on: 'activated' },
         requireOnlyNameIncludes: 'นินจา',
         actions: [{

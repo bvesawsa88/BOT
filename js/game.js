@@ -5039,7 +5039,7 @@
     const hasActivated = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code, c.name) || {}).abilities || [])
       .concat(c.granted || []).some(ab => {
         const on = ab.trigger && ab.trigger.on;
-        if (on === 'activated' && (onField || kzMenu === 'land')) return true;
+        if ((on === 'activated' || on === 'activatedFromField') && (onField || kzMenu === 'land')) return true;
         if (on === 'activatedFromHand' && kzMenu.endsWith('.hand')) return true;
         if ((on === 'activatedFromHell' || ab.fromHell) && kzMenu.endsWith('.hell')) return true;
         if (on === 'activatedFromDarkDimension' && kzMenu.endsWith('.dark')) return true;

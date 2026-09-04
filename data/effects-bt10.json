@@ -1469,8 +1469,7 @@
               "dest": "magic",
               "distinctNames": true,
               "multiMax": 99,
-              "optional": true,
-              "showAll": true
+              "optional": true
             }
           ]
         },
@@ -2329,7 +2328,6 @@
       "code": "BT10-065",
       "abilities": [
         {
-          "keyword": "React",
           "trigger": {
             "on": "activated"
           },

@@ -517,27 +517,10 @@
       "codes": [
         "BT03-009"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "restrictAttack",
-              "condition": {
-                "ownHandCount": 0
-              }
-            }
-          ]
-        }
-      ],
-      "attackIf": {
-        "ownHandEmpty": true
-      },
+      "abilities": [],
+      "attackIf": "emptyHand",
       "parseStatus": "auto",
-      "note": "โจมตีได้เฉพาะเมื่อไม่มีการ์ดบนมือ"
+      "note": "โจมตีได้เมื่อมือว่าง"
     },
     {
       "name": "เจนนี่ อย่าบู้บี้เลขา",
@@ -1191,11 +1174,44 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "actions": [],
-          "note": "จุติซับซ้อน"
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ไมเกรน"
+                ],
+                "type": "Avatar"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ],
+                "subtype": "Modification"
+              },
+              "dest": "hand"
+            }
+          ]
         }
       ],
-      "parseStatus": "partial",
+      "parseStatus": "auto",
       "note": "จุติ : สอดแนม 5 ใบ เลือก Avatar \"ไมเกรน\" 1 ใบจากที่ สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำกลับเข้า Deck"
     },
     {
@@ -2369,8 +2385,28 @@
       "codes": [
         "KD01-001"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "scoutNaraiExile",
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
     },
     {
@@ -3755,8 +3791,42 @@
       "codes": [
         "KD01-003"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "untap",
+                  "from": "own",
+                  "filter": {
+                    "symbol": "เทพ",
+                    "requireTapped": true
+                  },
+                  "optional": true
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
@@ -3764,8 +3834,46 @@
       "codes": [
         "KD01-002"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - นรสิง",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "enemy",
+                    "costMax": 4,
+                    "count": 1
+                  },
+                  "optional": true,
+                  "then": [
+                    {
+                      "op": "schedule",
+                      "when": "ownEndPhase",
+                      "actions": [
+                        {
+                          "op": "replaceSelfWithHellNarai"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
@@ -3773,8 +3881,44 @@
       "codes": [
         "KD04-001"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "exileHellDistinctNames": {
+              "nameIncludes": "ไมเกรน",
+              "count": 3
+            }
+          },
+          "options": [
+            {
+              "label": "สวมอาวุธจากนรกสูงสุด 2",
+              "actions": [
+                {
+                  "op": "hellAttachMods",
+                  "nameIncludes": "อาวุธหุ่นนักรบผู้กล้า",
+                  "max": 2,
+                  "toSelf": true
+                }
+              ]
+            },
+            {
+              "label": "ฆ่าแล้วโจมตี LIFE 1 ครั้ง จนจบเทิร์น",
+              "actions": [
+                {
+                  "op": "grantBattleDestroyLifeHit",
+                  "until": "endOfTurn"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "controlImmune": true,
+      "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่ยนการควบคุมได้ เทิร์นละครั้ง สั่งใช้ เนรเทศ Avatar \"ไมเกรน\" ที่ชื่อ แตกต่างกัน 3 "
     },
     {
@@ -4975,7 +5119,8 @@
                 "type": "Avatar",
                 "nameIncludes": [
                   "นาค"
-                ]
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]

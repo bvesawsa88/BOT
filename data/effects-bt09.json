@@ -545,7 +545,7 @@
             "on": "ownAvatarLeftField"
           },
           "cost": {
-            "discardGemSumExact": 3
+            "discardGemSum": 3
           },
           "actions": [
             {
@@ -2054,24 +2054,12 @@
     },
     {
       "code": "BT09-065",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "hostCannotAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "name": "กระสอบ",
       "hostCannotAttack": true,
       "destroyAfterGlobalEndPhases": 4,
-      "note": "Host โจมตีไม่ได้ / ลงนรกหลัง 4 End Phases"
+      "note": "โฮสต์โจมตีไม่ได้ · End Phase รวม 4 ครั้งแล้วลงนรก"
     },
     {
       "code": "BT09-066",

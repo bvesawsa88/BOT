@@ -407,7 +407,7 @@
             ${c.power !== '' && c.power != null ? `<span>P${c.power}</span>` : ''}
           </div>
         </div>
-        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="this.classList.add('img-err')">
+        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
         <div class="db-rar">${esc(c.rarity)}</div>
         ${n ? `<div class="db-badge">×${n}</div>` : ''}
         <div class="db-qty"><button class="db-pm" data-q="sub">−</button><span>${n ? '×' + n : ''}</span><button class="db-pm" data-q="add">+</button></div>
@@ -478,7 +478,7 @@
         <div class="db-card-fb mini">
           <div class="db-fb-name">${esc(c.name || k)}</div>
         </div>
-        <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="" onerror="this.classList.add('img-err')">
+        <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
         ${n > 1 ? `<span class="db-deck-n">×${n}</span>` : ''}
         <div class="db-qty"><button class="db-pm" data-act="sub">−</button><span>×${n}</span><button class="db-pm" data-act="add">+</button></div>
       </div>`;

@@ -3,6 +3,53 @@
   "type": "Token",
   "entries": [
     {
+      "name": "ร่างอวตารพระนารายณ์ - นรสิง",
+      "codes": [
+        "KD01-002"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - นรสิง",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "enemy",
+                    "costMax": 4,
+                    "count": 1
+                  },
+                  "optional": true,
+                  "then": [
+                    {
+                      "op": "schedule",
+                      "when": "ownEndPhase",
+                      "actions": [
+                        {
+                          "op": "replaceSelfWithHellNarai"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
+    },
+    {
       "name": "วานร",
       "codes": [
         "SD09-026"

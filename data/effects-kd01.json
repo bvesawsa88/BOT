@@ -3,22 +3,114 @@
     {
       "code": "KD01-001",
       "name": "พระนารายณ์ เทพผดุงธรรม",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "scoutNaraiExile",
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้โดย ส่ง "
     },
     {
       "code": "KD01-002",
-      "name": "ร่างอวตารพระนารายณ์ - นรสิงห์",
-      "abilities": [],
-      "parseStatus": "manual",
+      "name": "ร่างอวตารพระนารายณ์ - นรสิง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - นรสิง",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "destroy",
+                  "target": {
+                    "select": "choose",
+                    "type": "Avatar",
+                    "side": "enemy",
+                    "costMax": 4,
+                    "count": 1
+                  },
+                  "optional": true,
+                  "then": [
+                    {
+                      "op": "schedule",
+                      "when": "ownEndPhase",
+                      "actions": [
+                        {
+                          "op": "replaceSelfWithHellNarai"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
       "code": "KD01-003",
       "name": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
-      "abilities": [],
-      "parseStatus": "manual",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์ - เกษียรสมุทร",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "untap",
+                  "from": "own",
+                  "filter": {
+                    "symbol": "เทพ",
+                    "requireTapped": true
+                  },
+                  "optional": true
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
@@ -160,7 +252,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT03-002",
+      "note": "อัตโนมัติ เมื่อโจมตี: บล็อก React · #นับเป็นชื่อ พระนารายณ์",
       "nameAliases": [
         "พระนารายณ์"
       ]

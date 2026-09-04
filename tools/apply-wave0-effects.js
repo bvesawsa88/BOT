@@ -173,6 +173,27 @@ const BY_SET = {
       }],
       note: 'ถือว่าเป็นสีม่วง · จุติสอดแนมขุนพล ต่างชาติ สีเดียวกัน'
     },
+    'BT06-003': {
+      code: 'BT06-003',
+      name: 'เอรา นาคเกล็ดเขียว',
+      parseStatus: 'auto',
+      abilities: [{
+        keyword: 'จุติ',
+        trigger: { on: 'summoned', if: 'paidCost' },
+        actions: [{
+          op: 'modifyPower',
+          amount: 2,
+          until: 'permanent',
+          target: {
+            select: 'choose',
+            side: 'own',
+            type: 'Avatar',
+            nameIncludes: ['นาค'],
+            symbol: 'สัตว์วิเศษ'
+          }
+        }]
+      }]
+    },
     'SL02-009': {
       code: 'SL02-009',
       name: 'เอรา นาคเกล็ดเขียว',

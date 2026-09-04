@@ -2778,21 +2778,9 @@
     {
       "code": "BT11-073",
       "name": "รูปประจำบ้าน",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunityAllOwn"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
-      "note": "Avatar ฝ่ายเราจะไม่ถูกเปลี่ยนการควบคุม",
+      "note": "ต่อเนื่อง: Avatar เราทั้งหมดไม่ถูกเปลี่ยนการควบคุม",
       "controlImmuneOwnAvatars": true
     },
     {
