@@ -5827,29 +5827,13 @@
     {
       "code": "BT05-018",
       "name": "ของขวัญที่เมียทิ้งไว้ให้",
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "handSummon"
-          },
-          "condition": {
-            "ownControlName": "เจค นักฆ่ามือเก๋า",
-            "uniqueSelf": true
-          },
-          "actions": [
-            {
-              "op": "freeSummon"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "freeSummonIf": {
-        "ownControlName": "เจค นักฆ่ามือเก๋า",
-        "uniqueSelf": true
+        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
+        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
       },
-      "note": "ลงฟรีถ้ามี เจค และไม่มีตัวซ้ำบนสนาม"
+      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
     },
     {
       "code": "BT05-019",
@@ -17322,15 +17306,23 @@
       "name": "พี่ซี๊ด แก๊งขยะ",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
+          "oncePerTurn": true,
+          "requireSummonedNameIncludesThisTurn": "แก๊งขยะ",
+          "requireNoOwnNameIncludes": "พี่ซี๊ด แก๊งขยะ",
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 4
+              "op": "summonSelfFromHell"
             }
           ]
         }
@@ -17339,7 +17331,7 @@
       "keywords": [
         "สามัคคี"
       ],
-      "note": "จุติ : ธรณีสูบ 4 ใบ"
+      "note": "สามัคคี · สั่งใช้จากนรก: ถ้าเทิร์นนี้อัญเชิญแก๊งขยะและบนสนามไม่มีพี่ซี๊ด ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "code": "BT10-033",
@@ -18744,29 +18736,18 @@
     {
       "code": "BT10-074",
       "name": "ZeedZad Server",
-      "abilities": [
-        {
-          "keyword": "ลูกฮึด",
-          "trigger": {
-            "on": "fireInTheBellyActivated"
-          },
-          "actions": [
-            {
-              "op": "fireInTheBellyWin"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "grantKeywordAura": {
+        "keyword": "ลูกฮึด",
         "nameIncludes": "แก๊งขยะ",
-        "keyword": "ลูกฮึด"
+        "side": "own"
       },
       "costZeroIfDistinctOwnNameIncludes": {
-        "name": "แก๊งขยะ",
-        "count": 2
+        "nameIncludes": "แก๊งขยะ",
+        "min": 2
       },
-      "note": "Cost 0 ถ้ามีแก๊งขยะ 2+ ชื่อ / แก๊งขยะได้ลูกฮึด"
+      "note": "Cost 0 ถ้าแก๊งขยะชื่อไม่ซ้ำ ≥2 · ออร่าลูกฮึดให้แก๊งขยะ"
     },
     {
       "code": "BT10-075",

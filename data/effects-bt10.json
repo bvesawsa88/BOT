@@ -1225,21 +1225,29 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
+          "oncePerTurn": true,
+          "requireSummonedNameIncludesThisTurn": "แก๊งขยะ",
+          "requireNoOwnNameIncludes": "พี่ซี๊ด แก๊งขยะ",
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 4
+              "op": "summonSelfFromHell"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 4 ใบ"
+      "note": "สามัคคี · สั่งใช้จากนรก: ถ้าเทิร์นนี้อัญเชิญแก๊งขยะและบนสนามไม่มีพี่ซี๊ด ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "code": "BT10-033",
@@ -2644,30 +2652,19 @@
     },
     {
       "code": "BT10-074",
-      "abilities": [
-        {
-          "keyword": "ลูกฮึด",
-          "trigger": {
-            "on": "fireInTheBellyActivated"
-          },
-          "actions": [
-            {
-              "op": "fireInTheBellyWin"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "name": "ZeedZad Server",
       "costZeroIfDistinctOwnNameIncludes": {
-        "name": "แก๊งขยะ",
-        "count": 2
+        "nameIncludes": "แก๊งขยะ",
+        "min": 2
       },
       "grantKeywordAura": {
+        "keyword": "ลูกฮึด",
         "nameIncludes": "แก๊งขยะ",
-        "keyword": "ลูกฮึด"
+        "side": "own"
       },
-      "note": "Cost 0 ถ้ามีแก๊งขยะ 2+ ชื่อ / แก๊งขยะได้ลูกฮึด"
+      "note": "Cost 0 ถ้าแก๊งขยะชื่อไม่ซ้ำ ≥2 · ออร่าลูกฮึดให้แก๊งขยะ"
     },
     {
       "code": "BT10-075",

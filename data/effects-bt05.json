@@ -574,30 +574,14 @@
     },
     {
       "code": "BT05-018",
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "handSummon"
-          },
-          "condition": {
-            "ownControlName": "เจค นักฆ่ามือเก๋า",
-            "uniqueSelf": true
-          },
-          "actions": [
-            {
-              "op": "freeSummon"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "name": "ของขวัญที่เมียทิ้งไว้ให้",
       "freeSummonIf": {
-        "ownControlName": "เจค นักฆ่ามือเก๋า",
-        "uniqueSelf": true
+        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
+        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
       },
-      "note": "ลงฟรีถ้ามี เจค และไม่มีตัวซ้ำบนสนาม"
+      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
     },
     {
       "code": "BT05-019",

@@ -2342,15 +2342,23 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
+          "oncePerTurn": true,
+          "requireSummonedNameIncludesThisTurn": "แก๊งขยะ",
+          "requireNoOwnNameIncludes": "พี่ซี๊ด แก๊งขยะ",
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 4
+              "op": "summonSelfFromHell"
             }
           ]
         }
@@ -2359,7 +2367,7 @@
         "สามัคคี"
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 4 ใบ"
+      "note": "สามัคคี · สั่งใช้จากนรก: ถ้าเทิร์นนี้อัญเชิญแก๊งขยะและบนสนามไม่มีพี่ซี๊ด ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
       "name": "พี่ไท่ น้องเฟิง นักดาบวายุ",

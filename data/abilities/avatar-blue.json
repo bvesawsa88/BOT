@@ -182,29 +182,13 @@
       "codes": [
         "BT05-018"
       ],
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "handSummon"
-          },
-          "condition": {
-            "ownControlName": "เจค นักฆ่ามือเก๋า",
-            "uniqueSelf": true
-          },
-          "actions": [
-            {
-              "op": "freeSummon"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "freeSummonIf": {
-        "ownControlName": "เจค นักฆ่ามือเก๋า",
-        "uniqueSelf": true
+        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
+        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
       },
       "parseStatus": "auto",
-      "note": "ลงฟรีถ้ามี เจค และไม่มีตัวซ้ำบนสนาม"
+      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
     },
     {
       "name": "ข้ารับใช้มนุษย์ดาว R18",

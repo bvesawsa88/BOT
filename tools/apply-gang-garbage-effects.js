@@ -114,6 +114,24 @@ const GANG = {
       }
     ]
   },
+  'BT10-032': {
+    code: 'BT10-032',
+    name: 'พี่ซี๊ด แก๊งขยะ',
+    keywords: ['สามัคคี'],
+    parseStatus: 'manual',
+    abilities: [
+      {
+        trigger: { on: 'activatedFromHell' },
+        fromHell: true,
+        oncePerTurn: true,
+        requireSummonedNameIncludesThisTurn: 'แก๊งขยะ',
+        requireNoOwnNameIncludes: 'พี่ซี๊ด แก๊งขยะ',
+        cost: [{ op: 'discard', from: 'hand', count: 1 }],
+        actions: [{ op: 'summonSelfFromHell' }]
+      }
+    ],
+    note: 'สามัคคี · สั่งใช้จากนรก: ถ้าเทิร์นนี้อัญเชิญแก๊งขยะและบนสนามไม่มีพี่ซี๊ด ทิ้งมือ 1 → อัญเชิญตัวเอง'
+  },
   'BT10-074': {
     code: 'BT10-074',
     name: 'ZeedZad Server',
@@ -127,14 +145,6 @@ const GANG = {
 
 const bt10 = load('effects-bt10.json');
 Object.values(GANG).forEach(e => upsert(bt10.cards, e));
-// พี่ซี๊ด มีอยู่แล้ว — เก็บ keywords
-{
-  const seed = bt10.cards.find(c => c.code === 'BT10-032');
-  if (seed) {
-    seed.keywords = seed.keywords || ['สามัคคี'];
-    if (!seed.keywords.includes('สามัคคี')) seed.keywords.push('สามัคคี');
-  }
-}
 save('effects-bt10.json', bt10);
 
 // เจค SL reprint
