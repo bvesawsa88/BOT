@@ -139,7 +139,9 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "exactName": "ฮอล"
+                "nameIncludes": [
+                  "ฮอล"
+                ]
               },
               "dest": "hand",
               "shuffleAfter": true
@@ -1492,7 +1494,9 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "exactName": "กุ่ย"
+                "nameIncludes": [
+                  "กุ่ย"
+                ]
               },
               "dest": "hand",
               "shuffleAfter": true
@@ -4916,7 +4920,9 @@
               "op": "deckPick",
               "filter": {
                 "type": "Avatar",
-                "exactName": "นาย"
+                "nameIncludes": [
+                  "นาย"
+                ]
               },
               "dest": "hand",
               "shuffleAfter": true

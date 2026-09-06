@@ -24,7 +24,7 @@ const SD02 = {
     code: 'SD02-001', name: 'กุ่ย', keywords: ['สามัคคี'],
     abilities: [{
       keyword: 'จุติ', trigger: { on: 'summoned', if: 'paidCost' },
-      actions: [{ op: 'deckPick', filter: { type: 'Avatar', exactName: 'ฮอล' }, dest: 'hand', shuffleAfter: true }]
+      actions: [{ op: 'deckPick', filter: { type: 'Avatar', nameIncludes: ['ฮอล'] }, dest: 'hand', shuffleAfter: true }]
     }],
     parseStatus: 'manual'
   },
@@ -32,7 +32,7 @@ const SD02 = {
     code: 'SD02-002', name: 'ฮอล', keywords: ['สามัคคี'],
     abilities: [{
       keyword: 'จุติ', trigger: { on: 'summoned', if: 'paidCost' },
-      actions: [{ op: 'deckPick', filter: { type: 'Avatar', exactName: 'นาย' }, dest: 'hand', shuffleAfter: true }]
+      actions: [{ op: 'deckPick', filter: { type: 'Avatar', nameIncludes: ['นาย'] }, dest: 'hand', shuffleAfter: true }]
     }],
     parseStatus: 'manual'
   },
@@ -40,7 +40,7 @@ const SD02 = {
     code: 'SD02-003', name: 'นาย', keywords: ['สามัคคี'],
     abilities: [{
       keyword: 'จุติ', trigger: { on: 'summoned', if: 'paidCost' },
-      actions: [{ op: 'deckPick', filter: { type: 'Avatar', exactName: 'กุ่ย' }, dest: 'hand', shuffleAfter: true }]
+      actions: [{ op: 'deckPick', filter: { type: 'Avatar', nameIncludes: ['กุ่ย'] }, dest: 'hand', shuffleAfter: true }]
     }],
     parseStatus: 'manual'
   },

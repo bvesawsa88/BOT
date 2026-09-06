@@ -379,7 +379,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "ไม่มีข้อความเอฟเฟกต์",
+      "note": "เทิร์นละครั้ง สั่งใช้ : สามารถนำ Avatar ใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar 1 ใบ บน Avatar Zone ฝ่ายเรา\nAvatar ใบที่สวมใส่การ์ดใบนี้ จะถูกเปลี่ยน Symbol เป็น {Symbol ผี}\nPOWER ของ Avatar ที่สวมใส่ POWER +3\nเมื่อ Avatar ที่สวมใส่ถูกทำลาย นำการ์ดใบนี้ไปสวมใส่ให้ Avatar ใบอื่นของฝ่ายเราแทน",
       "hostSymbolReplace": "ผี",
       "reattachOnHostDestroy": true
     },
