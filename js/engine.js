@@ -5856,6 +5856,30 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         prompted = true;
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เป่ายิ้งฉุบ! ผู้แพ้หงาย LIFE ใบบนสุด`);
       } else if (ac.op === 'mill') {
+        const srcCard = ctx.src && st.inst[ctx.src];
+        const isPick = srcCard && (srcCard.code === 'BT08-024' || srcCard.code === 'PRMO-108' || nameMatches(srcCard, 'อีสานสลิงเกอร์ ปิ๊ก'));
+        if (ac.unlessLandInHandOrField || (isPick && !ac.forceMill)) {
+          const owner = ctx.owner || (ctx.src && zoneOf(st, ctx.src) && zoneOf(st, ctx.src)[0]) || 'A';
+          const landNeedle = ac.landNameIncludes || 'โคกอีสานนูน';
+          const hasLandOnField = (st.zones['land'] || []).some(id => {
+            const c = st.inst[id];
+            if (!c || !c.faceUp) return false;
+            if (nameMatches(c, landNeedle)) return true;
+            if (isLandMagic(c) && (c.controller === owner || (!c.controller && zoneOf(st, id) === owner + '.land'))) return true;
+            return false;
+          }) || (st.zones[owner + '.magic'] || []).some(id => {
+            const c = st.inst[id];
+            return c && c.faceUp && (nameMatches(c, landNeedle) || isLandMagic(c));
+          });
+          const hasLandInHand = (st.zones[owner + '.hand'] || []).some(id => {
+            const c = st.inst[id];
+            return c && (nameMatches(c, landNeedle) || isLandMagic(c));
+          });
+          if (hasLandOnField || hasLandInHand) {
+            addLog(st, owner, `จุติ ${nameOf(st, ctx.src)}: มี Land บนมือหรือบนสนามแล้ว — ไม่ต้องธรณีสูบ`);
+            return;
+          }
+        }
         const who = ac.who === 'both' ? ['A', 'B'] : ac.who === 'opp' ? [other(ctx.owner)] : [ctx.owner];
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${ac.who === 'both' ? 'ทั้งสองฝ่าย' : (ac.who === 'opp' ? other(ctx.owner) : ctx.owner)}ธรณีสูบ ${ac.count} ใบ`);
         who.forEach(p => mill(st, fx, p, ac.count || 1, ctx.rng, 0, ctx.src));
@@ -7441,45 +7465,52 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       } else if (ac.op === 'millAllAndSummonDarkDimensionVirusIfAvatarsMin3') {
         const count = ac.count || 2;
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทั้งสองฝ่ายธรณีสูบ ${count} ใบ`);
-        mill(st, fx, 'A', count, ctx.rng, 0, ctx.src);
-        mill(st, fx, 'B', count, ctx.rng, 0, ctx.src);
-        const ownAvatars = (st.zones[ctx.owner + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].faceUp).length;
-        if (ownAvatars >= 3) {
+        const milledA = mill(st, fx, 'A', count, ctx.rng, 0, ctx.src);
+        const milledB = mill(st, fx, 'B', count, ctx.rng, 0, ctx.src);
+        const allMilled = (milledA || []).concat(milledB || []);
+        const milledAvatars = allMilled.filter(id => st.inst[id] && st.inst[id].type === 'Avatar').length;
+        if (milledAvatars >= 3) {
           const p = {
             kind: 'pick', from: 'dark', src: ctx.src, chooser: ctx.owner,
             filter: { nameIncludes: ['ไวรัส'], type: 'Avatar' },
-            dest: 'avatar', multiMax: ac.maxSummon || 2, paidCost: false, optional: true
+            dest: 'avatar', multiMax: ac.maxSummon || 2, paidCost: false, optional: true,
+            distinctNames: true
           };
           if (promptCandidates(st, p).length) {
             st.prompts.push(p);
             prompted = true;
-            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: อวาตาร ≥ 3 ใบ — เลือกอัญเชิญ "ไวรัส" จากมิติมืด (สูงสุด ${ac.maxSummon || 2} ใบ)`);
+            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: การ์ดที่ถูกธรณีสูบมี Avatar ≥ 3 ใบ (${milledAvatars} ใบ) — เลือกอัญเชิญ "ไวรัส" จากมิติมืด (สูงสุด ${ac.maxSummon || 2} ใบ)`);
           }
         }
       } else if (ac.op === 'millAllAndDebuffEnemyBuffVirusIfAvatarsMin4') {
         const count = ac.count || 3;
         addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทั้งสองฝ่ายธรณีสูบ ${count} ใบ`);
-        const preMilledCount = (fx.milled || []).length;
-        mill(st, fx, 'A', count, ctx.rng, 0, ctx.src);
-        mill(st, fx, 'B', count, ctx.rng, 0, ctx.src);
-        const ownAvatars = (st.zones[ctx.owner + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].faceUp).length;
-        if (ownAvatars >= 4) {
-          const enemy = other(ctx.owner);
-          const enemyAvatars = new Set(st.zones[enemy + '.avatar'] || []);
-          if (st.buffs) {
-            st.buffs = st.buffs.filter(b => !(enemyAvatars.has(b.k) && b.amt > 0));
+        const milledA = mill(st, fx, 'A', count, ctx.rng, 0, ctx.src);
+        const milledB = mill(st, fx, 'B', count, ctx.rng, 0, ctx.src);
+        const allMilled = (milledA || []).concat(milledB || []);
+        const milledAvatars = allMilled.filter(id => st.inst[id] && st.inst[id].type === 'Avatar').length;
+        if (milledAvatars >= 4) {
+          const debuffP = {
+            kind: 'pick', from: 'enemyAvatars', src: ctx.src, chooser: ctx.owner,
+            dest: 'trojanDebuffEnemy', optional: true,
+            label: `${nameOf(st, ctx.src)}: เลือก Avatar อีกฝ่าย 1 ใบ POWER -2`
+          };
+          const virusP = {
+            kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner,
+            filter: { nameIncludes: ['ไวรัส'] },
+            includeSelf: true,
+            dest: 'trojanBuffVirus', optional: true,
+            label: `${nameOf(st, ctx.src)}: เลือก Avatar ไวรัสฝ่ายเรา 1 ใบ POWER +2`
+          };
+          if (promptCandidates(st, debuffP).length) {
+            st.prompts.push(debuffP);
+            prompted = true;
+            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: การ์ดที่ถูกธรณีสูบมี Avatar ≥ 4 ใบ (${milledAvatars} ใบ) — เลือก Avatar อีกฝ่าย 1 ใบ POWER -2`);
+          } else if (promptCandidates(st, virusP).length) {
+            st.prompts.push(virusP);
+            prompted = true;
+            addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: การ์ดที่ถูกธรณีสูบมี Avatar ≥ 4 ใบ (${milledAvatars} ใบ) — เลือก Avatar "ไวรัส" ฝ่ายเรา 1 ใบ POWER +2`);
           }
-          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: อวาตาร ≥ 4 ใบ — ลบ Buff ทั้งหมดของศัตรู`);
-
-          const newMilled = (fx.milled || []).slice(preMilledCount);
-          newMilled.forEach(item => {
-            if (item.k && st.inst[item.k] && nameMatches(st.inst[item.k], 'ไวรัส')) {
-              if ((zoneOf(st, item.k) || '').endsWith('.hell')) {
-                doMove(st, item.k, item.p + '.dark', null, fx);
-                addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เนรเทศ ${nameOf(st, item.k)} ที่ถูกธรณีสูบไปมิติมืด`);
-              }
-            }
-          });
         }
       } else if (ac.op === 'millAllAndZeroEnemyIfAvatarsMin4') {
         const count = ac.count || 3;
@@ -9777,6 +9808,27 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             st.buffs.push({ k: a.k, lockPrinted: true, lockVal: 0, amt: 0, until: 'endOfTurn', from: p.src });
             if (st.inst[a.k]) st.inst[a.k].disabledUntilEOT = true;
             addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} สูญเสียความสามารถและปรับ POWER ตั้งต้นเป็น 0 จนจบเทิร์น`);
+          } else if (p.dest === 'trojanDebuffEnemy') {
+            st.buffs = st.buffs || [];
+            st.buffs.push({ k: a.k, amt: -2, until: 'endOfTurn', from: p.src });
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} POWER -2 จนจบเทิร์น → P${effPower(st, a.k)}`);
+            fx.snd = 'clash';
+            const virusP = {
+              kind: 'pick', from: 'ownAvatars', src: p.src, chooser: p.chooser,
+              filter: { nameIncludes: ['ไวรัส'] },
+              includeSelf: true,
+              dest: 'trojanBuffVirus', optional: true,
+              label: `${nameOf(st, p.src)}: เลือก Avatar ไวรัสฝ่ายเรา 1 ใบ POWER +2`
+            };
+            if (promptCandidates(st, virusP).length) {
+              st.prompts.unshift(virusP);
+              addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: เลือก Avatar "ไวรัส" ฝ่ายเรา 1 ใบ POWER +2`);
+            }
+          } else if (p.dest === 'trojanBuffVirus') {
+            st.buffs = st.buffs || [];
+            st.buffs.push({ k: a.k, amt: 2, until: 'endOfTurn', from: p.src });
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} POWER +2 จนจบเทิร์น → P${effPower(st, a.k)}`);
+            fx.snd = 'power';
           } else if (p.dest === 'exileHellCost') {
             doMove(st, a.k, p.chooser + '.dark', null, fx);
             p.got = (p.got || 0) + 1;
@@ -10878,6 +10930,24 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           addLog(st, p.chooser, `ข้ามกันออกสนาม — ${nameOf(st, p.stayK || p.src)} ออกจากสนาม`);
           resumePreventLeaveFail(st, fx);
           fx.snd = 'clash';
+          break;
+        }
+        if (p.dest === 'trojanDebuffEnemy') {
+          if (isPlayer && by !== p.chooser) return deny('ไม่ใช่ prompt ของคุณ');
+          st.prompts.shift();
+          addLog(st, p.chooser, `ข้ามการลด POWER ของศัตรู`);
+          const virusP = {
+            kind: 'pick', from: 'ownAvatars', src: p.src, chooser: p.chooser,
+            filter: { nameIncludes: ['ไวรัส'] },
+            includeSelf: true,
+            dest: 'trojanBuffVirus', optional: true,
+            label: `${nameOf(st, p.src)}: เลือก Avatar ไวรัสฝ่ายเรา 1 ใบ POWER +2`
+          };
+          if (promptCandidates(st, virusP).length) {
+            st.prompts.unshift(virusP);
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: เลือก Avatar "ไวรัส" ฝ่ายเรา 1 ใบ POWER +2`);
+          }
+          fx.snd = 'tap';
           break;
         }
         if (isPlayer && by !== p.chooser && p.kind !== 'rps') return deny('ไม่ใช่ prompt ของคุณ');
@@ -12380,9 +12450,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const filt = Object.assign({}, costOp.filter || {}, { _srcK: a.k, excludeSelf: true });
             const p = { kind: 'pick', from: 'ownMagic', src: a.k, chooser: owner, filter: filt, dest: 'magicToHellCost', excludeIds: [a.k] };
             if (promptCandidates(st, p).length < need) return deny(`บน Magic Zone ไม่ครบ ${need} ใบให้ส่งนรก`);
-          } else if (costOp.op === 'exileHell') {
-            const hell = st.zones[owner + '.hell'] || [];
-            if (hell.length < (costOp.count || 1)) return deny(`นรกไม่พอเนรเทศ ${costOp.count || 1} ใบ`);
+          } else if (costOp.op === 'exileHell' || costOp.op === 'banishFromHell') {
+            const filt = costOp.filter || {};
+            const avail = (st.zones[owner + '.hell'] || []).filter(x => matchFilterEx(st, x, filt));
+            if (avail.length < (costOp.count || 1)) return deny(`นรกไม่มีการ์ดตรงเงื่อนไขให้เนรเทศครบ ${costOp.count || 1} ใบ`);
           } else if (costOp.op === 'exileHellDistinctNames') {
             const hell = (st.zones[owner + '.hell'] || []).filter(id => nameMatches(st.inst[id], costOp.nameIncludes || ''));
             const uniq = new Set(hell.map(id => st.inst[id].name));

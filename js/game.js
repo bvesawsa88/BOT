@@ -3401,6 +3401,9 @@
     if (pr.kind === 'chooseDiscard' || dest === 'discard' || dest === 'giveHandNegate' || dest === 'giveToOpp' || from === 'ownHand') {
       return cands.slice().sort((a, b) => botCardVal(a) - botCardVal(b))[0];
     }
+    if (dest === 'trojanBuffVirus') {
+      return cands.filter(ownSide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];
+    }
     if (dest === 'sacrifice' || dest === 'sacSummon' || dest === 'bothReturn' || from === 'ownAvatars') {
       if (dest === 'attachTo' || dest === 'avatar') {
         return cands.filter(ownSide).sort((a, b) => eff(b) - eff(a))[0] || cands[0];

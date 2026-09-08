@@ -58,7 +58,13 @@ const BY_SET = {
         keyword: 'จุติ',
         trigger: { on: 'summoned', if: 'paidCost' },
         actions: [
-          { op: 'mill', count: 3, who: 'self' },
+          {
+            op: 'mill',
+            count: 3,
+            who: 'self',
+            unlessLandInHandOrField: true,
+            landNameIncludes: 'โคกอีสานนูน'
+          },
           {
             op: 'deckOrHellPick',
             filter: { exactName: 'โคกอีสานนูน' },
@@ -68,7 +74,7 @@ const BY_SET = {
         ]
       }],
       parseStatus: 'manual',
-      note: 'จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ'
+      note: 'จุติ: ถ้าแลนด์อยู่บนมือหรือบนสนาม ไม่ต้องธรณีสูบ (มิฉะนั้น ธรณีสูบ 3) แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ'
     },
     'BT08-026': {
       code: 'BT08-026', name: 'อีสานสลิงเกอร์ เปอร์',
@@ -305,7 +311,13 @@ const PRMO = {
       keyword: 'จุติ',
       trigger: { on: 'summoned', if: 'paidCost' },
       actions: [
-        { op: 'mill', count: 3, who: 'self' },
+        {
+          op: 'mill',
+          count: 3,
+          who: 'self',
+          unlessLandInHandOrField: true,
+          landNameIncludes: 'โคกอีสานนูน'
+        },
         {
           op: 'deckOrHellPick',
           filter: { exactName: 'โคกอีสานนูน' },
@@ -315,7 +327,7 @@ const PRMO = {
       ]
     }],
     parseStatus: 'manual',
-    note: 'จุติ: ธรณีสูบ 3 ก่อน แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ'
+    note: 'จุติ: ถ้าแลนด์อยู่บนมือหรือบนสนาม ไม่ต้องธรณีสูบ (มิฉะนั้น ธรณีสูบ 3) แล้วเลือกโคกอีสานนูนจากเด็ค/นรกขึ้นมือ'
   },
   'PRMO-157': {
     code: 'PRMO-157', name: 'ไปเลยมอนตี้',
@@ -385,6 +397,13 @@ for (const [file, map] of Object.entries(BY_SET)) {
   upsert(j.cards, PRMO['PRMO-108']);
   upsert(j.cards, PRMO['PRMO-079']);
   save('effects-bt08.json', j);
+  try {
+    const jp = load('effects-prmo.json');
+    if (jp && jp.cards) {
+      upsert(jp.cards, PRMO['PRMO-108']);
+      save('effects-prmo.json', jp);
+    }
+  } catch (e) {}
 }
 {
   const j = load('effects-bt10.json');
