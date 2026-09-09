@@ -115,4 +115,47 @@ function put(st, zone, code, extra) {
   }
 }
 
+// 4. Test SD09-015 Preparations (เตรียมเสบียง): both players put Hell Avatar Cost <= 4 not Only onto top of deck
+{
+  const st = emptyState();
+  const m15 = put(st, 'A.hand', 'SD09-015');
+  const aHell1 = put(st, 'A.hell', 'SD09-001'); // Hanuman Cost 4, not Only
+  const aHell2 = put(st, 'A.hell', 'SD01-005', { ex: 'Only #1' }); // Mia Phra Isuan Cost 3, Only #1 (must be excluded)
+  const aHell3 = put(st, 'A.hell', 'SD09-004'); // Pali Cost 7 (> 4, must be excluded)
+  const bHell1 = put(st, 'B.hell', 'SD09-002'); // Nilphat Cost 4, not Only
+  const aDeck1 = put(st, 'A.deck', 'SD09-007');
+  const bDeck1 = put(st, 'B.deck', 'SD09-008');
+
+  BoT.applyAction(st, { type: 'playMagic', k: m15, by: 'A', payIds: [] });
+  if (st.prompts.length && st.prompts[0].kind === 'react') {
+    BoT.applyAction(st, { type: 'reactNo', by: 'B' });
+  }
+
+  // Two pick prompts queued: A first, then B
+  assert.strictEqual(st.prompts.length, 2, 'Should queue prompts for both players');
+  assert.strictEqual(st.prompts[0].chooser, 'A', 'First prompt should be for player A');
+  const candsA = BoT.promptCandidates(st, st.prompts[0]);
+  assert.deepStrictEqual(candsA, [aHell1], 'Player A candidates should only be Cost <= 4 and not {only}');
+
+  // Player A chooses Hanuman
+  BoT.applyAction(st, { type: 'chooseTarget', k: aHell1, by: 'A' });
+  assert.strictEqual(st.zones['A.deck'][st.zones['A.deck'].length - 1], aHell1, 'Hanuman should be on top of A deck');
+  assert.ok(!st.zones['A.hell'].includes(aHell1), 'Hanuman should leave A hell');
+
+  // Player B prompt
+  assert.strictEqual(st.prompts.length, 1, 'Should have prompt remaining for Player B');
+  assert.strictEqual(st.prompts[0].chooser, 'B', 'Next prompt should be for player B');
+  const candsB = BoT.promptCandidates(st, st.prompts[0]);
+  assert.deepStrictEqual(candsB, [bHell1], 'Player B candidates should be Nilphat');
+
+  // Player B chooses Nilphat
+  BoT.applyAction(st, { type: 'chooseTarget', k: bHell1, by: 'B' });
+  assert.strictEqual(st.zones['B.deck'][st.zones['B.deck'].length - 1], bHell1, 'Nilphat should be on top of B deck');
+  assert.ok(!st.zones['B.hell'].includes(bHell1), 'Nilphat should leave B hell');
+  assert.strictEqual(st.prompts.length, 0, 'All prompts should be resolved');
+  assert.strictEqual(BoT.zoneOf(st, m15), 'A.hell', 'SD09-015 should end up in A hell');
+
+  console.log('SD09-015 Preparations (เตรียมเสบียง) test passed');
+}
+
 console.log('All SD09 deck tests passed successfully!');

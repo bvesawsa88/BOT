@@ -5409,6 +5409,15 @@
           ? `✨ เปิดนรก ${disp.length} ใบ — แตะ Avatar มะม่วงที่กะพริบเพื่อวางบน Magic Zone (${selectable.length})`
             + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
           : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
+      else if (showAllHell && (pp.dest === 'deckTop' || pp.dest === 'topDeck'))
+        title = iAmChooser
+          ? `✨ เปิดนรก ${disp.length} ใบ — แตะ Avatar Cost≤4 ที่ไม่ใช่ {only} วางบนสุดเด็ค (${selectable.length})`
+            + (!selectable.length ? ' — ไม่มีใบตรงเงื่อนไข (กดข้าม)' : '')
+          : `👁 นรกของผู้เล่น ${pp.chooser} — กำลังเลือกวางบนสุดเด็ค (${disp.length} ใบ)`;
+      else if (pp.dest === 'deckTop' || pp.dest === 'topDeck')
+        title = iAmChooser
+          ? `✨ แตะ Avatar เพื่อวางบนสุดเด็ค (${selectable.length})`
+          : `👁 นรกของผู้เล่น ${pp.chooser} (ดูอย่างเดียว)`;
       else if (showAllHell)
         title = iAmChooser
           ? `✨ เปิดนรก ${disp.length} ใบ — แตะใบที่กะพริบเพื่อเลือก (${selectable.length})`
@@ -5442,7 +5451,9 @@
         title = `✨ สอดแนม — แตะการ์ดที่กะพริบเพื่อเลือก (ขึ้นมือ)`;
       byId('pileTitle').textContent = title;
       byId('pileHint').textContent = iAmChooser
-        ? (pp.from === 'ownMagic'
+        ? ((pp.dest === 'deckTop' || pp.dest === 'topDeck')
+          ? 'แตะ Avatar ที่กะพริบเพื่อนำไปวางไว้บนสุดของเด็คตนเอง'
+          : (pp.from === 'ownMagic'
           ? 'โชว์ทั้ง Magic Zone เป็นใบใหญ่ · ใบที่กะพริบเลือกได้ · ไม่ต้องเลื่อนหรือคลิกใบที่ทับกันบนสนาม'
           : (pp.from === 'anyHell'
             ? 'โชว์นรกทั้งสองฝั่ง · แตะใบที่กะพริบเพื่ออัญเชิญลง Avatar Zone ฝ่ายเรา'
@@ -5450,7 +5461,7 @@
             ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
             : (pp.from === 'dark'
               ? 'โชว์ทั้งมิติมืด · แตะใบที่กะพริบเพื่อเลือกอาวุธนครมาสวม'
-              : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก')))))
+              : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก'))))))
         : 'อีกฝั่งกำลังเลือก — ดูอย่างเดียว';
       byId('pileGrid').innerHTML = disp.length
         ? disp.map((k, i) => {

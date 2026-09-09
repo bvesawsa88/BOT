@@ -6121,21 +6121,20 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           addLog(st, ctx.owner, `เลือกตั้งเจ้าป่า: สอดแนม 7 ใบ — เลือก Avatar วานรขึ้นมือ (หากเป็นคิงคาลงสนามได้)`);
         }
       } else if (ac.op === 'bothPlayersPutHellAvatarToTopDeck') {
+        const maxCost = ac.maxCost || 4;
         [ctx.owner, other(ctx.owner)].forEach(pl => {
-          const maxCost = ac.maxCost || 4;
-          const cands = (st.zones[pl + '.hell'] || []).filter(id => {
-            const c = st.inst[id];
-            return c && c.type === 'Avatar' && effCost(st, id) <= maxCost;
-          });
+          const p = {
+            kind: 'pick', from: 'hell', src: ctx.src, chooser: pl,
+            filter: { type: 'Avatar', costMax: maxCost, excludeOnly: true },
+            dest: 'deckTop', optional: false, showAllHell: true
+          };
+          const cands = promptCandidates(st, p);
           if (cands.length) {
-            st.prompts.push({
-              kind: 'pick', from: 'ids', ids: cands, src: ctx.src, chooser: pl,
-              dest: 'topDeck', optional: false
-            });
+            st.prompts.push(p);
             prompted = true;
-            addLog(st, pl, `เตรียมเสบียง: เลือก Avatar ในนรก Cost ≤ ${maxCost} นำขึ้นบนสุดเด็ค`);
+            addLog(st, pl, `เตรียมเสบียง: เลือก Avatar ในนรก Cost ≤ ${maxCost} ที่ไม่ใช่ {only} นำขึ้นบนสุดเด็ค`);
           } else {
-            addLog(st, pl, `เตรียมเสบียง: ไม่มี Avatar Cost ≤ ${maxCost} ในนรก`);
+            addLog(st, pl, `เตรียมเสบียง: ไม่มี Avatar Cost ≤ ${maxCost} ที่ไม่ใช่ {only} ในนรก`);
           }
         });
       } else if (ac.op === 'attachOtaToIdol') {
@@ -10031,11 +10030,16 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               addLog(st, 'S', `ส่งนรกไม่ครบ — ยกเลิก`);
             }
             fx.snd = 'place';
-          } else if (p.dest === 'deckTop') {
+          } else if (p.dest === 'deckTop' || p.dest === 'topDeck') {
             doMove(st, a.k, p.chooser + '.deck', null, fx); // push = บนสุด
-            if (st.inst[a.k]) st.inst[a.k].faceUp = true;
+            if (st.inst[a.k]) {
+              st.inst[a.k].faceUp = !!p.faceUp;
+              if (!p.faceUp) delete st.inst[a.k].faceUp;
+              delete st.inst[a.k].revealed;
+            }
             addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: วาง ${nameOf(st, a.k)} บนสุดเด็ค`);
             syncHeimdall(st);
+            fx.snd = 'place';
           } else if (p.dest === 'oppBottomPickTop') {
             const opp = p.scoutOpp || other(p.chooser);
             doMove(st, a.k, opp + '.deck', null, fx);
@@ -10988,7 +10992,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         if (p.dest === 'hellMultiDeck' && p.multiExact != null && (p.multiGot || 0) < p.multiExact)
           return deny(`ต้องคืนนรกให้ครบ ${p.multiExact} ใบก่อน (ตอนนี้ ${p.multiGot || 0}) — ไม่ครบเก็บไม่ได้`);
-        if (p.optional === false && p.kind !== 'peekTop' && p.dest !== 'hellMultiDeck') return deny('เอฟเฟกต์นี้ต้องเลือกเป้า (ยกเลิกไม่ได้)');
+        if (p.optional === false && p.kind !== 'peekTop' && p.dest !== 'hellMultiDeck') {
+          if (promptCandidates(st, p).length > 0) return deny('เอฟเฟกต์นี้ต้องเลือกเป้า (ยกเลิกไม่ได้)');
+        }
         if (p.multiExact && (p.multiGot || 0) < p.multiExact) return deny(`ต้องอัญเชิญให้ครบ ${p.multiExact} ใบ`);
         if (p.multiMin && (p.multiGot || 0) < p.multiMin) return deny(`ต้องอัญเชิญอย่างน้อย ${p.multiMin} ใบ`);
         if (p.countsAsModification) consumeCountsAsModification(st, p.chooser);
