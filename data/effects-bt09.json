@@ -141,27 +141,45 @@
       "code": "BT09-006",
       "abilities": [
         {
-          "keyword": "อัตโนมัติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "endOfCombat",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5,
+                "excludeOnly": true,
+                "anyOf": [
+                  {
+                    "symbol": "เทพ"
+                  },
+                  {
+                    "symbol": "นรก"
+                  },
+                  {
+                    "nameIncludes": [
+                      "โพลิกอน",
+                      "โพลีกอน"
+                    ]
+                  }
+                ]
+              },
+              "dest": "deckTop",
+              "shuffleAfter": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "ลูเซีย โพลีกอน",
-      "note": "อัตโนมัติ เมื่อโจมตี POWER +2 จนจบการต่อสู้"
+      "extraColors": [
+        "ม่วง"
+      ],
+      "note": "สั่งใช้ เทิร์นละครั้ง : หา Avatar Cost<=5 เทพ/นรก/โพลิกอน (ไม่ใช่ only) จาก Deck สับแล้ววางบนสุด · นับเป็นสีม่วงด้วย"
     },
     {
       "code": "BT09-007",
@@ -777,15 +795,58 @@
           },
           "actions": [
             {
+              "op": "scoutAndSummon",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5,
+                "anyOf": [
+                  {
+                    "symbol": "ไซเบอร์"
+                  },
+                  {
+                    "symbol": "ปลา"
+                  }
+                ]
+              },
+              "restTo": "deck",
+              "thenIfNameIncludes": {
+                "name": "โฮคุ",
+                "actions": [
+                  {
+                    "op": "draw",
+                    "count": 1
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ],
+          "actions": [
+            {
               "op": "draw",
-              "count": 1,
-              "player": "owner"
+              "count": 1
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "name": "โซน่า โพลีกอน"
+      "name": "โซน่า โพลีกอน",
+      "extraSymbols": [
+        "ปลา"
+      ],
+      "note": "[Link โฮคุ โพลีกอน] จุติ : สอดแนม 3 เรียก ไซเบอร์/ปลา Cost<=5 ถ้าเป็นโฮคุจั่ว 1 · สั่งใช้ นอนตัวเอง : จั่ว 1 · นับเป็นปลาด้วย"
     },
     {
       "code": "BT09-023",
@@ -962,15 +1023,19 @@
       "code": "BT09-030",
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "handDiscardedByAllyEffectFromHell"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
+          "oncePerTurn": true,
+          "requireAllyDiscardedThisTurn": true,
           "cost": [
             {
-              "op": "banishSelfFromHell"
+              "op": "exileSelf"
             },
             {
-              "op": "millSelf",
+              "op": "mill",
               "count": 3
             }
           ],
@@ -983,10 +1048,10 @@
       ],
       "parseStatus": "auto",
       "name": "ลาพิเน่ โพลีกอน",
-      "note": "จากนรก เมื่อมีการทิ้งมือ เนรเทศใบนี้ + ธรณีสูบ 3 : จั่ว 1 (เอา โพลีกอน ขึ้นมือ/เรียก ลูเซเน่)",
       "extraSymbols": [
         "สัตว์วิเศษ"
-      ]
+      ],
+      "note": "สั่งใช้ จากในนรก เมื่อมีการทิ้งมือด้วยผลการ์ดเรา เนรเทศใบนี้ + ธรณีสูบ 3 : จั่ว 1 (เอาโพลิกอนจากที่สูบขึ้นมือ/ถ้าเป็นลูเซเน่ลงสนามแทนได้) · นับเป็นสัตว์วิเศษด้วย"
     },
     {
       "code": "BT09-031",
@@ -1000,21 +1065,47 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
+              "amountPer": "luceneBoost",
               "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "countsAsMagic": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Magic",
+                "excludeOnly": true
+              },
+              "dest": "exileMagicFromHellAndCast"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "name": "ลูเซเน่ โพลีกอน"
+      "name": "ลูเซเน่ โพลีกอน",
+      "nameAliases": [
+        "จอมเวทย์"
+      ],
+      "note": "ต่อเนื่อง ตัวเอง POWER+2 ถ้ามีโพลิกอนอื่น หรือ +1 ถ้ามีจอมเวทย์อื่น · สั่งใช้ ทิ้งมือ 1 : เนรเทศ Magic ในนรก 1 ใบ (ไม่ใช่ only) แล้วใช้ความสามารถ · นับเป็นชื่อจอมเวทย์"
     },
     {
       "code": "BT09-032",

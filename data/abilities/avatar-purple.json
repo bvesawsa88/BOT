@@ -3140,15 +3140,19 @@
       ],
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "handDiscardedByAllyEffectFromHell"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
+          "oncePerTurn": true,
+          "requireAllyDiscardedThisTurn": true,
           "cost": [
             {
-              "op": "banishSelfFromHell"
+              "op": "exileSelf"
             },
             {
-              "op": "millSelf",
+              "op": "mill",
               "count": 3
             }
           ],
@@ -3163,7 +3167,7 @@
         "สัตว์วิเศษ"
       ],
       "parseStatus": "auto",
-      "note": "จากนรก เมื่อมีการทิ้งมือ เนรเทศใบนี้ + ธรณีสูบ 3 : จั่ว 1 (เอา โพลีกอน ขึ้นมือ/เรียก ลูเซเน่)"
+      "note": "สั่งใช้ จากในนรก เมื่อมีการทิ้งมือด้วยผลการ์ดเรา เนรเทศใบนี้ + ธรณีสูบ 3 : จั่ว 1 (เอาโพลิกอนจากที่สูบขึ้นมือ/ถ้าเป็นลูเซเน่ลงสนามแทนได้) · นับเป็นสัตว์วิเศษด้วย"
     },
     {
       "name": "ลิโป้ ขุนพลเทพสงคราม",
@@ -3312,20 +3316,46 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
+              "amountPer": "luceneBoost",
               "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "countsAsMagic": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Magic",
+                "excludeOnly": true
+              },
+              "dest": "exileMagicFromHellAndCast"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "nameAliases": [
+        "จอมเวทย์"
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง ตัวเอง POWER+2 ถ้ามีโพลิกอนอื่น หรือ +1 ถ้ามีจอมเวทย์อื่น · สั่งใช้ ทิ้งมือ 1 : เนรเทศ Magic ในนรก 1 ใบ (ไม่ใช่ only) แล้วใช้ความสามารถ · นับเป็นชื่อจอมเวทย์"
     },
     {
       "name": "เลอติ๊ก เด็กไม่ชอบแดรคคูลา",

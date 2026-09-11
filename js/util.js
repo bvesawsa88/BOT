@@ -141,9 +141,20 @@
     return bits.filter(Boolean).join(' · ');
   }
 
+  function toast(msg, ms) {
+    const t = byId('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.add('hidden'), ms || 2600);
+  }
+  if (typeof root !== 'undefined') root.toast = toast;
+  if (typeof window !== 'undefined') window.toast = toast;
+
   root.BotUtil = {
     byId, $, esc, loadScript, loadCss, asset, CACHE_V: DEFAULT_V,
     kwHtml, symHtml, magicHtml, formatEffect, cardMetaHtml, gemPrintColor,
-    KW_FILE, SYM_FILE, MAGIC_FILE, KW_FILTER_ORDER
+    toast, KW_FILE, SYM_FILE, MAGIC_FILE, KW_FILTER_ORDER
   };
 })(typeof self !== 'undefined' ? self : this);

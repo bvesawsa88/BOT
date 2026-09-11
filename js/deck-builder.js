@@ -274,7 +274,14 @@
     if (cur <= 1) delete DB.deck[sec][targetKey]; else DB.deck[sec][targetKey] = cur - 1;
     renderDB();
   }
-  function msg(t) { byId('dbMsg').textContent = t; }
+  function msg(t) {
+    const el = byId('dbMsg');
+    if (el) el.textContent = t;
+    if (t) {
+      if (typeof window.toast === 'function') window.toast(t, 2800);
+      else if (typeof root !== 'undefined' && typeof root.toast === 'function') root.toast(t, 2800);
+    }
+  }
 
   function filteredCards() {
     const q = DB.q.trim().toLowerCase();
@@ -385,19 +392,15 @@
 
     const filtered = filteredCards();
     byId('dbResult').textContent = `พบ ${filtered.length} ใบ · แสดง ${Math.min(DB.shown, filtered.length)}`;
+    const scrollEl = byId('dbGrid') ? byId('dbGrid').parentElement : null;
+    const prevScroll = scrollEl ? scrollEl.scrollTop : 0;
     byId('dbGrid').innerHTML = filtered.slice(0, DB.shown).map(c => {
       const cardKey = c.uid || (c.rarity ? `${c.code}-${c.rarity}` : c.code);
-      let n = DB.deck.main[cardKey] || DB.deck.life[cardKey] || 0;
-      if (!n) {
-        // Look up by base code or name
-        ['main', 'life'].forEach(sec => {
-          Object.entries(DB.deck[sec] || {}).forEach(([k, ct]) => {
-            const cd = cardOf(k);
-            if (cd && (cd.code === c.code || cd.name === c.name)) n += ct;
-          });
-        });
-      }
-      return `<div class="db-card" data-code="${esc(cardKey)}">
+      const n = nameCountInDeck(c);
+      const lim = limitOf(c);
+      const isMax = n >= lim || lim === 0;
+      const isZero = n <= 0;
+      return `<div class="db-card${n ? ' in-deck' : ''}" data-code="${esc(cardKey)}">
         <div class="db-card-fb">
           <div class="db-fb-top"><span class="db-fb-code">${esc(c.code || cardKey)}</span><span class="db-fb-type">${esc(c.type || '')}</span></div>
           <div class="db-fb-name">${esc(c.name || cardKey)}</div>
@@ -408,11 +411,16 @@
           </div>
         </div>
         <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
-        <div class="db-rar">${esc(c.rarity)}</div>
+        ${c.rarity ? `<div class="db-rar">${esc(c.rarity)}</div>` : ''}
         ${n ? `<div class="db-badge">×${n}</div>` : ''}
-        <div class="db-qty"><button class="db-pm" data-q="sub">−</button><span>${n ? '×' + n : ''}</span><button class="db-pm" data-q="add">+</button></div>
+        <div class="db-qty">
+          <button type="button" class="db-pm db-pm-sub" data-q="sub" title="ลด 1 ใบ"${isZero ? ' disabled' : ''}>−</button>
+          <span class="db-qty-count${n ? ' has-qty' : ''}" title="ในเด็ค ${n}/${lim} ใบ">${n ? '×' + n : '0'}</span>
+          <button type="button" class="db-pm db-pm-add" data-q="add" title="${isMax ? (lim === 0 ? 'การ์ดบาป ห้ามใช้' : `ครบลิมิต ${lim} ใบแล้ว`) : 'เพิ่มลงเด็ค'}"${isMax ? ' disabled' : ''}>+</button>
+        </div>
       </div>`;
     }).join('');
+    if (scrollEl && prevScroll) scrollEl.scrollTop = prevScroll;
     byId('dbMore').classList.toggle('hidden', filtered.length <= DB.shown);
     // ถ้า modal เปิดอยู่ ให้รีเฟรชจำนวนตาม
     if (!byId('dbZoom').classList.contains('hidden')) {
@@ -474,13 +482,20 @@
 
     const entry = (k, n) => {
       const c = cardOf(k) || {};
+      const lim = limitOf(c);
+      const totalInDeck = nameCountInDeck(c);
+      const isMax = totalInDeck >= lim || lim === 0;
       return `<div class="db-deck-card" data-code="${esc(k)}" title="${esc(c.name || k)}">
         <div class="db-card-fb mini">
           <div class="db-fb-name">${esc(c.name || k)}</div>
         </div>
         <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
         ${n > 1 ? `<span class="db-deck-n">×${n}</span>` : ''}
-        <div class="db-qty"><button class="db-pm" data-act="sub">−</button><span>×${n}</span><button class="db-pm" data-act="add">+</button></div>
+        <div class="db-qty">
+          <button type="button" class="db-pm db-pm-sub" data-act="sub" title="ลด 1 ใบ">−</button>
+          <span class="db-qty-count has-qty" title="ในเด็ค ${totalInDeck}/${lim} ใบ">×${n}</span>
+          <button type="button" class="db-pm db-pm-add" data-act="add" title="${isMax ? `ครบลิมิต ${lim} ใบแล้ว` : 'เพิ่ม 1 ใบ'}"${isMax ? ' disabled' : ''}>+</button>
+        </div>
       </div>`;
     };
     byId('dbMainList').innerHTML = groupedSpec(DB.deck.main).map(g =>
@@ -569,7 +584,12 @@
   byId('dbGrid').addEventListener('click', e => {
     const el = e.target.closest('[data-code]'); if (!el) return;
     const q = e.target.closest('[data-q]');
-    if (q) { (q.dataset.q === 'add' ? addCode : subCode)(el.dataset.code); return; }
+    if (q) {
+      e.stopPropagation();
+      (q.dataset.q === 'add' ? addCode : subCode)(el.dataset.code);
+      return;
+    }
+    if (e.target.closest('.db-qty')) return;
     openCardModal(el.dataset.code);
   });
   byId('dbZoom').addEventListener('click', e => {
@@ -609,7 +629,12 @@
     byId(id).addEventListener('click', e => {
       const row = e.target.closest('[data-code]'); if (!row) return;
       const act = e.target.closest('[data-act]');
-      if (act) { (act.dataset.act === 'add' ? addCode : subCode)(row.dataset.code); return; }
+      if (act) {
+        e.stopPropagation();
+        (act.dataset.act === 'add' ? addCode : subCode)(row.dataset.code);
+        return;
+      }
+      if (e.target.closest('.db-qty')) return;
       openCardModal(row.dataset.code);
     });
   });

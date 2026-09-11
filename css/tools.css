@@ -186,12 +186,18 @@
 .dc-foot>button{flex:1;padding:11px;font-size:14px;border-radius:9px}
 #glZoom,#dbZoom,#dkZoom{position:fixed;inset:0;background:rgba(22,16,12,.9);display:flex;align-items:center;justify-content:center;gap:26px;z-index:200;cursor:zoom-out;padding:20px;flex-wrap:wrap}
 #dbZoom .gl-zoom-info{cursor:default}
-.db-rar{position:absolute;top:5px;left:5px;background:rgba(22,16,12,.85);color:var(--gold);font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;pointer-events:none}
-.db-qty{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:4px 5px;background:linear-gradient(transparent,rgba(22,16,12,.92));border-radius:0 0 7px 7px;opacity:0;transition:opacity .12s}
-.db-card:hover .db-qty,.db-deck-card:hover .db-qty{opacity:1}
-@media (hover:none){.db-qty{opacity:1}}
-.db-qty span{font-size:12px;font-weight:700;color:var(--gold)}
-.db-qty .db-pm{width:26px;height:24px;font-size:15px;background:rgba(58,44,34,.95)}
+.db-rar{position:absolute;top:5px;left:5px;background:rgba(22,16,12,.85);color:var(--gold);font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;pointer-events:none;z-index:2}
+.db-card.in-deck{box-shadow:0 0 0 2px var(--gold, #d49d2b), 0 4px 14px rgba(0,0,0,.6)}
+.db-qty{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:20px 5px 5px;background:linear-gradient(to top,rgba(14,10,8,.97) 0%,rgba(18,14,11,.92) 65%,transparent 100%);border-radius:0 0 7px 7px;opacity:1;z-index:10;transition:background .15s}
+.db-card:hover .db-qty,.db-deck-card:hover .db-qty{background:linear-gradient(to top,rgba(10,8,6,1) 0%,rgba(16,12,9,.96) 75%,transparent 100%)}
+.db-qty-count{font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;color:rgba(230,220,200,.45);min-width:22px;text-align:center;user-select:none}
+.db-qty-count.has-qty{color:var(--gold,#ffcf56);font-size:13.5px;text-shadow:0 0 8px rgba(212,157,43,.6)}
+.db-qty .db-pm{width:28px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;line-height:1;background:rgba(42,32,24,.92);border:1px solid rgba(255,255,255,.14);border-radius:6px;color:var(--cream,#f5ebd7);cursor:pointer;transition:transform .1s,background .15s,border-color .15s,color .15s;user-select:none}
+.db-qty .db-pm:hover:not(:disabled){transform:scale(1.1)}
+.db-qty .db-pm:active:not(:disabled){transform:scale(0.95)}
+.db-qty .db-pm-sub:hover:not(:disabled){background:#a93226;border-color:#e74c3c;color:#fff;box-shadow:0 0 8px rgba(231,76,60,.5)}
+.db-qty .db-pm-add:hover:not(:disabled){background:#27ae60;border-color:#2ecc71;color:#fff;box-shadow:0 0 8px rgba(46,204,113,.5)}
+.db-qty .db-pm:disabled{opacity:.25;cursor:not-allowed;pointer-events:none;background:rgba(20,16,14,.5);border-color:rgba(255,255,255,.05);color:rgba(255,255,255,.2);transform:none;box-shadow:none}
 .db-pm.big{width:38px;height:38px;font-size:20px;border-radius:8px}
 .db-zoom-actions{display:flex;align-items:center;gap:10px;margin-top:4px}
 .db-zoom-count{font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:700;color:var(--gold);min-width:90px;text-align:center}
@@ -231,8 +237,10 @@
   .db-deck{position:fixed;right:0;top:42px;bottom:0;z-index:150;width:min(92vw,420px);transform:translateX(105%);transition:transform .2s,visibility .2s;box-shadow:-8px 0 24px rgba(0,0,0,.5);pointer-events:none;visibility:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
   .db-deck.open{transform:none;pointer-events:auto;visibility:visible}
   .db-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
-  .db-deck-cards{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
-  .db-qty .db-pm{width:36px;height:32px;font-size:18px}
+  .db-qty{padding:22px 3px 5px}
+  .db-qty .db-pm{width:30px;height:28px;font-size:16px}
+  .db-qty-count{font-size:11.5px;min-width:18px}
+  .db-qty-count.has-qty{font-size:13px}
   .dk-main{flex-direction:column}
   .dk-list{width:100%;max-height:34vh;border-right:none;border-bottom:1.5px solid var(--border);flex-direction:row;flex-wrap:wrap;align-items:flex-start}
   .dk-sec{width:100%;padding:8px 4px 2px}

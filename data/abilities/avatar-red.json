@@ -4117,26 +4117,44 @@
       ],
       "abilities": [
         {
-          "keyword": "อัตโนมัติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "endOfCombat",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5,
+                "excludeOnly": true,
+                "anyOf": [
+                  {
+                    "symbol": "เทพ"
+                  },
+                  {
+                    "symbol": "นรก"
+                  },
+                  {
+                    "nameIncludes": [
+                      "โพลิกอน",
+                      "โพลีกอน"
+                    ]
+                  }
+                ]
+              },
+              "dest": "deckTop",
+              "shuffleAfter": true
             }
           ]
         }
       ],
+      "extraColors": [
+        "ม่วง"
+      ],
       "parseStatus": "auto",
-      "note": "อัตโนมัติ เมื่อโจมตี POWER +2 จนจบการต่อสู้"
+      "note": "สั่งใช้ เทิร์นละครั้ง : หา Avatar Cost<=5 เทพ/นรก/โพลิกอน (ไม่ใช่ only) จาก Deck สับแล้ววางบนสุด · นับเป็นสีม่วงด้วย"
     },
     {
       "name": "วันชัยเปรตรุ่นพ่อ",

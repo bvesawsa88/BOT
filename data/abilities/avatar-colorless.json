@@ -75,14 +75,57 @@
           },
           "actions": [
             {
+              "op": "scoutAndSummon",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5,
+                "anyOf": [
+                  {
+                    "symbol": "ไซเบอร์"
+                  },
+                  {
+                    "symbol": "ปลา"
+                  }
+                ]
+              },
+              "restTo": "deck",
+              "thenIfNameIncludes": {
+                "name": "โฮคุ",
+                "actions": [
+                  {
+                    "op": "draw",
+                    "count": 1
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ],
+          "actions": [
+            {
               "op": "draw",
-              "count": 1,
-              "player": "owner"
+              "count": 1
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "extraSymbols": [
+        "ปลา"
+      ],
+      "parseStatus": "auto",
+      "note": "[Link โฮคุ โพลีกอน] จุติ : สอดแนม 3 เรียก ไซเบอร์/ปลา Cost<=5 ถ้าเป็นโฮคุจั่ว 1 · สั่งใช้ นอนตัวเอง : จั่ว 1 · นับเป็นปลาด้วย"
     },
     {
       "name": "โดมรัททาทุย",

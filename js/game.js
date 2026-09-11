@@ -5096,7 +5096,17 @@
       }
     }
     if (!entries.length) {
-      toast('ใบนี้ไม่มีคำสั่งใช้ — ลากเพื่ออัญเชิญ / โจมตี / ย้ายโซน', 2800);
+      const eMenu = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
+      const abs = (eMenu && eMenu.abilities) || [];
+      const isHellOnly = abs.some(ab => (ab.trigger && ab.trigger.on === 'activatedFromHell') || ab.fromHell);
+      const isHandOnly = abs.some(ab => ab.trigger && ab.trigger.on === 'activatedFromHand');
+      if (isHellOnly && !kzMenu.endsWith('.hell')) {
+        toast('คำสั่งใช้ของใบนี้ใช้ได้ "จากในนรก" เท่านั้น', 3200);
+      } else if (isHandOnly && !kzMenu.endsWith('.hand')) {
+        toast('คำสั่งใช้ของใบนี้ใช้ได้ "จากบนมือ" เท่านั้น', 3200);
+      } else {
+        toast('ใบนี้ไม่มีคำสั่งใช้ — ลากเพื่ออัญเชิญ / โจมตี / ย้ายโซน', 2800);
+      }
       return;
     }
     showMenu(canPeek(k) ? c.name : 'การ์ดคว่ำ', entries, x, y);
