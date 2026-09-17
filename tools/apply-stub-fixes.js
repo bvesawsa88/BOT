@@ -817,15 +817,22 @@ const ody1Fixes = {
 // ==================== PRMO Stubs ====================
 const prmoFixes = {
 
-  // Land: เมื่อมีการ์ดใบนี้บน Land MZ: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land Magic ของอีกฝ่าย
+  // Land: เมื่อมีการ์ดใบนี้บน Land MZ: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land Magic ของอีกฝ่าย; ถ้าถูกทำลาย ทำลาย Land ทั้งหมด
   'PRMO-029': {
     code: 'PRMO-029', name: 'แบ่งแยกดินแดน', parseStatus: 'auto',
-    abilities: [{
-      keyword: 'ต่อเนื่อง',
-      trigger: { on: 'static', if: 'self.zone==landZone' },
-      actions: [{ op: 'allowBothLandPlay' }]
-    }],
-    note: 'Land: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land ของอีกฝ่าย'
+    abilities: [
+      {
+        keyword: 'ต่อเนื่อง',
+        trigger: { on: 'static', if: 'self.zone==landZone' },
+        actions: [{ op: 'allowBothLandPlay' }]
+      },
+      {
+        keyword: 'อัตโนมัติ',
+        trigger: { on: 'destroyed' },
+        actions: [{ op: 'destroyAllLands' }]
+      }
+    ],
+    note: 'Land: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land ของอีกฝ่าย; ถ้าถูกทำลาย ทำลาย Land ทั้งหมด'
   },
 
   // Land: การ์ดทุกใบต้องทิ้ง GEM พอดี Cost (exactGemPay global)

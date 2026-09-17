@@ -1505,10 +1505,21 @@
               "op": "allowBothLandPlay"
             }
           ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "destroyAllLands"
+            }
+          ]
         }
       ],
       "parseStatus": "auto",
-      "note": "Land: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land ของอีกฝ่าย"
+      "note": "Land: ทั้ง 2 ฝ่ายวาง Land Magic ได้โดยไม่ทำลาย Land ของอีกฝ่าย; ถ้าถูกทำลาย ทำลาย Land ทั้งหมด"
     },
     {
       "code": "PRMO-031",

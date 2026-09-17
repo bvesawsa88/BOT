@@ -1574,12 +1574,31 @@
       : z[0];
     const hadDraculaRevive = !!c.draculaRevive;
     const wasAvatar = z.endsWith('.avatar');
+    const wasPartitionLand = z === 'land' && isPartitionLandCard(c);
     const destroyedSymbol = c.symbol;
     const destroyedSyms = wasAvatar ? cardSymbols(st, k) : [];
     const destroyedName = c.name;
     // เคลียร์คำสาปที่ชี้มาที่ใบนี้
     if (c.curse) delete c.curse;
     doMove(st, k, side + '.hell', null, fx);
+    // ถ้าแบ่งแยกดินแดนถูกทำลาย จะทำลายแลนด์ทั้งหมดบนสนาม
+    if (wasPartitionLand && !st._destroyingAllLands) {
+      st._destroyingAllLands = true;
+      const otherLands = (st.zones['land'] || []).slice();
+      if (otherLands.length) {
+        addLog(st, 'S', `แบ่งแยกดินแดนถูกทำลาย — ทำลาย Land ทั้งหมดบนสนาม (${otherLands.length} ใบ)`);
+        otherLands.forEach(lid => {
+          const nm = nameOf(st, lid);
+          if (zoneOf(st, lid) === 'land') {
+            if (destroyCard(st, fx, lid, { ignoreProtect: true })) {
+              addLog(st, 'S', `ทำลาย ${nm}`);
+            }
+          }
+        });
+        fx.snd = 'clash';
+      }
+      delete st._destroyingAllLands;
+    }
     // แดรกคูลา: จุติแล้วถูกทำลาย → เทิร์นหน้าอัญเชิญอัตโนมัติ
     if (hadDraculaRevive) {
       st.scheduled.push({ player: side, op: 'reviveFromHell', k, when: 'nextOwnTurn' });
@@ -2080,8 +2099,23 @@
     return null;
   }
 
-  /* Land Magic Zone มีได้แค่ 1 ใบ — วางใบใหม่ = ทำลายใบเดิมทั้งหมด (ยกเว้นใบที่กำลังจะวาง) */
+  function isPartitionLandCard(c) {
+    if (!c) return false;
+    return c.code === 'PRMO-029' || nameMatches(c, 'แบ่งแยกดินแดน');
+  }
+  function hasPartitionLandOnField(st) {
+    return (st.zones['land'] || []).some(id => {
+      const c = st.inst[id];
+      return !!(c && c.faceUp && isPartitionLandCard(c));
+    });
+  }
+
+  /* Land Magic Zone ปกติมีได้แค่ 1 ใบ — วางใบใหม่ = ทำลายใบเดิมทั้งหมด (ยกเว้นใบที่กำลังจะวาง)
+     ข้อยกเว้น: การ์ด "แบ่งแยกดินแดน" (PRMO-029) ทำให้ต่างฝ่ายต่างเล่นแลนด์ของตัวเองเพิ่มได้
+     ถ้ามีแบ่งแยกดินแดนอยู่บนสนาม หรือใบที่กำลังวางคือแบ่งแยกดินแดน จะไม่ทำลายแลนด์เดิม */
   function clearLandZoneFor(st, fx, keepK) {
+    const keepCard = keepK ? st.inst[keepK] : null;
+    if (hasPartitionLandOnField(st) || isPartitionLandCard(keepCard)) return;
     const lands = (st.zones['land'] || []).slice().filter(id => id !== keepK);
     lands.forEach(id => {
       const nm = nameOf(st, id);
@@ -6211,6 +6245,24 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           destroyCard(st, fx, t, opts);
         });
         fx.snd = 'clash';
+      } else if (ac.op === 'destroyAllLands') {
+        if (!st._destroyingAllLands) {
+          st._destroyingAllLands = true;
+          const otherLands = (st.zones['land'] || []).slice().filter(id => id !== ctx.src);
+          if (otherLands.length) {
+            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ทำลาย Land บนสนามทั้งหมด (${otherLands.length} ใบ)`);
+            otherLands.forEach(lid => {
+              const nm = nameOf(st, lid);
+              if (zoneOf(st, lid) === 'land') {
+                if (destroyCard(st, fx, lid, { ignoreProtect: true })) {
+                  addLog(st, 'S', `ทำลาย ${nm}`);
+                }
+              }
+            });
+            fx.snd = 'clash';
+          }
+          delete st._destroyingAllLands;
+        }
       } else if (ac.op === 'destroy' || ac.op === 'destroyTarget') {
         if (ac.ifOwnHellTypeMin) {
           const spec = ac.ifOwnHellTypeMin;
@@ -13341,5 +13393,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols };
+  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField };
 });
