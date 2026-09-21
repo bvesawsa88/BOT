@@ -86,6 +86,8 @@ console.log('--- Scout filter ---');
     [nonGiant, 'BT01-001', 'คนธรรมดา', 'คน', 3],
     [giant, 'BT01-010', 'ยักษ์ล้างส้วม', 'ยักษ์', 3],
     [tossakan, 'FPRO-006', 'พญายักษ์ ทศกัณฐ์', 'ยักษ์', 7],
+    ['tossMontho', 'BT04-028', 'พญายักษ์ ทศกัณฑ์', 'ยักษ์', 5],
+    ['tossWife', 'ODY1-028', 'ทศกัณฑ์ยักษ์ที่---เมียพระอิศวร', 'ยักษ์', 5],
     ['p5', 'BT01-002', 'ยักษ์พลัง5', 'ยักษ์', 5],
     ['mage', 'BT01-099', 'เวทอะไรสักอย่าง', '', 0]
   ].forEach(([id, code, name, symbol, power]) => {
@@ -117,6 +119,8 @@ console.log('--- Scout filter ---');
   const cands = BoT.promptCandidates(st, p);
   assert(cands.includes(giant), 'ยักษ์ P3 selectable');
   assert(cands.includes(tossakan), 'ทศกัณฐ์ selectable');
+  assert(cands.includes('tossMontho'), 'พญายักษ์ ทศกัณฑ์ (สะกด ฑ) selectable');
+  assert(cands.includes('tossWife'), 'ทศกัณฑ์ยักษ์ (สะกด ฑ) selectable');
   assert(!cands.includes(nonGiant), 'non-ยักษ์ P3 not selectable');
   assert(!cands.includes('p5'), 'ยักษ์ P5 not selectable');
   assert(!cands.includes('mage'), 'Magic not selectable');

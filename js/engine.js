@@ -189,15 +189,17 @@
   };
   function nameMatches(c, needle) {
     if (!c || !needle) return false;
-    const nm = c.name || '';
+    const nm = (typeof c === 'string' ? c : c.name) || '';
     if (nm.includes(needle)) return true;
-    const normPoly = s => (s || '').replace(/โพลีกอน/g, 'โพลิกอน');
-    if (normPoly(nm).includes(normPoly(needle))) return true;
+    const norm = s => (s || '')
+      .replace(/โพลีกอน/g, 'โพลิกอน')
+      .replace(/ทศกัณ[ฑท]์/g, 'ทศกัณฐ์');
+    if (norm(nm).includes(norm(needle))) return true;
     const e = resolveEffect(c.code, c.name);
     return !!(e && e.nameAliases && e.nameAliases.some(a => {
       if (!a) return false;
       if (a.includes(needle) || needle.includes(a)) return true;
-      return normPoly(a).includes(normPoly(needle)) || normPoly(needle).includes(normPoly(a));
+      return norm(a).includes(norm(needle)) || norm(needle).includes(norm(a));
     }));
   }
   /* คู่หู / Link — แยกชื่อพันธมิตรจากข้อความการ์ด */
