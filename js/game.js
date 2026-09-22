@@ -3589,6 +3589,24 @@
       else botSend({ type: 'skipPrompt', by: 'B' });
       return;
     }
+    if (pr.dest === 'sigurdReturnHell') {
+      const got = pr.multiGot || 0;
+      if (got >= (pr.multiMax || 3) || (got >= 1 && !cands.length)) {
+        botSend({ type: 'skipPrompt', by: 'B' });
+        return;
+      }
+      const pick = cands[0];
+      if (pick) botSend({ type: 'chooseTarget', k: pick, by: 'B' });
+      else botSend({ type: 'skipPrompt', by: 'B' });
+      return;
+    }
+    if (pr.dest === 'sigurdDestroyEnemy') {
+      const ranked = cands.slice().sort((a, b) => (effPower(st, b) || 0) - (effPower(st, a) || 0));
+      const pick = ranked[0];
+      if (pick) botSend({ type: 'chooseTarget', k: pick, by: 'B' });
+      else botSend({ type: 'skipPrompt', by: 'B' });
+      return;
+    }
     // โคกอีสานนูน เทค 1 ฯลฯ — คืนนรกทีละใบจนครบ (exact) / หรือข้ามเมื่อพอใจ
     if (pr.dest === 'hellMultiDeck') {
       const got = pr.multiGot || 0;
@@ -4009,8 +4027,9 @@
     if (k === lastFlip) classes.push('flipping');
     if (selMap[k]) classes.push('sel');
     let inner;
+    const cardImg = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : ''))) || '';
     const fb = `<div class="fb"><div class="fb-name">${esc(c.name)}</div>${(c.power !== '' && c.power != null) ? `<div class="fb-pow">P${c.power}</div>` : ''}</div>`;
-    if (c.faceUp || opts.forceUp) inner = `<div class="face">${fb}<div class="img" style="background-image:url('${esc(c.img)}')"></div></div>`;
+    if (c.faceUp || opts.forceUp) inner = `<div class="face">${fb}<div class="img" style="background-image:url('${esc(cardImg)}')"></div></div>`;
     else inner = `<div class="back"></div>`;
     const ctr = c.counters !== 0 ? `<div class="ctr">${c.counters > 0 ? '+' : ''}${c.counters}</div>` : '';
     const gem = (() => {
@@ -4146,7 +4165,14 @@
     return (c && (c.controller === 'A' || c.controller === 'B')) ? c.controller : 'A';
   };
   const landHTML = side => (st.zones['land'] || []).filter(k => landCtrlOf(k) === side).map(k => cardHTML(k, 'land')).join('');
-  const topHTML = id => { const a = st.zones[id] || []; return a.length ? `<div class="pile-top" data-cid="${a[a.length - 1]}" style="background-image:url('${esc(st.inst[a[a.length - 1]].img)}')"></div>` : ''; };
+  const topHTML = id => {
+    const a = st.zones[id] || [];
+    if (!a.length) return '';
+    const topId = a[a.length - 1];
+    const c = st.inst[topId];
+    const imgUrl = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : ''))) || '';
+    return `<div class="pile-top" data-cid="${topId}" style="background-image:url('${esc(imgUrl)}')"></div>`;
+  };
 
   function render() {
     if (!st) return;
@@ -4259,6 +4285,8 @@
           else if (pr.from === 'anyHell') txt = pr.costSumMax != null
             ? `✨ ${srcN}: อัญเชิญจากนรกใครก็ได้ Cost รวม≤${pr.costSumMax} (ตอนนี้ ${pr.costGot || 0}) — แตะใบที่กะพริบ`
             : `✨ ${srcN}: เลือกจุติ Avatar จากนรกใครก็ได้`;
+          else if (pr.dest === 'sigurdReturnHell') txt = `✨ ${srcN}: เลือก "เทพธิดาแห่งวัลฮัลลา" จากนรกกลับเข้าเด็ค 1-3 ใบ (${pr.multiGot || 0}/3)${pr.multiGot >= 1 ? ' (หรือข้าม)' : ''}`;
+          else if (pr.dest === 'sigurdDestroyEnemy') txt = `💥 ${srcN}: ทำลาย Avatar ศัตรู Cost รวม≤${pr.costSumMax} (ตอนนี้ ${pr.costGot || 0}/${pr.costSumMax})${pr.optional ? ' — แตะใบที่กะพริบ หรือข้าม' : ''}`;
           else if (pr.from === 'hell') txt = `✨ ${srcN}: เลือกการ์ดจากนรก`;
           else if (pr.from === 'dark') txt = `🌀 ${srcN}: เลือกอาวุธนครจากมิติมืด — แตะใบที่กะพริบในหน้าต่าง`;
           else if (pr.from === 'ownHand') txt = `✋ ${srcN}: เลือกการ์ดจากมือ — แตะใบที่กะพริบในหน้าต่าง`;
@@ -4405,7 +4433,13 @@
           }
         }
       }
-      byId('btnPromptSkip').classList.toggle('hidden', !(mine && pr.kind !== 'react' && pr.kind !== 'rps' && pr.kind !== 'peekTop' && pr.kind !== 'guessReveal' && pr.kind !== 'pickSymbol' && pr.kind !== 'handOrSummon' && pr.kind !== 'combatSurvive' && pr.kind !== 'passengerReplace' && pr.kind !== 'magicRedirect' && pr.kind !== 'preventLeaveExile' && (pr.optional !== false || pr.kind === 'milledOptional' || (pr.dest === 'hellMultiDeck' && pr.multiExact == null) || pr.dest === 'multiAvatar' || pr.dest === 'alienReveal' || pr.dest === 'discardSumCostSummon' || pr.dest === 'exileDistinctHell' || pr.dest === 'hellBuildConstruct' || pr.afterAlienGive)));
+      byId('btnPromptSkip').classList.toggle('hidden', !(mine && pr.kind !== 'react' && pr.kind !== 'rps' && pr.kind !== 'peekTop' && pr.kind !== 'guessReveal' && pr.kind !== 'pickSymbol' && pr.kind !== 'handOrSummon' && pr.kind !== 'combatSurvive' && pr.kind !== 'passengerReplace' && pr.kind !== 'magicRedirect' && pr.kind !== 'preventLeaveExile' && (pr.optional !== false || pr.kind === 'milledOptional' || (pr.dest === 'hellMultiDeck' && pr.multiExact == null) || (pr.dest === 'sigurdReturnHell' && (pr.multiGot || 0) >= 1) || pr.dest === 'sigurdDestroyEnemy' || pr.dest === 'multiAvatar' || pr.dest === 'alienReveal' || pr.dest === 'discardSumCostSummon' || pr.dest === 'exileDistinctHell' || pr.dest === 'hellBuildConstruct' || pr.afterAlienGive)));
+      if (mine && pr.dest === 'sigurdReturnHell') {
+        byId('promptText').textContent = `✨ ${st.inst[pr.src] ? st.inst[pr.src].name : ''}: เลือก "เทพธิดาแห่งวัลฮัลลา" จากนรกกลับเด็ค (${pr.multiGot || 0}/3)${pr.multiGot >= 1 ? ' — กดข้ามเมื่อพอใจ' : ''}`;
+      }
+      if (mine && pr.dest === 'sigurdDestroyEnemy') {
+        byId('promptText').textContent = `💥 ${st.inst[pr.src] ? st.inst[pr.src].name : ''}: ทำลาย Avatar ศัตรู Cost รวม≤${pr.costSumMax} (ตอนนี้ ${pr.costGot || 0}/${pr.costSumMax}) — แตะใบที่กะพริบ หรือกดข้าม`;
+      }
       if (mine && pr.dest === 'hellMultiDeck') {
         const need = pr.multiExact != null ? pr.multiExact : (pr.multiMax || 4);
         byId('promptText').textContent = pr.multiExact != null
@@ -5051,7 +5085,15 @@
     // เหลือเฉพาะสั่งใช้ + ความสามารถของการ์ด (สามัคคี / แทงหลัง / โล่มนุษย์ / สวมใส่ / คู่หู) — ไม่มีแมนนวล
     const entries = [
       ...(hasActivated
-        ? [{ label: 'สั่งใช้ความสามารถ', html: `${BotUtil.kwHtml('สั่งใช้')} สั่งใช้ความสามารถ`, act: { type: 'activateAbility', k, by: mode === 'solo' ? (kzMenu === 'land' ? st.active : own) : undefined } }]
+        ? [{
+            label: 'สั่งใช้ความสามารถ',
+            html: `${BotUtil.kwHtml('สั่งใช้')} สั่งใช้ความสามารถ`,
+            act: { type: 'activateAbility', k, by: mode === 'solo' ? (kzMenu === 'land' ? st.active : own) : undefined },
+            fn: () => {
+              if (kzMenu.endsWith('.hell') || kzMenu.endsWith('.dark')) closePileView();
+              sendAction({ type: 'activateAbility', k, by: mode === 'solo' ? (kzMenu === 'land' ? st.active : own) : undefined });
+            }
+          }]
         : []),
       ...(canUseUnity(k)
         ? [{ label: 'สามัคคี', html: `${BotUtil.kwHtml('สามัคคี')} สามัคคี — นอนแล้วยก POWER ให้… (หรือลากทับผู้รับ)`, fn: () => startAnnounce(k, 'unity') }] : []),
@@ -5835,8 +5877,9 @@
     const c = st.inst[k];
     const g = document.createElement('div');
     g.className = 'drag-ghost';
-    g.innerHTML = c.faceUp || mode === 'solo'
-      ? `<div class="face"><div class="fb"><div class="fb-name">${esc(c.name)}</div></div><div class="img" style="background-image:url('${esc(c.img)}')"></div></div>`
+    const cardImg = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : ''))) || '';
+    g.innerHTML = c && (c.faceUp || mode === 'solo')
+      ? `<div class="face"><div class="fb"><div class="fb-name">${esc(c.name)}</div></div><div class="img" style="background-image:url('${esc(cardImg)}')"></div></div>`
       : `<div class="back"></div>`;
     document.body.appendChild(g);
     moveGhost(g, x, y);

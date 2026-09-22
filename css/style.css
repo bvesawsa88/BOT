@@ -946,10 +946,12 @@ body.dragging .card.hand:hover{transform:none}
 .pile-grid::-webkit-scrollbar-track{background:rgba(0,0,0,.2);border-radius:4px}
 .pile-grid::-webkit-scrollbar-thumb{background:rgba(200,165,90,.38);border-radius:4px}
 .pile-grid::-webkit-scrollbar-thumb:hover{background:rgba(200,165,90,.65)}
-.pile-grid .card,.pile-grid .card *{position:relative!important;touch-action:pan-y!important}
-.pile-grid .card{width:100%!important;max-width:none;height:auto!important;aspect-ratio:512/716;margin:0 auto!important;flex:none!important;transform:none!important;overflow:visible}
+.pile-grid .card{position:relative!important;touch-action:pan-y!important;width:100%!important;max-width:none;height:auto!important;aspect-ratio:512/716;margin:0 auto!important;flex:none!important;transform:none!important;overflow:visible}
+.pile-grid .card *{touch-action:pan-y!important}
 .pile-grid .card.tapped{transform:none!important}
-.pile-grid .card .face,.pile-grid .card .back{position:absolute;inset:0;width:100%!important;height:100%!important}
+.pile-grid .card .face,.pile-grid .card .back{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+.pile-grid .card .face .img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background-size:cover!important;background-position:center!important;border-radius:inherit}
+.pile-grid .card .face .fb{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
 .pile-grid .card:hover{transform:none!important;z-index:5}
 .pile-grid .card.pf-hidden{display:none!important}
 .pile-order{position:absolute;top:-7px;left:-4px;background:var(--gold);color:#26201b;font-size:10px;font-weight:700;border-radius:8px;padding:0 6px;pointer-events:none}

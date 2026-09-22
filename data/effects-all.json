@@ -13074,7 +13074,7 @@
           },
           "cost": [
             {
-              "op": "destroyAlly",
+              "op": "sacrifice",
               "filter": {
                 "nameIncludes": [
                   "เทพธิดาแห่งวัลฮัลลา"
@@ -17295,6 +17295,42 @@
       "name": "ซีเกิร์ด ผู้ปราบมังกรฟาฟเนียร์",
       "abilities": [
         {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ],
+                "nameNotIncludes": [
+                  "บรุนฮิลด์"
+                ]
+              },
+              "amount": 1
+            },
+            {
+              "op": "modifyPower",
+              "target": {
+                "select": "all",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "บรุนฮิลด์"
+                ]
+              },
+              "amount": 2
+            }
+          ]
+        },
+        {
           "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
@@ -17302,20 +17338,36 @@
           "oncePerTurn": true,
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "sigurdFieldAbility"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "fromHell": true,
+          "requireOwnNameIncludes": "บรุนฮิลด์",
+          "cost": [
+            {
+              "op": "mill",
+              "count": 9
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromHell"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "สั่งใช้ : นำ คาถา 1 ใบ จาก Deck ขึ้นมือ"
+      "keywords": [
+        "ต่อเนื่อง",
+        "สั่งใช้"
+      ],
+      "note": "ต่อเนื่อง: \"เทพธิดาแห่งวัลฮัลลา\" ทุกใบบน Avatar Zone เรา POWER +1 (ถ้าเป็น \"บรุนฮิลด์\" POWER +2 แทน) · เทิร์นละครั้ง สั่งใช้: นำ \"เทพธิดาแห่งวัลฮัลลา\" จากในนรกเรา 1-3 ใบกลับเข้า Deck แล้วสับ จากนั้น ธรณีสูบ 3 ใบ : ทำลาย Avatar ฝ่ายตรงข้ามกี่ใบก็ได้โดยที่ Cost รวมกันไม่เกิน 2 (+1 ต่อจำนวนเทพธิดาแห่งวัลฮัลลาที่ธรณีสูบเจอ) · สั่งใช้ จากในนรก: ถ้าบน Avatar Zone เรามี \"บรุนฮิลด์\" ธรณีสูบ 9 ใบ : อัญเชิญใบนี้ลง Avatar Zone"
     },
     {
       "code": "BT10-030",
@@ -20482,7 +20534,7 @@
     },
     {
       "code": "BT11-042",
-      "name": "อาเมอร์ ทศกัณท์",
+      "name": "อาเมอร์ ทศกัณฐ์",
       "abilities": [
         {
           "keyword": "จุติ",

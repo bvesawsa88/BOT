@@ -124,3 +124,51 @@ test('SD07-019 City of Luoyang gives +2 POWER when Columbus (allColors) is on av
   let p = BoT.effPower(st, columbus);
   if (p !== baseColP + 2) throw new Error(`Expected Columbus to get +2 POWER from Luoyang, got ${p}`);
 });
+
+test('BT10-029 Sigurd: activatedFromHell, static aura, and field ability', () => {
+  // Test 1: activatedFromHell
+  const st1 = emptyState();
+  for (let i = 0; i < 15; i++) put(st1, 'A.deck', 'SD01-007');
+  const sigurdHell = put(st1, 'A.hell', 'BT10-029');
+
+  let res = BoT.applyAction(st1, { type: 'activateAbility', k: sigurdHell, by: 'A' });
+  if (!res || !res.deny || !res.deny.includes('บรุนฮิลด์')) {
+    throw new Error('Should deny without Brunhild');
+  }
+
+  put(st1, 'A.avatar', 'BT05-027'); // Brunhild
+  const deckBefore = st1.zones['A.deck'].length;
+  res = BoT.applyAction(st1, { type: 'activateAbility', k: sigurdHell, by: 'A' });
+  if (res && res.deny) throw new Error('Should not deny: ' + res.deny);
+  if (st1.zones['A.deck'].length !== deckBefore - 9) throw new Error('Deck should have 9 cards milled');
+  if (BoT.zoneOf(st1, sigurdHell) !== 'A.avatar') throw new Error('Sigurd should be on A.avatar');
+
+  // Test 2: static aura
+  const st2 = emptyState();
+  const sigurdField = put(st2, 'A.avatar', 'BT10-029');
+  const valkOther = put(st2, 'A.avatar', 'BT06-027');
+  const brunhild2 = put(st2, 'A.avatar', 'BT05-027');
+  const unrelated = put(st2, 'A.avatar', 'SD01-007');
+
+  if (BoT.effPower(st2, valkOther) !== st2.inst[valkOther].power + 1) throw new Error('Valkyrie should have +1 power');
+  if (BoT.effPower(st2, brunhild2) !== st2.inst[brunhild2].power + 2) throw new Error('Brunhild should have +2 power');
+  if (BoT.effPower(st2, unrelated) !== st2.inst[unrelated].power) throw new Error('Unrelated avatar should have +0 power');
+
+  // Test 3: field ability
+  const st3 = emptyState();
+  const sigurd3 = put(st3, 'A.avatar', 'BT10-029');
+  const vHell1 = put(st3, 'A.hell', 'BT06-027');
+  const vHell2 = put(st3, 'A.hell', 'BT06-028');
+  const vDeckTop = put(st3, 'A.deck', 'BT06-029');
+  for (let i = 0; i < 5; i++) put(st3, 'A.deck', 'SD01-007');
+  const oppAv1 = put(st3, 'B.avatar', 'SD01-003'); // cost 2
+
+  res = BoT.applyAction(st3, { type: 'activateAbility', k: sigurd3, by: 'A' });
+  if (!st3.prompts[0] || st3.prompts[0].dest !== 'sigurdReturnHell') throw new Error('Expected sigurdReturnHell prompt');
+  BoT.applyAction(st3, { type: 'chooseTarget', k: vHell1, by: 'A' });
+  BoT.applyAction(st3, { type: 'skipPrompt', by: 'A' });
+  if (!st3.prompts[0] || st3.prompts[0].dest !== 'sigurdDestroyEnemy') throw new Error('Expected sigurdDestroyEnemy prompt');
+  BoT.applyAction(st3, { type: 'chooseTarget', k: oppAv1, by: 'A' });
+  if (BoT.zoneOf(st3, oppAv1) !== 'B.hell') throw new Error('oppAv1 should be in B.hell');
+});
+

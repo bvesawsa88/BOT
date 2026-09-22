@@ -135,7 +135,7 @@
           },
           "cost": [
             {
-              "op": "destroyAlly",
+              "op": "sacrifice",
               "filter": {
                 "nameIncludes": [
                   "เทพธิดาแห่งวัลฮัลลา"
