@@ -35,8 +35,9 @@
 .db-result{flex:none;padding:8px 14px;font-size:12px;color:var(--dim);display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
 .db-result #dbResult{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .db-hint{font-size:11.5px;color:var(--dim);flex:none}
-.db-scroll{flex:1;overflow-y:auto;padding:10px 14px 14px;-webkit-overflow-scrolling:touch}
-.db-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px}
+.db-scroll{flex:1;overflow-y:auto;padding:10px 14px 14px;-webkit-overflow-scrolling:touch;touch-action:pan-y!important;overscroll-behavior:contain}
+.db-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px;touch-action:pan-y!important}
+.db-card,.db-card *{touch-action:pan-y!important}
 .db-card{position:relative;cursor:pointer;border-radius:7px;transition:transform .1s;overflow:hidden}
 @media (hover:hover){.db-card:hover{transform:scale(1.05);z-index:2}}
 .db-card img,.gl-card img,.db-deck-card img{width:100%;aspect-ratio:512/716;object-fit:cover;border-radius:7px;display:block;background:var(--card-ui);position:relative;z-index:1;transition:opacity .15s}
@@ -52,7 +53,8 @@
 .db-deck-head{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;min-width:0}
 .db-deck-head input{flex:1;background:var(--card-ui);border:1px solid var(--border);border-radius:6px;color:var(--cream);font-family:'IBM Plex Sans Thai',sans-serif;font-weight:600;font-size:13px;padding:7px 9px;min-width:0;outline:none;-webkit-user-select:text;user-select:text}
 .db-deck-head button{flex:none;white-space:nowrap}
-.db-deck-body{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch;min-height:0}
+.db-deck-body{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch;touch-action:pan-y!important;overscroll-behavior:contain;min-height:0}
+.db-deck-cards,.db-deck-card,.db-deck-card *{touch-action:pan-y!important}
 .db-deck-foot{flex:none;padding:10px 12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;min-width:0}
 .db-deck-foot .row-2{flex-wrap:wrap}
 .db-deck-foot .row-2 > *{min-width:0}

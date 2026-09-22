@@ -1032,6 +1032,14 @@
       <button id="btnPileShuffle" class="btn-dark small hidden">🔀 ไม่หยิบ + สับเด็ค</button>
       <button id="btnPileClose" class="btn-primary small">ปิด</button>
     </div>
+    <div id="pileFilterBar" class="pile-filter-bar hidden">
+      <span class="pf-label">กรอง:</span>
+      <button type="button" class="pf-btn on" data-pf="all">ทั้งหมด</button>
+      <button type="button" class="pf-btn" data-pf="Avatar">Avatar</button>
+      <button type="button" class="pf-btn" data-pf="Magic">Magic</button>
+      <button type="button" class="pf-btn" data-pf="Construct">Construct</button>
+      <input type="text" id="pileSearchInput" class="pf-search" placeholder="🔍 ค้นชื่อ/เท็กซ์..." autocomplete="off" />
+    </div>
     <div id="scoutBar" class="scout-bar hidden">
       <span id="scoutText"></span>
       <div class="spacer"></div>
@@ -1039,6 +1047,10 @@
       <button id="btnScoutBottom" class="btn-dark small" title="วางไว้ใต้กอง — ใบขวาสุดจะไปอยู่ล่างสุดของเด็ค">⬇️ ไว้ใต้กอง (ขวาสุด = ล่างสุด)</button>
     </div>
     <div id="pileGrid" class="pile-grid"></div>
+    <div id="pileScrollBtns" class="pile-scroll-btns">
+      <button type="button" id="btnPileScrollTop" class="pile-scroll-btn" title="เลื่อนขึ้นบนสุด">▲</button>
+      <button type="button" id="btnPileScrollBottom" class="pile-scroll-btn" title="เลื่อนลงล่างสุด">▼</button>
+    </div>
   </div>
 </div>
 

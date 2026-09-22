@@ -5289,12 +5289,56 @@
     closePileView();
     return true;
   }
+  let pileFilterType = 'all';
+  let pileSearchText = '';
+  function applyPileFilters() {
+    const grid = byId('pileGrid');
+    if (!grid) return;
+    const cards = grid.querySelectorAll('.card[data-cid]');
+    cards.forEach(el => {
+      const k = el.dataset.cid;
+      const c = st && st.inst[k];
+      if (!c) return;
+      let matchType = true;
+      if (pileFilterType !== 'all') {
+        matchType = (c.type === pileFilterType);
+      }
+      let matchSearch = true;
+      if (pileSearchText) {
+        const q = pileSearchText.toLowerCase();
+        const nm = (c.name || '').toLowerCase();
+        const eff = (c.effect || '').toLowerCase();
+        const code = (c.code || '').toLowerCase();
+        matchSearch = nm.includes(q) || eff.includes(q) || code.includes(q);
+      }
+      el.classList.toggle('pf-hidden', !(matchType && matchSearch));
+    });
+    syncPileScrollBtns();
+  }
+  function syncPileScrollBtns() {
+    const grid = byId('pileGrid');
+    const btns = byId('pileScrollBtns');
+    if (!grid || !btns) return;
+    const canScroll = grid.scrollHeight > grid.clientHeight + 24;
+    btns.classList.toggle('show', canScroll);
+  }
   function closePileView() {
     const pv = pileView; pileView = null;
     const ov = byId('pileView');
     ov.classList.add('hidden');
     ov.classList.remove('scout-reveal');
     ov.dataset.prompt = '';
+    pileFilterType = 'all';
+    pileSearchText = '';
+    const sInp = byId('pileSearchInput');
+    if (sInp) sInp.value = '';
+    const fBar = byId('pileFilterBar');
+    if (fBar) {
+      fBar.querySelectorAll('.pf-btn').forEach(btn => btn.classList.toggle('on', btn.dataset.pf === 'all'));
+      fBar.classList.add('hidden');
+    }
+    const sBtns = byId('pileScrollBtns');
+    if (sBtns) sBtns.classList.remove('show');
     try { closeMenu(); } catch (e) { }
     if (!pv) return;
     const isDeckView = pv.mode === 'search' || pv.mode === 'peek';
@@ -5607,6 +5651,21 @@
         })).join('')
       : `<div class="pile-empty">กองนี้ว่างเปล่า</div>`;
     ov.classList.remove('hidden');
+
+    // ซิงค์แถบตัวกรองและปุ่มเลื่อนด่วนเมื่อมีกองการ์ด
+    const isScoutReorder = !!(st && st.scout);
+    const totalCards = ids ? ids.length : byId('pileGrid').querySelectorAll('.card[data-cid]').length;
+    const filterBar = byId('pileFilterBar');
+    if (filterBar) {
+      if (totalCards >= 7 && !isScoutReorder) {
+        filterBar.classList.remove('hidden');
+        applyPileFilters();
+      } else {
+        filterBar.classList.add('hidden');
+        byId('pileGrid').querySelectorAll('.card.pf-hidden').forEach(el => el.classList.remove('pf-hidden'));
+      }
+    }
+    setTimeout(syncPileScrollBtns, 50);
   }
   byId('btnPileClose').onclick = () => {
     const pp = st && (st.prompts || [])[0];
@@ -5616,6 +5675,48 @@
     }
     closePileView();
   };
+  /* ปุ่มเลื่อนด่วน บนสุด / ล่างสุด */
+  const btnScrollTop = byId('btnPileScrollTop');
+  if (btnScrollTop) {
+    btnScrollTop.onclick = (e) => {
+      e.stopPropagation();
+      const grid = byId('pileGrid');
+      if (grid) grid.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  }
+  const btnScrollBottom = byId('btnPileScrollBottom');
+  if (btnScrollBottom) {
+    btnScrollBottom.onclick = (e) => {
+      e.stopPropagation();
+      const grid = byId('pileGrid');
+      if (grid) grid.scrollTo({ top: grid.scrollHeight, behavior: 'smooth' });
+    };
+  }
+  /* แถบตัวกรองการ์ดใน pileView */
+  const pFilterBar = byId('pileFilterBar');
+  if (pFilterBar) {
+    pFilterBar.addEventListener('click', e => {
+      const b = e.target.closest('.pf-btn');
+      if (!b) return;
+      pFilterBar.querySelectorAll('.pf-btn').forEach(btn => btn.classList.remove('on'));
+      b.classList.add('on');
+      pileFilterType = b.dataset.pf || 'all';
+      applyPileFilters();
+      const grid = byId('pileGrid');
+      if (grid) grid.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+  const pSearchInput = byId('pileSearchInput');
+  if (pSearchInput) {
+    pSearchInput.addEventListener('input', e => {
+      pileSearchText = (e.target.value || '').trim();
+      applyPileFilters();
+    });
+  }
+  const pGrid = byId('pileGrid');
+  if (pGrid) {
+    pGrid.addEventListener('scroll', syncPileScrollBtns, { passive: true });
+  }
   /* แตะพื้นมืดรอบกล่อง = ปิด (เฉพาะดูกองเฉยๆ ไม่ข้ามเอฟเฟกต์) */
   byId('pileView').addEventListener('click', e => {
     if (e.target !== byId('pileView')) return;
@@ -5757,9 +5858,11 @@
     if (cardEl) {
       const k = cardEl.dataset.cid;
       setPreview(k);
-      drag = { k, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, suppress: false, viewer: !!e.target.closest('#pileView') };
+      const inViewer = !!e.target.closest('#pileView');
+      drag = { k, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, suppress: false, viewer: inViewer };
       // มือถือ: กดค้าง = เปิดหน้าเต็มอ่านการ์ด (เดสก์ท็อปใช้คลิกเดี่ยวเปิดเมนู)
-      if (isTouchUI()) {
+      // ใน pileView ยกเว้นการกดค้าง เพื่อให้รูดเลื่อนเด็ค/นรกได้ลื่นไหล ไม่เด้งขัดจังหวะ
+      if (isTouchUI() && !inViewer) {
         drag.longT = setTimeout(() => {
           if (!drag || drag.moved) return;
           drag.suppress = true;
@@ -5808,10 +5911,13 @@
   document.addEventListener('pointermove', e => {
     if (!drag) return;
     const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
-    if (!drag.moved && Math.hypot(dx, dy) > 9) {
+    const threshold = drag.viewer ? 16 : 9;
+    if (!drag.moved && Math.hypot(dx, dy) > threshold) {
       drag.moved = true; clearTimeout(drag.longT);
-      document.body.classList.add('dragging'); // ปิด hover-zoom ระหว่างลาก กันบังเป้า
-      if (drag.k && !drag.viewer) drag.ghost = makeGhost(drag.k, e.clientX, e.clientY);
+      if (!drag.viewer) {
+        document.body.classList.add('dragging'); // ปิด hover-zoom ระหว่างลาก กันบังเป้า
+        if (drag.k) drag.ghost = makeGhost(drag.k, e.clientX, e.clientY);
+      }
       // ระหว่างลากคู่หู/สามัคคี/มอด — ไฮไลต์เป้าที่วางได้
       if (drag.k && st && st.inst[drag.k]) {
         const src = st.inst[drag.k];
