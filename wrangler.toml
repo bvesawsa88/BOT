@@ -12,4 +12,4 @@ class_name = "SignalServer"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["SignalServer"]
+new_sqlite_classes = ["SignalServer"]
