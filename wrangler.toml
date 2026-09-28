@@ -1,0 +1,15 @@
+name = "bot"
+main = "worker.js"
+compatibility_date = "2026-09-24"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+
+[[durable_objects.bindings]]
+name = "SIGNAL_DO"
+class_name = "SignalServer"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SignalServer"]
