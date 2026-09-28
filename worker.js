@@ -1,6 +1,6 @@
 /**
  * Cloudflare Worker for Battle of Talingchan
- * 100% Serverless: Static Assets + Multiplayer Signaling + User Auth + Cloud Decks
+ * 100% Serverless: Static Assets + Multiplayer Signaling (/signal) + Presence Lobby (/lan) + User Auth + Cloud Decks
  */
 
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -66,6 +66,8 @@ export class SignalServer {
     this.state = state;
     this.env = env;
     this.rooms = new Map(); // code -> { host: ws, guest: ws }
+    this.lanPeers = new Map(); // id -> { id, nick, uid, status, ws, challengeTo, challengedBy }
+    this.nextPeerId = 1;
     this.users = null;
   }
 
@@ -140,6 +142,178 @@ export class SignalServer {
     };
   }
 
+  // ── LAN Presence Lobby ──
+  broadcastLanPeers() {
+    const list = [...this.lanPeers.values()].map(p => ({
+      id: p.id,
+      nick: p.nick,
+      status: p.status,
+      uid: p.uid || ''
+    }));
+    for (const p of this.lanPeers.values()) {
+      try {
+        p.ws.send(JSON.stringify({ t: 'peers', you: p.id, list }));
+      } catch (e) {}
+    }
+  }
+
+  findLanPeer(id) {
+    return this.lanPeers.get(id) || null;
+  }
+
+  clearLanChallenge(p) {
+    if (!p) return;
+    if (p.challengeTo) {
+      const t = this.findLanPeer(p.challengeTo);
+      if (t && t.challengedBy === p.id) t.challengedBy = null;
+      p.challengeTo = null;
+    }
+    if (p.challengedBy) {
+      const f = this.findLanPeer(p.challengedBy);
+      if (f && f.challengeTo === p.id) f.challengeTo = null;
+      p.challengedBy = null;
+    }
+  }
+
+  removeLanPeer(p) {
+    if (!p || !this.lanPeers.has(p.id)) return;
+    this.clearLanChallenge(p);
+    if (p.challengeTo) {
+      const t = this.findLanPeer(p.challengeTo);
+      if (t) try { t.ws.send(JSON.stringify({ t: 'challengeGone', from: p.id })); } catch(e){}
+    }
+    if (p.challengedBy) {
+      const f = this.findLanPeer(p.challengedBy);
+      if (f) try { f.ws.send(JSON.stringify({ t: 'challengeResult', accept: false, id: p.id, nick: p.nick, reason: 'offline' })); } catch(e){}
+    }
+    this.lanPeers.delete(p.id);
+    this.broadcastLanPeers();
+  }
+
+  handleLanMessage(p, m) {
+    if (!m || !m.t) return;
+
+    if (m.t === 'hello') {
+      p.nick = String(m.nick || 'ผู้เล่น').slice(0, 24) || 'ผู้เล่น';
+      p.uid = String(m.uid || '').slice(0, 40);
+      p.status = 'idle';
+      try { p.ws.send(JSON.stringify({ t: 'welcome', you: p.id, nick: p.nick })); } catch(e){}
+      this.broadcastLanPeers();
+      return;
+    }
+
+    if (m.t === 'nick') {
+      p.nick = String(m.nick || p.nick || 'ผู้เล่น').slice(0, 24) || 'ผู้เล่น';
+      this.broadcastLanPeers();
+      return;
+    }
+
+    if (m.t === 'status') {
+      const s = m.status === 'busy' ? 'busy' : 'idle';
+      if (p.status === s) return;
+      p.status = s;
+      if (s === 'busy') this.clearLanChallenge(p);
+      this.broadcastLanPeers();
+      return;
+    }
+
+    if (m.t === 'challenge') {
+      const toId = +m.to;
+      const target = this.findLanPeer(toId);
+      if (!target || target.id === p.id) {
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'ไม่พบผู้เล่น' })); } catch(e){}
+        return;
+      }
+      if (p.status !== 'idle' || target.status !== 'idle') {
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'ผู้เล่นไม่ว่าง' })); } catch(e){}
+        return;
+      }
+      if (p.challengeTo || p.challengedBy || target.challengeTo || target.challengedBy) {
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'มีคำท้าค้างอยู่ — รอหรือยกเลิกก่อน' })); } catch(e){}
+        return;
+      }
+      p.challengeTo = target.id;
+      target.challengedBy = p.id;
+      try { target.ws.send(JSON.stringify({ t: 'challenged', from: p.id, nick: p.nick })); } catch(e){}
+      try { p.ws.send(JSON.stringify({ t: 'challengeSent', to: target.id, nick: target.nick })); } catch(e){}
+      return;
+    }
+
+    if (m.t === 'challengeCancel') {
+      const toId = p.challengeTo;
+      if (!toId) return;
+      const target = this.findLanPeer(toId);
+      p.challengeTo = null;
+      if (target && target.challengedBy === p.id) {
+        target.challengedBy = null;
+        try { target.ws.send(JSON.stringify({ t: 'challengeGone', from: p.id })); } catch(e){}
+      }
+      return;
+    }
+
+    if (m.t === 'challengeResp') {
+      const fromId = p.challengedBy;
+      if (!fromId) {
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'ไม่มีคำท้า' })); } catch(e){}
+        return;
+      }
+      const challenger = this.findLanPeer(fromId);
+      const accept = !!m.accept;
+      p.challengedBy = null;
+      if (challenger && challenger.challengeTo === p.id) challenger.challengeTo = null;
+
+      if (!challenger) {
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'คู่ท้าออฟไลน์แล้ว' })); } catch(e){}
+        return;
+      }
+
+      if (!accept) {
+        try { challenger.ws.send(JSON.stringify({ t: 'challengeResult', accept: false, id: p.id, nick: p.nick })); } catch(e){}
+        return;
+      }
+
+      if (challenger.status !== 'idle' || p.status !== 'idle') {
+        try { challenger.ws.send(JSON.stringify({ t: 'challengeResult', accept: false, id: p.id, nick: p.nick, reason: 'busy' })); } catch(e){}
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'เริ่มแมตช์ไม่ได้ — มีคนไม่ว่าง' })); } catch(e){}
+        return;
+      }
+
+      challenger.status = 'busy';
+      p.status = 'busy';
+      this.broadcastLanPeers();
+      // challenger = host (A), acceptor = guest (B)
+      try {
+        challenger.ws.send(JSON.stringify({
+          t: 'challengeResult', accept: true, id: p.id, nick: p.nick,
+          role: 'host', oppId: p.id, oppNick: p.nick,
+        }));
+      } catch(e){}
+      try {
+        p.ws.send(JSON.stringify({
+          t: 'matchReady', role: 'guest', oppId: challenger.id, oppNick: challenger.nick,
+        }));
+      } catch(e){}
+      return;
+    }
+
+    if (m.t === 'matchCode') {
+      const toId = +m.to;
+      const target = this.findLanPeer(toId);
+      const code = String(m.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      if (!target || !code) {
+        try { p.ws.send(JSON.stringify({ t: 'error', m: 'ส่งรหัสห้องไม่สำเร็จ' })); } catch(e){}
+        return;
+      }
+      try { target.ws.send(JSON.stringify({ t: 'matchCode', from: p.id, nick: p.nick, code })); } catch(e){}
+      return;
+    }
+
+    if (m.t === 'leave') {
+      this.removeLanPeer(p);
+      try { p.ws.close(); } catch(e){}
+    }
+  }
+
   async fetch(request) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
@@ -156,7 +330,46 @@ export class SignalServer {
       });
     }
 
-    // ── WebSocket Signaling (Multiplayer) ──
+    // ── WebSocket Presence Lobby (/lan) ──
+    if (path === '/lan') {
+      if (request.headers.get('Upgrade') !== 'websocket') {
+        return new Response('Expected WebSocket upgrade', { status: 426 });
+      }
+      const pair = new WebSocketPair();
+      const [client, server] = Object.values(pair);
+      server.accept();
+
+      const peer = {
+        id: this.nextPeerId++,
+        nick: 'ผู้เล่น',
+        uid: '',
+        status: 'idle',
+        ws: server,
+        challengeTo: null,
+        challengedBy: null,
+      };
+      this.lanPeers.set(peer.id, peer);
+
+      server.addEventListener('message', (ev) => {
+        let m;
+        try { m = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; }
+        catch (e) { return; }
+        this.handleLanMessage(peer, m);
+      });
+
+      const onPeerClose = () => this.removeLanPeer(peer);
+      server.addEventListener('close', onPeerClose);
+      server.addEventListener('error', onPeerClose);
+
+      try {
+        server.send(JSON.stringify({ t: 'welcome', you: peer.id, nick: peer.nick }));
+      } catch (e) {}
+      this.broadcastLanPeers();
+
+      return new Response(null, { status: 101, webSocket: client });
+    }
+
+    // ── WebSocket Signaling (Multiplayer Room /signal) ──
     if (path === '/signal' || path === '/ws') {
       if (request.headers.get('Upgrade') !== 'websocket') {
         return new Response('Expected WebSocket upgrade', { status: 426 });
@@ -402,10 +615,11 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // Route /signal and /auth/* to the Durable Object
+    // Route /signal, /ws, /lan, and /auth/* to the Durable Object
     if (
       path === '/signal' || path === '/signal/' ||
       path === '/ws' || path === '/ws/' ||
+      path === '/lan' || path === '/lan/' ||
       path.startsWith('/auth/')
     ) {
       if (env.SIGNAL_DO) {
