@@ -14,7 +14,10 @@
     'vercel.app',
     'github.io',
     'ngrok-free.app',
-    'trycloudflare.com'
+    'trycloudflare.com',
+    'workers.dev',
+    'pages.dev',
+    'cloudflare.com'
   ];
 
   function isHostAllowed() {
