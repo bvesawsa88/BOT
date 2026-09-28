@@ -7278,6 +7278,8 @@
   byId('btnBack').onclick = goBackNotebook;
   const mnuOnline = byId('mnuOnline');
   if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
+  const mnuLanHall = byId('mnuLanHall');
+  if (mnuLanHall) mnuLanHall.onclick = () => { ensurePlayReady().catch(() => { }); openLanHall(); };
   const btnLanHallBack = byId('btnLanHallBack');
   if (btnLanHallBack) btnLanHallBack.onclick = () => {
     stopPresence();
