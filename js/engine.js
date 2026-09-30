@@ -8541,20 +8541,37 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
       }
       if (phase === 'Main') {
-        const due = st.scheduled.filter(s => s.player === st.active && (!s.when || s.when === 'nextOwnMainPhase'));
-        st.scheduled = st.scheduled.filter(s => !(s.player === st.active && (!s.when || s.when === 'nextOwnMainPhase')));
-        // จั่วที่นัดไว้ก่อน แล้วค่อยสอดแนม/เอฟเฟกต์อื่น — กันใบบนเด็คถูกจั่วยุ่งกลางสอดแนม
-        const dueDraws = due.filter(s => s.op === 'draw');
-        const dueRest = due.filter(s => s.op !== 'draw');
-        [...dueDraws, ...dueRest].forEach(s => {
-          if (s.op === 'runActions' && s.actions) {
-            addLog(st, st.active, `ทำเอฟเฟกต์ที่นัดไว้ (Main Phase)`);
-            runActions(st, fx, s.actions, { src: s.src, owner: st.active, rng });
-          } else if (s.op === 'draw') {
-            const got = takeFromDeckToHand(st, s.player, s.count || 1, fx).length;
-            addLog(st, s.player, `เอฟเฟกต์ที่ค้างไว้: จั่ว ${got} ใบ`);
-          }
-        });
+        const curSeq = st.turnSeq || 0;
+        const isNewMain = st._mainPhaseSeq !== curSeq;
+        if (isNewMain) {
+          st._mainPhaseSeq = curSeq;
+          const due = st.scheduled.filter(s => s.player === st.active && (!s.when || s.when === 'nextOwnMainPhase'));
+          st.scheduled = st.scheduled.filter(s => !(s.player === st.active && (!s.when || s.when === 'nextOwnMainPhase')));
+          // จั่วที่นัดไว้ก่อน แล้วค่อยสอดแนม/เอฟเฟกต์อื่น — กันใบบนเด็คถูกจั่วยุ่งกลางสอดแนม
+          const dueDraws = due.filter(s => s.op === 'draw');
+          const dueRest = due.filter(s => s.op !== 'draw');
+          [...dueDraws, ...dueRest].forEach(s => {
+            if (s.op === 'runActions' && s.actions) {
+              addLog(st, st.active, `ทำเอฟเฟกต์ที่นัดไว้ (Main Phase)`);
+              runActions(st, fx, s.actions, { src: s.src, owner: st.active, rng });
+            } else if (s.op === 'draw') {
+              const got = takeFromDeckToHand(st, s.player, s.count || 1, fx).length;
+              addLog(st, s.player, `เอฟเฟกต์ที่ค้างไว้: จั่ว ${got} ใบ`);
+            }
+          });
+          // อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา (พาลี, สุครีพ, นินจินแมน ฯลฯ)
+          ['avatar', 'construct', 'magic'].forEach(z => {
+            (st.zones[st.active + '.' + z] || []).slice().forEach(k => {
+              const c = st.inst[k];
+              if (!c || !c.faceUp) return;
+              abil(st, k, 'ownMainPhaseStart').forEach(ab => {
+                if (z === 'magic' && !(ab.fromMagicZone || (fxCard(c) && fxCard(c).abilitiesFromMagicZone))) return;
+                addLog(st, st.active, `อัตโนมัติ (เริ่ม Main Phase) ${nameOf(st, k)}: ทำงาน`);
+                runActions(st, fx, ab.actions, { src: k, owner: st.active, rng });
+              });
+            });
+          });
+        }
       }
     };
     const finishDrawPhaseStart = (player) => {

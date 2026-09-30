@@ -53,7 +53,28 @@ function put(st, zone, code, extra) {
 
   assert.ok(!st.zones['B.avatar'].includes(e1), 'Enemy lowest cost avatar e1 should be destroyed by Pali');
   assert.ok(st.zones['B.avatar'].includes(e2), 'Enemy higher cost avatar e2 should survive Pali');
-  console.log('SD09-004 Pali destroyEnemyLowestCost test passed');
+  console.log('SD09-004 Pali destroyEnemyLowestCost (Juti) test passed');
+}
+
+// 1.1 Test SD09-004 Pali: ownMainPhaseStart automatic destroy lowest cost
+{
+  const st = emptyState({ active: 'B', turn: 1, turnSeq: 1 });
+  for (let i = 0; i < 5; i++) {
+    put(st, 'A.deck', 'SD01-011');
+    put(st, 'B.deck', 'SD01-011');
+  }
+  const pali = put(st, 'A.avatar', 'SD09-004'); // Cost 7
+  const e1 = put(st, 'B.avatar', 'SD09-001', { cost: 1 }); // Lowest cost 1
+  const e2 = put(st, 'B.avatar', 'SD09-004', { cost: 4 }); // Higher cost 4
+
+  // B ends turn -> transitions to A's turn -> enters Main Phase
+  BoT.applyAction(st, { type: 'endTurn', by: 'B' });
+  assert.strictEqual(st.active, 'A');
+  assert.strictEqual(st.phase, 'Main');
+  assert.ok(!st.zones['B.avatar'].includes(e1), 'Enemy lowest cost avatar e1 should be destroyed on A main phase start');
+  assert.ok(st.zones['B.hell'].includes(e1), 'Enemy lowest cost avatar e1 should be in hell');
+  assert.ok(st.zones['B.avatar'].includes(e2), 'Enemy higher cost avatar e2 should remain');
+  console.log('SD09-004 Pali ownMainPhaseStart test passed');
 }
 
 // 2. Test SD09-014 Forest Election (เลือกตั้งเจ้าป่า): scout 7 & summon Kingka directly
