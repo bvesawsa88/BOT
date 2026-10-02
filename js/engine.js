@@ -235,7 +235,7 @@
     return false;
   }
 
-  /* สถานะ [Link] / คู่หู: จับคู่แล้ว หรือมีพันธมิตรที่ระบุบนการ์ดอยู่ใน Avatar Zone ฝั่งเดียวกัน */
+  /* สถานะ [Link] / คู่หู: จับคู่แล้ว และคู่หูยังอยู่ใน Avatar Zone ฝั่งเดียวกัน */
   function inLinkStatus(st, k) {
     const c = st.inst[k]; if (!c || c.type !== 'Avatar' || c.faceUp === false) return false;
     const z = zoneOf(st, k) || '';
@@ -245,13 +245,73 @@
       const pz = zoneOf(st, c.pairWith) || '';
       if (pz.endsWith('.avatar') && pz[0] === side && st.inst[c.pairWith].faceUp !== false) return true;
     }
-    const partner = buddyPartnerNameOf(c);
-    if (!partner) return false;
-    return (st.zones[side + '.avatar'] || []).some(id => {
+    return false;
+  }
+  function pairDenyReason(st, k1, k2, by) {
+    const c1 = st.inst[k1];
+    if (!c1) return 'ไม่พบการ์ด';
+    if (!k2) return null; // unpair
+    const c2 = st.inst[k2];
+    if (!c2) return 'ต้องเลือกการ์ดใบที่สองด้วย';
+    if (k1 === k2) return 'เลือกการ์ดคนละใบ';
+
+    const z1 = zoneOf(st, k1) || '';
+    const z2 = zoneOf(st, k2) || '';
+    if (!z1.endsWith('.avatar') || !z2.endsWith('.avatar'))
+      return 'จับคู่หูได้เฉพาะ Avatar บนสนามเท่านั้น';
+    if (z1[0] !== z2[0])
+      return 'จับคู่หูได้เฉพาะ Avatar ฝั่งเดียวกัน';
+    const side = z1[0];
+    if (by && by !== 'S' && by !== side)
+      return 'จับคู่หูได้เฉพาะ Avatar ฝั่งตัวเอง';
+
+    if (!cardHasBuddyAbility(c1) && !cardHasBuddyAbility(c2))
+      return `"${c1.name}" ไม่มีความสามารถคู่หู/Link — จับคู่ไม่ได้`;
+    if (!buddyPairAllowed(c1, c2))
+      return `จับคู่หูไม่ได้ — ต้องเป็นคู่ที่ระบุบนการ์ด (เช่น "${buddyPartnerNameOf(c1) || buddyPartnerNameOf(c2) || 'ชื่อคู่หู'}")`;
+
+    const curTurn = (st.turnSeq != null ? st.turnSeq : st.turn || 1);
+    if (st._lastPairTurnSeq && st._lastPairTurnSeq[side] === curTurn)
+      return 'สามารถจับคู่หูได้เทิร์นละครั้งเท่านั้น (เทิร์นนี้จับคู่หูไปแล้ว)';
+
+    if (c1._pairedInLife)
+      return `"${c1.name}" เคยจับคู่หูไปแล้ว — การ์ดแต่ละใบคู่หูได้ครั้งเดียวจนกว่าจะตาย`;
+    if (c2._pairedInLife)
+      return `"${c2.name}" เคยจับคู่หูไปแล้ว — การ์ดแต่ละใบคู่หูได้ครั้งเดียวจนกว่าจะตาย`;
+
+    if (c1._diedTurnSeq != null && c1._diedTurnSeq === curTurn)
+      return `"${c1.name}" เพิ่งออกจากสนาม/ตายในเทิร์นนี้ — สามารถจับคู่หูใหม่ได้ในเทิร์นหน้า`;
+    if (c2._diedTurnSeq != null && c2._diedTurnSeq === curTurn)
+      return `"${c2.name}" เพิ่งออกจากสนาม/ตายในเทิร์นนี้ — สามารถจับคู่หูใหม่ได้ในเทิร์นหน้า`;
+
+    return null;
+  }
+  function canPairCard(st, k, by) {
+    const c = st.inst[k];
+    if (!c) return 'ไม่พบการ์ด';
+    const z = zoneOf(st, k) || '';
+    if (!z.endsWith('.avatar')) return 'จับคู่หูได้เฉพาะ Avatar บนสนามเท่านั้น';
+    const side = z[0];
+    if (by && by !== 'S' && by !== side) return 'จับคู่หูได้เฉพาะ Avatar ฝั่งตัวเอง';
+    if (!cardHasBuddyAbility(c)) return `"${c.name}" ไม่มีความสามารถคู่หู/Link`;
+
+    const curTurn = (st.turnSeq != null ? st.turnSeq : st.turn || 1);
+    if (st._lastPairTurnSeq && st._lastPairTurnSeq[side] === curTurn)
+      return 'สามารถจับคู่หูได้เทิร์นละครั้งเท่านั้น (เทิร์นนี้จับคู่หูไปแล้ว)';
+    if (c._pairedInLife)
+      return `"${c.name}" เคยจับคู่หูไปแล้ว — การ์ดแต่ละใบคู่หูได้ครั้งเดียวจนกว่าจะตาย`;
+    if (c._diedTurnSeq != null && c._diedTurnSeq === curTurn)
+      return `"${c.name}" เพิ่งออกจากสนาม/ตายในเทิร์นนี้ — สามารถจับคู่หูใหม่ได้ในเทิร์นหน้า`;
+
+    const hasCandidate = (st.zones[side + '.avatar'] || []).some(id => {
       if (id === k) return false;
-      const o = st.inst[id];
-      return !!(o && o.faceUp !== false && buddyNamesMatch(partner, o.name));
+      return !pairDenyReason(st, k, id, by);
     });
+    if (!hasCandidate) {
+      const pName = buddyPartnerNameOf(c);
+      return `ไม่มี "${pName || 'คู่หู'}" ที่สามารถจับคู่ได้บนสนาม`;
+    }
+    return null;
   }
   function anyOwnLinked(st, side) {
     return (st.zones[side + '.avatar'] || []).some(id => inLinkStatus(st, id));
@@ -308,7 +368,7 @@
       });
     });
     entering.forEach(({ k, side }) => {
-      const abs = abil(st, k, 'enterLink');
+      const abs = abil(st, k, 'enterLink').concat(abil(st, k, 'linkActivated'));
       if (!abs.length) return;
       addLog(st, side, `🤝 ${nameOf(st, k)} เข้าสู่สถานะ Link`);
       abs.forEach(ab => runActions(st, fx, ab.actions || [], {
@@ -846,8 +906,21 @@
     const leaveHostFx = leaveHost && fxCard(st.inst[k]);
     st.zones[from] = st.zones[from].filter(x => x !== k);
     if (pos === 'bottom') st.zones[to].unshift(k); else st.zones[to].push(k);
-    if (from.endsWith('.avatar') && !String(to).endsWith('.avatar') && st.inst[k])
+    if (from.endsWith('.avatar') && !String(to).endsWith('.avatar') && st.inst[k]) {
       delete st.inst[k]._linked;
+      const pw = st.inst[k].pairWith;
+      if (pw && st.inst[pw]) {
+        delete st.inst[pw].pairWith;
+        delete st.inst[pw].pairId;
+        delete st.inst[pw]._linked;
+      }
+      delete st.inst[k].pairWith;
+      delete st.inst[k].pairId;
+      if (st.inst[k]._pairedInLife) {
+        delete st.inst[k]._pairedInLife;
+        st.inst[k]._diedTurnSeq = (st.turnSeq != null ? st.turnSeq : st.turn || 1);
+      }
+    }
     if (/\.(hand|hell|dark|deck)$/.test(to)) {
       st.inst[k].tapped = false; st.inst[k].counters = 0;
       st.inst[k].attachedTo = null;
@@ -12943,25 +13016,37 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         fx.snd = 'tap'; break;
       }
 
-      /* ★ คู่หู (แมนนวล): จับได้เฉพาะการ์ดที่มีข้อความ คู่หู/Link และเฉพาะชื่อคู่ที่ระบุ */
+      /* ★ คู่หู: จับได้เฉพาะการ์ดที่มีข้อความ คู่หู/Link ตรงตามชื่อ และเทิร์นละครั้ง ทุกใบคู่หูได้ครั้งเดียวจนกว่าจะตาย */
       case 'pair': {
-        const c1 = st.inst[a.k], c2 = st.inst[a.to];
-        if (!c1) break;
+        const reason = pairDenyReason(st, a.k, a.to, by);
+        if (reason) return deny(reason);
+
+        const c1 = st.inst[a.k];
         if (!a.to) { // ยกเลิกคู่
           const old = c1.pairWith;
-          if (old && st.inst[old]) { delete st.inst[old].pairWith; delete st.inst[old].pairId; }
-          delete c1.pairWith; delete c1.pairId;
+          if (old && st.inst[old]) {
+            delete st.inst[old].pairWith;
+            delete st.inst[old].pairId;
+            delete st.inst[old]._linked;
+          }
+          delete c1.pairWith;
+          delete c1.pairId;
+          delete c1._linked;
           addLog(st, by || 'S', `💔 ยกเลิกคู่หูของ ${c1.name}`);
           break;
         }
-        if (!c2) return deny('ต้องเลือกการ์ดใบที่สองด้วย');
-        if (a.k === a.to) return deny('เลือกการ์ดคนละใบ');
-        if (!cardHasBuddyAbility(c1))
-          return deny(`"${c1.name}" ไม่มีความสามารถคู่หู/Link — จับคู่ไม่ได้`);
-        if (!buddyPairAllowed(c1, c2))
-          return deny(`จับคู่หูไม่ได้ — ต้องเป็นคู่ที่ระบุบนการ์ด (เช่น "${buddyPartnerNameOf(c1) || 'ชื่อคู่หู'}")`);
-        // ตัดคู่เดิมของทั้งสองใบก่อน (การ์ด 1 ใบมีคู่ได้ทีละคู่)
-        [c1, c2].forEach(cc => { if (cc.pairWith && st.inst[cc.pairWith]) { delete st.inst[cc.pairWith].pairWith; delete st.inst[cc.pairWith].pairId; } });
+
+        const c2 = st.inst[a.to];
+        const side = (zoneOf(st, a.k) || '')[0];
+        const curTurn = (st.turnSeq != null ? st.turnSeq : st.turn || 1);
+        st._lastPairTurnSeq = st._lastPairTurnSeq || {};
+        st._lastPairTurnSeq[side] = curTurn;
+
+        c1._pairedInLife = true;
+        c2._pairedInLife = true;
+        delete c1._diedTurnSeq;
+        delete c2._diedTurnSeq;
+
         st._pairSeq = (st._pairSeq || 0) + 1;
         const pid = ((st._pairSeq - 1) % 4) + 1; // สีคู่ 1-4 วนไป
         c1.pairWith = a.to; c1.pairId = pid;
@@ -13400,6 +13485,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         });
         if (st.hellReturnedThisTurn) delete st.hellReturnedThisTurn[ending];
         if (st.summonedThisTurn) delete st.summonedThisTurn[ending];
+        if (st._lastPairTurnSeq) delete st._lastPairTurnSeq[ending];
         if (st.handCostMods) st.handCostMods = (st.handCostMods || []).filter(m => m.owner !== ending && m.until === 'permanent');
         addLog(st, 'S', `จบเทิร์น — ถึงตา ${st.active} (เทิร์น ${st.turn})`);
         // แดรกคูลาฟื้นจากนรก
@@ -13537,5 +13623,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField };
+  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
 });

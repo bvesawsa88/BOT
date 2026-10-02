@@ -4009,13 +4009,9 @@
     return false;
   }
   function inBuddyStatus(st, k) {
+    if (BoTEngine && BoTEngine.inLinkStatus) return BoTEngine.inLinkStatus(st, k);
     const c = st.inst[k]; if (!c || c.type !== 'Avatar' || !c.faceUp) return false;
-    const partner = buddyPartnerName(c.effect); if (!partner) return false;
-    const side = (BoTEngine.zoneOf(st, k) || '')[0]; if (side !== 'A' && side !== 'B') return false;
-    return (st.zones[side + '.avatar'] || []).some(x => {
-      if (x === k) return false; const o = st.inst[x]; if (!o || !o.faceUp) return false;
-      return buddyNamesMatch(partner, o.name);
-    });
+    return !!(c.pairWith && st.inst[c.pairWith]);
   }
   function cardHTML(k, cls, opts) {
     const c = st.inst[k]; if (!c) return '';
@@ -4088,7 +4084,7 @@
     if (c.pairWith && st.inst[c.pairWith]) { // คู่หูที่จับเอง — กรอบสีเดียวกันทั้งคู่ + ป้ายบอกชื่อคู่
       classes.push('paired', 'pair-' + (c.pairId || 1));
       buddy = `<div class="buddy-badge pair" title="คู่หูกับ ${esc(st.inst[c.pairWith].name)}">🤝</div>`;
-    } else if (cls === 'avatar' && c.faceUp && inBuddyStatus(st, k)) { classes.push('buddy'); buddy = `<div class="buddy-badge" title="เข้าสถานะคู่หู (ตามข้อความการ์ด)">🤝</div>`; }
+    }
     let od = '';
     if (cls === 'avatar' && c.faceUp && BoTEngine.inOverdose && BoTEngine.inOverdose(st, k)) {
       classes.push('overdose');
@@ -4149,8 +4145,16 @@
         if ((on === 'activatedFromHell' || ab.fromHell) && kz0.endsWith('.hell')) return true;
         return false;
       });
+      let pairBtnTitle = '';
+      if (c.pairWith) {
+        pairBtnTitle = `💔 เลิกคู่หู (คู่กับ ${st.inst[c.pairWith] ? esc(st.inst[c.pairWith].name) : ''})`;
+      } else {
+        const deny = BoTEngine && BoTEngine.canPairCard ? BoTEngine.canPairCard(st, k, mode === 'solo' ? BoTEngine.ownerOf(st, k) : undefined) : null;
+        if (deny) pairBtnTitle = `🤝 ${deny}`;
+        else pairBtnTitle = `🤝 จับคู่หู${buddyPartnerName(c.effect, c) ? ' → ' + esc(buddyPartnerName(c.effect, c)) : ''} (หรือลากทับคู่หู)`;
+      }
       const parts = []
-        .concat(canPairBtn ? `<button class="qa-b qa-kw qa-pair" data-qa="pair" data-k="${k}" title="${c.pairWith ? `💔 เลิกคู่หู (คู่กับ ${st.inst[c.pairWith] ? esc(st.inst[c.pairWith].name) : ''})` : `🤝 จับคู่หู${buddyPartnerName(c.effect, c) ? ' → ' + esc(buddyPartnerName(c.effect, c)) : ''} (หรือลากทับคู่หู)`}">${BotUtil.kwHtml('คู่หู')}</button>` : [])
+        .concat(canPairBtn ? `<button class="qa-b qa-kw qa-pair" data-qa="pair" data-k="${k}" title="${esc(pairBtnTitle)}">${BotUtil.kwHtml('คู่หู')}</button>` : [])
         .concat(canUnityBtn ? `<button class="qa-b qa-kw qa-unity" data-qa="unity" data-k="${k}" title="สามัคคี — กดแล้วแตะ/ลากทับผู้รับ">${BotUtil.kwHtml('สามัคคี')}</button>` : [])
         .concat(canModAtt ? `<button class="qa-b qa-attach" data-qa="attach" data-k="${k}" title="🔗 สวมใส่ — กดแล้วแตะ/ลากทับ Avatar">🔗</button>` : [])
         .concat(hasAct ? `<button class="qa-b qa-kw" data-qa="act" data-k="${k}" title="สั่งใช้ — ถ้ามีหลายเทคจะขึ้นกล่องให้เลือก">${BotUtil.kwHtml('สั่งใช้')}</button>` : []);
@@ -4654,8 +4658,12 @@
         }));
       } else if (announceKind === 'pair') { // เป้า = คู่หูที่ระบุบนการ์ดเท่านั้น
         const srcC = st.inst[announceSrc];
+        const byWho = mode === 'solo' ? mySide : undefined;
         (st.zones[mySide + '.avatar'] || []).filter(t => t !== announceSrc).forEach(t => {
-          if (srcC && canBuddyPairWith(srcC, st.inst[t])) {
+          const ok = BoTEngine && BoTEngine.pairDenyReason
+            ? !BoTEngine.pairDenyReason(st, announceSrc, t, byWho)
+            : (srcC && canBuddyPairWith(srcC, st.inst[t]));
+          if (ok) {
             const e2 = document.querySelector(`[data-cid="${t}"]`); if (e2) e2.classList.add('pick-ok');
           }
         });
@@ -5928,8 +5936,15 @@
     const k = b.dataset.k; if (!st.inst[k]) return;
     if (b.dataset.qa === 'pair') {
       const c = st.inst[k];
-      if (c && c.pairWith) sendAction({ type: 'pair', k, by: mode === 'solo' ? BoTEngine.ownerOf(st, k) : undefined });
-      else startAnnounce(k, 'pair');
+      const byWho = mode === 'solo' ? BoTEngine.ownerOf(st, k) : undefined;
+      if (c && c.pairWith) sendAction({ type: 'pair', k, by: byWho });
+      else {
+        if (BoTEngine && BoTEngine.canPairCard) {
+          const deny = BoTEngine.canPairCard(st, k, byWho);
+          if (deny) { toast(deny); return; }
+        }
+        startAnnounce(k, 'pair');
+      }
     }
     else if (b.dataset.qa === 'unity') startAnnounce(k, 'unity');
     else if (b.dataset.qa === 'attach') startAnnounce(k, 'attach');
@@ -5968,8 +5983,12 @@
         const srcSide = BoTEngine.ownerOf(st, drag.k);
         document.querySelectorAll('.card.drag-drop-ok').forEach(n => n.classList.remove('drag-drop-ok'));
         if (hasBuddyAbility(src) && srcZ.endsWith('.avatar')) {
+          const byWho = mode === 'solo' ? srcSide : undefined;
           (st.zones[srcSide + '.avatar'] || []).filter(t => t !== drag.k).forEach(t => {
-            if (canBuddyPairWith(src, st.inst[t])) {
+            const ok = BoTEngine && BoTEngine.pairDenyReason
+              ? !BoTEngine.pairDenyReason(st, drag.k, t, byWho)
+              : canBuddyPairWith(src, st.inst[t]);
+            if (ok) {
               const el2 = document.querySelector(`[data-cid="${t}"]`); if (el2) el2.classList.add('drag-drop-ok');
             }
           });
@@ -6057,8 +6076,13 @@
         if (tz && tz.endsWith('.avatar') && dc && dc.type === 'Avatar' && fromZ.endsWith('.avatar')
           && BoTEngine.ownerOf(st, tk) === BoTEngine.ownerOf(st, d.k)
           && canBuddyPairWith(dc, st.inst[tk]) && dc.pairWith !== tk) {
+          const byWho = mode === 'solo' ? fromZ[0] : undefined;
+          if (BoTEngine && BoTEngine.pairDenyReason) {
+            const deny = BoTEngine.pairDenyReason(st, d.k, tk, byWho);
+            if (deny) { toast(deny); return; }
+          }
           announceSrc = null; announceKind = 'use';
-          return sendAction({ type: 'pair', k: d.k, to: tk, by: mode === 'solo' ? fromZ[0] : undefined });
+          return sendAction({ type: 'pair', k: d.k, to: tk, by: byWho });
         }
         // ลาก Avatar ที่มีสามัคคี ทับพันธมิตร = สามัคคี
         if (tz && tz.endsWith('.avatar') && canUseUnity(d.k)

@@ -134,6 +134,7 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   put(st, 'B.deck', 'SD01-003');
   const pem = put(st, 'A.avatar', 'BT09-008');
   const spr = put(st, 'A.avatar', 'BT09-009', { tapped: true });
+  apply(st, { type: 'pair', k: spr, to: pem, by: 'A' });
   let fx = apply(st, { type: 'endTurn', by: 'A', seed: 6 });
   if (fx.deny) fail('endTurn deny: ' + fx.deny);
   ok(!st.inst[spr].tapped, 'sprite untapped at own end with buddy');
@@ -163,8 +164,9 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   const st = emptyState({ phase: 'Battle', active: 'A' });
   put(st, 'A.deck', 'SD01-003');
   put(st, 'B.deck', 'SD01-003');
-  put(st, 'A.avatar', 'BT09-008');
+  const pem = put(st, 'A.avatar', 'BT09-008');
   const spr = put(st, 'A.avatar', 'BT09-009', { tapped: false });
+  apply(st, { type: 'pair', k: spr, to: pem, by: 'A' });
   const fx = apply(st, { type: 'endTurn', by: 'A', seed: 8 });
   if (fx.deny) fail('untapped endTurn deny: ' + fx.deny);
   ok(!st.inst[spr].tapped, 'sprite still untapped');
@@ -188,6 +190,7 @@ function zone(st, k) { return BoT.zoneOf(st, k); }
   const pem = put(st, 'A.avatar', 'BT09-008');
   ok(BoT.effPower(st, pem) === 2, 'pemmu not linked without sprite: ' + BoT.effPower(st, pem));
   const spr = put(st, 'A.avatar', 'BT09-009');
+  apply(st, { type: 'pair', k: pem, to: spr, by: 'A' });
   ok(BoT.effPower(st, pem) === 4, 'pemmu +2 in link with sprite: ' + BoT.effPower(st, pem));
   ok(BoT.effPower(st, spr) === 6, 'sprite +2 in link with pemmu: ' + BoT.effPower(st, spr));
   st.active = 'B';
