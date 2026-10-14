@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Sync data/cards.json (+ data/sd01.json) from https://bottcg.com/cards
- * Card DB is embedded in a Next.js chunk; rarity SCR is stored as SEC (same as site badge).
+ * Card DB is fetched from bottcg CDN JSON (or Next.js chunk fallback); rarity SCR is stored as SEC (same as site badge).
  */
 const fs = require('fs');
 const path = require('path');
@@ -46,13 +46,14 @@ function emptyToBlank(v) {
   return v == null ? '' : v;
 }
 
-function toLocalCard(c) {
+function toLocalCard(c, prefixMap = {}) {
   const rare = c.rare || '';
   const rarity = rare === 'SCR' ? 'SEC' : rare;
   const code = c.print;
   const isAltImg = ['SCR', 'PR', 'CBR'].includes(rare);
   const image = isAltImg ? `${code}-${rare}.png` : `${code}.png`;
   const uid = `${code}__${rare || 'X'}`;
+  const series = (code || '').split('-')[0] || '';
 
   let cost = emptyToBlank(c.cost);
   let gem = emptyToBlank(c.gem);
@@ -70,6 +71,13 @@ function toLocalCard(c) {
     cost = '';
     gem = '';
     power = '';
+  }
+
+  let imageUrl = `${CDN}/${image}`;
+  const cdnSubdir = prefixMap[series];
+  if (cdnSubdir) {
+    const cleanSubdir = String(cdnSubdir).replace(/^\/+|\/+$/g, '');
+    imageUrl = `https://cdn.bottcg.com/cards/${cleanSubdir}/${image}`;
   }
 
   return {
@@ -92,33 +100,61 @@ function toLocalCard(c) {
     dropRate: c.dropRate || '',
     customLimit: c.customLimit || '',
     creator: c.creator || '',
-    series: (code || '').split('-')[0] || '',
+    series,
     image,
-    imageUrl: (code || '').startsWith('SD09-') ? `https://cdn.bottcg.com/cards/123v1k1/${image}` : `${CDN}/${image}`,
+    imageUrl,
   };
 }
 
-async function findCardsChunkUrl(html) {
+async function discoverCardDbInfo(html) {
   const scripts = [...new Set([...html.matchAll(/\/_next\/static\/(?:immutable\/)?chunks\/[^"'?]+\.js/g)].map(m => m[0]))];
+  let cardDbUrl = null;
+  let prefixMap = { SD09: '123v1k1', RM01: '0aslabe' };
+  let fallbackChunkJs = null;
+
   for (const s of scripts) {
     const url = BASE + s;
-    const js = await (await fetch(url)).text();
-    if ((js.includes('let r=[{name:') || js.includes('let r=[{')) && js.includes('print:"SD01-001"')) {
-      return { url, js };
-    }
+    try {
+      const js = await (await fetch(url)).text();
+      const dbMatch = js.match(/["']CARD_DB_URL["'],\s*\d*,\s*["']([^"']+)["']/);
+      if (dbMatch) {
+        cardDbUrl = dbMatch[1];
+      }
+      const mapMatch = js.match(/n\s*=\s*(\{([A-Z0-9]+:\s*"[^"]+",?)+\})/);
+      if (mapMatch) {
+        try {
+          const parsed = Function('"use strict"; return (' + mapMatch[1] + ')')();
+          prefixMap = Object.assign({}, prefixMap, parsed);
+        } catch (e) {}
+      }
+      if ((js.includes('let r=[{name:') || js.includes('let r=[{')) && js.includes('print:"SD01-001"')) {
+        fallbackChunkJs = js;
+      }
+    } catch (e) {}
   }
-  throw new Error('Could not find bottcg cards data chunk');
+
+  return { cardDbUrl, prefixMap, fallbackChunkJs };
 }
 
 async function main() {
   console.log('Fetching', BASE + '/cards');
   const html = await (await fetch(BASE + '/cards')).text();
-  const { url, js } = await findCardsChunkUrl(html);
-  console.log('Data chunk:', url, `(${js.length} bytes)`);
+  const { cardDbUrl, prefixMap, fallbackChunkJs } = await discoverCardDbInfo(html);
+  console.log('Prefix map:', prefixMap);
 
-  const raw = extractCardsFromChunk(js);
-  const cards = raw.map(toLocalCard);
-  console.log('Cards:', cards.length);
+  let raw = null;
+  if (cardDbUrl) {
+    console.log('Fetching card DB from JSON endpoint:', cardDbUrl);
+    raw = await (await fetch(cardDbUrl)).json();
+  } else if (fallbackChunkJs) {
+    console.log('Extracting card DB from fallback chunk...');
+    raw = extractCardsFromChunk(fallbackChunkJs);
+  } else {
+    throw new Error('Could not find bottcg cards data chunk or JSON endpoint');
+  }
+
+  const cards = raw.map(c => toLocalCard(c, prefixMap));
+  console.log('Cards fetched:', cards.length);
 
   const rar = {};
   cards.forEach(c => { rar[c.rarity] = (rar[c.rarity] || 0) + 1; });
@@ -126,15 +162,40 @@ async function main() {
 
   const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : [];
   const prevMap = new Map(prev.map(c => [c.uid, c]));
+  const prevByName = new Map();
+  for (const p of prev) {
+    if (p.name && !prevByName.has(p.name)) {
+      prevByName.set(p.name, p);
+    }
+  }
+
   let added = 0, removed = 0, changed = 0;
   const nextMap = new Map(cards.map(c => [c.uid, c]));
-  // คง gemColor ที่เติมเองไว้ ถ้า bottcg ยังว่าง (สีเพชรบนการ์ดยังไม่ครบใน DB)
-  // คง Only #1 ที่เช็คจากรูปแล้ว ถ้า bottcg ตกหล่นบนรีปริ้น
+
+  // 1. คง gemColor จากการ์ดเดิม (ตาม uid) หรือ inherit จากการ์ดชื่อเดียวกันใน DB (เช่น รีปริ้นท์ชุด RM01)
+  // 2. คง Only #1 ที่เช็คจากรูปแล้ว ถ้า bottcg ตกหล่นบนรีปริ้น
   for (const c of cards) {
     const p = prevMap.get(c.uid);
-    if (p && p.gemColor && !c.gemColor) c.gemColor = p.gemColor;
-    if (p && /Only\s*#?\s*1/i.test(p.ex || '') && !/Only\s*#?\s*1/i.test(c.ex || '')) c.ex = p.ex;
+    if (p && p.gemColor && !c.gemColor) {
+      c.gemColor = p.gemColor;
+    }
+    if (!c.gemColor && prevByName.has(c.name)) {
+      const match = prevByName.get(c.name);
+      if (match.gemColor) {
+        c.gemColor = match.gemColor;
+      }
+    }
+    if (p && /Only\s*#?\s*1/i.test(p.ex || '') && !/Only\s*#?\s*1/i.test(c.ex || '')) {
+      c.ex = p.ex;
+    }
+    if (!/Only\s*#?\s*1/i.test(c.ex || '') && prevByName.has(c.name)) {
+      const match = prevByName.get(c.name);
+      if (/Only\s*#?\s*1/i.test(match.ex || '')) {
+        c.ex = match.ex;
+      }
+    }
   }
+
   for (const c of cards) {
     const p = prevMap.get(c.uid);
     if (!p) added++;
@@ -145,6 +206,9 @@ async function main() {
 
   const sec = cards.filter(c => c.rarity === 'SEC');
   console.log('SEC:', sec.length, '(incl. new:', sec.filter(c => !prevMap.has(c.uid)).map(c => c.uid).join(', ') || 'none', ')');
+
+  const rm01 = cards.filter(c => c.series === 'RM01');
+  console.log('RM01 cards:', rm01.length);
 
   fs.writeFileSync(OUT, JSON.stringify(cards));
   console.log('Wrote', OUT);

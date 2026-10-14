@@ -1,0 +1,1917 @@
+{
+  "cards": [
+    {
+      "code": "RM01-001",
+      "name": "กุ่ย นักเอาตัวรอด",
+      "abilities": [
+        {
+          "keyword": "พอดี",
+          "trigger": {
+            "on": "aboutToBeDestroyed",
+            "if": "self.podi"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "preventDestruction"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "exactGemPay": true,
+      "note": "พอดี : สั่งใช้ เมื่อจะถูกทำลาย ทิ้งการ์ด 1 ใบ ไม่ถูกทำลาย"
+    },
+    {
+      "code": "RM01-007",
+      "name": "เคย์ อัศวินโต๊ะกลมแห่งความหลักแหลม",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "targetedByAttack",
+            "if": "oppTurn"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "sendMagicOnFieldToHell",
+              "filter": {
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "ดาบศักดิ์สิทธิ์"
+                ]
+              },
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ในเทิร์นศัตรูเมื่ออัศวินถูกโจมตี ส่ง ดาบศักดิ์สิทธิ์ ลงนรก : อัศวินโต๊ะกลม POWER +2"
+    },
+    {
+      "code": "RM01-010",
+      "name": "เจ้าแม่กาลี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-004",
+      "name": "ฉัพพยา นาคเกล็ดรุ้ง",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battlePhaseStart",
+            "if": "self.power>=7"
+          },
+          "actions": [
+            {
+              "op": "grantExtraLifeDamageOnDirectHit",
+              "amount": 2,
+              "duration": "endOfTurn"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-002",
+      "name": "เบดิเวียร์ อัศวินโต๊ะกลมแห่งความภักดี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "ดาบศักดิ์สิทธิ์"
+                ]
+              },
+              "dest": "hell",
+              "shuffleAfter": true
+            },
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              },
+              "dest": "deckTop",
+              "optional": true
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : นำการ์ด Magic ดาบศักดิ์สิทธิ์ 1 ใบจาก Deck ลงนรก สับ Deck แล้วนำ Avatar อัศวินโต๊ะกลม 1 ใบจากนรกไว้บนสุดของ Deck และ POWER +1"
+    },
+    {
+      "code": "RM01-009",
+      "name": "พระแม่อุมาเทวี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "symbol": "เทพ",
+                "exceptOnly": true
+              },
+              "dest": "hand"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedAnyTurn",
+            "if": "opponentControlsOriginalStolen:พระอิศวร"
+          },
+          "cost": [
+            {
+              "op": "sacrificeSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckOrHandPick",
+              "filter": {
+                "nameIncludes": [
+                  "เจ้าแม่กาลี"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-008",
+      "name": "วันชัยเปรตรุ่นพ่อ",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireFaceDownOwnLife": true,
+          "actions": [
+            {
+              "op": "revealAndActivateOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "+1 ต่อ LIFE ที่หงายทั้งสองฝ่าย · เทิร์นละครั้งหงาย LIFE ใบบนสุดแล้วใช้ผลทันที (รวมผล Main ถัดไป)"
+    },
+    {
+      "code": "RM01-003",
+      "name": "วิรูฬ นาคเกล็ดทอง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "lifeRevealedByAttack"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner",
+              "schedule": "nextOwnMainPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-011",
+      "name": "หุ่นนักรบผู้กล้าปีศาจ : อีวิลไมเกรน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 5
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธหุ่นนักรบผู้กล้า"
+                ]
+              },
+              "dest": "hand"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "modActivatedOnSelf",
+            "filter": {
+              "nameIncludes": [
+                "อาวุธหุ่นนักรบผู้กล้า"
+              ]
+            }
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scoutEnemyAndMillIfMagic",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-006",
+      "name": "อาเธอร์ ราชาแห่งอัศวินโต๊ะกลม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "subtype": "Modification",
+                "nameIncludes": [
+                  "ดาบศักดิ์สิทธิ์"
+                ]
+              },
+              "count": 2,
+              "multiMax": 2,
+              "multiExact": 2,
+              "dest": "hell",
+              "shuffleAfter": true
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restrictSameNameAttackAndEffectUntilEndOfTurn": true,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "uniqueOnField": true,
+      "note": "จุติ : ส่ง ดาบศักดิ์สิทธิ์ 2 ใบจาก Deck ลงนรก แล้วเรียก อัศวินโต๊ะกลม 1 ใบจาก Deck (ห้ามโจมตี/ใช้ผลตัวชื่อซ้ำจนจบเทิร์น)"
+    },
+    {
+      "code": "RM01-005",
+      "name": "เอรา นาคเกล็ดเขียว",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "until": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติเลือกนาค สัตว์วิเศษ ฝ่ายเรา POWER +2 ถาวร"
+    },
+    {
+      "code": "RM01-052",
+      "name": "กระบองแสง คทาวุธ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "untapHostIfEnemyHasAvatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "hostBlockReactUntilCombatEnd": true
+    },
+    {
+      "code": "RM01-055",
+      "name": "ดาบศักดิ์สิทธิ์ แกลลาติน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached,host.untapped"
+          },
+          "actions": [
+            {
+              "op": "immuneHostMagicDestroy"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
+      "note": "สวม อัศวินโต๊ะกลม / ไม่ถูกทำลายด้วยผลของ Magic ถ้าตื่นอยู่ / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod"
+    },
+    {
+      "code": "RM01-057",
+      "name": "ดาบศักดิ์สิทธิ์ คาเรนต์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostDestroyedEnemyInBattle"
+          },
+          "actions": [
+            {
+              "op": "destroyEnemyMagicOnField"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attachedTo:มอเดรด"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordToHost",
+              "keyword": "เตะไข่"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
+      "note": "สวม อัศวินโต๊ะกลม / ทำลายศัตรูจากการต่อสู้ -> ทำลาย Magic ศัตรู / สวม มอเดรด ได้ เตะไข่ / สวมจากนรกได้"
+    },
+    {
+      "code": "RM01-051",
+      "name": "ดาบศักดิ์สิทธิ์ อาลอนไดร์ท",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activatedFromHell",
+            "if": "noModUsedThisTurn"
+          },
+          "cost": [
+            {
+              "op": "millSelf",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "attachFromHellToAvatar",
+              "targetFilter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "attachOnly": "Avatar",
+      "hostAttachNameIncludes": "อัศวินโต๊ะกลม",
+      "hostBlockReactUntilCombatEnd": true,
+      "hostBlockHumanShield": true,
+      "note": "สวม อัศวินโต๊ะกลม / POWER +1 / ห้ามใช้โล่มนุษย์ป้องกัน / สวมจากนรกได้ถ้ายังไม่ได้ใช้ Mod"
+    },
+    {
+      "code": "RM01-056",
+      "name": "ปลอกคอซื่อสัตย์",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantControlImmunity"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "controlImmune": true,
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
+    },
+    {
+      "code": "RM01-053",
+      "name": "มนุษย์ดัดแปลง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "optional": false,
+              "thenAttachSrc": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "hostSymbolReplace": "เครื่องจักร",
+      "destroyHostOnLeave": true,
+      "note": "ทิ้งมือ 1 แล้วอัญเชิญ Avatar Cost≤3 จากนรก แล้วสวมตัวเอง · โฮสต์เป็นเครื่องจักร · ใบนี้หลุดสนามแล้วโฮสต์ลงนรก"
+    },
+    {
+      "code": "RM01-054",
+      "name": "ลูกแก้วนาคา",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileEquipped",
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-047",
+      "name": "โจมตีตัวฉันให้โดนถ้าหากเธอทำได้",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "redirectAttackToAlly",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่ออีกฝ่ายโจมตี : ย้ายเป้าหมายการโจมตีไปอวตารฝ่ายเราที่เลือก"
+    },
+    {
+      "code": "RM01-050",
+      "name": "รัททาทุยเกาะหน้า",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarDestroyed",
+            "if": "symbol:รัททาทุย"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy",
+              "optional": true
+            },
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "รัททาทุย",
+                "cost": 1,
+                "gem": 1,
+                "power": 1
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อรัททาทุยฝ่ายเราถูกทำลาย → ทำลายศัตรู Cost≤5 แล้วอัญเชิญ C1G1P1 จากเด็ค ไม่จุติ"
+    },
+    {
+      "code": "RM01-048",
+      "name": "ลุ้นเยี่ยวเหนียว",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "requireBothHaveAvatar": true,
+          "react": true,
+          "actions": [
+            {
+              "op": "diceLowestDeckBottomAllAvatars"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูประกาศโจมตีและทั้งสองฝ่ายมี Avatar: ทั้งคู่ทอยเต๋า — แต้มน้อยสุด Avatar ทั้งหมดกลับใต้เด็ค (เสมอ=ทั้งคู่)"
+    },
+    {
+      "code": "RM01-046",
+      "name": "เสียงเรียกแห่งวัลฮัลลา",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireCritical": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 5,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "hellPick",
+              "dest": "avatar",
+              "paidCost": false,
+              "multiMax": 4,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สาหัสเท่านั้น เมื่อถูกประกาศโจมตี ธรณีสูบ 5 ยกเลิกโจมตี แล้วอัญเชิญเทพธิดาวัลฮัลลาสูงสุด 4 จากนรก · โดนธรณีสูบโดยเทพม่วง/Magic → กลับขึ้นมือ"
+    },
+    {
+      "code": "RM01-049",
+      "name": "แหม่อ้ายก็~~~",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "cancelAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อฝ่ายตรงข้ามประกาศโจมตี: ยกเลิกการโจมตีนั้น"
+    },
+    {
+      "code": "RM01-045",
+      "name": "อย่าให้มีครั้งที่ 2",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyPlayReact"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
+    },
+    {
+      "code": "RM01-042",
+      "name": "เครื่องบิน Super Air",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireSummonedOnlySuperAirOrNone": true,
+          "actions": [
+            {
+              "op": "becomeAvatar",
+              "symbol": "หุ่นยนต์",
+              "cost": 5,
+              "gem": 0,
+              "power": 5,
+              "lockSummonExceptNameIncludes": "Super Air"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-043",
+      "name": "ชะตาไม่มีวันจบลง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "sahat"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ตั๊กแตนหยิน",
+                  "ตั๊กแตนหยาง"
+                ]
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้ได้เฉพาะตอนสาหัส : เรียก ตั๊กแตนหยิน/หยาง จากนรก"
+    },
+    {
+      "code": "RM01-041",
+      "name": "พูดไทยได้ 5 คำ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "handOrSummon",
+              "summonCostMax": 2,
+              "paidCost": false,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-044",
+      "name": "แหมกำบ่อ้าย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "deckRemainingMax:15"
+          },
+          "actions": [
+            {
+              "op": "returnFromHellToDeck",
+              "exceptSelfName": true,
+              "max": 5,
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถ้า Deck เหลือ <= 15 ใบ : นำการ์ดในนรกสูงสุด 5 ใบกลับเข้า Deck"
+    },
+    {
+      "code": "RM01-058",
+      "name": "ถ้ำนาคา",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-059",
+      "name": "บิฟร็อสต์ สะพานสายรุ้ง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milledAny"
+          },
+          "actions": [
+            {
+              "op": "grantKeyword",
+              "keyword": "สามัคคี",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              },
+              "duration": "endOfTurn"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "milledByPurpleGodOrMagic"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHandFromHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "nameAliases": [
+        "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน"
+      ],
+      "note": "เมื่อมีการธรณีสูบ : ให้ สามัคคี แก่อวตาร 1 ใบ / ถูกธรณีสูบด้วยเทพม่วง/เวท เอาขึ้นมือ"
+    },
+    {
+      "code": "RM01-014",
+      "name": "กาเวน อัศวินโต๊ะกลมแห่งแสงอาทิตย์",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone,oppTurn"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "note": "โล่มนุษย์ / POWER +2 ในเทิร์นคู่แข่ง"
+    },
+    {
+      "code": "RM01-016",
+      "name": "ของขวัญที่เมียทิ้งไว้ให้",
+      "abilities": [],
+      "parseStatus": "auto",
+      "freeSummonIf": {
+        "requireOwnNameIncludes": "เจค นักฆ่ามือเก๋า",
+        "requireNoOwnExactName": "ของขวัญที่เมียทิ้งไว้ให้"
+      },
+      "note": "อัญเชิญฟรีจากมือถ้ามีเจค และยังไม่มีของขวัญบนสนาม"
+    },
+    {
+      "code": "RM01-020",
+      "name": "จอย มนุษย์ดาว R18",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "summonServantFromMagicUntilEndPhase"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ : อัญเชิญ ข้ารับใช้ของ มนุษย์ดาว R18 จาก Magic Zone ถึง End Phase"
+    },
+    {
+      "code": "RM01-021",
+      "name": "จ่ามะนาวแขนเหล็ก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyDestroyed",
+            "if": "nameIncludes:จ่ามะนาว,costMax:3"
+          },
+          "actions": [
+            {
+              "op": "handSummonSelfOnAllyDestroyed",
+              "freeIfSahat": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์",
+        "สามัคคี"
+      ],
+      "note": "โล่มนุษย์ สามัคคี / สั่งใช้ : เมื่อ จ่ามะนาว Cost <= 3 ถูกทำลาย อัญเชิญจากมือ (ฟรีถ้าสาหัส)"
+    },
+    {
+      "code": "RM01-015",
+      "name": "เจค นักฆ่ามือเก๋า",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "requireOwnHellNameIncludes": "ของขวัญที่เมียทิ้งไว้ให้",
+          "actions": [
+            {
+              "op": "discardOppRandom",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "uniqueOnField": true,
+      "note": "ลูกฮึด + ทิ้งมือศัตรูเมื่อมีของขวัญในนรก"
+    },
+    {
+      "code": "RM01-017",
+      "name": "ไดโนกาฬสินธุ์ - สุธีธรนีซอรัส",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ไดโนกาฬสินธุ์"
+                ],
+                "costMax": 3,
+                "exceptSelf": true
+              },
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-012",
+      "name": "ผู้เจริญ นาย",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "grantKeywordAura": {
+        "symbols": [
+          "คน",
+          "ต้นไม้"
+        ],
+        "keyword": "สามัคคี"
+      },
+      "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
+    },
+    {
+      "code": "RM01-022",
+      "name": "ริกกี้ ฆาตกรถลกหนัง",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "destroyedInBattleBySelf"
+          },
+          "cost": [
+            {
+              "op": "sacrificeSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckPickDistinctFromSelf",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "แมลง",
+                "nameIncludes": [
+                  "ริกกี้"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "podi": true,
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-013",
+      "name": "ลานเซลอต อัศวินโต๊ะกลมแห่งการปฏิวัติ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "restTo": "bottom",
+              "shuffleAfter": true,
+              "thenIfColor": {
+                "แดง": [
+                  {
+                    "op": "modifyPower",
+                    "amount": 1,
+                    "duration": "endOfTurn",
+                    "target": {
+                      "select": "all",
+                      "side": "own",
+                      "nameIncludes": [
+                        "อัศวินโต๊ะกลม"
+                      ]
+                    }
+                  }
+                ],
+                "ฟ้า": [
+                  {
+                    "op": "draw",
+                    "count": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 2 ใบ เรียก อัศวินโต๊ะกลม (แดง = ทั้งหมด POWER +1, ฟ้า = จั่ว 1)"
+    },
+    {
+      "code": "RM01-018",
+      "name": "สวีนนีย์ มนุษย์ดาว R18",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ทหาร",
+                  "รด."
+                ],
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "paidCost": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
+    },
+    {
+      "code": "RM01-019",
+      "name": "อามัส มนุษย์ดาว R18",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ เทิร์นละครั้ง : ทิ้ง 1 ใบ จั่ว 1 ใบ"
+    },
+    {
+      "code": "RM01-031",
+      "name": "จอมเวทย์ เบล่า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,otherOwnAvatarNameIncludes:จอมเวทย์"
+          },
+          "actions": [
+            {
+              "op": "castHellMagicWithoutCost",
+              "filter": {
+                "type": "Magic",
+                "subtype": "Normal",
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "note": "จุติ (มีจอมเวทย์อื่น) : เลือก คาถา จากนรกสั่งใช้ผล"
+    },
+    {
+      "code": "RM01-026",
+      "name": "เจ๊หมวย เจ้าของร้านหม่าล่า",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "whenAttacked"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -3,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-029",
+      "name": "ซีกรุน เทพธิดาแห่งวัลฮัลลา",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 3 : POWER +1 จนกว่าออกจากสนาม"
+    },
+    {
+      "code": "RM01-023",
+      "name": "นักรบ ฮอล",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "fromHand": true,
+          "payCostSummon": true,
+          "noJuti": true,
+          "actions": [
+            {
+              "op": "summonSelfFromHandPaying",
+              "paidCost": false
+            },
+            {
+              "op": "redirectPendingAttackToSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-027",
+      "name": "สกัลด์ เทพธิดาแห่งวัลฮัลลา",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "dest": "avatar",
+              "paidCost": false,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ],
+                "costMax": 4,
+                "nameNotEquals": "สกัลด์ เทพธิดาแห่งวัลฮัลลา"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดยเทพม่วง/Magic → อัญเชิญเทพธิดาวัลฮัลลา Cost≤4 ที่ไม่ใช่สกัลด์จากนรก"
+    },
+    {
+      "code": "RM01-030",
+      "name": "อาม่อน No.7",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "actions": [
+            {
+              "op": "freeSummonSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "destroyedFromAvatarZone"
+          },
+          "actions": [
+            {
+              "op": "returnSelfToDeck",
+              "pos": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อถูกธรณีสูบ อัญเชิญลงสนาม / เมื่อถูกทำลายจาก Avatar Zone กลับใต้สุด Deck"
+    },
+    {
+      "code": "RM01-028",
+      "name": "โอลรุน เทพธิดาแห่งวัลฮัลลา",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โดนธรณีสูบโดย Avatar เทพม่วงหรือ Magic → กลับขึ้นมือ"
+    },
+    {
+      "code": "RM01-024",
+      "name": "เฮล่า เทพแอสการ์ดแห่งความตาย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "milledOrAddedToHandByPurpleGod"
+          },
+          "actions": [
+            {
+              "op": "freeSummonSelfIfLandAsgardAndPurpleGod"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "millSelfChoose",
+              "max": 5
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPowerPerMilled",
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "symbol": "เทพ",
+                "color": "purple",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ถูกหยิบ/ธรณีสูบด้วยเทพม่วง + มีแลนด์แอสการ์ด + มีเทพม่วง -> อัญเชิญฟรี / ธรณีสูบ 5 ใบ บัฟ POWER เทพม่วง"
+    },
+    {
+      "code": "RM01-025",
+      "name": "Ecycle",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {},
+              "dest": "deckBottom"
+            },
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-033",
+      "name": "กระเป๋าเครื่องบิน Super Air",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ตั๋วยืน"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-032",
+      "name": "คุณเชิดชัย Super Air",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "Super Air"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-040",
+      "name": "ตั๊กแตนหญิง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "nameIncludes": [
+                  "ตั๊กแตน"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "RM01-039",
+      "name": "ตั๊กแตนหยาง",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerPerRevealedLifeIfAlly",
+              "allyName": "ตั๊กแตนหยิน",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            },
+            {
+              "op": "grantKeywordsIfSahat",
+              "keywords": [
+                "ลูกฮึด",
+                "โล่มนุษย์"
+              ],
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "attachOnly": {
+        "symbol": "แมลง"
+      },
+      "note": "มีตั๊กแตนหยิน POWER เพิ่มตาม LIFE หงาย / สาหัส ได้รับ ลูกฮึด + โล่มนุษย์ / สวมใส่ได้แค่แมลง"
+    },
+    {
+      "code": "RM01-038",
+      "name": "ตั๊กแตนหยิน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "revealOwnLife",
+              "count": 1
+            },
+            {
+              "op": "unrevealOwnLifeChoose",
+              "count": 1,
+              "ignoreSahat": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownFieldHas:บัลลังก์ตั๊กแตนศตวรรษ"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "triggerRevealedLifeEffectNow"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : หงาย 1 คว่ำ 1 / มีบัลลังก์ตั๊กแตน ทิ้งมือ 1 สั่งใช้ผล LIFE ที่หงาย"
+    },
+    {
+      "code": "RM01-035",
+      "name": "ผู้โดยสาร Super Air",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDestroying",
+            "filter": {
+              "nameIncludes": "Super Air"
+            }
+          },
+          "actions": [
+            {
+              "op": "destroySelfInstead"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "cannotBeAttackTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "cannotBeAttackTargetIfOwnNameIncludes": "Super Air",
+      "protectReplaceIfHostNameIncludes": "Super Air",
+      "protectReplaceForNameIncludes": "เครื่องบิน Super Air",
+      "note": "สังเวยแทน Super Air ถูกทำลาย / ห้ามตกเป็นเป้าการโจมตี"
+    },
+    {
+      "code": "RM01-036",
+      "name": "รถถัง A003",
+      "abilities": [],
+      "parseStatus": "verified"
+    },
+    {
+      "code": "RM01-037",
+      "name": "สว นาโนแมชชีน",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "battleImmuneVsLowerPower",
+              "powerMax": 9
+            },
+            {
+              "op": "immuneMagicDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "controlImmune": true,
+      "note": "ไม่ถูกทำลายจากการต่อสู้กับ Power < 10 / ไม่ถูกทำลายจากเวท / กันเปลี่ยนการควบคุม"
+    },
+    {
+      "code": "RM01-034",
+      "name": "หมาเครื่องบิน Super Air",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasName:Super Air"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordSelf",
+              "keyword": "เตะไข่"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "grantKeywordIfAllyNameIncludes": {
+        "name": "Super Air",
+        "keyword": "เตะไข่"
+      },
+      "note": "ได้รับ เตะไข่ ถ้ามี Super Air บนสนาม"
+    },
+    {
+      "code": "RM01-060",
+      "name": "ยานสำรวจ R18",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:มนุษย์ดาว R18"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "stealEnemyHellAvatarToMagicServant",
+              "costMin": 5,
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ (ถ้าคุม R18): ดึง Avatar ศัตรู Cost >= 5 จากนรกมาไว้ Magic เป็น ข้ารับใช้ของ มนุษย์ดาว R18"
+    }
+  ]
+}

@@ -3605,6 +3605,244 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "code": "PRMO-128",
+      "name": "เมย์ แวมไพร์โกธิค",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "เพมมุ",
+            "สไปรท์"
+          ],
+          "requireOwnDarkNameMissing": "เมย์ แวมไพร์โกธิค",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireOwnNameIncludes": "เจ้าหญิงรวงข้าว",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+    },
+    {
+      "code": "PRMO-149",
+      "name": "ตัวอะไรสักอย่าง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "moveEnemyAvatarToLowerPowerToMagicServant"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : ย้าย Avatar ศัตรูที่มี Power ต่ำกว่าใบนี้ ไป Magic Zone เป็น ข้ารับใช้ของ มนุษย์ดาว R18"
+    },
+    {
+      "code": "PRMO-127",
+      "name": "เซตาม่อน Overdose",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "ifDestroyedHasKeyword": [
+            "โล่มนุษย์",
+            "ลูกฮึด"
+          ],
+          "actions": [
+            {
+              "op": "revealOppLifeTop"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "โล่มนุษย์",
+        "ลูกฮึด"
+      ],
+      "overdoseLockOwnAbilities": true,
+      "note": "ไลฟ์หงาย ≥3 → Overdose: ศัตรูใช้โล่มนุษย์/ลูกฮึดไม่ได้ · ฆ่าใบที่มีโล่ม/ลูกฮึด → หงายไลฟ์บนสุดศัตรู · อวตารฝ่ายเราใช้ความสามารถไม่ได้ยกเว้น Overdose"
+    },
+    {
+      "code": "PRMO-153-A",
+      "name": "ดยุกแห่งภาคีมะม่วง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar"
+              ],
+              "filter": {
+                "type": "Avatar"
+              },
+              "costMaxPlusOwnMagicNameIncludes": {
+                "nameIncludes": "ต้นมะม่วง",
+                "base": 2,
+                "per": 1
+              },
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": false,
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : เลือก Avatar 1 ใบ ที่มี Cost 2 หรือ ต่ำกว่า บน Avatar Zone ฝ่ายตรงข้าม ทำลาย Avatar ใบที่เลือ"
+    },
+    {
+      "code": "PRMO-153-B",
+      "name": "ดยุกแห่งภาคีมะม่วง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar"
+              ],
+              "filter": {
+                "type": "Avatar"
+              },
+              "costMaxPlusOwnMagicNameIncludes": {
+                "nameIncludes": "ต้นมะม่วง",
+                "base": 2,
+                "per": 1
+              },
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": false,
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : เลือก Avatar 1 ใบ ที่มี Cost 2 หรือ ต่ำกว่า บน Avatar Zone ฝ่ายตรงข้าม ทำลาย Avatar ใบที่เลือ"
+    },
+    {
+      "code": "PRMO-150",
+      "name": "พลเสบียง",
+      "abilities": [],
+      "parseStatus": "verified",
+      "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "code": "PRMO-126",
+      "name": "หอสมุดจอมเวทย์",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "allowExtraNormalMagicFilter",
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==constructZone,ownAvatarNameIncludes:จอมเวทย์"
+          },
+          "actions": [
+            {
+              "op": "cannotBeTargetedByEnemy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สั่งใช้ : ใช้ คาถา เพิ่มได้อีก 1 ใบ / มี จอมเวทย์ ศัตรูห้ามเลือกเป็นเป้าโจมตี/ความสามารถ"
     }
   ]
 }
