@@ -2350,6 +2350,7 @@
       if (!(mode === 'solo' && soloBot && a.by === 'B')) toast('🚫 ' + fx.deny, 3200);
       return fx;
     }
+    if (teacherMode) recordTeacherAction(a);
     if (a.type === 'summon') { (a.payIds || []).forEach(k => delete selMap[k]); delete selMap[a.k]; }
     if (fx.snd) snd(fx.snd);
     if (fx.drawn || (fx.drawnList && fx.drawnList.length)) {
@@ -3937,6 +3938,7 @@
     if (mode === 'solo' && !STREAM) reportTable(realMode ? 'real' : 'solo');   // 📊
     try { if (!localStorage.getItem('bot_tut_seen')) byId('tut').classList.remove('hidden'); } catch (e) { }
     onResize();
+    if (teacherMode) initTeacherSession();
     render();
     scheduleBot();
   }
@@ -3965,6 +3967,7 @@
     byId('endOv').classList.remove('hidden');
     if (mode === 'solo' && soloBot && typeof BotUniversal !== 'undefined' && BotUniversal.recordResult)
       BotUniversal.recordResult(st, winner);
+    if (teacherMode && teacherSession) saveTeacherSession(winner === my);
   }
 
   /* ── render โต๊ะ ── */
@@ -4206,6 +4209,7 @@
     syncSwapSideBtns();
     syncTableNav();
     syncBotAiDebug();
+    syncTeacherUI();
     if (lastPhaseShown !== st.phase + '|' + st.turn + '|' + st.active) {
       const prevActive = (lastPhaseShown || '').split('|')[2];
       if (pendingEndTurn && prevActive && prevActive !== st.active) pendingEndTurn = false;
@@ -7485,6 +7489,130 @@
     syncBotAiDebug();
     toast(next ? '🧠 AI Debug เปิด' : 'AI Debug ปิด', 1600);
   };
+
+  /* ════ โหมดครูผู้สอน (Teacher Mode) — บันทึกการตัดสินใจของผู้เล่นสอน AI ════ */
+  let teacherMode = (() => {
+    try { return localStorage.getItem('bot_teacher_mode') === '1'; } catch (e) { return false; }
+  })();
+  let teacherSession = null;
+
+  function syncTeacherUI() {
+    const btn = byId('btnTeacherMode');
+    if (btn) {
+      btn.classList.toggle('active', !!teacherMode);
+      btn.textContent = teacherMode ? '🎓 กำลังสอน AI' : '🎓 สอน AI';
+    }
+    const banner = byId('teacherBanner');
+    if (banner) {
+      const isTable = byId('table') && !byId('table').classList.contains('hidden');
+      banner.classList.toggle('hidden', !(teacherMode && isTable));
+    }
+  }
+
+  function initTeacherSession() {
+    if (!st || !teacherMode) { teacherSession = null; syncTeacherUI(); return; }
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    const cards = (U && U.cardsFromState) ? U.cardsFromState(st, my) : [];
+    const fp = (U && U.fingerprintCards) ? U.fingerprintCards(cards) : 'custom';
+    const activeDeckKey = localStorage.getItem('bot_active_deck') || 'SD01';
+    const deckChoice = typeof resolveDeckChoice === 'function' ? resolveDeckChoice(activeDeckKey) : null;
+    teacherSession = {
+      deckFp: fp,
+      deckName: (deckChoice && deckChoice.name) || 'Custom Deck',
+      mulligan: null,
+      actions: [],
+    };
+    syncTeacherUI();
+  }
+
+  function recordTeacherAction(a) {
+    if (!teacherMode || !teacherSession || !st || !a) return;
+    if (a.by && a.by !== my) return;
+    const t = st.turn || 1;
+    if (a.type === 'mulligan') {
+      const hand = (st.zones && st.zones[my + '.hand']) || [];
+      const dropIds = new Set(a.ids || []);
+      const kept = hand.filter(k => !dropIds.has(k)).map(k => (st.inst[k] && st.inst[k].name) || '').filter(Boolean);
+      const dropped = (a.ids || []).map(k => (st.inst[k] && st.inst[k].name) || '').filter(Boolean);
+      teacherSession.mulligan = { kept, dropped };
+      return;
+    }
+    if (a.type === 'summon') {
+      const c = st.inst[a.k];
+      const name = (c && c.name) || '';
+      const payNames = (a.payIds || []).map(k => (st.inst[k] && st.inst[k].name) || '').filter(Boolean);
+      const hand = (st.zones && st.zones[my + '.hand']) || [];
+      const paySet = new Set(a.payIds || []);
+      paySet.add(a.k);
+      const handRemainingNames = hand.filter(k => !paySet.has(k)).map(k => (st.inst[k] && st.inst[k].name) || '').filter(Boolean);
+      teacherSession.actions.push({
+        turn: t,
+        type: 'summon',
+        name,
+        payNames,
+        handRemainingNames,
+      });
+      return;
+    }
+    if (a.type === 'playMagic') {
+      const c = st.inst[a.k];
+      teacherSession.actions.push({
+        turn: t,
+        type: 'playMagic',
+        name: (c && c.name) || '',
+      });
+      return;
+    }
+    if (a.type === 'declareAttack') {
+      const atkC = st.inst[a.atk];
+      const defC = a.def ? st.inst[a.def] : null;
+      teacherSession.actions.push({
+        turn: t,
+        type: 'attack',
+        atkName: (atkC && atkC.name) || '',
+        target: a.def ? ((defC && defC.name) || 'avatar') : 'life',
+      });
+    }
+  }
+
+  function saveTeacherSession(won) {
+    if (!teacherSession || !teacherSession.deckFp) return;
+    const U = typeof BotUniversal !== 'undefined' ? BotUniversal : null;
+    if (U && U.recordTeacherGame) {
+      const res = U.recordTeacherGame(teacherSession, won);
+      toast(`🎓 AI เรียนรู้แนวทางจากคุณแล้ว (${res.games} เกม, ชนะ ${res.wins}) — บอทจะนำไปปรับใช้แบบไร้ข้อผิดพลาด!`, 3500);
+    }
+    teacherSession = null;
+    syncTeacherUI();
+  }
+
+  const btnTeacher = byId('btnTeacherMode');
+  if (btnTeacher) {
+    btnTeacher.onclick = () => {
+      teacherMode = !teacherMode;
+      try { localStorage.setItem('bot_teacher_mode', teacherMode ? '1' : '0'); } catch (e) { }
+      if (teacherMode) {
+        initTeacherSession();
+        toast('🎓 เปิดโหมดครูผู้สอน: AI กำลังสังเกตและจำการเล่นของคุณเพื่อนำไปปรับใช้แบบไร้ข้อผิดพลาด!', 3200);
+      } else {
+        if (teacherSession && teacherSession.actions.length) saveTeacherSession(true);
+        else teacherSession = null;
+        toast('ปิดโหมดครูผู้สอน', 1600);
+      }
+      syncTeacherUI();
+    };
+  }
+  const btnTeachSave = byId('btnTeacherSave');
+  if (btnTeachSave) {
+    btnTeachSave.onclick = () => {
+      if (teacherSession && teacherSession.actions.length) {
+        saveTeacherSession(true);
+      } else {
+        toast('ยังไม่มีข้อมูลการตัดสินใจใหม่ในเทิร์นนี้');
+      }
+    };
+  }
+
   byId('mnuSolo').onclick = () => openPlaySetup('solo');
   byId('btnSoloStart').onclick = () => startSoloMatch();
   /* 🎴 เล่นกับคนที่ใช้การ์ดจริง — ใช้เอนจินเดียวกับซ้อมมือ (ไม่มีกติกาใหม่)

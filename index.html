@@ -713,6 +713,7 @@
       <button id="btnCoin" class="btn-mini">🪙 โยนเหรียญ</button>
       <button id="btnEnd" class="btn-mini btn-essential" title="ประกาศจบเกม">จบเกม</button>
       <button id="btnBotAiDebug" class="btn-mini" title="เปิด/ปิดเหตุผลที่บอทเลือก Action">🧠 AI Debug</button>
+      <button id="btnTeacherMode" class="btn-mini" title="เปิด/ปิดโหมดครูผู้สอน — บันทึกแนวทางการเล่นของคุณเป็นต้นแบบให้ AI เรียนรู้">🎓 สอน AI</button>
     </div>
     <div id="toolResult" class="tool-result">ผลเต๋า/เหรียญจะแสดงตรงนี้ และลง log</div>
     <div class="ctrl-row hidden" id="firstpRow"><button id="btnFirstP" class="btn-dark" style="width:100%">🎲 สลับผู้เริ่มก่อน</button></div>
@@ -734,6 +735,10 @@
     </div>
   </div>
 
+  <div id="teacherBanner" class="teacher-banner hidden">
+    <span>🎓 <b>โหมดครูผู้สอน:</b> กำลังบันทึกการเล่นของคุณเป็นต้นแบบให้ AI...</span>
+    <button type="button" id="btnTeacherSave" class="btn-mini">บันทึกความรู้</button>
+  </div>
   <pre id="botAiDebug" class="bot-ai-debug hidden" aria-live="polite"></pre>
   <div id="phaseFlash" class="hidden"></div>
   <div id="annFlash" class="ann-flash"></div>

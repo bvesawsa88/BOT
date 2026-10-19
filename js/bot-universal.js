@@ -681,6 +681,46 @@
     costP += p.cost * 2;
     risk += p.risk * 4;
 
+    // ── Zero-Blunder Check (ป้องกันเล่นพลาด 100%) ──
+    if (a.type === 'declareAttack' && a.def) {
+      if (isSuicideAttack(st, side, a.atk, a.def)) {
+        risk += 99999;
+        immediate -= 99999;
+        reasons.push('🚫 ป้องกันเล่นพลาด: ไม่นำตัวไปตายฟรี (Anti-Suicide)');
+      }
+    }
+    const lethalInfo = detectGuaranteedLethal(st, side);
+    if (lethalInfo && lethalInfo.isLethal) {
+      if (a.type === 'declareAttack' && (a.life || (lethalInfo.directHitters && lethalInfo.directHitters.includes(a.atk)))) {
+        win += 50000;
+        immediate += 50000;
+        reasons.push('⚡ ปิดเกม 100% (Guaranteed Lethal)');
+      }
+    }
+
+    // ── Expert Playbook Integration (แนวทางครูผู้สอน) ──
+    const deckFp = fingerprintCards(cardsFromState(st, side));
+    const pb = getPlaybookForDeck(deckFp);
+    if (pb) {
+      if (state && state.turn <= 2 && kind === 'summon' && c && pb.openings && pb.openings[nameOf(c)]) {
+        synergy += 60 + Math.min(pb.openings[nameOf(c)] * 15, 120);
+        reasons.push('🎓 เดินตามแนวทางครูผู้สอน (Opening Book)');
+      }
+      if (kind === 'summon' && a.payIds && a.payIds.length) {
+        let avoidPenalty = 0;
+        a.payIds.forEach(pk => {
+          const pc = st.inst[pk];
+          if (pc && pb.gemAvoid && pb.gemAvoid[nameOf(pc)]) {
+            avoidPenalty += 35;
+          }
+        });
+        if (avoidPenalty > 0) {
+          costP += avoidPenalty;
+          reasons.push('⚠️ ครูผู้สอนสงวนใบนี้ไว้ ไม่นำไปจ่าย Gem');
+        }
+      }
+    }
+
     const score =
       immediate * w.immediate
       + tempo * w.tempo
@@ -775,6 +815,16 @@
     if (deck && deck.primary === 'aggro' && p.cost <= 3 && p.power >= 2) s += 14;
     if (deck && deck.primary === 'combo' && ((p.tags.search || 0) > 0 || p.isLand)) s += 16;
     if (deck && deck.pace === 'fast' && p.cost >= 7) s -= 12;
+    const deckFp = fingerprintCards(cardsFromState(st, side));
+    const pb = getPlaybookForDeck(deckFp);
+    if (pb && c.name) {
+      if (pb.mulliganKept && pb.mulliganKept[c.name]) {
+        s += Math.min(pb.mulliganKept[c.name] * 8, 40);
+      }
+      if (pb.mulliganDropped && pb.mulliganDropped[c.name]) {
+        s -= Math.min(pb.mulliganDropped[c.name] * 8, 40);
+      }
+    }
     return s;
   }
 
@@ -861,7 +911,136 @@
     return { score, why, profile: d };
   }
 
-  /* ═══════════════ 11. Learning ═══════════════ */
+  /* ═══════════════ 11. Learning & Expert Playbook ═══════════════ */
+  const LS_PLAYBOOK = 'bot_expert_playbook_v1';
+  let playbookMem = null;
+
+  function defaultPlaybook() {
+    return { version: 1, decks: Object.create(null) };
+  }
+  function loadPlaybook() {
+    if (playbookMem) return playbookMem;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        playbookMem = JSON.parse(localStorage.getItem(LS_PLAYBOOK) || 'null') || defaultPlaybook();
+      } else playbookMem = defaultPlaybook();
+    } catch (e) { playbookMem = defaultPlaybook(); }
+    if (!playbookMem.decks) playbookMem.decks = Object.create(null);
+    return playbookMem;
+  }
+  function savePlaybook() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(LS_PLAYBOOK, JSON.stringify(playbookMem || defaultPlaybook()));
+      }
+    } catch (e) { }
+  }
+  function getPlaybookForDeck(fp) {
+    if (!fp) return null;
+    const mem = loadPlaybook();
+    return mem.decks[fp] || null;
+  }
+  function recordTeacherGame(session, won) {
+    if (!session || !session.deckFp) return null;
+    const mem = loadPlaybook();
+    const fp = session.deckFp;
+    const d = mem.decks[fp] || {
+      deckName: session.deckName || 'Custom Deck',
+      games: 0,
+      wins: 0,
+      openings: {},
+      gemAvoid: {},
+      gemUsed: {},
+      mulliganKept: {},
+      mulliganDropped: {},
+    };
+    d.games = (d.games || 0) + 1;
+    if (won) d.wins = (d.wins || 0) + 1;
+    if (session.deckName) d.deckName = session.deckName;
+
+    if (session.mulligan) {
+      (session.mulligan.kept || []).forEach(name => {
+        d.mulliganKept[name] = (d.mulliganKept[name] || 0) + 1;
+      });
+      (session.mulligan.dropped || []).forEach(name => {
+        d.mulliganDropped[name] = (d.mulliganDropped[name] || 0) + 1;
+      });
+    }
+
+    (session.actions || []).forEach(act => {
+      if (act.turn <= 2 && act.type === 'summon' && act.name) {
+        d.openings[act.name] = (d.openings[act.name] || 0) + (won ? 3 : 1);
+      }
+      if (act.type === 'summon') {
+        (act.payNames || []).forEach(n => {
+          d.gemUsed[n] = (d.gemUsed[n] || 0) + 1;
+        });
+        (act.handRemainingNames || []).forEach(n => {
+          d.gemAvoid[n] = (d.gemAvoid[n] || 0) + 1;
+        });
+      }
+    });
+
+    mem.decks[fp] = d;
+    savePlaybook();
+    return d;
+  }
+  function clearPlaybook() {
+    playbookMem = defaultPlaybook();
+    savePlaybook();
+  }
+
+  /* ── Zero-Blunder Guard (ตรวจจับและตัดการเล่นพลาด 100%) ── */
+  function detectGuaranteedLethal(st, side) {
+    if (!st || !side) return null;
+    const E = eng();
+    const opp = otherSide(side);
+    const oppLives = zoneIds(st, opp + '.life');
+    if (!oppLives.length) return null;
+
+    const enemies = zoneIds(st, opp + '.avatar').filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
+    const pwr = k => {
+      try { return (E && E.effPower) ? E.effPower(st, k) : (+(st.inst[k] && st.inst[k].power) || 0); }
+      catch (e) { return +(st.inst[k] && st.inst[k].power) || 0; }
+    };
+    const hasEgg = k => !!(E && E.hasKw && E.hasKw(st, k, 'เตะไข่'));
+
+    const readyAtk = zoneIds(st, side + '.avatar').filter(k => {
+      const c = st.inst[k];
+      return c && !c.tapped && c.faceUp !== false && c.type === 'Avatar' && pwr(k) > 0;
+    });
+
+    const directHitters = readyAtk.filter(k => !enemies.length || hasEgg(k));
+    if (directHitters.length >= oppLives.length && directHitters.length > 0) {
+      return {
+        isLethal: true,
+        directHitters,
+        targetLife: oppLives[0],
+      };
+    }
+    return null;
+  }
+
+  function isSuicideAttack(st, side, atkK, defK) {
+    if (!atkK || !defK) return false;
+    const E = eng();
+    const pwr = k => {
+      try { return (E && E.effPower) ? E.effPower(st, k) : (+(st.inst[k] && st.inst[k].power) || 0); }
+      catch (e) { return +(st.inst[k] && st.inst[k].power) || 0; }
+    };
+    const ap = pwr(atkK);
+    const dp = pwr(defK);
+    if (ap < dp) {
+      const atkc = st.inst[atkK];
+      const e = effectOf(atkc);
+      const abs = (e && e.abilities) || [];
+      const hasDeathTrig = abs.some(ab => ab.trigger && (ab.trigger.on === 'destroyed' || ab.trigger.on === 'toHell'));
+      if (hasDeathTrig) return false;
+      return true;
+    }
+    return false;
+  }
+
   function defaultLearn() { return { games: 0, byTag: {} }; }
   function loadLearn() {
     if (learnMem) return learnMem;
@@ -958,12 +1137,22 @@
     const avColor = (eAll && eAll.allColors) ? '' : (c0.color || '');
     const hand = zoneIds(st, side + '.hand').filter(x => x !== summonK);
     const usable = [];
+    const fp = fingerprintCards(cardsFromState(st, side));
+    const pb = getPlaybookForDeck(fp);
     hand.forEach(k => {
       const x = st.inst[k]; if (!x) return;
       const gc = (E && E.gemColorOf) ? E.gemColorOf(x) : (((x && x.gemColor) && x.gemColor !== 'ใส' && x.gemColor !== 'ไร้สี') ? x.gemColor : 'ขาว');
       const ok = E && E.gemPaysFor ? E.gemPaysFor(gc, avColor) : (!avColor || gc === 'ขาว' || gc === avColor);
       const g = +x.gem || 0;
-      if (ok && g > 0) usable.push({ k, g, keep: cardValue(st, side, x) });
+      if (ok && g > 0) {
+        let keepVal = cardValue(st, side, x);
+        if (pb) {
+          const xn = nameOf(x);
+          if (pb.gemAvoid && pb.gemAvoid[xn]) keepVal += Math.min(pb.gemAvoid[xn] * 12, 60);
+          if (pb.gemUsed && pb.gemUsed[xn]) keepVal -= Math.min(pb.gemUsed[xn] * 8, 40);
+        }
+        usable.push({ k, g, keep: keepVal });
+      }
     });
     usable.sort((a, b) => a.keep - b.keep || b.g - a.g);
     const pay = [];
@@ -1044,14 +1233,21 @@
     const opp = otherSide(side);
     const enemies = zoneIds(st, opp + '.avatar').filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
     const out = [];
+    const lethalInfo = detectGuaranteedLethal(st, side);
     mine.forEach(atk => {
       const ap = pwr(atk);
       enemies.forEach(def => {
         if (ap > pwr(def)) out.push({ a: { type: 'declareAttack', atk, def, by: side }, heur: 40 + pwr(def) });
+        else if (ap === pwr(def) && pwr(def) >= 4) {
+          out.push({ a: { type: 'declareAttack', atk, def, by: side }, heur: 30 + pwr(def) });
+        }
       });
       if (!enemies.length || hasEgg(atk)) {
         const lives = zoneIds(st, opp + '.life');
-        if (lives.length) out.push({ a: { type: 'declareAttack', atk, life: lives[0] || true, by: side }, heur: 50 });
+        if (lives.length) {
+          const isLethal = lethalInfo && lethalInfo.isLethal;
+          out.push({ a: { type: 'declareAttack', atk, life: lives[0] || true, by: side }, heur: isLethal ? 50000 : 50 });
+        }
       }
     });
     return out;
@@ -1212,5 +1408,12 @@
     collectLegalMains,
     collectAttacks,
     fingerprintCards,
+    loadPlaybook,
+    savePlaybook,
+    getPlaybookForDeck,
+    recordTeacherGame,
+    clearPlaybook,
+    detectGuaranteedLethal,
+    isSuicideAttack,
   };
 });

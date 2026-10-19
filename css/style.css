@@ -1648,4 +1648,24 @@ body.stream-win #roomInfo{opacity:.8}
 .bot-update-banner button:hover{filter:brightness(1.15);transform:scale(1.03)}
 .bot-update-banner button:active{transform:scale(.97)}
 @keyframes botSlideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+.teacher-banner{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  z-index:9999;display:flex;align-items:center;gap:12px;
+  background:rgba(20,32,54,.94);border:1.5px solid #4a90e2;
+  color:#e4efff;padding:7px 16px;border-radius:20px;
+  box-shadow:0 6px 25px rgba(0,0,0,.6);font-size:13px;
+  font-family:'IBM Plex Sans Thai',sans-serif;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  animation:botSlideDown .3s ease;
+}
+.teacher-banner button{
+  background:#3a7bd5;color:#fff;border:none;
+  padding:4px 12px;border-radius:12px;font-weight:700;
+  font-size:11px;cursor:pointer;transition:filter .15s;
+}
+.teacher-banner button:hover{filter:brightness(1.2)}
+#btnTeacherMode.active{
+  background:#1e4c7a;color:#d5ebff;border-color:#4a90e2;
+  box-shadow:0 0 8px rgba(74,144,226,.4);
+}
 
