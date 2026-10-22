@@ -1,0 +1,924 @@
+/* ═════════════════════════════════════════════════════════════════════
+   TALINGCHAN ILLICIT THEME (สไตล์การ์ตูน / Comic Pop Neo-Brutalist)
+   Inspired by talingchanillicit.pages.dev
+   ═════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Itim&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap');
+
+:root {
+  --il-bg: #262628;
+  --il-paper: #efeee9;
+  --il-ink: #151515;
+  --il-mute: #5d5a52;
+  --il-red: #c8231c;
+  --il-red-d: #8e1611;
+  --il-blue: #1f5fa8;
+  --il-blue-d: #163f73;
+  --il-yellow: #f3c81a;
+  --il-yellow-d: #e5b306;
+  --il-orange: #f29a1c;
+  --il-purple: #4b2479;
+  --il-steel: #a3a3a3;
+  --il-steel-d: #3c3c3c;
+  --il-tan: #e8c67e;
+  --il-good: #23863a;
+  --il-bad: #c8231c;
+  --il-pick: #ffd400;
+
+  --f-lab: "Bangers", "Itim", cursive, sans-serif;
+  --f-disp: "Itim", "IBM Plex Sans Thai", sans-serif;
+  --f-body: "IBM Plex Sans Thai", "Sarabun", sans-serif;
+
+  /* Illicit shadow presets */
+  --il-shadow-btn: 0 5px 0 var(--il-ink), 0 10px 22px rgba(0,0,0,0.35);
+  --il-shadow-card: 0 7px 0 var(--il-ink), 0 14px 28px rgba(0,0,0,0.45);
+}
+
+/* ══════════════════════════════════════════════════════════
+   GLOBAL BODY & RESET
+   ══════════════════════════════════════════════════════════ */
+body {
+  font-family: var(--f-body);
+  background-color: var(--il-bg);
+  color: #fff;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MAIN MENU (HOME / LOBBY)
+   ══════════════════════════════════════════════════════════ */
+#menu.screen {
+  background: radial-gradient(120% 80% at 50% 0%, #3a2a1f 0%, var(--il-bg) 60%) !important;
+  color: var(--il-paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 16px 130px;
+  box-sizing: border-box;
+}
+
+/* Remove notebook paper & punch-holes background from base style */
+#menu.screen::before,
+#menu.screen::after {
+  display: none !important;
+}
+
+/* Position User Bar top-left */
+#userBar {
+  position: absolute !important;
+  top: max(14px, env(safe-area-inset-top, 0px)) !important;
+  left: max(16px, env(safe-area-inset-left, 0px)) !important;
+  margin: 0 !important;
+  z-index: 50 !important;
+}
+
+/* Hide floating card decorations from old theme in menu to keep it crisp */
+#menu .float-card {
+  display: none !important;
+}
+
+/* Illicit Corner Buttons (Settings & Fullscreen) */
+.hm-corner {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  gap: 8px;
+  z-index: 50;
+}
+.hm-cbtn {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: var(--il-paper);
+  border: 3px solid var(--il-ink);
+  border-radius: 12px;
+  color: var(--il-ink);
+  box-shadow: 0 4px 0 var(--il-ink);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  padding: 0;
+}
+.hm-cbtn svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+.hm-cbtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--il-ink);
+}
+.hm-cbtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--il-ink);
+}
+
+/* Illicit Logo Header */
+.hm-head {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.hm-logo-wrap {
+  position: relative;
+  display: inline-block;
+  transform: rotate(-2deg);
+}
+.hm-logo-title {
+  font-family: var(--f-lab);
+  font-size: clamp(38px, 6.5vw, 68px);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 4px 4px 0 var(--il-ink), 7px 7px 0 rgba(0,0,0,0.4);
+  -webkit-text-stroke: 2px var(--il-ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hm-logo-title span.yellow {
+  color: var(--il-yellow);
+}
+.hm-stamp {
+  font-family: var(--f-disp);
+  font-size: clamp(14px, 2.2vw, 22px);
+  font-weight: bold;
+  background: var(--il-paper);
+  color: var(--il-ink);
+  border: 3px solid var(--il-ink);
+  border-radius: 9px;
+  padding: 2px 10px;
+  box-shadow: 0 4px 0 var(--il-ink);
+  transform: rotate(6deg) translateY(-8px);
+  display: inline-block;
+  line-height: 1.2;
+}
+.hm-subtitle {
+  font-family: var(--f-disp);
+  font-size: 16px;
+  color: var(--il-tan);
+  margin-top: 2px;
+}
+
+/* Online status pill */
+.hm-onl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 6px 16px;
+  border: 3px solid var(--il-ink);
+  border-radius: 999px;
+  background: #fffdf3;
+  color: var(--il-ink);
+  box-shadow: 0 3px 0 var(--il-ink);
+  font-family: var(--f-disp);
+}
+.hm-onl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #23863a;
+  box-shadow: 0 0 8px #23863a;
+  animation: onlPulse 1.5s infinite;
+}
+@keyframes onlPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+.hm-onl b {
+  font-family: var(--f-lab);
+  font-size: 20px;
+  line-height: 1;
+}
+.hm-onl small {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ══════════════════════════════════════════════════════════
+   3 BIG ACTION BUTTONS (เล่นกับบอท / จับคู่ทันที / สร้างห้อง)
+   ══════════════════════════════════════════════════════════ */
+.hm-main {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 10px auto 28px;
+}
+
+.hm-big {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 20px;
+  border: 4px solid var(--il-ink);
+  border-radius: 20px;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: var(--il-shadow-card);
+  transition: transform 0.1s, box-shadow 0.1s;
+  font-family: var(--f-disp);
+  box-sizing: border-box;
+}
+.hm-big:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 0 var(--il-ink), 0 18px 30px rgba(0,0,0,0.5);
+}
+.hm-big:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--il-ink), 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.hm-big .hm-ico {
+  flex: none;
+  width: 62px;
+  height: 62px;
+  padding: 10px;
+  border-radius: 50%;
+  background: var(--il-paper);
+  border: 3.5px solid var(--il-ink);
+  fill: var(--il-ink);
+  color: var(--il-ink);
+  box-shadow: 0 3px 0 var(--il-ink);
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+}
+.hm-big .hm-ico svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.hm-bt {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.hm-bt b {
+  font-family: var(--f-disp);
+  font-size: clamp(24px, 4vw, 30px);
+  line-height: 1.1;
+  font-weight: 700;
+}
+.hm-bt small {
+  font-size: 13.5px;
+  opacity: 0.92;
+  font-family: var(--f-body);
+}
+
+/* Colors for the 3 buttons */
+.hm-big.red {
+  background: linear-gradient(180deg, #ef4135, #a8170f);
+  color: #fff;
+  text-shadow: 2px 2px 0 var(--il-ink);
+}
+.hm-big.blue {
+  background: linear-gradient(180deg, #3b82d6, #163f73);
+  color: #fff;
+  text-shadow: 2px 2px 0 var(--il-ink);
+}
+.hm-big.yellow {
+  background: linear-gradient(180deg, #ffe066, #f2b90c);
+  color: var(--il-ink);
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM DOCK (HM-BAR) & HAZARD STRIPES
+   ══════════════════════════════════════════════════════════ */
+.hm-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: repeating-linear-gradient(45deg, #2a2a2c 0 6px, #202022 6px 12px);
+  border-top: 4px solid var(--il-ink);
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.6);
+  box-sizing: border-box;
+}
+
+/* Hazard stripe banner */
+.hm-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10px;
+  height: 8px;
+  background: repeating-linear-gradient(-45deg, var(--il-yellow) 0 8px, var(--il-ink) 8px 16px);
+  border-top: 2px solid var(--il-ink);
+  border-bottom: 2px solid var(--il-ink);
+}
+
+/* Floating World Chat pill */
+.hm-chat-float {
+  position: absolute;
+  top: -46px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fffdf3;
+  color: var(--il-ink);
+  border: 3px solid var(--il-ink);
+  border-radius: 999px;
+  padding: 4px 18px;
+  font-family: var(--f-disp);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--il-ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: transform 0.1s;
+}
+.hm-chat-float:hover {
+  transform: translateX(-50%) translateY(-2px);
+}
+.hm-chat-float:active {
+  transform: translateX(-50%) translateY(2px);
+}
+
+/* Bottom Profile Pill */
+.hm-prof-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--il-paper);
+  border: 3px solid var(--il-ink);
+  border-radius: 999px;
+  padding: 4px 12px 4px 6px;
+  color: var(--il-ink);
+  box-shadow: 0 3px 0 var(--il-ink);
+  font-family: var(--f-disp);
+  margin-right: 6px;
+  cursor: pointer;
+}
+.hm-prof-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2.5px solid var(--il-ink);
+  background: var(--il-yellow);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  overflow: hidden;
+}
+.hm-prof-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.hm-prof-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hm-prof-sub {
+  font-size: 11px;
+  color: #666;
+}
+
+/* Bottom Tabs */
+.hm-tab {
+  position: relative;
+  flex: 0 1 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 6px 7px;
+  background: var(--il-paper);
+  border: 3px solid var(--il-ink);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--il-ink);
+  cursor: pointer;
+  font-family: var(--f-disp);
+  font-size: 13px;
+  color: var(--il-ink);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.hm-tab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 var(--il-ink);
+}
+.hm-tab:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--il-ink);
+}
+.hm-tab svg {
+  width: 26px;
+  height: 26px;
+  fill: var(--il-ink);
+}
+
+/* Responsive adjustments for HM-BAR on mobile */
+@media (max-width: 680px) {
+  .hm-big {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+  .hm-big .hm-ico {
+    width: 48px;
+    height: 48px;
+    padding: 8px;
+  }
+  .hm-bt b { font-size: 22px; }
+  .hm-bt small { font-size: 12px; }
+  .hm-bar {
+    gap: 4px;
+    padding: 8px 6px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+  .hm-prof-chip { display: none; }
+  .hm-tab {
+    padding: 6px 2px;
+    font-size: 11.5px;
+    border-width: 2.5px;
+  }
+  .hm-tab svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SUBMENUS (BOT SETUP, SOLO SETUP) - COMIC THEME
+   ══════════════════════════════════════════════════════════ */
+#menuPlay.menu-play {
+  background: var(--il-paper) !important;
+  color: var(--il-ink) !important;
+  border: 4px solid var(--il-ink) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 10px 0 var(--il-ink), 0 20px 40px rgba(0,0,0,0.5) !important;
+  padding: 24px !important;
+  max-width: 480px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  font-family: var(--f-disp) !important;
+  margin: auto !important;
+}
+
+#menuPlay .menu-group-label {
+  font-family: var(--f-lab) !important;
+  font-size: 28px !important;
+  letter-spacing: 0.05em !important;
+  color: var(--il-ink) !important;
+  text-align: center !important;
+  margin-bottom: 14px !important;
+  border-bottom: 3px solid var(--il-ink) !important;
+  padding-bottom: 6px !important;
+}
+
+#menuPlay .menu-deck-select {
+  background: #fff !important;
+  color: var(--il-ink) !important;
+  border: 2.5px solid var(--il-ink) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  font-family: var(--f-disp) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 3px 0 var(--il-ink) !important;
+}
+
+#menuPlay .menu-deck-lab {
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  color: var(--il-mute) !important;
+}
+
+#menuPlay .menu-vs {
+  font-family: var(--f-lab) !important;
+  font-size: 22px !important;
+  color: var(--il-red) !important;
+  text-shadow: 1px 1px 0 var(--il-ink) !important;
+}
+
+#btnBotStart, #btnSoloStart {
+  background: linear-gradient(180deg, #ffe066, #f2b90c) !important;
+  color: var(--il-ink) !important;
+  border: 4px solid var(--il-ink) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 0 var(--il-ink) !important;
+  font-family: var(--f-disp) !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  padding: 12px 24px !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  margin-top: 14px !important;
+  transition: transform 0.1s, box-shadow 0.1s !important;
+}
+#btnBotStart:hover, #btnSoloStart:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 0 var(--il-ink) !important;
+}
+#btnBotStart:active, #btnSoloStart:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 2px 0 var(--il-ink) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BATTLE BOARD (#board & #fieldStage)
+   ══════════════════════════════════════════════════════════ */
+#board {
+  background: radial-gradient(ellipse at 50% 50%, #2e2622 0%, #1c1a1a 60%, #121111 100%) !important;
+  padding: 6px 8px !important;
+}
+
+/* Mat Style (Playmat as Comic Paper) */
+#fieldTilt .mat {
+  position: relative !important;
+  background: var(--il-paper) !important;
+  border: 4px solid var(--il-ink) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 0 var(--il-ink), 0 14px 28px rgba(0,0,0,0.5) !important;
+  background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px) !important;
+  background-size: 6px 6px !important;
+  overflow: visible !important;
+  margin: 3px 0 !important;
+}
+
+/* Remove default mat skin image overlay to let comic vector zones pop */
+.mat-in::before {
+  display: none !important;
+}
+
+/* ─── ZONE STYLING ─── */
+
+/* 1. AVATAR ZONE: Red */
+.mz.mz-avatar {
+  background: var(--il-red) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.15), 0 3px 0 var(--il-ink) !important;
+  overflow: hidden !important;
+}
+.mz.mz-avatar::before {
+  content: "AVATAR";
+  font-family: var(--f-lab);
+  font-size: clamp(24px, 3.5vw, 48px);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.18);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+/* MAX 4 badge */
+.mz.mz-avatar::after {
+  content: "MAX 4";
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  background: var(--il-paper);
+  color: var(--il-ink);
+  font-family: var(--f-lab);
+  font-size: clamp(10px, 1.1vw, 13px);
+  padding: 1px 6px;
+  border: 2px solid var(--il-ink);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--il-ink);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 2. MAGIC ZONE: Blue */
+.mz.mz-magic {
+  background: var(--il-blue) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.15), 0 3px 0 var(--il-ink) !important;
+  overflow: hidden !important;
+}
+.mz.mz-magic::before {
+  content: "MAGIC";
+  font-family: var(--f-lab);
+  font-size: clamp(20px, 3.2vw, 42px);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.18);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+/* Magic House icon illustration in zone */
+.mz.mz-magic::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(26px, 3.5vw, 44px);
+  height: clamp(26px, 3.5vw, 44px);
+  background: url('../assets/home.png') center / contain no-repeat;
+  opacity: 0.95;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 3. CONSTRUCT ZONE: Yellow / Gold */
+.mz.mz-construct {
+  background: var(--il-yellow) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.25), 0 3px 0 var(--il-ink) !important;
+  overflow: hidden !important;
+}
+.mz.mz-construct::before {
+  content: "CONSTRUCT";
+  font-family: var(--f-lab);
+  font-size: clamp(14px, 2vw, 24px);
+  letter-spacing: 0.08em;
+  color: rgba(110,80,0,0.22);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+/* MAX 3 badge */
+.mz.mz-construct::after {
+  content: "MAX 3";
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  background: var(--il-paper);
+  color: var(--il-ink);
+  font-family: var(--f-lab);
+  font-size: clamp(9px, 1vw, 12px);
+  padding: 1px 5px;
+  border: 2px solid var(--il-ink);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--il-ink);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 4. LAND ZONE: Middle slot with dashed border */
+.mz.mz-land {
+  border: 3px dashed var(--il-ink) !important;
+  border-radius: 10px !important;
+  background: rgba(255,255,255,0.18) !important;
+}
+
+/* 5. LIFE CARD ZONE: Wooden rack with hazard stripes */
+.mz.mz-life {
+  background:
+    repeating-linear-gradient(91deg, rgba(90,45,12,0) 0 5px, rgba(90,45,12,0.25) 5px 6px, rgba(90,45,12,0) 6px 11px),
+    linear-gradient(90deg, #a56a37 0 33.3%, #bb8149 33.3% 66.6%, #9a6131 66.6%) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 0 var(--il-ink) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+/* Top & bottom hazard stripes on life rack */
+.mz.mz-life::before, .mz.mz-life::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 6px;
+  background: repeating-linear-gradient(-45deg, var(--il-yellow) 0 6px, var(--il-ink) 6px 12px);
+  border-radius: 2px;
+  z-index: 2;
+}
+.mz.mz-life::before { top: 4px; }
+.mz.mz-life::after { bottom: 4px; }
+
+/* 6. HELL ZONE: Fiery pit with flames */
+.mz.mz-hell {
+  background: radial-gradient(ellipse 85% 70% at 50% 85%, rgba(255,150,40,0.85), rgba(220,60,10,0.6) 45%, transparent 80%),
+              linear-gradient(180deg, #5a1206 0%, #a3290a 35%, #d4480c 70%, #ef6a10 100%) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 3px 0 var(--il-ink) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.mz.mz-hell::before {
+  content: "HELL";
+  font-family: var(--f-lab);
+  font-size: clamp(16px, 2vw, 24px);
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 2px 2px 0 var(--il-ink);
+  background: var(--il-red);
+  border: 2px solid var(--il-ink);
+  border-radius: 6px;
+  padding: 1px 10px;
+  transform: rotate(-4deg);
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 7. DECK PILE */
+.mz.mz-deck {
+  background: #1c1c1e !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--il-ink) !important;
+  position: relative !important;
+}
+.mz.mz-deck::before {
+  content: "DECK";
+  font-family: var(--f-lab);
+  font-size: clamp(14px, 1.8vw, 22px);
+  letter-spacing: 0.08em;
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 8. DARK DIMENSION ZONE */
+.mz.mz-dark {
+  background: radial-gradient(circle at 50% 48%, #7a49b8 0%, #3b1d66 38%, #170a2a 70%, #07030d 100%) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--il-ink) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.mz.mz-dark::before {
+  content: "DARK DIMENSION";
+  font-family: var(--f-lab);
+  font-size: clamp(10px, 1.2vw, 15px);
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-shadow: 1.5px 1.5px 0 var(--il-ink);
+  background: #5b2a8c;
+  border: 2px solid var(--il-ink);
+  border-radius: 6px;
+  padding: 1px 6px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  pointer-events: none;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/* Count Pills on Piles */
+.mz .pile-count {
+  background: var(--il-paper) !important;
+  color: var(--il-ink) !important;
+  border: 2.5px solid var(--il-ink) !important;
+  font-family: var(--f-lab) !important;
+  font-size: clamp(13px, 1.4vw, 18px) !important;
+  border-radius: 8px !important;
+  padding: 1px 7px !important;
+  box-shadow: 0 2px 0 var(--il-ink) !important;
+  z-index: 5 !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   HUD: PHASE BAR & CENTER PROMPT
+   ══════════════════════════════════════════════════════════ */
+.phase-slot {
+  background: var(--il-paper) !important;
+  border: 3.5px solid var(--il-ink) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 0 var(--il-ink) !important;
+  color: var(--il-ink) !important;
+  font-family: var(--f-disp) !important;
+  padding: 4px 14px !important;
+  cursor: pointer !important;
+  transition: transform 0.1s !important;
+}
+.phase-slot:active {
+  transform: translateY(2px) !important;
+}
+.phase-slot .ps-label {
+  font-family: var(--f-lab) !important;
+  font-size: clamp(15px, 1.6vw, 20px) !important;
+  letter-spacing: 0.05em !important;
+}
+.phase-slot .ps-sub {
+  font-family: var(--f-disp) !important;
+  font-size: 11.5px !important;
+  color: var(--il-mute) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   END TURN BUTTON (ปุ่มจบเทิร์น)
+   ══════════════════════════════════════════════════════════ */
+#btnEndTurn, #btnEndTurnFab {
+  background: linear-gradient(180deg, #ffe066, #f2b90c) !important;
+  color: var(--il-ink) !important;
+  border: 4px solid var(--il-ink) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 0 var(--il-ink), 0 12px 24px rgba(0,0,0,0.4) !important;
+  font-family: var(--f-disp) !important;
+  cursor: pointer !important;
+  transition: transform 0.1s, box-shadow 0.1s !important;
+}
+#btnEndTurn:hover, #btnEndTurnFab:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 0 var(--il-ink), 0 16px 28px rgba(0,0,0,0.45) !important;
+}
+#btnEndTurn:active, #btnEndTurnFab:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 2px 0 var(--il-ink) !important;
+}
+
+#btnEndTurn .et-phase {
+  font-family: var(--f-lab) !important;
+  font-size: 14px !important;
+  letter-spacing: 0.06em !important;
+  color: var(--il-mute) !important;
+}
+#btnEndTurn .et-label {
+  font-family: var(--f-disp) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+#btnEndTurn .et-label::before {
+  content: "⚑";
+  font-size: 20px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   PLAYER AVATAR & LIFE CHIP (สไตล์การ์ตูนเหมือน Illicit)
+   ══════════════════════════════════════════════════════════ */
+.table-menu {
+  background: var(--il-paper) !important;
+  border: 4px solid var(--il-ink) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 0 var(--il-ink), 0 20px 40px rgba(0,0,0,0.5) !important;
+  color: var(--il-ink) !important;
+}
+
+.table-home-btn, .table-menu-btn {
+  background: var(--il-paper) !important;
+  border: 3px solid var(--il-ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 3px 0 var(--il-ink) !important;
+  color: var(--il-ink) !important;
+}
+
+/* Hand Row Card Hover */
+#myHandRow .card {
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out !important;
+}
+#myHandRow .card:hover {
+  transform: translateY(-22px) scale(1.1) !important;
+  z-index: 50 !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.6) !important;
+}
+
+/* Gameover Banner */
+#endOv .end-inner {
+  background: var(--il-paper) !important;
+  border: 5px solid var(--il-ink) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 0 0 5px var(--il-yellow), 12px 14px 0 var(--il-ink), 0 30px 80px rgba(0,0,0,0.6) !important;
+  color: var(--il-ink) !important;
+}
+#endOv .end-title {
+  font-family: var(--f-lab) !important;
+  font-size: clamp(38px, 7vw, 68px) !important;
+  -webkit-text-stroke: 2px var(--il-ink) !important;
+  text-shadow: 4px 4px 0 var(--il-ink) !important;
+  color: var(--il-yellow) !important;
+}

@@ -14,8 +14,9 @@
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Itim&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=20260822">
+<link rel="stylesheet" href="css/illicit-theme.css?v=20261021">
 <script src="js/security.js?v=20260822"></script>
 <script src="js/analytics.js?v=20260831"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -31,29 +32,98 @@
 
 <!-- ═══ เมนูหลัก ═══ -->
 <div id="menu" class="screen">
+  <div class="hm-corner">
+    <button type="button" class="hm-cbtn" id="btnMenuFull" title="สลับเต็มจอ (F)" aria-label="เต็มจอ">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 4h10v4H8v6H4zM18 4h10v10h-4V8h-6zM4 18h4v6h6v4H4zM24 18h4v10H18v-4h6z"/></svg>
+    </button>
+  </div>
+
   <div id="userBar">
     <button id="btnLogin" class="btn-ghost">🔑 เข้าสู่ระบบ / สมัคร</button>
     <span id="userChip" class="hidden">👤 <b id="userName"></b><span id="userBadge" class="hidden" style="font-size:11px;background:#d49d2b;color:#221800;font-weight:bold;padding:1px 6px;border-radius:10px;margin-left:4px">☕ Supporter</span> · <a id="btnAdmin" class="link-btn hidden" href="/admin" style="margin:0">ตั้งค่า</a> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
   </div>
-  <div class="float-card f1"><img src="https://cdn.bangbon.app/cards/SD01-001.png" alt=""></div>
-  <div class="float-card f2"><img src="https://cdn.bangbon.app/cards/SD01-015.png" alt=""></div>
-  <div class="float-card f3"><img src="https://cdn.bangbon.app/cards/SD01-004.png" alt=""></div>
-  <img id="menuLogo" class="menu-logo" src="https://cdn.bangbon.app/assets/bottcg/logo_full_white.png" alt="Battle of Talingchan">
-  <div id="menuTitleFallback" class="menu-title" style="display:none">BATTLE OF<br>TALINGCHAN</div>
+
+  <div class="hm-head">
+    <div class="hm-logo-wrap">
+      <div class="hm-logo-title">BATTLE OF <span class="yellow">TALINGCHAN</span> <span class="hm-stamp">เถื่อน</span></div>
+    </div>
+    <div class="hm-subtitle">BOT เถื่อน</div>
+    <div class="hm-onl"><span class="hm-onl-dot"></span> <b>120</b> <small>คนออนไลน์ตอนนี้</small></div>
+  </div>
 
   <div id="menuNotice" class="menu-notice hidden"></div>
-  <!-- เมนูหลัก: เลือกหน้า — โหมดเล่นอยู่ในเมนูย่อยแยก -->
-  <div id="menuHome" class="menu-btns">
-    <button id="mnuPlay" class="btn-primary big">เล่นเกม</button>
-    <button id="mnuDeck" class="btn-dark big">เด็คของฉัน</button>
-    <button id="mnuGallery" class="btn-dark big">ดูการ์ด / เปิดซอง</button>
-    <button id="mnuHowTo" class="btn-dark big">📖 วิธีเล่น / วิธีจัดเด็ค</button>
-    <button type="button" id="btnDonateMenu" class="btn-donate">☕ เลี้ยงกาแฟผู้สร้าง</button>
-    <div class="menu-links">
-      <button type="button" id="btnFeedbackMenu" class="link-btn">🐞 เจอบัคโปรดแจ้ง</button>
-      <a class="link-btn" href="https://discord.gg/azuWHDp65" target="_blank" rel="noopener noreferrer">💬 แจ้งใน Discord</a>
-    </div>
+
+  <!-- เมนูหลัก: 3 ปุ่มใหญ่สไตล์ Illicit -->
+  <div id="menuHome" class="hm-main">
+    <button type="button" id="mnuIllicitBot" class="hm-big red">
+      <div class="hm-ico">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="15" y="1.5" width="2" height="5"/><circle cx="16" cy="2.5" r="2"/><path fill-rule="evenodd" d="M7 7h18a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3zm4.5 5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm9 0a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM10 20v2h12v-2z"/><rect x="1" y="12" width="2.5" height="7" rx="1"/><rect x="28.5" y="12" width="2.5" height="7" rx="1"/><rect x="10" y="26" width="12" height="4" rx="1"/></svg>
+      </div>
+      <div class="hm-bt">
+        <b>เล่นกับบอท</b>
+        <small>ต่อสู้กับบอทเพื่อรับรางวัล · เลือกเด็คแล้วเริ่มเลย</small>
+      </div>
+    </button>
+
+    <button type="button" id="mnuIllicitMatch" class="hm-big blue">
+      <div class="hm-ico">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10.5" r="7"/><path d="M3 31c0-8.2 5.8-13 13-13s13 4.8 13 13z"/></svg>
+      </div>
+      <div class="hm-bt">
+        <b>จับคู่ทันที</b>
+        <small>สุ่มคู่แข่งออนไลน์</small>
+      </div>
+    </button>
+
+    <button type="button" id="mnuIllicitRoom" class="hm-big yellow">
+      <div class="hm-ico">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 30V5.5C5 3.6 6.6 2 8.5 2h15C25.4 2 27 3.6 27 5.5V30h-3V5H8v25z"/><path d="M10 7.5 21 5v25l-11-2.5z"/><circle cx="18" cy="17.5" r="1.6" fill="#fff"/></svg>
+      </div>
+      <div class="hm-bt">
+        <b>สร้างห้อง / ซ้อมคนเดียว</b>
+        <small>ชวนเพื่อนมาดวลกัน หรือ ซ้อมมือคนเดียว</small>
+      </div>
+    </button>
+
+    <!-- ซ่อนปุ่มเดิมไว้เพื่อรองรับ event listeners เดิมของเกม -->
+    <button id="mnuPlay" class="hidden"></button>
+    <button id="mnuDeck" class="hidden"></button>
+    <button id="mnuGallery" class="hidden"></button>
+    <button id="mnuHowTo" class="hidden"></button>
+    <button id="btnDonateMenu" class="hidden"></button>
+    <button id="btnFeedbackMenu" class="hidden"></button>
   </div>
+
+  <!-- แถบนำทางล่างจอ (Dock Bar) สไตล์ Illicit -->
+  <nav class="hm-bar" aria-label="เมนู">
+    <div class="hm-prof-chip" id="hmProfChip" title="ข้อมูลผู้เล่น">
+      <div class="hm-prof-avatar">👤</div>
+      <div class="hm-prof-info">
+        <b class="hm-prof-name" id="hmProfName">ผู้เล่น</b>
+        <span class="hm-prof-sub">Lv.1 · นักสู้ฝึกหัด</span>
+      </div>
+    </div>
+    <button type="button" id="hmTabDeck" class="hm-tab">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 8V6.5C11 3.5 13.2 1.5 16 1.5s5 2 5 5V8h-2.6V6.5c0-1.5-1-2.5-2.4-2.5s-2.4 1-2.4 2.5V8z"/><path d="M6 10c0-1.7 1.3-3 3-3h14c1.7 0 3 1.3 3 3v17c0 1.7-1.3 3-3 3H9c-1.7 0-3-1.3-3-3z"/><rect x="9.5" y="15" width="13" height="8" rx="2" fill="#fff"/><rect x="14" y="17.5" width="4" height="3" rx="1"/></svg>
+      <span>เด็คของฉัน</span>
+    </button>
+    <button type="button" id="hmTabGallery" class="hm-tab">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3" width="16" height="22" rx="2.5" transform="rotate(12 17 14)" opacity=".45"/><rect x="7" y="5" width="16" height="22" rx="2.5" transform="rotate(4 15 16)" opacity=".7"/><rect x="5" y="7" width="16" height="22" rx="2.5"/><path fill="#fff" d="m13 12 1.5 3 3.3.5-2.4 2.3.6 3.3-3-1.6-3 1.6.6-3.3-2.4-2.3 3.3-.5z"/></svg>
+      <span>ดูการ์ด/ซอง</span>
+    </button>
+    <button type="button" id="hmTabHowTo" class="hm-tab">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10.5 10c0-3.6 2.5-6.5 5.5-6.5s5.5 2.9 5.5 6.5z"/><circle cx="13.6" cy="7.6" r="1" fill="#fff"/><circle cx="16" cy="6.1" r="1" fill="#fff"/><circle cx="18.4" cy="7.6" r="1" fill="#fff"/><path d="M9.5 11.5h13l-1.4 16c-.1 1.4-1.3 2.5-2.7 2.5h-4.8c-1.4 0-2.6-1.1-2.7-2.5z"/><rect x="11.8" y="16.5" width="8.4" height="5.4" rx="1.3" fill="#fff"/><path d="M4.2 7l1.5-.9.9 1.5-1.5.9zM26.4 4.4l1.6-.5.5 1.6-1.6.5zM26.9 11l1.2-.7.7 1.2-1.2.7z"/></svg>
+      <span>วิธีเล่น</span>
+    </button>
+    <button type="button" id="hmTabDonate" class="hm-tab">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21h18v-2H2v2zm16-16H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-3 7H5V7h10v5zm5-2h-3V7h3v3z" fill="currentColor"/></svg>
+      <span>เลี้ยงกาแฟ</span>
+    </button>
+    <button type="button" id="hmTabFeedback" class="hm-tab">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z" fill="currentColor"/></svg>
+      <span>แจ้งบัค</span>
+    </button>
+  </nav>
 
   <!-- เมนูย่อย: เลือกโหมดก่อน → แล้วค่อยเลือกเด็คตามโหมด -->
   <div id="menuPlay" class="menu-btns menu-play hidden">
@@ -1328,6 +1398,73 @@ if ('serviceWorker' in navigator) {
   if (btnHome) btnHome.addEventListener('click', function() { setTimeout(checkVersion, 200); });
   var btnBack = document.getElementById('btnBack');
   if (btnBack) btnBack.addEventListener('click', function() { setTimeout(checkVersion, 200); });
+})();
+
+/* ════ Wire Illicit Lobby Controls ════ */
+(function() {
+  function byId(id) { return document.getElementById(id); }
+  
+  const bBot = byId('mnuIllicitBot');
+  if (bBot) bBot.onclick = function() {
+    var mh = byId('menuHome'); if (mh) mh.classList.add('hidden');
+    var mp = byId('menuPlay'); if (mp) mp.classList.remove('hidden');
+    const origBot = byId('mnuBot');
+    if (origBot) origBot.click();
+  };
+
+  const bMatch = byId('mnuIllicitMatch');
+  if (bMatch) bMatch.onclick = function() {
+    const origOnl = byId('mnuOnline');
+    if (origOnl) origOnl.click();
+    else {
+      if (typeof showScreen === 'function') showScreen('lanHall');
+      else { const p = byId('mnuPlay'); if (p) p.click(); }
+    }
+  };
+
+  const bRoom = byId('mnuIllicitRoom');
+  if (bRoom) bRoom.onclick = function() {
+    var mh = byId('menuHome'); if (mh) mh.classList.add('hidden');
+    var mp = byId('menuPlay'); if (mp) mp.classList.remove('hidden');
+    const origSolo = byId('mnuSolo');
+    if (origSolo) origSolo.click();
+  };
+
+  const tabDeck = byId('hmTabDeck');
+  if (tabDeck) tabDeck.onclick = function() { const el = byId('mnuDeck'); if (el) el.click(); };
+  const tabGal = byId('hmTabGallery');
+  if (tabGal) tabGal.onclick = function() { const el = byId('mnuGallery'); if (el) el.click(); };
+  const tabHow = byId('hmTabHowTo');
+  if (tabHow) tabHow.onclick = function() { const el = byId('mnuHowTo'); if (el) el.click(); };
+  const tabDon = byId('hmTabDonate');
+  if (tabDon) tabDon.onclick = function() { const el = byId('btnDonateMenu'); if (el) el.click(); };
+  const tabFeed = byId('hmTabFeedback');
+  if (tabFeed) tabFeed.onclick = function() { const el = byId('btnFeedbackMenu'); if (el) el.click(); };
+
+  const btnFull = byId('btnMenuFull');
+  if (btnFull) btnFull.onclick = function() {
+    const orig = byId('btnFull');
+    if (orig) orig.click();
+    else if (!document.fullscreenElement) {
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen().catch(function(){});
+    }
+  };
+
+  function syncProf() {
+    const uName = byId('userName');
+    const pName = byId('hmProfName');
+    if (uName && pName && uName.textContent.trim()) {
+      pName.textContent = uName.textContent.trim();
+    }
+  }
+  syncProf();
+  const chip = byId('userChip');
+  if (chip && window.MutationObserver) {
+    const obs = new MutationObserver(syncProf);
+    obs.observe(chip, { childList: true, subtree: true, characterData: true });
+  }
 })();
 </script>
 </body>
