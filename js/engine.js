@@ -1232,6 +1232,35 @@
     });
     addLog(st, side, `สั่งใช้พร้อม (${options.length} ใบ): ${destroyedName} ถูกทำลายโดยฝ่ายตรงข้าม — เลือกใบหรือไม่ใช้`);
   }
+  /* พระอิศวร วีลแชร์ ฯลฯ: Avatar ในมือ สั่งใช้เมื่อ Avatar ฝ่ายเราถูกทำลายลงนรก */
+  function offerHandOnOwnAvatarDestroyed(st, fx, side, destroyedName, destroyedSyms, destroyedSymbol) {
+    const options = (st.zones[side + '.hand'] || []).filter(id => {
+      const c = st.inst[id]; if (!c) return false;
+      if (c.type === 'Magic') return false;
+      return abilitiesOf(c.code, 'ownAvatarDestroyed', c.name).some(ab => {
+        const reqName = ab.requireDestroyedNameIncludes || (ab.trigger && ab.trigger.requireDestroyedNameIncludes);
+        if (reqName) {
+          if (!nameMatches({ name: destroyedName }, reqName) && String(destroyedName || '').indexOf(reqName) < 0) return false;
+        }
+        const cond = (ab.trigger && ab.trigger.if) || '';
+        const mSym = cond.match(/^symbol:(.+)$/);
+        if (mSym && !(destroyedSyms || []).includes(mSym[1]) && destroyedSymbol !== mSym[1]) return false;
+        return true;
+      });
+    });
+    if (!options.length) return;
+    if ((st.prompts || []).some(p => p.kind === 'react' && p.avatarHandAbility && p.reactTrigger === 'ownAvatarDestroyed' && p.chooser === side))
+      return;
+    const rab = abilitiesOf(st.inst[options[0]].code, 'ownAvatarDestroyed', st.inst[options[0]].name)[0];
+    st.prompts = st.prompts || [];
+    st.prompts.push({
+      kind: 'react', mode: 'runActions', src: null, options, chooser: side,
+      actions: (rab && rab.actions) || [], reactTrigger: 'ownAvatarDestroyed',
+      avatarHandAbility: true, optional: true,
+      label: `${destroyedName} ถูกทำลายลงนรก`
+    });
+    addLog(st, side, `สั่งใช้พร้อม (${options.length} ใบ): ${destroyedName} ถูกทำลายลงนรก — เลือกใบหรือไม่ใช้`);
+  }
   function offerPreventLeave(st, fx, k, resume) {
     const c = st.inst[k]; if (!c) return false;
     const z = zoneOf(st, k); if (!z || !z.endsWith('.avatar')) return false;
@@ -1764,6 +1793,7 @@
         });
         addLog(st, side, `React พร้อมใช้ (${options.length} ใบ): ${destroyedName} ถูกทำลาย — เลือกใบหรือไม่ใช้`);
       }
+      offerHandOnOwnAvatarDestroyed(st, fx, side, destroyedName, destroyedSyms, destroyedSymbol);
     }
     // React: เอาไปอยู่ด้วย — Avatar ถูกทำลายโดยฝ่ายตรงข้าม
     if (wasAvatar && opts.byOpp) {
@@ -6789,6 +6819,24 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           c.power = ac.amount != null ? ac.amount : (ac.power != null ? ac.power : c.power);
           addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: POWER ตั้งต้นเป็น ${c.power}`);
         }
+      } else if (ac.op === 'ishvaraWheelchairSummoned') {
+        const hellCands = (st.zones[ctx.owner + '.hell'] || []).filter(k => {
+          const c = st.inst[k];
+          return c && c.type === 'Avatar' && nameMatches(c, 'พระอิศวร');
+        });
+        if (!hellCands.length) {
+          addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar "พระอิศวร" ในนรก`);
+        } else {
+          const p = {
+            kind: 'pick', from: 'hell', src: ctx.src, chooser: ctx.owner,
+            filter: { type: 'Avatar', nameIncludes: 'พระอิศวร' },
+            dest: 'ishvaraWheelchairHell', optional: false,
+            label: 'เลือก Avatar "พระอิศวร" 1 ใบในนรก'
+          };
+          st.prompts.push(p);
+          prompted = true;
+          addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือก Avatar "พระอิศวร" 1 ใบในนรก`);
+        }
       } else if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'all') {
         const side = ac.target.side, sides = side === 'own' ? [ctx.owner] : side === 'enemy' ? [other(ctx.owner)] : ['A', 'B'];
         let cnt = 0;
@@ -9627,6 +9675,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               const costList = normalizeAbilityCost(abLF && abLF.cost) || (Array.isArray(abLF && abLF.cost) ? abLF.cost : []);
               st.prompts.shift();
               const why = trig === 'ownAvatarDestroyedByOpp' ? 'เมื่อยักษ์ถูกทำลายโดยฝ่ายตรงข้าม'
+                : trig === 'ownAvatarDestroyed' ? (p.label || 'เมื่อ Avatar ถูกทำลายลงนรก')
                 : trig === 'ownAvatarLeftField' ? 'เมื่อ Avatar ออกจากสนาม'
                 : (p.label || '');
               addLog(st, p.chooser, `สั่งใช้จากมือ ${m.name}${why ? ' (' + why + ')' : ''}`);
@@ -10196,6 +10245,34 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             st.buffs.push({ k: a.k, amt: 2, until: 'endOfTurn', from: p.src });
             addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} POWER +2 จนจบเทิร์น → P${effPower(st, a.k)}`);
             fx.snd = 'power';
+          } else if (p.dest === 'ishvaraWheelchairHell') {
+            const cHell = st.inst[a.k];
+            const srcC = st.inst[p.src];
+            const targetP = Math.max(0, +(cHell && cHell.power) || 0);
+            const halfP = Math.floor(targetP / 2);
+            if (srcC) {
+              srcC.power = halfP;
+              addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: เลือก ${nameOf(st, a.k)} (P${targetP}) → POWER ตั้งต้นของ ${srcC.name} เป็น P${halfP}`);
+            }
+            const myP = srcC ? effPower(st, p.src) : halfP;
+            const debuffP = {
+              kind: 'pick', from: 'enemyAvatars', src: p.src, chooser: p.chooser,
+              filter: { type: 'Avatar' }, dest: 'ishvaraWheelchairDebuff', debuffAmt: myP, optional: false,
+              label: `เลือก Avatar ศัตรู 1 ใบ ลด POWER ${myP}`
+            };
+            if (promptCandidates(st, debuffP).length) {
+              st.prompts.unshift(debuffP);
+              addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: เลือก Avatar ของฝ่ายตรงข้าม 1 ใบ ลด POWER ${myP}`);
+            } else {
+              addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, p.src)}: ไม่มี Avatar ของฝ่ายตรงข้ามให้ลด POWER`);
+            }
+          } else if (p.dest === 'ishvaraWheelchairDebuff') {
+            const amt = -(p.debuffAmt || 0);
+            st.buffs = st.buffs || [];
+            st.buffs.push({ k: a.k, amt, until: 'endOfTurn', from: p.src });
+            addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ลด POWER ของ ${nameOf(st, a.k)} ${amt} จนจบเทิร์น → P${effPower(st, a.k)}`);
+            fx.snd = 'clash';
+            sweepDestroyPowerZero(st, fx);
           } else if (p.dest === 'exileHellCost') {
             doMove(st, a.k, p.chooser + '.dark', null, fx);
             p.got = (p.got || 0) + 1;
@@ -11554,6 +11631,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const costList = normalizeAbilityCost(abLF && abLF.cost) || (Array.isArray(abLF && abLF.cost) ? abLF.cost : []);
           st.prompts.shift();
           const why = trig === 'ownAvatarDestroyedByOpp' ? 'เมื่อยักษ์ถูกทำลายโดยฝ่ายตรงข้าม'
+            : trig === 'ownAvatarDestroyed' ? (p.label || 'เมื่อ Avatar ถูกทำลายลงนรก')
             : trig === 'ownAvatarLeftField' ? 'เมื่อ Avatar ออกจากสนาม'
             : (p.label || '');
           addLog(st, p.chooser, `สั่งใช้จากมือ ${m.name}${why ? ' (' + why + ')' : ''}`);

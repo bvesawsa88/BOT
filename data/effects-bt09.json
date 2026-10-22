@@ -4,28 +4,33 @@
       "code": "BT09-001",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "ownAvatarDestroyed",
+            "requireDestroyedNameIncludes": "พระอิศวร"
           },
           "actions": [
             {
-              "op": "destroy",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "powerMax": 4,
-                "count": 1
-              }
+              "op": "summonSelfFromHandFree",
+              "bySelfAbility": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "summoned",
+            "if": "bySelfAbility"
+          },
+          "actions": [
+            {
+              "op": "ishvaraWheelchairSummoned"
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "พระอิศวร วีลแชร์",
-      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่มี POWER <= 4"
+      "note": "สั่งใช้จากมือเมื่อพระอิศวรถูกทำลายลงนรก → อัญเชิญลงสนาม · เมื่ออัญเชิญด้วยความสามารถตัวเอง: เลือกพระอิศวรในนรก ได้ POWER ตั้งต้นครึ่งหนึ่ง (ปัดลง) แล้วลด POWER ศัตรู 1 ใบเท่ากับ POWER ของใบนี้"
     },
     {
       "code": "BT09-002",
