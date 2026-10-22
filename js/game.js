@@ -3034,7 +3034,7 @@
     return pools.slice().map(k => {
       const c = st.inst[k];
       const e = BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
-      const actAb = (e && e.abilities || []).find(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'activatedFromHand' || ab.trigger.on === 'activatedFromHell' || ab.trigger.on === 'activatedFromDarkDimension' || ab.fromHell));
+      const actAb = (e && e.abilities || []).find(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'activatedFromField' || ab.trigger.on === 'activatedAnyTurn' || ab.trigger.on === 'activatedFromHand' || ab.trigger.on === 'activatedFromHell' || ab.trigger.on === 'activatedFromDarkDimension' || ab.fromHell));
       const isDenied = actAb && BoTEngine.activatedTargetDeny && BoTEngine.activatedTargetDeny(st, 'B', actAb, k);
       return {
         a: { type: 'activateAbility', k, by: 'B' },
@@ -3385,7 +3385,7 @@
         const c = st.inst[k];
         return c && (/Only/i.test(String(c.ex || '')) || (BoTEngine.effectOf && (BoTEngine.effectOf(c.code, c.name) || {}).only));
       });
-      if (onlyHit && (pr.autoPickOnly || pr.from === 'deckOrHell' || pr.dest === 'magic')) return onlyHit;
+      if (onlyHit && (pr.autoPickOnly || pr.from === 'deckOrHell' || pr.from === 'deckOrHand' || pr.dest === 'magic')) return onlyHit;
     }
     const dest = pr.dest || '';
     const from = pr.from || '';
@@ -4144,7 +4144,7 @@
       // มีความสามารถสั่งใช้ (activated) เท่านั้นถึงโชว์ ⚡ — กดแล้วถ้ามีเลือกปฏิบัติจะขึ้นกล่อง 2 เทค
       const hasAct = abs0.some(ab => {
         const on = ab.trigger && ab.trigger.on;
-        if (on === 'activated') return true;
+        if (on === 'activated' || on === 'activatedFromField' || on === 'activatedAnyTurn') return true;
         if ((on === 'activatedFromHell' || ab.fromHell) && kz0.endsWith('.hell')) return true;
         return false;
       });
@@ -4290,6 +4290,7 @@
           else if (pr.dest === 'preventLeavePick') txt = `🛡️ เนรเทศรัททาทุยจากนรก (${pr.got || 0}/${pr.need || 5}) — แตะการ์ดในหน้าต่าง · ข้าม = ออกสนาม`;
           else if (pr.dest === 'retargetAttack') txt = `⚔️ เสียเตะไข่ — เลือกเป้าหมายโจมตีใหม่ (แตะ Avatar / Construct ศัตรูที่กะพริบ)`;
           else if (pr.from === 'deckOrHell') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คหรือนรก`;
+          else if (pr.from === 'deckOrHand') txt = `✨ ${srcN}: เลือกการ์ดจากเด็คหรือบนมือ`;
           else if (pr.from === 'anyHell') txt = pr.costSumMax != null
             ? `✨ ${srcN}: อัญเชิญจากนรกใครก็ได้ Cost รวม≤${pr.costSumMax} (ตอนนี้ ${pr.costGot || 0}) — แตะใบที่กะพริบ`
             : `✨ ${srcN}: เลือกจุติ Avatar จากนรกใครก็ได้`;
@@ -5025,7 +5026,7 @@
     }
     return abs.some(ab => {
       const on = ab.trigger && ab.trigger.on;
-      if (on === 'activated' && onField) return true;
+      if ((on === 'activated' || on === 'activatedFromField' || on === 'activatedAnyTurn') && onField) return true;
       if (on === 'activatedFromHand' && kz.endsWith('.hand')) return true;
       if ((on === 'activatedFromHell' || ab.fromHell) && kz.endsWith('.hell')) return true;
       if (on === 'activatedFromDarkDimension' && kz.endsWith('.dark')) return true;
@@ -5088,7 +5089,7 @@
     const hasActivated = !!(BoTEngine.effectOf && ((BoTEngine.effectOf(c.code, c.name) || {}).abilities || [])
       .concat(c.granted || []).some(ab => {
         const on = ab.trigger && ab.trigger.on;
-        if ((on === 'activated' || on === 'activatedFromField') && (onField || kzMenu === 'land')) return true;
+        if ((on === 'activated' || on === 'activatedFromField' || on === 'activatedAnyTurn') && (onField || kzMenu === 'land')) return true;
         if (on === 'activatedFromHand' && kzMenu.endsWith('.hand')) return true;
         if ((on === 'activatedFromHell' || ab.fromHell) && kzMenu.endsWith('.hell')) return true;
         if (on === 'activatedFromDarkDimension' && kzMenu.endsWith('.dark')) return true;
@@ -5411,7 +5412,7 @@
       if (['attachTo', 'avatar', 'sacrifice', 'destroy', 'takeControl', 'coinDestroy'].includes(pp.dest) ||
           ['ownAvatars', 'ownMagic'].includes(pp.from) ||
           ['chooseBuff', 'chooseDestroy'].includes(pp.kind)) {
-        if (pileOverlayOpen() && !['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'dark'].includes(pp.from)) {
+        if (pileOverlayOpen() && !['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'deckOrHand', 'dark'].includes(pp.from)) {
           closePileView();
           return;
         }
@@ -5436,7 +5437,7 @@
     // สอดแนมเปิด (revealAllScout) = ข้อมูลเปิด → ทั้งสองฝั่งเห็นหน้าต่าง / อื่นๆ เฉพาะคนเลือก
     const iAmChooser = !!(pp && (mode === 'solo' || seat === pp.chooser));
     const openScoutBoth = !!(pp && pp.kind === 'pick' && pp.from === 'ids' && pp.revealAllScout);
-    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'ownMagic', 'dark', 'ownHand'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
+    if (pp && pp.kind === 'pick' && ['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'deckOrHand', 'ownMagic', 'dark', 'ownHand'].includes(pp.from) && (iAmChooser || openScoutBoth)) {
       // สอดแนม (ids): โชว์ทุกใบที่เปิดเจอ · ใบที่เลือกได้กะพริบ · เมฟิสโต้ฯ ติดป้ายขึ้นมืออัตโนมัติ
       // นรก showAllHell: โชว์ทั้งกอง · ใบตรงเงื่อนไขกะพริบ (ไม่นะโดม / อู๊ด / มณโท)
       const showAllScout = pp.from === 'ids' && !!pp.revealAllScout;
@@ -5533,6 +5534,8 @@
           : `👁 นรกของผู้เล่น ${pp.chooser} — ${disp.length} ใบ (ดูอย่างเดียว)`;
       else if (pp.from === 'deckOrHell')
         title = `✨ ค้นเด็คหรือนรก — แตะการ์ดที่กะพริบเพื่อเลือกขึ้นมือ`;
+      else if (pp.from === 'deckOrHand')
+        title = `✨ ค้นเด็คหรือบนมือ — แตะการ์ดที่กะพริบเพื่อเลือก`;
       else if (pp.from === 'hell' && pp.dest === 'magic')
         title = `✨ เลือก Avatar มะม่วงจากนรกวางบน Magic Zone — แตะใบที่กะพริบ`;
       else if (pp.from === 'hell')
@@ -5567,6 +5570,8 @@
             ? 'โชว์นรกทั้งสองฝั่ง · แตะใบที่กะพริบเพื่ออัญเชิญลง Avatar Zone ฝ่ายเรา'
             : (pp.from === 'deckOrHell'
             ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและนรก · ถ้าหยิบจากเด็คจะสับเด็ค'
+            : (pp.from === 'deckOrHand'
+            ? 'แสดงใบที่ตรงเงื่อนไขจากเด็คและบนมือ · ถ้าหยิบจากเด็คจะสับเด็ค'
             : (pp.from === 'dark'
               ? 'โชว์ทั้งมิติมืด · แตะใบที่กะพริบเพื่อเลือกอาวุธนครมาสวม'
               : (showAllPick ? 'เปิดให้ดูทั้งกอง · แตะใบที่กะพริบเพื่อเลือก' : 'แตะการ์ดที่กะพริบเพื่อเลือก'))))))
@@ -5591,6 +5596,9 @@
             else opts.badge = 'นรกศัตรู';
           } else if (pp.from === 'deckOrHell') {
             if ((st.zones[pp.chooser + '.hell'] || []).includes(k)) opts.badge = 'นรก';
+            else if ((st.zones[pp.chooser + '.deck'] || []).includes(k)) opts.badge = 'เด็ค';
+          } else if (pp.from === 'deckOrHand') {
+            if ((st.zones[pp.chooser + '.hand'] || []).includes(k)) opts.badge = 'บนมือ';
             else if ((st.zones[pp.chooser + '.deck'] || []).includes(k)) opts.badge = 'เด็ค';
           }
           return cardHTML(k, 'magic', opts);

@@ -530,7 +530,7 @@
       if (!ab || !ab.trigger) return false;
       const t = ab.trigger.on;
       if (t === on) return true;
-      if (on === 'activated' && (t === 'activatedFromField' || t === 'activatedFromEquipped')) return true;
+      if (on === 'activated' && (t === 'activatedFromField' || t === 'activatedFromEquipped' || t === 'activatedAnyTurn')) return true;
       return false;
     });
   };
@@ -3890,6 +3890,10 @@
         pool = (st.zones[p.chooser + '.deck'] || []).slice()
           .concat((st.zones[p.chooser + '.hell'] || []).filter(x => x !== p.src));
       }
+      else if (p.from === 'deckOrHand') {
+        pool = (st.zones[p.chooser + '.deck'] || []).slice()
+          .concat((st.zones[p.chooser + '.hand'] || []).filter(x => x !== p.src));
+      }
       else if (p.from === 'dark') pool = (st.zones[p.chooser + '.dark'] || []).filter(x => x !== p.src);
       else if (p.from === 'ownConstructs') pool = (st.zones[p.chooser + '.construct'] || []).slice();
       else if (p.from === 'ownAvatars') pool = (st.zones[p.chooser + '.avatar'] || []).filter(x => p.includeSelf || x !== p.src);
@@ -4019,6 +4023,19 @@
     if (!ab || !owner) return null;
     if (ab.trigger && ab.trigger.if) {
       const cond = ab.trigger.if;
+      if (cond.startsWith('opponentControlsOriginalStolen:')) {
+        const targetName = cond.slice('opponentControlsOriginalStolen:'.length);
+        const opp = other(owner);
+        const oppAvatars = st.zones[opp + '.avatar'] || [];
+        const found = oppAvatars.some(id => {
+          const card = st.inst[id];
+          if (!card || !nameMatches(card, targetName)) return false;
+          if (targetName === 'พระอิศวร' && (card.name || '').includes('เมีย')) return false;
+          const orig = card.originalOwner || card.cardOwner || card.origOwner;
+          return orig && orig !== opp;
+        });
+        if (!found) return `อีกฝ่ายไม่มี "${targetName}" ที่ไม่ใช่เจ้าของดั้งเดิมบน Avatar Zone`;
+      }
       const mDeckMax = cond.match(/^deckRemainingMax:(\d+)$/);
       if (mDeckMax) {
         const max = +mDeckMax[1];
@@ -4569,6 +4586,20 @@
           actions, optional: false
         }));
         addLog(st, owner, `เนรเทศ "${costOp.nameIncludes}" ชื่อไม่ซ้ำ ${costOp.count || 3} จากนรก`);
+      } else if (costOp.op === 'sacrificeSelf') {
+        addLog(st, owner, `จ่ายค่า: เซ่นไหว้ ${nameOf(st, srcK)} (ลงนรก)`);
+        destroyCard(st, fx, srcK, Object.assign({}, destroyOptsFromSrc(st, srcK, srcK), { costContinue: contBase }));
+        if (st._wouldDestroyPending && st._wouldDestroyPending.k === srcK) {
+          st._wouldDestroyPending.costContinue = contBase;
+          fx.snd = 'clash';
+          return;
+        }
+        if (cardStillOnAvatarZone(st, srcK)) {
+          abortUnpaidDestroyCost(st, fx, contBase);
+          fx.snd = 'clash';
+          return;
+        }
+        continueAfterDestroyCost(st, fx, contBase, rng);
       } else if (costOp.op === 'destroySelf' || (costOp.op === 'destroy' && costOp.target && costOp.target.select === 'self')) {
         destroyCard(st, fx, srcK, destroyOptsFromSrc(st, srcK, srcK));
         addLog(st, owner, `จ่ายค่า: ทำลาย ${nameOf(st, srcK)}`);
@@ -7267,6 +7298,27 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             st.prompts.push(p); prompted = true;
           }
         } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในเด็คหรือนรก`);
+      } else if (ac.op === 'deckOrHandPick') {
+        const p = {
+          kind: 'pick', from: 'deckOrHand', src: ctx.src, chooser: ctx.owner, filter: ac.filter || {},
+          dest: ac.dest || 'avatar', optional: true, srcToHell: !!ctx.toHellAfter, paidCost: ac.paidCost !== false,
+          shuffleAfterIfFromDeck: ac.shuffleAfterIfFromDeck !== false,
+          autoPickOnly: !!ac.autoPickOnly,
+          summonedByAvatar: (st.inst[ctx.src] && st.inst[ctx.src].type === 'Avatar') ? st.inst[ctx.src] : null
+        };
+        const orCands = promptCandidates(st, p);
+        if (orCands.length) {
+          addLog(st, ctx.owner, `ค้นหาการ์ดในเด็คหรือบนมือด้วยเอฟเฟกต์ ${nameOf(st, ctx.src)}`);
+          const autoK = p.autoPickOnly && orCands.find(id => cardIsOnly(st.inst[id]));
+          if (autoK) {
+            st.prompts.push(p);
+            const inner = applyAction(st, { type: 'chooseTarget', k: autoK, by: ctx.owner, seed: 1 });
+            if (inner) Object.keys(inner).forEach(key => { if (key !== 'deny' && inner[key] != null) fx[key] = inner[key]; });
+            prompted = !!(st.prompts || []).length;
+          } else {
+            st.prompts.push(p); prompted = true;
+          }
+        } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในเด็คหรือบนมือ`);
       } else if (ac.op === 'hellPick' || ac.op === 'hellPickIfAllyOnField') {
         if (ac.op === 'hellPickIfAllyOnField' && ac.allyName) {
           const hasAlly = (st.zones[ctx.owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], ac.allyName));
@@ -12839,8 +12891,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (ab.whenAttacking) {
           if (!st.pending || st.pending.atk !== a.k) return deny('ใช้ได้เมื่อ Avatar ใบนี้กำลังโจมตี');
         } else {
-          if (st.active !== owner) return deny('สั่งใช้ได้ในเทิร์นของคุณเท่านั้น');
-          if (st.phase !== 'Main') {
+          const isAnyTurn = ab.allowOppTurn || (ab.trigger && ab.trigger.on === 'activatedAnyTurn');
+          if (!isAnyTurn && st.active !== owner) return deny('สั่งใช้ได้ในเทิร์นของคุณเท่านั้น');
+          if (!isAnyTurn && st.phase !== 'Main') {
             if (!(ab.allowOwnBattlePhase && st.phase === 'Battle'))
               return deny('สั่งใช้ได้เฉพาะ Main Phase');
           }
@@ -12958,6 +13011,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           } else if (costOp.op === 'destroyHostAvatar') {
             const hostK = c.attachedTo;
             if (!hostK || !st.inst[hostK]) return deny('ใช้ไม่ได้ — การ์ดไม่ได้สวมใส่ Avatar อยู่');
+          } else if (costOp.op === 'sacrificeSelf') {
+            if (!z.endsWith('.avatar')) return deny('ใช้ไม่ได้ — Avatar ไม่ได้อยู่บน Avatar Zone');
           } else if (costOp.op === 'sacrifice') {
             const filt = Object.assign({}, costOp.filter || {}, { _srcK: a.k });
             const incSelf = costOp.includeSelf != null ? !!costOp.includeSelf : !(costOp.excludeSelf || (costOp.filter && (costOp.filter.excludeSelf || costOp.filter.exceptSelf)));
@@ -13237,6 +13292,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (strict && isPlayer && by !== to) return deny('ยึดได้เฉพาะฝั่งที่จะเอามาคุม');
         const block = controlImmuneBlock(st, a.k, a.src || null);
         if (block) return deny(block);
+        if (st.inst[a.k].originalOwner == null) st.inst[a.k].originalOwner = from;
         doMove(st, a.k, to + '.avatar', null, fx);
         st.inst[a.k].tapped = true;
         addLog(st, to, `⛓️ ยึดการควบคุม ${c.name} มาฝั่งเรา (สภาพนอน)`);
