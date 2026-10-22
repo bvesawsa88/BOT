@@ -1264,7 +1264,7 @@
     if (cands[0]) {
       const deck = matchDecks[chooser];
       const ranked = cands.slice().sort((a, b) => cardValue(st, chooser, st.inst[b]) - cardValue(st, chooser, st.inst[a]));
-      const pick = (pr.dest === 'discard' || pr.dest === 'sacrifice') ? ranked[ranked.length - 1] : ranked[0];
+      const pick = (pr.dest === 'discard' || pr.dest === 'sacrifice' || pr.dest === 'sacrificeOnly') ? ranked[ranked.length - 1] : ranked[0];
       return { type: 'chooseTarget', k: pick || cands[0], by: chooser };
     }
     if (pr.optional !== false) return { type: 'skipPrompt', by: chooser };

@@ -191,7 +191,7 @@
     if (!c || !needle) return false;
     const nm = (typeof c === 'string' ? c : c.name) || '';
     if (nm.includes(needle)) return true;
-    const norm = s => (s || '')
+    const norm = s => String(s || '')
       .replace(/โพลีกอน/g, 'โพลิกอน')
       .replace(/ทศกัณ[ฑท]์/g, 'ทศกัณฐ์');
     if (norm(nm).includes(norm(needle))) return true;
@@ -2380,7 +2380,8 @@
     if (f.power != null && (+c.power || 0) !== +f.power) return false;
     if (f.powerMax != null && (+c.power || 0) > f.powerMax) return false;
     if (f.powerEquals != null && effPower(st, k) !== +f.powerEquals) return false;
-    if (f.excludeSelf && f._srcK && k === f._srcK) return false;
+    if ((f.excludeSelf || f.exceptSelf) && f._srcK && k === f._srcK) return false;
+    if (f.exceptSelfName && f._srcK && st.inst[f._srcK] && st.inst[k] && st.inst[k].name === st.inst[f._srcK].name) return false;
     if (f.powerBuffCountMin != null && (c.powerBuffCount || 0) < f.powerBuffCountMin) return false;
     if (f.hasCost && (c.cost === '' || c.cost == null)) return false;
     if (f.requireTapped && !c.tapped) return false;
@@ -4496,7 +4497,8 @@
         continueAfterPaidCost(st, fx, contBase, rng);
       } else if (costOp.op === 'sacrifice') {
         const filt = Object.assign({}, costOp.filter || {}, { _srcK: srcK });
-        st.prompts.push(tagCost({ kind: 'pick', from: 'ownAvatars', src: srcK, chooser: owner, filter: filt, dest: 'sacrifice', actions, optional: false, keepSrc: true }));
+        const incSelf = costOp.includeSelf != null ? !!costOp.includeSelf : !(costOp.excludeSelf || (costOp.filter && (costOp.filter.excludeSelf || costOp.filter.exceptSelf)));
+        st.prompts.push(tagCost({ kind: 'pick', from: 'ownAvatars', src: srcK, chooser: owner, filter: filt, dest: 'sacrifice', actions, optional: false, keepSrc: true, includeSelf: incSelf }));
       } else if (costOp.op === 'sacNamedUnique') {
         if (!sacNamedUniqueOk(st, owner, costOp)) {
           addLog(st, 'S', `จ่ายค่าไม่ได้ — ต้องส่ง Super Air ชื่อไม่ซ้ำครบ ${costOp.totalUnique || 4} ใบ (รวมชื่อบังคับ)`);
@@ -6558,7 +6560,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
       } else if (ac.op === 'sacrifice' && !ctx._asCost) {
         // เซ่นไหว้เป็นผลของเอฟเฟกต์ (อ๊บ / พระพรหม) — then = ผลหลังเซ่น
-        const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || { type: 'Avatar' }, dest: 'sacrificeOnly', optional: false, then: ac.then || null, includeSelf: !!ac.includeSelf };
+        const incSelf = ac.includeSelf != null ? !!ac.includeSelf : !(ac.excludeSelf || (ac.filter && (ac.filter.excludeSelf || ac.filter.exceptSelf)));
+        const p = { kind: 'pick', from: 'ownAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || { type: 'Avatar' }, dest: 'sacrificeOnly', optional: false, then: ac.then || null, includeSelf: incSelf };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือก Avatar เซ่นไหว้`); }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ให้เซ่นไหว้`);
       } else if (ac.op === 'revealOwnLife') revealOwnLife(st, ctx.owner, ac.count || 1);
@@ -12837,7 +12840,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const sac = (ab.actions || []).find(x => x && x.op === 'sacrifice');
           if (sac) {
             const filt = Object.assign({}, sac.filter || {}, { _srcK: a.k });
-            const p = { kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner, filter: filt, dest: 'sacrificeOnly', optional: false, includeSelf: !!sac.includeSelf };
+            const incSelf = sac.includeSelf != null ? !!sac.includeSelf : !(sac.excludeSelf || (sac.filter && (sac.filter.excludeSelf || sac.filter.exceptSelf)));
+            const p = { kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner, filter: filt, dest: 'sacrificeOnly', optional: false, includeSelf: incSelf };
             if (!promptCandidates(st, p).length) return deny('ใช้ไม่ได้ — ไม่มี Avatar ให้เซ่นไหว้');
           }
         }
@@ -12878,7 +12882,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if (!hostK || !st.inst[hostK]) return deny('ใช้ไม่ได้ — การ์ดไม่ได้สวมใส่ Avatar อยู่');
           } else if (costOp.op === 'sacrifice') {
             const filt = Object.assign({}, costOp.filter || {}, { _srcK: a.k });
-            const p = { kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner, filter: filt, dest: 'sacrifice', optional: false };
+            const incSelf = costOp.includeSelf != null ? !!costOp.includeSelf : !(costOp.excludeSelf || (costOp.filter && (costOp.filter.excludeSelf || costOp.filter.exceptSelf)));
+            const p = { kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner, filter: filt, dest: 'sacrifice', optional: false, includeSelf: incSelf };
             if (!promptCandidates(st, p).length) return deny('ไม่มีเป้าเซ่นไหว้');
           } else if (costOp.op === 'sendMagicToHell') {
             const need = costOp.count || 1;

@@ -543,7 +543,8 @@
             {
               "op": "sacrifice",
               "filter": {
-                "type": "Avatar"
+                "type": "Avatar",
+                "exceptSelf": true
               },
               "then": [
                 {
