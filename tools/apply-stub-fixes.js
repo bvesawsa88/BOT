@@ -320,22 +320,24 @@ const cc01Fixes = {
       trigger: { on: 'activated' },
       oncePerTurn: true,
       actions: [{
-        op: 'choose',
+        op: 'chooseMode',
         options: [
           {
+            label: '1) ทิ้งมือ 1 ใบ : สอดแนม 3 ใบ นำ Avatar วางบน Magic Zone ในสภาพตื่น (ที่เหลือไว้ใต้เด็ค)',
             cost: [{ op: 'discard', from: 'hand', count: 1 }],
             actions: [{
               op: 'scout', count: 3,
               filter: { type: 'Avatar' },
-              dest: 'magicZone',
+              dest: 'magic',
               restTo: 'deckBottom'
             }]
           },
           {
+            label: '2) เลือก Avatar ใน Magic Zone 1 ใบ : อัญเชิญลงบน Avatar Zone ในสภาพตื่น',
             actions: [{
-              op: 'summonFromMagicZone',
+              op: 'magicPick',
               filter: { type: 'Avatar' },
-              dest: 'avatarZone',
+              dest: 'avatar',
               paidCost: false
             }]
           }

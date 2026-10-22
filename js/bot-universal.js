@@ -53,7 +53,7 @@
     discard: ['discard'], discardOppRandom: ['disruption', 'discard'], discardAnyThenSummon: ['summon', 'discard'],
     sacrifice: ['risk'], sacrificeSelf: ['risk'], sacrificeHandOrField: ['risk'],
     tap: ['disruption', 'control'], untap: ['tempo', 'resource'], untapHost: ['tempo'],
-    takeControl: ['control'], switchControl: ['control'],
+    takeControl: ['control'], switchControl: ['control'], transferControlToEnemy: ['control'], changeControl: ['control'], returnControlToOwner: ['control'],
     revealOppLifeTop: ['life', 'finisher'], revealOppLifeOrWin: ['life', 'finisher'], revealOwnLife: ['life'],
     unrevealOwnLife: ['life', 'recovery'], revealAndActivateOwnLife: ['life'],
     grantBattleDestroyLifeHit: ['finisher', 'life'],

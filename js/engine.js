@@ -2557,6 +2557,8 @@
     const z = zoneOf(st, k) || '';
     return (st.zones['land'] || []).some(id => {
       const L = st.inst[id]; if (!L || L.faceUp === false) return false;
+      const ctrl = landControllerOf(st, id, own);
+      if (ctrl !== own) return false;
       return abil(st, id, 'static').some(ab => {
         if (!ab.untargetableOwnNameIncludes) return false;
         if (!abilityMagicReqOk(st, own, ab)) return false;
@@ -3874,6 +3876,7 @@
         const filt = Object.assign({}, p.filter || {}, p.src ? { _srcK: p.src } : {});
         if (!matchFilterEx(st, k, filt)) return false;
         if (blockedByOppMagicImmune(st, p.chooser, k, p.src)) return false;
+        if (isUntargetableByOppAbility(st, k, p.chooser)) return false;
         if ((p.dest === 'bounceHand' || p.dest === 'hell' || p.dest === 'dark' || p.dest === 'destroy' || p.dest === 'sigurdDestroyEnemy' || p.dest === 'takeControl') && protectedFromOppLeave(st, k, p.chooser)) return false;
         if (p.requireUntapped && !(st.inst[k] && !st.inst[k].tapped)) return false;
         if (p.magicMax != null && st.inst[k] && st.inst[k].type === 'Magic' && (p.magicGot || 0) >= p.magicMax) return false;
@@ -5295,10 +5298,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             triggerSummon(st, fx, ctx.src, ctx.owner, { paidCost: ac.paidCost !== false });
           }
         }
-      } else if (ac.op === 'magicPick') {
+      } else if (ac.op === 'magicPick' || ac.op === 'summonFromMagicZone') {
+        const dest = (ac.dest === 'avatarZone' ? 'avatar' : (ac.dest || 'avatar'));
         const p = {
           kind: 'pick', from: 'ownMagic', src: ctx.src, chooser: ctx.owner, filter: ac.filter || {},
-          dest: ac.dest || 'avatar', optional: ac.optional !== false, paidCost: !!ac.paidCost,
+          dest, optional: ac.optional !== false, paidCost: !!ac.paidCost,
           excludeIds: ac.excludeSelf === false ? [] : [ctx.src]
         };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือกการ์ดบน Magic Zone`); }
@@ -5670,14 +5674,19 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             });
           });
         }
-      } else if (ac.op === 'chooseMode') {
+      } else if (ac.op === 'chooseMode' || ac.op === 'choose') {
         const optional = ac.optional !== false;
         const validOpts = (ac.options || []).map((opt, idx) => ({ opt, idx })).filter(o => !chooseModeOptionDeny(st, ctx.src, ctx.owner, o.opt));
         if (validOpts.length === 1 && !optional) {
           const single = validOpts[0];
           addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${single.opt.label || 'เลือกปฏิบัติ'}`);
           claimChooseModeOption(st, ctx.src, single.opt);
-          runActions(st, fx, single.opt.actions || [], ctx);
+          const costList = normalizeAbilityCost(single.opt && single.opt.cost) || [];
+          if (costList.length) {
+            payCostAndRunActivated(st, fx, ctx.owner, ctx.src, costList, single.opt.actions || [], ctx.rng, single.opt.oncePerTurnTag || null);
+          } else {
+            runActions(st, fx, single.opt.actions || [], ctx);
+          }
         } else {
           st.prompts.push({ kind: 'chooseMode', src: ctx.src, chooser: ctx.owner, optional, options: ac.options || [] });
           prompted = true;
@@ -6590,18 +6599,46 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const p = { kind: 'pick', from: 'enemyAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter || { type: 'Avatar' }, dest: 'curse', symbol: ac.symbol || 'ผี', powerMod: ac.powerMod != null ? ac.powerMod : -2, optional: false };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เลือก Avatar ศัตรูติดคำสาป`); }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีเป้า`);
-      } else if (ac.op === 'switchControl') {
-        const from = zoneOf(st, ctx.src);
+      } else if (ac.op === 'switchControl' || ac.op === 'transferControlToEnemy' || ac.op === 'changeControl') {
+        const targetK = (ac.target && ac.target.k) || ctx.src;
+        const from = zoneOf(st, targetK);
         if (from && from.endsWith('.avatar')) {
-          const toP = other(from[0]);
-          const qd = quotaDeny(st, toP + '.avatar', st.inst[ctx.src]);
-          if (qd) addLog(st, 'S', `${nameOf(st, ctx.src)} ย้ายฝั่งไม่ได้ (${qd})`);
+          const toP = ac.to || other(from[0]);
+          const block = controlImmuneBlock(st, targetK, ctx.src);
+          if (block) addLog(st, 'S', block);
           else {
-            doMove(st, ctx.src, toP + '.avatar', null, fx);
-            st.inst[ctx.src].cannotAttack = true;
-            addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ย้ายไปฝั่ง ${toP} — สั่งโจมตีไม่ได้`);
+            const qd = quotaDeny(st, toP + '.avatar', st.inst[targetK]);
+            if (qd) addLog(st, 'S', `${nameOf(st, targetK)} ย้ายฝั่งไม่ได้ (${qd})`);
+            else {
+              if (st.inst[targetK].originalOwner == null) st.inst[targetK].originalOwner = from[0];
+              doMove(st, targetK, toP + '.avatar', null, fx);
+              if (ac.cannotAttack || (st.inst[targetK] && st.inst[targetK].code === 'BT03-023')) {
+                st.inst[targetK].cannotAttack = true;
+                addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ย้าย ${nameOf(st, targetK)} ไปฝั่ง ${toP} — สั่งโจมตีไม่ได้`);
+              } else {
+                addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เปลี่ยนการควบคุม ${nameOf(st, targetK)} ไปยังฝั่ง ${toP}`);
+              }
+              fx.snd = fx.snd || 'place';
+            }
           }
         }
+      } else if (ac.op === 'returnControlToOwner') {
+        let n = 0;
+        ['A', 'B'].forEach(p => {
+          (st.zones[p + '.avatar'] || []).slice().forEach(id => {
+            const orig = st.inst[id] && st.inst[id].originalOwner;
+            if (orig && orig !== p) {
+              const qd = quotaDeny(st, orig + '.avatar', st.inst[id]);
+              if (!qd) {
+                doMove(st, id, orig + '.avatar', null, fx);
+                delete st.inst[id].originalOwner;
+                addLog(st, 'S', `คืนการควบคุม ${nameOf(st, id)} กลับฝั่ง ${orig}`);
+                n++;
+              }
+            }
+          });
+        });
+        if (!n) addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ที่ถูกเปลี่ยนการควบคุม`);
       } else if (ac.op === 'grantDraculaRevive') {
         if (st.inst[ctx.src]) { st.inst[ctx.src].draculaRevive = true; addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ได้ความสามารถฟื้นจากนรกเทิร์นหน้า`); }
       } else if (ac.op === 'oppHellToBottom') {
@@ -7075,7 +7112,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             ? Object.assign({}, ac.filter || {}, { nameIncludes: [ac.buffFromNameIncludes] })
             : ac.filter;
           const isSummonScout = ac.op === 'scoutAndSummon' || ac.op === 'scoutAndSummonAll';
-          const rawDest = ac.dest === 'avatarZone' ? 'avatar' : ac.dest;
+          const rawDest = ac.dest === 'avatarZone' ? 'avatar' : (ac.dest === 'magicZone' ? 'magic' : ac.dest);
           const dest = ac.dest === 'nongSam' ? 'hand' : (rawDest || (isSummonScout ? 'avatar' : 'hand'));
           /* restTo: deck = คืนเข้าเด็คแล้วสับ (เทียบเท่า bottom + shuffle) */
           let restTo = ac.restTo === 'choose' ? 'bottom' : (ac.restTo === 'deckBottom' ? 'bottom' : (ac.restTo || (ac.restToBottom ? 'bottom' : 'bottom')));
@@ -10317,7 +10354,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 runActions(st, fx, p.then, { src: p.src, owner: p.chooser, rng, toHellAfter: p.srcToHell });
               }
             }
-          } else if (p.dest === 'magic') {
+          } else if (p.dest === 'magic' || p.dest === 'magicZone') {
             const prevOwn = ownerOf(st, a.k);
             if (st.inst[a.k] && prevOwn && prevOwn !== p.chooser && !st.inst[a.k].originalOwner)
               st.inst[a.k].originalOwner = prevOwn;
@@ -12370,9 +12407,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           st.prompts.shift();
           addLog(st, ownP, `🎯 ${c.name} · เลือกปฏิบัติ → ข้อ ${idx + 1}${optP && optP.label ? ': ' + optP.label : ''}`);
           if (optP && optP.countsAsModification) beginDeferredModUse(st, ownP, a.k);
-          if (optP && (optP.actions || []).length)
+          const costListP = normalizeAbilityCost(optP && optP.cost) || [];
+          if (costListP.length) {
+            payCostAndRunActivated(st, fx, ownP, a.k, costListP, optP.actions || [], rng, optP.oncePerTurnTag || null);
+          } else if (optP && (optP.actions || []).length) {
             runActions(st, fx, optP.actions, { src: a.k, owner: ownP, rng: rng, toHellAfter: !!pr0.srcToHell, onceTag: optP.oncePerTurnTag || null });
-          else if (pr0.srcToHell && zoneOf(st, a.k)) doMove(st, a.k, ownP + '.hell', null, fx);
+          } else if (pr0.srcToHell && zoneOf(st, a.k)) {
+            doMove(st, a.k, ownP + '.hell', null, fx);
+          }
           fx.snd = fx.snd || 'place';
           break;
         }

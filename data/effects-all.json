@@ -14415,7 +14415,7 @@
     },
     {
       "code": "BT09-018",
-      "name": "ตัวอะไรสักอย่าง",
+      "name": "ตัวอะไรสักอย่างที่เป็นมิตรและพูดมาก",
       "abilities": [
         {
           "keyword": "จุติ",
@@ -23217,9 +23217,10 @@
           "oncePerTurn": true,
           "actions": [
             {
-              "op": "choose",
+              "op": "chooseMode",
               "options": [
                 {
+                  "label": "1) ทิ้งมือ 1 ใบ : สอดแนม 3 ใบ นำ Avatar วางบน Magic Zone ในสภาพตื่น (ที่เหลือไว้ใต้เด็ค)",
                   "cost": [
                     {
                       "op": "discard",
@@ -23234,19 +23235,20 @@
                       "filter": {
                         "type": "Avatar"
                       },
-                      "dest": "magicZone",
+                      "dest": "magic",
                       "restTo": "deckBottom"
                     }
                   ]
                 },
                 {
+                  "label": "2) เลือก Avatar ใน Magic Zone 1 ใบ : อัญเชิญลงบน Avatar Zone ในสภาพตื่น",
                   "actions": [
                     {
-                      "op": "summonFromMagicZone",
+                      "op": "magicPick",
                       "filter": {
                         "type": "Avatar"
                       },
-                      "dest": "avatarZone",
+                      "dest": "avatar",
                       "paidCost": false
                     }
                   ]
