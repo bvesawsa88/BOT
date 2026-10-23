@@ -153,60 +153,17 @@
 
     function isLoggedIn() { return !!getAuthToken(); }
 
-    function collectAllLocalDecks() {
-      const collected = {};
-      const keys = ['bot_decks_guest', 'bot_decks_v1'];
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && k.indexOf('bot_decks_') === 0 && !keys.includes(k)) {
-            keys.push(k);
-          }
-        }
-      } catch (e) { }
-      for (const k of keys) {
-        try {
-          const raw = localStorage.getItem(k);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (parsed && typeof parsed === 'object') {
-              for (const [name, d] of Object.entries(parsed)) {
-                if (d && (d.main || d.life)) {
-                  collected[name] = d;
-                }
-              }
-            }
-          }
-        } catch (e) { }
-      }
-      return collected;
-    }
-
     function savedDecks() {
       const key = deckStorageKey();
       try {
         const raw = localStorage.getItem(key);
-        if (raw !== null) {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-            return parsed;
-          }
-        }
+        if (raw) return JSON.parse(raw);
       } catch (e) { }
       if (key === 'bot_decks_guest') {
         try {
           const legacy = localStorage.getItem('bot_decks_v1');
-          if (legacy !== null) {
-            const parsed = JSON.parse(legacy);
-            if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) return parsed;
-          }
+          if (legacy) return JSON.parse(legacy);
         } catch (e) { }
-      }
-      // If active user currently has 0 decks, check all available local decks on device
-      const fallback = collectAllLocalDecks();
-      if (Object.keys(fallback).length > 0) {
-        writeLocalDecks(fallback);
-        return fallback;
       }
       return {};
     }
@@ -256,26 +213,20 @@
           if (j.maxDecks) userMaxDecks = j.maxDecks;
           isSupporter = !!j.isSupporter;
           const remote = (j.decks && typeof j.decks === 'object') ? j.decks : {};
-          const local = savedDecks();
 
-          if (Object.keys(remote).length > 0) {
-            // Merge remote and local so no decks are lost
-            const merged = Object.assign({}, local, remote);
-            writeLocalDecks(merged);
-            if (Object.keys(merged).length > Object.keys(remote).length) {
-              pushDecks(merged);
+          // If brand new account on server has no decks, check for local guest decks to migrate once:
+          if (Object.keys(remote).length === 0) {
+            let guestDecks = {};
+            try { guestDecks = JSON.parse(localStorage.getItem('bot_decks_guest') || localStorage.getItem('bot_decks_v1') || '{}'); } catch (e) { }
+            if (Object.keys(guestDecks).length > 0) {
+              writeLocalDecks(guestDecks);
+              pushDecks(guestDecks);
+              return guestDecks;
             }
-            return merged;
-          } else {
-            // Brand new or empty remote: adopt local decks if any
-            if (Object.keys(local).length > 0) {
-              writeLocalDecks(local);
-              pushDecks(local);
-              return local;
-            }
-            writeLocalDecks({});
-            return {};
           }
+
+          writeLocalDecks(remote);
+          return remote;
         })
         .catch(() => savedDecks());
     }
