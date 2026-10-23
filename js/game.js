@@ -7019,7 +7019,16 @@
     byId('authSubmit').textContent = reg ? 'สมัคร' : 'เข้าสู่ระบบ';
     byId('authPass').autocomplete = reg ? 'new-password' : 'current-password';
   }
-  function openAuth(m) { authMode = m || 'login'; setAuthTab(); byId('authMsg').textContent = ''; byId('authUser').value = ''; byId('authPass').value = ''; byId('authModal').classList.remove('hidden'); setTimeout(() => byId('authUser').focus(), 60); }
+  function openAuth(m) {
+    authMode = m || 'login';
+    setAuthTab();
+    byId('authMsg').textContent = '';
+    byId('authUser').value = '';
+    byId('authPass').value = '';
+    byId('authModal').classList.remove('hidden');
+    setTimeout(() => byId('authUser').focus(), 60);
+    initGoogleAuth();
+  }
   const closeAuth = () => byId('authModal').classList.add('hidden');
   async function submitAuth() {
     const u = byId('authUser').value.trim(), pw = byId('authPass').value;
@@ -7039,101 +7048,81 @@
     } catch (e) { byId('authMsg').textContent = 'เชื่อมต่อไม่ได้'; }
     byId('authSubmit').disabled = false;
   }
-  async function loginWithGoogle() {
-    byId('authMsg').textContent = 'กำลังเชื่อมต่อ Google...';
+
+  async function initGoogleAuth() {
+    const slot = byId('googleBtnSlot');
+    if (!slot) return;
     try {
       const confRes = await fetch('/auth/oauth/config').then(r => r.json()).catch(() => ({}));
       const cid = (confRes.googleClientId || '').trim();
       const isValidCid = cid.endsWith('.apps.googleusercontent.com');
 
-      if (isValidCid) {
-        if (!window.google || !window.google.accounts || !window.google.accounts.id) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://accounts.google.com/gsi/client';
-            script.async = true;
-            script.defer = true;
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
-            document.head.appendChild(script);
-          }).catch(() => {});
-        }
-        if (window.google && window.google.accounts && window.google.accounts.id) {
-          try {
-            window.google.accounts.id.initialize({
-              client_id: cid,
-              auto_select: false,
-              callback: async (res) => {
-                if (res.credential) {
-                  const r = await fetch('/auth/social-login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ provider: 'google', credential: res.credential })
-                  });
-                  const j = await r.json();
-                  if (j.ok) {
-                    setAuthToken(j.token);
-                    setAuthUI(j.username, j.admin, j.isSupporter);
-                    closeAuth();
-                    toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
-                    syncCloudDecks();
-                  } else {
-                    byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
-                  }
-                }
-              }
-            });
-            let btnWrapper = byId('_googleBtnWrapper');
-            if (!btnWrapper) {
-              btnWrapper = document.createElement('div');
-              btnWrapper.id = '_googleBtnWrapper';
-              btnWrapper.style.position = 'fixed';
-              btnWrapper.style.opacity = '0';
-              btnWrapper.style.pointerEvents = 'none';
-              btnWrapper.style.top = '-9999px';
-              document.body.appendChild(btnWrapper);
-            }
-            btnWrapper.innerHTML = '';
-            window.google.accounts.id.renderButton(btnWrapper, { theme: 'outline', size: 'large', type: 'standard' });
-            const googleBtn = btnWrapper.querySelector('div[role=button]') || btnWrapper.querySelector('iframe');
-            if (googleBtn) {
-              googleBtn.click();
-              byId('authMsg').textContent = '';
-              return;
-            }
-          } catch (e) {
-            console.warn('GSI initialize failed, fallback to social login prompt', e);
-          }
-        }
+      if (!isValidCid) {
+        if (byId('btnAuthGoogle')) byId('btnAuthGoogle').classList.remove('hidden');
+        return;
       }
 
-      const name = prompt('กรอกอีเมลหรือชื่อบัญชี Google ของคุณเพื่อเข้าสู่ระบบ:', 'GoogleUser');
-      if (!name || !name.trim()) { byId('authMsg').textContent = ''; return; }
-      const cleanInput = name.trim();
-      const r = await fetch('/auth/social-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: 'google',
-          name: cleanInput.split('@')[0],
-          email: cleanInput.includes('@') ? cleanInput : undefined,
-          id: 'g_' + cleanInput.toLowerCase().replace(/[^a-z0-9]/g, '')
-        })
-      });
-      const j = await r.json();
-      if (j.ok) {
-        setAuthToken(j.token);
-        setAuthUI(j.username, j.admin, j.isSupporter);
-        closeAuth();
-        toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
-        syncCloudDecks();
+      if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          script.onload = resolve;
+          script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
+          document.head.appendChild(script);
+        }).catch(() => {});
+      }
+
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+          client_id: cid,
+          auto_select: false,
+          callback: async (res) => {
+            if (res.credential) {
+              byId('authMsg').textContent = 'กำลังเข้าสู่ระบบ Google...';
+              try {
+                const r = await fetch('/auth/social-login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ provider: 'google', credential: res.credential })
+                });
+                const j = await r.json();
+                if (j.ok) {
+                  setAuthToken(j.token);
+                  setAuthUI(j.username, j.admin, j.isSupporter);
+                  closeAuth();
+                  toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
+                  syncCloudDecks();
+                } else {
+                  byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
+                }
+              } catch (err) {
+                byId('authMsg').textContent = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้';
+              }
+            }
+          }
+        });
+        slot.innerHTML = '';
+        window.google.accounts.id.renderButton(slot, {
+          theme: 'outline',
+          size: 'large',
+          width: 320,
+          text: 'signin_with',
+          shape: 'rectangular',
+          logo_alignment: 'left'
+        });
+        if (byId('btnAuthGoogle')) byId('btnAuthGoogle').classList.add('hidden');
       } else {
-        byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
+        if (byId('btnAuthGoogle')) byId('btnAuthGoogle').classList.remove('hidden');
       }
     } catch (e) {
-      console.error(e);
-      byId('authMsg').textContent = 'เชื่อมต่อ Google ไม่สำเร็จ (' + (e.message || e) + ')';
+      if (byId('btnAuthGoogle')) byId('btnAuthGoogle').classList.remove('hidden');
     }
+  }
+
+  async function loginWithGoogle() {
+    initGoogleAuth();
   }
 
   async function loginWithDiscord() {
