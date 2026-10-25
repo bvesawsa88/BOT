@@ -30,7 +30,7 @@
   const OP_TAGS = {
     draw: ['draw', 'resource'], drawHellUnique: ['draw', 'recovery'], drawIfOwnHellTypeMin: ['draw'],
     drawProvisions: ['draw', 'resource'],
-    scout: ['search'], deckPick: ['search'], deckPickMulti: ['search'], deckOrHellPick: ['search', 'recovery'], deckOrHandPick: ['search', 'summon'],
+    scout: ['search'], deckPick: ['search'], deckPickMulti: ['search'], deckOrHellPick: ['search', 'recovery'],
     magicPick: ['search'], darkPick: ['search'], peekOwnTop: ['search'], revealDeckThenTop: ['search'],
     hellPick: ['recovery', 'search'], hellPickMulti: ['recovery'], hellReturnFilter: ['recovery'],
     summonSelfFromHell: ['summon', 'recovery'], summonSelfFromHandFree: ['summon'], summonSelfFromHandPaying: ['summon'],
