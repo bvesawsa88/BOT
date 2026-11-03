@@ -1134,7 +1134,7 @@
     const c0 = st.inst[summonK];
     if (!c0) return null;
     const eAll = effectOf(c0);
-    const avColor = (eAll && eAll.allColors) ? '' : (c0.color || '');
+    const avColor = (E && E.avatarCostColors) ? E.avatarCostColors(c0, eAll) : ((eAll && eAll.allColors) ? '' : (c0.color || ''));
     const hand = zoneIds(st, side + '.hand').filter(x => x !== summonK);
     const usable = [];
     const fp = fingerprintCards(cardsFromState(st, side));

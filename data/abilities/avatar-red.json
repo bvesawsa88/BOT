@@ -2055,18 +2055,11 @@
         {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activated",
-            "from": "grave"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
           "oncePerTurn": true,
-          "condition": {
-            "ownField": {
-              "nameOnField": {
-                "name": "บัมเบิ้ลแบงค์",
-                "count": 0
-              }
-            }
-          },
+          "requireNoOwnNameIncludes": "บัมเบิ้ลแบงค์",
           "cost": [
             {
               "op": "discard",
@@ -2076,8 +2069,7 @@
           ],
           "actions": [
             {
-              "op": "hellSummonSelf",
-              "dest": "avatarZone",
+              "op": "summonSelfFromHell",
               "paidCost": false
             }
           ]
@@ -3536,12 +3528,16 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
       "parseStatus": "auto",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]",
+      "linkOnlyKeys": [
+        "protectAllyNameIncludes"
+      ]
     },
     {
       "name": "เมียพระอิศวร",
@@ -4871,7 +4867,10 @@
       ],
       "onlyAttackableAllyNameIncludes": "กิมมิคแมน",
       "parseStatus": "auto",
-      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]"
+      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "name": "อากาศยานผู้กล้า : แอร์ซิด รีฟลักซ์",
@@ -5385,7 +5384,10 @@
       ],
       "onlyAttackableAllyNameIncludes": "โฮคุ",
       "parseStatus": "auto",
-      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]"
+      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "name": "DJ ปีโป้",

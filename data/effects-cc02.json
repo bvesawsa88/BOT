@@ -243,18 +243,11 @@
         {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activated",
-            "from": "grave"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
           "oncePerTurn": true,
-          "condition": {
-            "ownField": {
-              "nameOnField": {
-                "name": "บัมเบิ้ลแบงค์",
-                "count": 0
-              }
-            }
-          },
+          "requireNoOwnNameIncludes": "บัมเบิ้ลแบงค์",
           "cost": [
             {
               "op": "discard",
@@ -264,8 +257,7 @@
           ],
           "actions": [
             {
-              "op": "hellSummonSelf",
-              "dest": "avatarZone",
+              "op": "summonSelfFromHell",
               "paidCost": false
             }
           ]

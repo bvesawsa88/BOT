@@ -60,13 +60,17 @@ function padDecks(st) {
   put(st, 'B.deck', 'SD01-006');
 }
 
-/* 1) ศัตรูต้องโจมตีเดสสึหวา */
+/* 1) ศัตรูต้องโจมตีเดสสึหวา — ความสามารถใต้ [Link จอมเวทย์ โกลเด้น] ทำงานเฉพาะตอนคู่หู */
 {
   const st = emptyState({ phase: 'Battle', active: 'B' });
   const des = put(st, 'A.avatar', 'BT10-026');
   const other = put(st, 'A.avatar', 'SD01-003');
+  const gold = put(st, 'A.avatar', 'BT10-025');
   const atk = put(st, 'B.avatar', 'SD01-002');
   padDecks(st);
+  const probe = BoT.applyAction(JSON.parse(JSON.stringify(st)), { type: 'declareAttack', atk, def: other, by: 'B', seed: 2 });
+  ok(!probe.deny, 'not linked: may attack other (' + probe.deny + ')');
+  st.inst[des].pairWith = gold; st.inst[gold].pairWith = des;
   let fx = apply(st, { type: 'declareAttack', atk, def: other, by: 'B', seed: 2 });
   ok(!!fx.deny, 'must attack desuwa: ' + fx.deny);
   fx = apply(st, { type: 'declareAttack', atk, def: des, by: 'B', seed: 3 });
@@ -74,10 +78,12 @@ function padDecks(st) {
   ok(!!st.pending || !!st.inst[atk].tapped, 'attack desuwa allowed');
 }
 
-/* 2) ถูกโจมตีเทิร์นละครั้ง: จั่ว 1 ครั้งเดียว */
+/* 2) ถูกโจมตีเทิร์นละครั้ง: จั่ว 1 ครั้งเดียว (ใต้ [Link] — ต้องคู่หู) */
 {
   const st = emptyState({ phase: 'Battle', active: 'B' });
   const des = put(st, 'A.avatar', 'BT10-026');
+  const gold = put(st, 'A.avatar', 'BT10-025');
+  st.inst[des].pairWith = gold; st.inst[gold].pairWith = des;
   const atk1 = put(st, 'B.avatar', 'SD01-006');
   const atk2 = put(st, 'B.avatar', 'SD01-003');
   padDecks(st);
@@ -168,6 +174,9 @@ function padDecks(st) {
   padDecks(st);
   let fx = apply(st, { type: 'unity', k: loki, to: indra, by: 'A', seed: 31 });
   ok(!!fx.deny, 'unity only thor: ' + fx.deny);
+  // สั่งใช้ +POWER อยู่ใต้ [Link ธอร์] — ต้องคู่หูก่อน
+  ok(!!apply(st, { type: 'activateAbility', k: loki, by: 'A', seed: 31.4 }).deny, 'loki buff denied when not linked');
+  st.inst[loki].pairWith = thor; st.inst[thor].pairWith = loki;
   fx = apply(st, { type: 'activateAbility', k: loki, by: 'A', seed: 31.5 });
   if (fx.deny) fail('loki buff before unity deny: ' + fx.deny);
   drainReact(st, 31);
@@ -183,6 +192,8 @@ function padDecks(st) {
 {
   const st = emptyState();
   const loki = put(st, 'A.avatar', 'BT09-025');
+  const thor = put(st, 'A.avatar', 'BT09-024');
+  st.inst[loki].pairWith = thor; st.inst[thor].pairWith = loki;
   padDecks(st);
   ok(BoT.effPower(st, loki) === 0, 'loki printed 0');
   let fx = apply(st, { type: 'activateAbility', k: loki, by: 'A', seed: 40 });
@@ -192,6 +203,8 @@ function padDecks(st) {
 
   const st2 = emptyState();
   const loki2 = put(st2, 'A.avatar', 'BT09-025');
+  const thor2 = put(st2, 'A.avatar', 'BT09-024');
+  st2.inst[loki2].pairWith = thor2; st2.inst[thor2].pairWith = loki2;
   for (let i = 0; i < 10; i++) put(st2, 'A.hell', 'SD01-006');
   padDecks(st2);
   fx = apply(st2, { type: 'activateAbility', k: loki2, by: 'A', seed: 42 });

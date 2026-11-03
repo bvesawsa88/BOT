@@ -225,7 +225,10 @@
         "สัตว์"
       ],
       "onlyAttackableAllyNameIncludes": "โฮคุ",
-      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]"
+      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "code": "BT09-008",
@@ -355,13 +358,17 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
       "name": "เมย์ แวมไพร์โกธิค",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]",
+      "linkOnlyKeys": [
+        "protectAllyNameIncludes"
+      ]
     },
     {
       "code": "BT09-011",
@@ -843,7 +850,8 @@
               "op": "draw",
               "count": 1
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -921,7 +929,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -989,7 +998,8 @@
             {
               "op": "destroyTarget"
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",

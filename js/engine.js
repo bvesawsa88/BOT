@@ -150,7 +150,7 @@
     'combatImmuneVsLowerCost', 'attackIf', 'controlImmuneExcept', 'scoutBonusOwnKapom',
     'scoutBonusConstruct', 'hostCostDelta', 'hostPowerIfEffCostMin',
     'destroyAnyOnSummonedByAvatarNameIncludes', 'destroyAnyOnSummonedByAvatarSymbol',
-    'extraColors', 'onlyAttackableAllyNameIncludes', 'cannotAttack', 'unityOnlyNameIncludes',
+    'extraColors', 'onlyAttackableAllyNameIncludes', 'linkOnlyKeys', 'cannotAttack', 'unityOnlyNameIncludes',
     'controlImmuneOwnAvatars', 'linkKeywords', 'setPowerIfAllyNameIncludes', 'setPowerTo'
   ];
   function inheritMetaFromNamePeers(chosen, nm) {
@@ -247,6 +247,17 @@
     }
     return false;
   }
+  /* ฟิลด์ระดับการ์ด (เช่น onlyAttackableAllyNameIncludes) ที่อยู่ใต้สัญลักษณ์คู่หู — ใช้ได้เฉพาะตอนอยู่ในสถานะคู่หู */
+  function linkFieldOn(st, k, e, key) {
+    if (!e || !e[key]) return false;
+    if (Array.isArray(e.linkOnlyKeys) && e.linkOnlyKeys.includes(key) && !inLinkStatus(st, k)) return false;
+    return true;
+  }
+  /* คู่หูตาย/ออกจากสนาม: ใบที่เหลือจับคู่ใหม่ได้ตั้งแต่เทิร์นถัดไป (คู่หูตายในเทิร์นฝ่ายตรงข้าม → เทิร์นเราจับคู่ใหม่ได้) */
+  function partnerLostThisTurn(st, c) {
+    const curTurn = (st.turnSeq != null ? st.turnSeq : st.turn || 1);
+    return c && c._partnerLostTurnSeq != null && c._partnerLostTurnSeq === curTurn;
+  }
   function pairDenyReason(st, k1, k2, by) {
     const c1 = st.inst[k1];
     if (!c1) return 'ไม่พบการ์ด';
@@ -283,6 +294,10 @@
       return `"${c1.name}" เพิ่งออกจากสนาม/ตายในเทิร์นนี้ — สามารถจับคู่หูใหม่ได้ในเทิร์นหน้า`;
     if (c2._diedTurnSeq != null && c2._diedTurnSeq === curTurn)
       return `"${c2.name}" เพิ่งออกจากสนาม/ตายในเทิร์นนี้ — สามารถจับคู่หูใหม่ได้ในเทิร์นหน้า`;
+    if (partnerLostThisTurn(st, c1))
+      return `"${c1.name}" เพิ่งเสียคู่หูในเทิร์นนี้ — จับคู่หูใหม่ได้ในเทิร์นหน้า`;
+    if (partnerLostThisTurn(st, c2))
+      return `"${c2.name}" เพิ่งเสียคู่หูในเทิร์นนี้ — จับคู่หูใหม่ได้ในเทิร์นหน้า`;
 
     return null;
   }
@@ -302,6 +317,8 @@
       return `"${c.name}" เคยจับคู่หูไปแล้ว — การ์ดแต่ละใบคู่หูได้ครั้งเดียวจนกว่าจะตาย`;
     if (c._diedTurnSeq != null && c._diedTurnSeq === curTurn)
       return `"${c.name}" เพิ่งออกจากสนาม/ตายในเทิร์นนี้ — สามารถจับคู่หูใหม่ได้ในเทิร์นหน้า`;
+    if (partnerLostThisTurn(st, c))
+      return `"${c.name}" เพิ่งเสียคู่หูในเทิร์นนี้ — จับคู่หูใหม่ได้ในเทิร์นหน้า`;
 
     const hasCandidate = (st.zones[side + '.avatar'] || []).some(id => {
       if (id === k) return false;
@@ -568,7 +585,9 @@
     // ขวานเงิน: ความสามารถของโฮสต์ไร้ผลขณะสวมอยู่ (จุติที่ทำงานไปแล้วไม่นับ)
     if (abilitiesNullified(st, k)) return [];
     const e = resolveEffect(c.code, c.name);
-    const base = ((e && e.abilities) || []).filter(ab => ab.trigger && ab.trigger.on === on);
+    const base0 = ((e && e.abilities) || []).filter(ab => ab.trigger && ab.trigger.on === on);
+    // ความสามารถที่มีสัญลักษณ์ คู่หู/Link (requireLinked) ทำงานเฉพาะตอนอยู่ในสถานะคู่หู
+    const base = on === 'activated' ? base0 : base0.filter(ab => !ab.requireLinked || inLinkStatus(st, k));
     const g = (c.granted || []).filter(ab => ab.trigger && ab.trigger.on === on);
     return g.length ? base.concat(g) : base;
   }
@@ -597,6 +616,15 @@
     if (c.cardOwner === 'A' || c.cardOwner === 'B') return c.cardOwner;
     if (c.modOwner === 'A' || c.modOwner === 'B') return c.modOwner;
     return null;
+  }
+  /* ลาพิเน่ ฯลฯ: บันทึกว่ามีการทิ้งการ์ดจากมือด้วยความสามารถการ์ดของฝ่ายนั้นในเทิร์นนี้ (เวท/อวตาร · ค่าใช้จ่ายหรือผล)
+     — นับเฉพาะเมื่อการ์ดต้นเหตุเป็นของฝ่ายที่ทิ้ง (ไม่นับการ์ดฝ่ายตรงข้ามสั่งให้เราทิ้ง) */
+  function markAllyEffectDiscard(st, side, srcK) {
+    if (side !== 'A' && side !== 'B') return;
+    const so = srcK ? cardOwnerOf(st, srcK) : null;
+    if (so && so !== side) return;
+    st.allyEffectDiscardedThisTurn = st.allyEffectDiscardedThisTurn || {};
+    st.allyEffectDiscardedThisTurn[side] = true;
   }
   function ensureCardOwner(st, k, fromZ) {
     const c = st.inst[k];
@@ -913,6 +941,11 @@
         delete st.inst[pw].pairWith;
         delete st.inst[pw].pairId;
         delete st.inst[pw]._linked;
+        // ใบที่เหลือบนสนามจับคู่หูใหม่ได้ (เทิร์นถัดไป)
+        if (st.inst[pw]._pairedInLife) {
+          delete st.inst[pw]._pairedInLife;
+          st.inst[pw]._partnerLostTurnSeq = (st.turnSeq != null ? st.turnSeq : st.turn || 1);
+        }
       }
       delete st.inst[k].pairWith;
       delete st.inst[k].pairId;
@@ -2633,7 +2666,7 @@
     return (st.zones[side + '.avatar'] || []).some(id => {
       if (id === k) return false;
       const e = fxId(st, id);
-      return !!(e && e.protectAllyNameIncludes && nameMatches(c, e.protectAllyNameIncludes));
+      return !!(linkFieldOn(st, id, e, 'protectAllyNameIncludes') && nameMatches(c, e.protectAllyNameIncludes));
     });
   }
   /* ห้ามเล็งเป็นเป้าโจมตีไหม (โทมาโทจัง / ศาลพระภูมิ / ผู้โดยสาร ฯลฯ) */
@@ -2667,7 +2700,7 @@
     for (let i = 0; i < (st.zones[ot + '.avatar'] || []).length; i++) {
       const id = st.zones[ot + '.avatar'][i];
       const eForce = fxId(st, id);
-      if (!eForce || !eForce.onlyAttackableAllyNameIncludes) continue;
+      if (!linkFieldOn(st, id, eForce, 'onlyAttackableAllyNameIncludes')) continue;
       const must = eForce.onlyAttackableAllyNameIncludes;
       const hasMust = (st.zones[ot + '.avatar'] || []).some(x => nameMatches(st.inst[x], must));
       if (!hasMust) continue;
@@ -5833,6 +5866,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (z.endsWith('.hand')) {
           doMove(st, ctx.src, ctx.owner + '.hell', null, fx);
           addLog(st, ctx.owner, `ทิ้ง ${nameOf(st, ctx.src)} จากมือลงนรก`);
+          markAllyEffectDiscard(st, ctx.owner, ctx.src);
         } else addLog(st, 'S', 'ทิ้งจากมือไม่ได้ — ไม่อยู่ในมือ');
       } else if (ac.op === 'destroyAttackTarget') {
         const def = (st.pending && st.pending.def) || ctx.target;
@@ -9840,10 +9874,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const gemAdd = +(st.inst[a.k].gem) || 0;
             doMove(st, a.k, p.chooser + '.hell', null, fx);
             addLog(st, p.chooser, p.effectDiscard ? `ทิ้ง ${nameOf(st, a.k)}${p.gemSumMin != null ? ` (GEM +${gemAdd})` : ''}` : `ทิ้ง ${nameOf(st, a.k)} จ่ายค่าเวท`);
-            if (p.effectDiscard) {
-              st.allyEffectDiscardedThisTurn = st.allyEffectDiscardedThisTurn || {};
-              st.allyEffectDiscardedThisTurn[p.chooser] = true;
-            }
+            if (p.effectDiscard || p.magicCostDiscard) markAllyEffectDiscard(st, p.chooser, p.src);
             if (p.gemSumMin != null) {
               p.gemGot = (p.gemGot || 0) + gemAdd;
               st.prompts.shift();
@@ -10446,6 +10477,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           } else if (p.dest === 'discardSumCostSummon') {
             const cost = +(st.inst[a.k].cost) || 0;
             doMove(st, a.k, p.chooser + '.hell', null, fx);
+            markAllyEffectDiscard(st, p.chooser, p.src);
             p.costSum = (p.costSum || 0) + cost;
             p.multiGot = (p.multiGot || 0) + 1;
             p.ids = (p.ids || []).filter(x => x !== a.k);
@@ -13238,6 +13270,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         c2._pairedInLife = true;
         delete c1._diedTurnSeq;
         delete c2._diedTurnSeq;
+        delete c1._partnerLostTurnSeq;
+        delete c2._partnerLostTurnSeq;
 
         st._pairSeq = (st._pairSeq || 0) + 1;
         const pid = ((st._pairSeq - 1) % 4) + 1; // สีคู่ 1-4 วนไป
@@ -13816,5 +13850,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
+  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, avatarCostColors, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
 });

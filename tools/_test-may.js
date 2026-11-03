@@ -127,7 +127,10 @@ function skipReacts(st, seed) {
   const st = emptyState({ phase: 'Main', active: 'A' });
   const may = put(st, 'A.avatar', 'BT09-010');
   ok(BoT.effPower(st, may) === 2, 'may base 2: ' + BoT.effPower(st, may));
-  put(st, 'A.avatar', 'BT09-011');
+  const princess = put(st, 'A.avatar', 'BT09-011');
+  // POWER ตั้งต้น 5 อยู่ใต้ [Link เจ้าหญิงรวงข้าว] — ต้องคู่หู
+  ok(BoT.effPower(st, may) === 2, 'may not linked stays 2: ' + BoT.effPower(st, may));
+  st.inst[may].pairWith = princess; st.inst[princess].pairWith = may;
   ok(BoT.effPower(st, may) === 7, 'may 5 base +2 princess own turn: ' + BoT.effPower(st, may));
   st.active = 'B';
   ok(BoT.effPower(st, may) === 5, 'may 5 on opp turn: ' + BoT.effPower(st, may));
@@ -136,9 +139,11 @@ function skipReacts(st, seed) {
 /* 6) กันเจ้าหญิงเป็นเป้าโจมตี และเป้าทำลายของศัตรู */
 {
   const st = emptyState({ phase: 'Battle', active: 'B' });
-  put(st, 'A.avatar', 'BT09-010');
+  const may = put(st, 'A.avatar', 'BT09-010');
   const princess = put(st, 'A.avatar', 'BT09-011');
   const other = put(st, 'A.avatar', 'SD01-003');
+  // กันเจ้าหญิงอยู่ใต้ [Link เจ้าหญิงรวงข้าว] — ต้องคู่หู
+  st.inst[may].pairWith = princess; st.inst[princess].pairWith = may;
   const atk = put(st, 'B.avatar', 'SD01-002');
   let fx = apply(st, { type: 'declareAttack', atk, def: princess, by: 'B', seed: 40 });
   ok(!!fx.deny, 'cannot attack princess: ' + fx.deny);
@@ -147,8 +152,9 @@ function skipReacts(st, seed) {
   skipReacts(st, 42);
 
   const st2 = emptyState({ phase: 'Main', active: 'B' });
-  put(st2, 'A.avatar', 'BT09-010');
+  const may2 = put(st2, 'A.avatar', 'BT09-010');
   const princess2 = put(st2, 'A.avatar', 'BT09-011');
+  st2.inst[may2].pairWith = princess2; st2.inst[princess2].pairWith = may2;
   const other2 = put(st2, 'A.avatar', 'SD01-003');
   const ish = put(st2, 'B.avatar', 'FPRO-004');
   fx = apply(st2, { type: 'activateAbility', k: ish, by: 'B', seed: 50 });

@@ -682,7 +682,11 @@
   const GEM_EMOJI = { 'แดง': '🔴', 'ฟ้า': '🔵', 'ม่วง': '🟣', 'เขียว': '🟢', 'ขาว': '⚪', 'ใส': '⚪' }; // สีเจม/สีคอส
   /* สีเจม: ตาม gemColor · ค่าเริ่มต้น = ขาว (ใส / wild จ่ายได้ทุกสี) · สีเฉพาะ (แดง/ฟ้า/ม่วง/เขียว) ต้องจ่ายสีนั้น */
   const gemColorOf = c => (BoTEngine.gemColorOf ? BoTEngine.gemColorOf(c) : (((c && c.gemColor) && c.gemColor !== 'ใส' && c.gemColor !== 'ไร้สี') ? c.gemColor : 'ขาว'));
-  const costColorOf = c => c.color || '';        // สีคอส = สีที่ต้องจ่ายเพื่ออัญเชิญ ('' = ไร้สี จ่ายได้ทุกสี)
+  const costColorOf = c => { // + extraColors (# นับเป็นสี…ด้วย)
+    const e = c && BoTEngine.effectOf && BoTEngine.effectOf(c.code, c.name);
+    if (e && e.allColors) return '';
+    return BoTEngine.avatarCostColors ? BoTEngine.avatarCostColors(c, e).join('/') : ((c && c.color) || '');
+  };        // สีคอส = สีที่ต้องจ่ายเพื่ออัญเชิญ ('' = ไร้สี จ่ายได้ทุกสี)
   /* เดย์วัน ฯลฯ: จ่ายเป็น Cost อัญเชิญชื่อที่ตรง → นับ GEM พิเศษ (ค่าพิมพ์ยังเป็น 1) */
   function payGemInfo(payC, summonC) {
     const printed = +payC.gem || 0;
@@ -2833,7 +2837,7 @@
     const c0 = st.inst[summonK]; if (!c0) return null;
     if (cost <= 0) return [];
     const eAll = BoTEngine.effectOf && BoTEngine.effectOf(c0.code, c0.name);
-    const avColor = (eAll && eAll.allColors) ? '' : (c0.color || '');
+    const avColor = BoTEngine.avatarCostColors ? BoTEngine.avatarCostColors(c0, eAll) : ((eAll && eAll.allColors) ? '' : (c0.color || ''));
     const hand = (st.zones['B.hand'] || []).filter(x => x !== summonK);
     const usable = [];
     for (const o of hand) {
@@ -4951,7 +4955,7 @@
     const c = previewId && st && st.inst[previewId];
     if (!c) { body.innerHTML = `<div class="pv-empty">ชี้เมาส์หรือแตะการ์ดใบไหนก็ได้<br>เพื่อดูภาพเต็ม + ความสามารถ</div>`; return; }
     const costPill = col => col
-      ? `<span class="cpill">${GEM_EMOJI[col] || ''} ${esc(col)}</span>`
+      ? `<span class="cpill">${String(col).split('/').map(p => GEM_EMOJI[p] || '').join('/')} ${esc(col)}</span>`
       : `<span class="cpill none">ไร้สี</span>`;
     const gemPill = col => {
       if (!col || col === 'ขาว' || col === 'ใส' || col === 'ไร้สี')
@@ -6183,7 +6187,7 @@
           const hand = st.zones[owner + '.hand'] || [];
           const payIds = Object.keys(selMap).filter(k => k !== d.k && hand.includes(k));
           const eAll = BoTEngine.effectOf && BoTEngine.effectOf(c0.code, c0.name);
-          const avColor = (eAll && eAll.allColors) ? '' : (c0.color || '');
+          const avColor = BoTEngine.avatarCostColors ? BoTEngine.avatarCostColors(c0, eAll) : ((eAll && eAll.allColors) ? '' : (c0.color || ''));
           let usable = 0;
           payIds.forEach(k => {
             const info = payGemInfo(st.inst[k], c0);

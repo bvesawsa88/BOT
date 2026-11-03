@@ -233,7 +233,10 @@
       ],
       "parseStatus": "auto",
       "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]",
-      "onlyAttackableAllyNameIncludes": "กิมมิคแมน"
+      "onlyAttackableAllyNameIncludes": "กิมมิคแมน",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "code": "BT11-009",

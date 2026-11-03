@@ -14021,7 +14021,10 @@
         "สัตว์"
       ],
       "onlyAttackableAllyNameIncludes": "โฮคุ",
-      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]"
+      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "code": "BT09-008",
@@ -14152,12 +14155,16 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]",
+      "linkOnlyKeys": [
+        "protectAllyNameIncludes"
+      ]
     },
     {
       "code": "BT09-011",
@@ -14640,7 +14647,8 @@
               "op": "draw",
               "count": 1
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -14718,7 +14726,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -14786,7 +14795,8 @@
             {
               "op": "destroyTarget"
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -17238,12 +17248,16 @@
               "count": 1,
               "player": "owner"
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
       "onlyAttackableAllyNameIncludes": "เดสสึหวา",
-      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "code": "BT10-027",
@@ -17290,7 +17304,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto"
@@ -17647,7 +17662,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -19175,7 +19191,10 @@
       ],
       "parseStatus": "auto",
       "onlyAttackableAllyNameIncludes": "กิมมิคแมน",
-      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]"
+      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "code": "BT11-009",
@@ -23627,18 +23646,11 @@
         {
           "keyword": "สั่งใช้",
           "trigger": {
-            "on": "activated",
-            "from": "grave"
+            "on": "activatedFromHell"
           },
+          "fromHell": true,
           "oncePerTurn": true,
-          "condition": {
-            "ownField": {
-              "nameOnField": {
-                "name": "บัมเบิ้ลแบงค์",
-                "count": 0
-              }
-            }
-          },
+          "requireNoOwnNameIncludes": "บัมเบิ้ลแบงค์",
           "cost": [
             {
               "op": "discard",
@@ -23648,8 +23660,7 @@
           ],
           "actions": [
             {
-              "op": "hellSummonSelf",
-              "dest": "avatarZone",
+              "op": "summonSelfFromHell",
               "paidCost": false
             }
           ]
@@ -33515,7 +33526,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -34050,12 +34062,16 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]",
+      "linkOnlyKeys": [
+        "protectAllyNameIncludes"
+      ]
     },
     {
       "code": "PRMO-129",
@@ -40779,7 +40795,8 @@
             {
               "op": "scoutPreventLeaveIfMonkey"
             }
-          ]
+          ],
+          "requireLinked": true
         },
         {
           "keyword": "อัตโนมัติ",
@@ -40797,7 +40814,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -40843,7 +40861,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",

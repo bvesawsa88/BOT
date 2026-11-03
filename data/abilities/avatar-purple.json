@@ -526,12 +526,16 @@
               "count": 1,
               "player": "owner"
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "onlyAttackableAllyNameIncludes": "เดสสึหวา",
       "parseStatus": "auto",
-      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "name": "จอมเวทย์ เบล่า",
@@ -1049,7 +1053,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -1703,7 +1708,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto"
@@ -3497,7 +3503,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "keywords": [

@@ -83,6 +83,13 @@ console.log('=== Test Polygon Abilities ===');
   assert(st.zones['A.hand'].length === 0, 'Hand initially 0');
   assert(!st.inst[sonaK].tapped, 'Sona initially untapped');
 
+  // ต้องอยู่ในสถานะคู่หูก่อน ([คู่หู - โฮคุ โพลีกอน])
+  const pre = BoT.applyAction(st, { type: 'activateAbility', k: sonaK, by: 'A' });
+  assert(pre && pre.deny, 'Sona ability denied when not linked');
+  st.inst['hoku'] = { id: 'hoku', code: 'BT09-007', name: 'โฮคุ โพลีกอน', type: 'Avatar', cost: 5, power: 4, faceUp: true, tapped: false, pairWith: sonaK };
+  st.zones['A.avatar'].push('hoku');
+  st.inst[sonaK].pairWith = 'hoku';
+
   // Activate Sona: tapSelf -> draw 1
   const res = BoT.applyAction(st, { type: 'activateAbility', k: sonaK, by: 'A' });
   assert(!res || !res.deny, 'Sona ability allowed');

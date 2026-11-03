@@ -1880,7 +1880,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "keywords": [
@@ -4478,7 +4479,8 @@
             {
               "op": "scoutPreventLeaveIfMonkey"
             }
-          ]
+          ],
+          "requireLinked": true
         },
         {
           "keyword": "อัตโนมัติ",
@@ -4496,7 +4498,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "keywords": [

@@ -17,7 +17,8 @@
             {
               "op": "scoutPreventLeaveIfMonkey"
             }
-          ]
+          ],
+          "requireLinked": true
         },
         {
           "keyword": "อัตโนมัติ",
@@ -35,7 +36,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -93,7 +95,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",

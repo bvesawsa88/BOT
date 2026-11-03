@@ -1032,13 +1032,17 @@
               "count": 1,
               "player": "owner"
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
       "name": "จอมเวทย์ เดสสึหวา",
       "onlyAttackableAllyNameIncludes": "เดสสึหวา",
-      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]",
+      "linkOnlyKeys": [
+        "onlyAttackableAllyNameIncludes"
+      ]
     },
     {
       "code": "BT10-027",
@@ -1084,7 +1088,8 @@
                 "select": "self"
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",
@@ -1441,7 +1446,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",

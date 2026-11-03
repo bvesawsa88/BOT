@@ -118,7 +118,8 @@
               "op": "draw",
               "count": 1
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "extraSymbols": [
@@ -217,7 +218,8 @@
             {
               "op": "destroyTarget"
             }
-          ]
+          ],
+          "requireLinked": true
         }
       ],
       "parseStatus": "auto",

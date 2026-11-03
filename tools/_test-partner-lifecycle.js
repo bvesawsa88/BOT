@@ -129,13 +129,12 @@ console.log('=== TEST 3: ทุกใบคู่หูได้ครั้ง�
   // Player A puts a fresh Nilphat 2 onto the avatar zone
   const nilphat2 = put(st, 'A.avatar', 'SD09-002');
 
-  // Attempt to pair surviving Hanuman with Nilphat 2
-  // Denied because Hanuman already paired in this life and never died!
+  // กติกา: คู่หูตาย → ใบที่เหลือจับคู่ใหม่ได้ตั้งแต่เทิร์นถัดไป
   const fxPairAgain = BoT.applyAction(st, { type: 'pair', k: hanuman, to: nilphat2, by: 'A' });
-  assert.ok(fxPairAgain.deny, 'Surviving Hanuman cannot pair again');
-  assert.ok(fxPairAgain.deny.includes('จนกว่าจะตาย'), 'Deny reason states card can only pair once until it dies');
+  assert.ok(!fxPairAgain || !fxPairAgain.deny, 'Surviving Hanuman can pair again next turn: ' + (fxPairAgain && fxPairAgain.deny));
+  assert.strictEqual(st.inst[hanuman].pairWith, nilphat2);
 
-  console.log('✔ PASS: Once per life until death verified for surviving partner');
+  console.log('✔ PASS: Surviving partner can re-pair on a later turn');
 }
 
 console.log('=== TEST 4: แล้วคู่หูใหม่ในเทิร์นหน้า (Can Only Re-pair in Next Turn After Death) ===');

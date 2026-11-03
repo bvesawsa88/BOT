@@ -71,7 +71,10 @@ function tick(st, seed) {
   const st = emptyState({ phase: 'Battle', active: 'B' });
   const hoku = put(st, 'A.avatar', 'BT09-007');
   const other = put(st, 'A.avatar', 'SD01-003');
+  const sona = put(st, 'A.avatar', 'BT09-022');
   const atk = put(st, 'B.avatar', 'SD01-002');
+  // บังคับเป้าโจมตีอยู่ใต้ [Link โซน่า] — ต้องคู่หู
+  st.inst[hoku].pairWith = sona; st.inst[sona].pairWith = hoku;
   let fx = apply(st, { type: 'declareAttack', atk, def: other, by: 'B', seed: 2 });
   ok(!!fx.deny, 'must attack hoku: ' + fx.deny);
   fx = apply(st, { type: 'declareAttack', atk, def: hoku, by: 'B', seed: 3 });
