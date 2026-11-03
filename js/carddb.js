@@ -214,8 +214,15 @@
           isSupporter = !!j.isSupporter;
           const remote = (j.decks && typeof j.decks === 'object') ? j.decks : {};
 
-          // If brand new account on server has no decks, check for local guest decks to migrate once:
+          // เซิร์ฟเวอร์ไม่มีเด็ค (บัญชีใหม่ หรือข้อมูลบนเซิร์ฟเวอร์หายจากการรีสตาร์ท)
+          // → ห้ามเขียนทับเด็คในเครื่องด้วยค่าว่าง: ใช้เด็คของบัญชีนี้ในเครื่องก่อน แล้วค่อยเด็ค guest แล้วส่งกลับขึ้นเซิร์ฟเวอร์
           if (Object.keys(remote).length === 0) {
+            let userDecks = {};
+            try { userDecks = JSON.parse(localStorage.getItem(deckStorageKey()) || '{}') || {}; } catch (e) { }
+            if (deckStorageKey() !== 'bot_decks_guest' && Object.keys(userDecks).length > 0) {
+              pushDecks(userDecks);
+              return userDecks;
+            }
             let guestDecks = {};
             try { guestDecks = JSON.parse(localStorage.getItem('bot_decks_guest') || localStorage.getItem('bot_decks_v1') || '{}'); } catch (e) { }
             if (Object.keys(guestDecks).length > 0) {
