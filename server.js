@@ -10,6 +10,18 @@ const ROOT = __dirname;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 const FEEDBACK_WEBHOOK = process.env.DISCORD_FEEDBACK_WEBHOOK || process.env.FEEDBACK_WEBHOOK || '';
 
+/* ── Firebase Firestore (โปรเจกต์ bot-by-wsm-3f447) — ไฟล์ data/*.json เป็น cache ในเครื่อง ── */
+const { verifyIdToken: verifyFirebaseIdToken } = require('./firebase-auth');
+const cloud = require('./firebase-store').createStore({
+  root: ROOT,
+  files: {
+    users: path.join(ROOT, 'data', 'users.json'),
+    settings: path.join(ROOT, 'data', 'site-settings.json'),
+    analytics: path.join(ROOT, 'data', 'analytics.json'),
+    uploadDir: path.join(ROOT, 'data', 'uploads'),
+  },
+});
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css':  'text/css',
@@ -243,6 +255,7 @@ function saveUsers(users) {
     try { fs.unlinkSync(USERS_FILE); } catch (e2) { }
     fs.renameSync(tmp, USERS_FILE);
   }
+  cloud.schedule('users');
 }
 
 let userChain = Promise.resolve();
@@ -503,27 +516,36 @@ async function handleAuth(req, res, urlPath) {
     try { body = JSON.parse(await readBody(req, 16384) || '{}'); }
     catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
 
+    /* ล็อกอินโซเชียลผ่าน endpoint นี้ต้องมี Firebase ID token ที่ตรวจลายเซ็นแล้วเท่านั้น
+       (เดิมเชื่อ id/email/name จาก body และ JWT ที่ไม่ตรวจลายเซ็น → ปลอมเป็นใครก็ได้)
+       Discord ใช้ /auth/oauth/discord (ฝั่งเซิร์ฟเวอร์แลก code เอง) */
     const provider = String(body.provider || '').toLowerCase();
-    if (provider !== 'google' && provider !== 'discord') {
+    if (provider !== 'google') {
       json(res, 400, { ok: false, error: 'invalid provider' });
       return;
     }
-
-    let providerId = String(body.id || body.sub || '').trim();
-    let email = String(body.email || '').trim().toLowerCase();
-    let rawName = String(body.name || body.username || '').trim();
-
-    if (body.credential && typeof body.credential === 'string') {
-      try {
-        const parts = body.credential.split('.');
-        if (parts.length === 3) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-          if (payload.sub) providerId = payload.sub;
-          if (payload.email) email = payload.email.toLowerCase();
-          if (payload.name) rawName = payload.name;
-        }
-      } catch (e) { }
+    const idToken = typeof body.idToken === 'string' ? body.idToken : '';
+    if (!idToken) {
+      json(res, 401, { ok: false, error: 'ต้องเข้าสู่ระบบผ่าน Google (Firebase) เท่านั้น' });
+      return;
     }
+    let fbUser;
+    try { fbUser = await verifyFirebaseIdToken(idToken, cloud.projectId); }
+    catch (e) {
+      console.warn('[auth/social-login] firebase token rejected:', e.message || e);
+      json(res, 401, { ok: false, error: 'ยืนยันตัวตน Google ไม่สำเร็จ กรุณาลองใหม่' });
+      return;
+    }
+    const fbInfo = fbUser.firebase || {};
+    if (fbInfo.sign_in_provider !== 'google.com') {
+      json(res, 401, { ok: false, error: 'รองรับเฉพาะบัญชี Google' });
+      return;
+    }
+    const googleIds = (fbInfo.identities && fbInfo.identities['google.com']) || [];
+    // ใช้ Google account id (sub) เดียวกับระบบเดิม (GSI) → บัญชี Google เก่ายังล็อกอินได้เหมือนเดิม
+    const providerId = String(googleIds[0] || fbUser.sub);
+    const email = fbUser.email_verified ? String(fbUser.email || '').trim().toLowerCase() : '';
+    let rawName = String(fbUser.name || (email ? email.split('@')[0] : '')).trim();
 
     if (!rawName) rawName = provider === 'google' ? 'GoogleUser' : 'DiscordUser';
     let cleanName = rawName.replace(/[^A-Za-z0-9_\u0E00-\u0E7F]/g, '').slice(0, 20);
@@ -543,16 +565,17 @@ async function handleAuth(req, res, urlPath) {
 
         if (matchedKey && users[matchedKey]) {
           const u = users[matchedKey];
+          u.firebaseUid = fbUser.sub;
+          if (email && !u.email) u.email = email;
           return { status: 200, body: issueSession(u, res) };
         }
 
         let finalUsername = cleanName;
         let baseKey = finalUsername.toLowerCase();
         let counter = 1;
-        while (users[baseKey] && users[baseKey].socialId !== lookupKey) {
-          finalUsername = cleanName.slice(0, 16) + Math.floor(Math.random() * 899 + 100);
+        while (users[baseKey]) {
+          finalUsername = cleanName.slice(0, 14) + (counter++ > 10 ? crypto.randomBytes(3).toString('hex') : Math.floor(Math.random() * 899 + 100));
           baseKey = finalUsername.toLowerCase();
-          if (counter++ > 10) break;
         }
 
         users[baseKey] = {
@@ -561,6 +584,7 @@ async function handleAuth(req, res, urlPath) {
           providerId,
           email,
           socialId: lookupKey,
+          firebaseUid: fbUser.sub,
           decks: {},
           createdAt: new Date().toISOString()
         };
@@ -779,6 +803,7 @@ function saveSiteSettings(s) {
     try { fs.unlinkSync(SETTINGS_FILE); } catch (e2) { }
     fs.renameSync(tmp, SETTINGS_FILE);
   }
+  cloud.schedule('settings');
 }
 
 function safeImgPath(p, fallback) {
@@ -960,6 +985,7 @@ async function handleAuthSkins(req, res, route) {
   });
   const filename = 'user-' + fileId + '-' + slot + kind.ext;
   fs.writeFileSync(path.join(UPLOAD_DIR, filename), buf);
+  cloud.schedule('uploads');
   const url = '/data/uploads/' + filename;
   try {
     const saved = await mutateUsers((users2) => {
@@ -1083,6 +1109,7 @@ async function handleAdminApi(req, res, urlPath) {
     });
     const filename = 'sponsor-' + slot + kind.ext;
     fs.writeFileSync(path.join(UPLOAD_DIR, filename), buf);
+    cloud.schedule('uploads');
     const url = '/data/uploads/' + filename + '?t=' + Date.now();
     const set = loadSiteSettings();
     set.sponsor[slot] = url.split('?')[0];
@@ -1299,6 +1326,7 @@ function saveAnalytics(data) {
     try { fs.unlinkSync(ANALYTICS_FILE); } catch (e2) { }
     fs.renameSync(tmp, ANALYTICS_FILE);
   }
+  cloud.schedule('analytics');
 }
 
 async function handleAnalyticsPing(req, res) {
@@ -1457,6 +1485,17 @@ const server = http.createServer((req, res) => {
 
   let urlPath = req.url.split('?')[0];
 
+  // CORS preflight — หน้าเว็บบน Firebase Hosting (*.web.app) เรียก API ข้ามโดเมนมาที่นี่ (ใช้ Bearer token ไม่ใช้ cookie)
+  if (req.method === 'OPTIONS' && /^\/(auth|api|admin|feedback|stat)(\/|$)/.test(urlPath)) {
+    res.writeHead(204, {
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    });
+    res.end();
+    return;
+  }
+
   // 🛡️ ป้องกันการเข้าถึงไฟล์และโฟลเดอร์ลับโดยตรง (tools, .git, server.js, users.json, etc.)
   const cleanPath = urlPath.replace(/\\/g, '/');
   const forbiddenPatterns = [
@@ -1469,7 +1508,14 @@ const server = http.createServer((req, res) => {
     /users.json$/i,
     /analytics.json$/i,
     /feedback-log.json$/i,
-    /site-settings.json$/i
+    /site-settings.json$/i,
+    /firebase-(store|auth)\.js$/i,
+    /firebase-service-account.*\.json$/i,
+    /^\/firebase\.json$/i,
+    /^\/(node_modules|src)(\/|$)/i,
+    /^\/apphosting\.ya?ml$/i,
+    /^\/firestore\.(rules|indexes\.json)$/i,
+    /\.tmp$/i
   ];
   if (forbiddenPatterns.some(pat => pat.test(cleanPath))) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -1500,6 +1546,7 @@ const server = http.createServer((req, res) => {
     json(res, 200, {
       ok: true,
       version: getServerVersion(),
+      wsOrigin: String(process.env.WS_PUBLIC_ORIGIN || ''),
       timestamp: Date.now()
     });
     return;
@@ -1962,7 +2009,32 @@ server.on('upgrade', (req, socket, head) => {
   socket.destroy();
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+function shutdown(sig) {
+  console.log('[' + sig + '] บันทึกข้อมูลขึ้น Firebase ก่อนปิด...');
+  const t = setTimeout(() => process.exit(0), 8000);
+  cloud.flush().finally(() => { clearTimeout(t); process.exit(0); });
+}
+/* Keep-alive สำหรับ Render แพ็กเกจฟรี: ไม่มีคำขอเข้า 15 นาที → เซิร์ฟเวอร์หลับ
+   เรียก URL สาธารณะของตัวเองทุก 10 นาที (ต้องวิ่งผ่าน proxy ของ Render ถึงจะนับเป็น traffic)
+   Render ตั้ง RENDER_EXTERNAL_URL ให้อัตโนมัติ · ปิดได้ด้วย KEEP_ALIVE=0 · ใช้ URL อื่นได้ด้วย KEEP_ALIVE_URL */
+(function startKeepAlive() {
+  const base = String(process.env.KEEP_ALIVE_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/+$/, '');
+  if (!base || String(process.env.KEEP_ALIVE || '') === '0') return;
+  const url = base + '/api/version?keepalive=1';
+  const ping = () => {
+    https.get(url, { timeout: 20000 }, (r) => { r.resume(); })
+      .on('timeout', function () { this.destroy(); })
+      .on('error', (e) => console.warn('[keep-alive]', e.message || e));
+  };
+  const t = setInterval(ping, 10 * 60 * 1000);
+  if (t.unref) t.unref();
+  console.log('[keep-alive] ping ' + url + ' ทุก 10 นาที');
+})();
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+cloud.init().then(() => server.listen(PORT, '0.0.0.0', () => {
   const ips = lanIPs();
   console.log(`\n✅  Battle of Talingchan — Local Server`);
   console.log(`   เครื่องนี้:     http://localhost:${PORT}/`);
@@ -1986,4 +2058,5 @@ server.listen(PORT, '0.0.0.0', () => {
     console.error('[admin] สร้างบัญชีแอดมินไม่สำเร็จ', err);
     console.log(`   Press Ctrl+C to stop.\n`);
   });
-});
+  console.log('   ฐานข้อมูล:   ' + (cloud.enabled ? 'Firebase Firestore (' + cloud.projectId + ') ✓' : 'ไฟล์ data/*.json (ยังไม่ได้ตั้ง FIREBASE_SERVICE_ACCOUNT)'));
+}));

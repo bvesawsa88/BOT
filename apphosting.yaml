@@ -1,0 +1,26 @@
+# Firebase App Hosting — Battle of Talingchan (Node server.js, ไม่มี framework)
+# build: `npm run build` (bundle Firebase client) · start: `npm start` (node server.js)
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  # เกมเก็บห้องออนไลน์/WebSocket และ cache ข้อมูลไว้ในหน่วยความจำของเครื่องเดียว
+  # → ต้องมี instance เดียวเท่านั้น ไม่งั้นผู้เล่นคนละเครื่องจะไม่เจอกัน และข้อมูลจะเขียนทับกัน
+  minInstances: 0
+  maxInstances: 1
+  concurrency: 1000
+
+env:
+  - variable: FIREBASE_PROJECT_ID
+    value: bot-by-wsm-3f447
+  # ถ้า WebSocket ผ่านโดเมน *.hosted.app ไม่ได้ ให้ใส่ Cloud Run URL ของ backend ตรงนี้ (เช่น https://xxxx-uc.a.run.app)
+  # - variable: WS_PUBLIC_ORIGIN
+  #   value: https://<cloud-run-url>
+  #   availability:
+  #     - RUNTIME
+  # ความลับ (ตั้งด้วย apphosting:secrets:set แล้วเปิดบรรทัดด้านล่าง)
+  # - variable: BOT_ADMIN_PASSWORD
+  #   secret: botAdminPassword
+  # - variable: DISCORD_FEEDBACK_WEBHOOK
+  #   secret: discordFeedbackWebhook
+  # - variable: DISCORD_CLIENT_SECRET
+  #   secret: discordClientSecret

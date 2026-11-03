@@ -1106,7 +1106,13 @@
   }
 
   /* ── WebSocket ── */
-  function wsURL() { return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws'; }
+  /* WS_PUBLIC_ORIGIN (จาก /api/version) — ใช้เมื่อ CDN หน้าเว็บไม่ส่งต่อ WebSocket เช่น Firebase App Hosting → ต่อ Cloud Run URL ตรง */
+  function wsBase() {
+    const o = String(window.BOT_WS_ORIGIN || '').replace(/\/+$/, '');
+    if (o) return o.replace(/^http/, 'ws');
+    return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+  }
+  function wsURL() { return wsBase() + '/ws'; }
   function wsSend(msg) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg)); }
   function connect(onOpen) {
     wsWanted = true;
@@ -1753,8 +1759,7 @@
   }
   function candidatePresenceUrls() {
     const urls = [];
-    const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    urls.push(proto + location.host + '/lan');
+    urls.push(wsBase() + '/lan');
     if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port !== '3000') {
       urls.push('ws://' + location.hostname + ':3000/lan');
       urls.push('ws://127.0.0.1:3000/lan');
@@ -7031,102 +7036,50 @@
     } catch (e) { byId('authMsg').textContent = 'เชื่อมต่อไม่ได้'; }
     byId('authSubmit').disabled = false;
   }
-  async function loginWithGoogle() {
-    byId('authMsg').textContent = 'กำลังเชื่อมต่อ Google...';
-    try {
-      const confRes = await fetch('/auth/oauth/config').then(r => r.json()).catch(() => ({}));
-      const cid = (confRes.googleClientId || '').trim();
-      const isValidCid = cid.endsWith('.apps.googleusercontent.com');
-
-      if (isValidCid) {
-        if (!window.google || !window.google.accounts || !window.google.accounts.id) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://accounts.google.com/gsi/client';
-            script.async = true;
-            script.defer = true;
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
-            document.head.appendChild(script);
-          }).catch(() => {});
-        }
-        if (window.google && window.google.accounts && window.google.accounts.id) {
-          try {
-            window.google.accounts.id.initialize({
-              client_id: cid,
-              auto_select: false,
-              callback: async (res) => {
-                if (res.credential) {
-                  const r = await fetch('/auth/social-login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ provider: 'google', credential: res.credential })
-                  });
-                  const j = await r.json();
-                  if (j.ok) {
-                    setAuthToken(j.token);
-                    setAuthUI(j.username, j.admin, j.isSupporter);
-                    closeAuth();
-                    toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
-                    syncCloudDecks();
-                  } else {
-                    byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
-                  }
-                }
-              }
-            });
-            let btnWrapper = byId('_googleBtnWrapper');
-            if (!btnWrapper) {
-              btnWrapper = document.createElement('div');
-              btnWrapper.id = '_googleBtnWrapper';
-              btnWrapper.style.position = 'fixed';
-              btnWrapper.style.opacity = '0';
-              btnWrapper.style.pointerEvents = 'none';
-              btnWrapper.style.top = '-9999px';
-              document.body.appendChild(btnWrapper);
-            }
-            btnWrapper.innerHTML = '';
-            window.google.accounts.id.renderButton(btnWrapper, { theme: 'outline', size: 'large', type: 'standard' });
-            const googleBtn = btnWrapper.querySelector('div[role=button]') || btnWrapper.querySelector('iframe');
-            if (googleBtn) {
-              googleBtn.click();
-              byId('authMsg').textContent = '';
-              return;
-            }
-          } catch (e) {
-            console.warn('GSI initialize failed, fallback to social login prompt', e);
-          }
-        }
-      }
-
-      const name = prompt('กรอกอีเมลหรือชื่อบัญชี Google ของคุณเพื่อเข้าสู่ระบบ:', 'GoogleUser');
-      if (!name || !name.trim()) { byId('authMsg').textContent = ''; return; }
-      const cleanInput = name.trim();
-      const r = await fetch('/auth/social-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: 'google',
-          name: cleanInput.split('@')[0],
-          email: cleanInput.includes('@') ? cleanInput : undefined,
-          id: 'g_' + cleanInput.toLowerCase().replace(/[^a-z0-9]/g, '')
-        })
-      });
-      const j = await r.json();
-      if (j.ok) {
-        setAuthToken(j.token);
-        setAuthUI(j.username, j.admin, j.isSupporter);
-        closeAuth();
-        toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
-        syncCloudDecks();
-      } else {
-        byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
-      }
-    } catch (e) {
-      console.error(e);
-      byId('authMsg').textContent = 'เชื่อมต่อ Google ไม่สำเร็จ (' + (e.message || e) + ')';
+  /* Google Sign-in ผ่าน Firebase Authentication (js/firebase-init.js)
+     → ส่ง Firebase ID token ให้เซิร์ฟเวอร์ตรวจลายเซ็น แล้วรับ session ของเกม */
+  function waitBotFirebase(ms) {
+    if (window.BotFirebase) return Promise.resolve(window.BotFirebase);
+    return new Promise((resolve) => {
+      const t = setTimeout(() => resolve(window.BotFirebase || null), ms || 8000);
+      window.addEventListener('botfirebase:ready', () => { clearTimeout(t); resolve(window.BotFirebase); }, { once: true });
+    });
+  }
+  async function finishGoogleLogin(idToken) {
+    const r = await fetch('/auth/social-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider: 'google', idToken })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (j.ok) {
+      setAuthToken(j.token);
+      setAuthUI(j.username, j.admin, j.isSupporter);
+      closeAuth();
+      toast('👤 เข้าสู่ระบบด้วย Google: ' + j.username);
+      syncCloudDecks();
+    } else {
+      if (byId('authMsg')) byId('authMsg').textContent = j.error || 'Google login ล้มเหลว';
     }
   }
+  async function loginWithGoogle() {
+    byId('authMsg').textContent = 'กำลังเชื่อมต่อ Google...';
+    const fb = await waitBotFirebase();
+    if (!fb) { byId('authMsg').textContent = 'โหลด Firebase ไม่สำเร็จ — ตรวจการเชื่อมต่ออินเทอร์เน็ต'; return; }
+    try {
+      const idToken = await fb.signInWithGoogle();
+      if (!idToken) return; // กำลัง redirect ไป Google
+      byId('authMsg').textContent = 'กำลังเข้าสู่ระบบ...';
+      await finishGoogleLogin(idToken);
+    } catch (e) {
+      console.error(e);
+      byId('authMsg').textContent = fb.errorMessage(e);
+    }
+  }
+  /* กลับมาจาก signInWithRedirect (กรณี popup ถูกบล็อก) */
+  waitBotFirebase(15000).then((fb) => fb && fb.consumeRedirect()).then((idToken) => {
+    if (idToken) finishGoogleLogin(idToken);
+  }).catch((e) => console.warn('[firebase] redirect result', e));
 
   async function loginWithDiscord() {
     byId('authMsg').textContent = 'กำลังเชื่อมต่อ Discord...';
@@ -7135,30 +7088,14 @@
       if (confRes.discordClientId) {
         const w = 500, h = 700;
         const left = (screen.width / 2) - (w / 2), top = (screen.height / 2) - (h / 2);
-        const popup = window.open('/auth/oauth/discord', 'discord_oauth', `width=${w},height=${h},top=${top},left=${left}`);
+        const popup = window.open((window.BOT_API_ORIGIN || '') + '/auth/oauth/discord', 'discord_oauth', `width=${w},height=${h},top=${top},left=${left}`);
         if (!popup) {
-          window.location.href = '/auth/oauth/discord';
+          window.location.href = (window.BOT_API_ORIGIN || '') + '/auth/oauth/discord';
         }
         return;
       }
 
-      const name = prompt('กรอกชื่อผู้ใช้สำหรับบัญชี Discord:', 'DiscordUser');
-      if (!name) { byId('authMsg').textContent = ''; return; }
-      const r = await fetch('/auth/social-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'discord', name: name.trim(), id: 'd_' + name.trim().toLowerCase() })
-      });
-      const j = await r.json();
-      if (j.ok) {
-        setAuthToken(j.token);
-        setAuthUI(j.username, j.admin, j.isSupporter);
-        closeAuth();
-        toast('👤 เข้าสู่ระบบด้วย Discord: ' + j.username);
-        syncCloudDecks();
-      } else {
-        byId('authMsg').textContent = j.error || 'Discord login ล้มเหลว';
-      }
+      byId('authMsg').textContent = 'ยังไม่ได้ตั้งค่า Discord OAuth บนเซิร์ฟเวอร์ (DISCORD_CLIENT_ID)';
     } catch (e) {
       byId('authMsg').textContent = 'เชื่อมต่อ Discord ไม่สำเร็จ';
     }
@@ -7188,6 +7125,7 @@
   byId('btnLogin').onclick = () => openAuth('login');
   byId('btnLogout').onclick = () => {
     setAuthToken('');
+    if (window.BotFirebase) window.BotFirebase.signOut();
     setAuthUI(null);
     toast('ออกจากระบบแล้ว');
     if (typeof window.fillDeckSelect === 'function') window.fillDeckSelect();

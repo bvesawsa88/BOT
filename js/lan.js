@@ -33,10 +33,16 @@
     return s;
   }
 
+  /* WS_PUBLIC_ORIGIN (จาก /api/version) — ใช้เมื่อ CDN หน้าเว็บไม่ส่งต่อ WebSocket เช่น Firebase App Hosting → ต่อ Cloud Run URL ตรง */
+  function wsBase() {
+    const o = String(window.BOT_WS_ORIGIN || '').replace(/\/+$/, '');
+    if (o) return o.replace(/^http/, 'ws');
+    return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+  }
+
   function candidateSignalUrls() {
     const urls = [];
-    const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    urls.push(proto + location.host + '/signal');
+    urls.push(wsBase() + '/signal');
     if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port !== '3000') {
       urls.push('ws://' + location.hostname + ':3000/signal');
       urls.push('ws://127.0.0.1:3000/signal');
@@ -45,7 +51,7 @@
   }
 
   function signalUrl() {
-    return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/signal';
+    return wsBase() + '/signal';
   }
 
   function sendWs(ws, obj) {

@@ -11,6 +11,10 @@
     '127.0.0.1',
     '::1',
     'onrender.com',
+    'hosted.app',          // Firebase App Hosting
+    'web.app',             // Firebase Hosting
+    'firebaseapp.com',
+    'run.app',             // Cloud Run (App Hosting backend)
     'vercel.app',
     'github.io',
     'ngrok-free.app',

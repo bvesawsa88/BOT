@@ -1,0 +1,113 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json",
+    "location": "asia-southeast1"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Battle of Talingchan",
+        "supportEmail": "bvwsawsa88@gmail.com",
+        "authorizedRedirectUris": [
+          "https://bot-by-wsm-3f447.firebaseapp.com/__/auth/handler",
+          "http://localhost",
+          "https://bot-5uph.onrender.com"
+        ]
+      }
+    }
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      ".firebase/**",
+      ".vscode/**",
+      ".cursor/**",
+      ".git/**",
+      "**/.*/**",
+      "**/node_modules/**",
+      "src/**",
+      "tools/**",
+      "scratch/**",
+      "server.js",
+      "engine.js",
+      "download_assets.js",
+      "firebase-store.js",
+      "firebase-auth.js",
+      "firebase-service-account*.json",
+      "package.json",
+      "package-lock.json",
+      "apphosting.yaml",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "*.md",
+      "*.log",
+      "data/users.json",
+      "data/users.json.tmp",
+      "data/site-settings.json",
+      "data/site-settings.json.tmp",
+      "data/analytics.json",
+      "data/analytics.json.tmp",
+      "data/feedback-log.json",
+      "data/uploads/**",
+      "**/*.tmp"
+    ],
+    "redirects": [
+      {
+        "source": "/data/uploads/:file",
+        "destination": "https://bot-5uph.onrender.com/data/uploads/:file",
+        "type": 302
+      },
+      {
+        "source": "/auth/oauth/:path*",
+        "destination": "https://bot-5uph.onrender.com/auth/oauth/:path",
+        "type": 302
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/feedback",
+        "destination": "/feedback.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(html|js|css|json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Frame-Options",
+            "value": "SAMEORIGIN"
+          },
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    ]
+  }
+}

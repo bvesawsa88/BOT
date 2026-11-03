@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
+<script src="/js/api-origin.js?v=20261103"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#2a1810">
 <meta name="mobile-web-app-capable" content="yes">
@@ -18,7 +19,7 @@
 <link rel="stylesheet" href="css/style.css?v=20260822">
 <script src="js/security.js?v=20260822"></script>
 <script src="js/analytics.js?v=20260831"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="js/firebase-init.js?v=20261103c" defer></script>
 </head>
 <body>
 <button type="button" id="btnBack" class="hole-back hidden" title="ย้อนกลับ" aria-label="ย้อนกลับ">
@@ -1239,8 +1240,8 @@
 <script src="js/util.js?v=20260822"></script>
 <script src="js/skins.js?v=20260822"></script>
 <script src="js/carddb.js?v=20260822"></script>
-<script src="js/lan.js?v=20260822"></script>
-<script src="js/game.js?v=20260822"></script>
+<script src="js/lan.js?v=20261103"></script>
+<script src="js/game.js?v=20261103b"></script>
 <script>
 /* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) {
@@ -1298,6 +1299,7 @@ if ('serviceWorker' in navigator) {
         if (!currentVer) {
           currentVer = data.version;
           window.__BOT_VERSION = data.version;
+          if (data.wsOrigin) window.BOT_WS_ORIGIN = data.wsOrigin;
           return;
         }
 
