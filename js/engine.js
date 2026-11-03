@@ -7158,6 +7158,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           };
           if (promptCandidates(st, dp).length) { st.prompts.push(dp); prompted = true; }
           else addLog(st, 'S', `ไม่มี Avatar ศัตรู Cost ≤ ${scoutSum}`);
+          // อู๊ด ประธานผู้รู้ความจริง — "นำการ์ดที่สอดแนมเรียงไว้บนสุดหรือล่างสุดของ Deck" → เปิดหน้าต่างจัดเรียง (ห้ามหยิบขึ้นมือ)
+          if (ac.dest === 'reorder' && ids.length && !st.scout) {
+            st.scout = { p: ctx.owner, ids: ids.slice(), taken: [], label: `${nameOf(st, ctx.src)}: เรียงการ์ดที่สอดแนม`, from: 'top', noTake: true };
+            fx.scoutView = { p: ctx.owner, n: ids.length };
+          }
         } else {
           const pickFilter = (ac.dest === 'nongSam' && ac.buffFromNameIncludes)
             ? Object.assign({}, ac.filter || {}, { nameIncludes: [ac.buffFromNameIncludes] })
@@ -7377,7 +7382,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           until: ac.until || 'endOfTurn', keepTapped: ac.keepTapped !== false,
           thenAttachSrc: !!ac.thenAttachSrc, srcToHell: !!ctx.toHellAfter,
           changeSrcSubtype: ac.changeSrcSubtype || null,
-          returnControlOnLeave: !!ac.returnControlOnLeave
+          returnControlOnLeave: !!ac.returnControlOnLeave,
+          // ริน บันนี่เกิร์ล ฯลฯ — ยึดแล้ว Avatar ใบนั้น POWER +N
+          thenPower: ac.thenPower || 0, thenPowerUntil: ac.thenPowerUntil || 'permanent'
         };
         if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; }
         else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มี Avatar ให้ยึด`);
@@ -10628,6 +10635,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 if (p.thenAttachSrc && st.inst[p.src] && equipOnto(st, p.src, a.k))
                   addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: สวมใส่ตัวเองให้ ${nameOf(st, a.k)}`);
                 if (p.returnControlOnLeave && st.inst[p.src]) st.inst[p.src].returnControlOnLeave = true;
+                if (p.thenPower) {
+                  pushBuff(st, { k: a.k, amt: p.thenPower, until: p.thenPowerUntil || 'permanent', from: p.src });
+                  addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: ${nameOf(st, a.k)} POWER ${p.thenPower > 0 ? '+' : ''}${p.thenPower}`);
+                }
                 if ((p.until || 'endOfTurn') === 'endOfTurn') {
                   st.scheduled.push({
                     player: st.active, when: 'endPhase', op: 'returnControl',
@@ -12070,6 +12081,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const s = st.scout; if (!s) break;
         if (isPlayer && by !== s.p) return deny('เฉพาะเจ้าของเด็คที่กำลังสอดแนม');
         if (!s.ids.includes(a.k)) return deny('การ์ดใบนี้ไม่ได้อยู่ในชุดที่เปิด');
+        if (s.noTake) return deny('สอดแนมนี้ให้เรียงไว้บน/ใต้เด็คเท่านั้น — หยิบขึ้นมือไม่ได้');
         s.ids = s.ids.filter(x => x !== a.k); s.taken.push(a.k);
         st.zones[s.p + '.deck'] = (st.zones[s.p + '.deck'] || []).filter(x => x !== a.k);
         st.zones[s.p + '.hand'].push(a.k);

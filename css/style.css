@@ -1669,3 +1669,99 @@ body.stream-win #roomInfo{opacity:.8}
   box-shadow:0 0 8px rgba(74,144,226,.4);
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   Mobile polish — เมนูหลัก/เมนูเล่น เลื่อนได้ ไม่ล้นจอ · แนวนอนเป็น 2 คอลัมน์
+   · กันรอยบาก (safe-area) · ปุ่มมีฟีดแบ็กตอนแตะ · โมดัลวิธีใช้ไม่ล้น
+   ═══════════════════════════════════════════════════════════════════ */
+/* สมุด (กระดาษ+รูห่วง) ตรึงกับจอ — เนื้อหาเลื่อนได้โดยกระดาษไม่เลื่อนหนี */
+#menu::before,#menu::after{position:fixed}
+#menu{
+  justify-content:flex-start;overflow-x:hidden;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;
+  padding:calc(66px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(42px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))
+}
+#menu::-webkit-scrollbar{display:none}
+/* จัดกลางแนวตั้งเมื่อพื้นที่พอ · ถ้าไม่พอให้เลื่อนลงได้ (ไม่ตัดหัว/ท้าย) */
+#menu>#menuLogo,#menu>#menuTitleFallback{margin-top:auto;flex:none}
+#menu>.menu-btns,#menu>.menu-notice{flex:none}
+#menu .menu-play{max-height:none;overflow:visible}
+#menu .menu-copy{position:static;flex:none;margin-top:auto;padding-top:16px;color:#6b5e4e;text-shadow:none;font-size:10.5px}
+#menu .menu-copy-link{color:#4a433c}
+#menu .menu-copy-link:hover{color:var(--ink)}
+#userBar{top:calc(16px + env(safe-area-inset-top,0px))}
+.home-btn{top:calc(16px + env(safe-area-inset-top,0px))}
+.hole-back{top:calc(10px + env(safe-area-inset-top,0px))}
+.menu-logo{filter:invert(1) drop-shadow(0 3px 0 rgba(26,22,18,.08))}
+
+/* ฟีดแบ็กตอนแตะ (มือถือไม่มี hover) */
+.menu-btns button,.btn-campaign,#userBar .btn-ghost,.home-btn{transition:transform .08s ease,background-color .15s,box-shadow .15s;touch-action:manipulation}
+.menu-btns button:not(:disabled):active,#userBar .btn-ghost:active,.home-btn:active{transform:scale(.97)}
+.btn-campaign:active{transform:translateY(3px);box-shadow:0 1px 0 #6b4a10,0 4px 10px rgba(0,0,0,.3)}
+.menu-deck-select{min-height:44px}
+
+/* มือถือ/จอเตี้ย: กระดาษยาวถึงขอบล่างจอ — เนื้อหาที่เลื่อนไม่ไปลอยบนพื้นไม้ */
+@media (max-width:920px),(max-height:760px){
+  #menu::before{bottom:0;border-radius:3px 12px 0 0}
+  #menu::after{bottom:0}
+  #menu{padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+/* จอเตี้ย — กระชับปุ่มให้เมนูหลักพอดีจอ */
+@media (max-height:760px){
+  #menu{gap:8px}
+  .menu-logo{max-height:15vh}
+  .menu-btns{gap:9px}
+  .menu-btns .btn-primary.big,.menu-btns .btn-dark.big,.menu-btns .btn-donate{padding:10px 14px;font-size:15px}
+  .btn-campaign{padding:11px 16px;font-size:17px}
+}
+/* จอแคบมาก (≤380px) */
+@media (max-width:380px){
+  #userBar .btn-ghost{padding:5px 11px;font-size:11.5px}
+  .menu-btns{width:min(340px,84vw)}
+  .btn-campaign small{font-size:10.5px}
+}
+
+/* มือถือแนวนอน — สมุดกว้างขึ้น · เมนูหลักเป็นกริด 2 คอลัมน์ */
+@media (orientation:landscape) and (max-height:540px){
+  :root{--book-w:min(780px,calc(100% - 24px))}
+  #menu{padding-top:calc(58px + env(safe-area-inset-top,0px));padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));gap:8px}
+  #userBar{top:calc(12px + env(safe-area-inset-top,0px))}
+  .home-btn{top:calc(12px + env(safe-area-inset-top,0px))}
+  .menu-logo{max-height:58px;width:auto;max-width:min(300px,50vw)}
+  #menuHome{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;width:min(620px,calc(var(--book-w) - 80px))}
+  #menuHome.hidden{display:none}
+  #menuHome .btn-campaign,#menuHome .menu-links{grid-column:1/-1}
+  #menuHome .btn-campaign{padding:9px 16px;font-size:16px}
+  .menu-btns .btn-primary.big,.menu-btns .btn-dark.big,.menu-btns .btn-donate{padding:9px 12px;font-size:14.5px}
+  .menu-links{flex-direction:row;justify-content:center;gap:18px;margin-top:0}
+  .menu-links .link-btn{width:auto}
+  /* เมนูเล่น: เด็คคุณ/เด็คบอทวางคู่กัน */
+  #menuPlay{width:min(560px,calc(var(--book-w) - 80px))}
+  #menuPlayModes{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+  #menuPlayModes.hidden{display:none}
+  #menuPlayModes .menu-group-label,#menuPlayModes .btn-campaign{grid-column:1/-1}
+  #menuPlayModes .btn-campaign{padding:9px 16px;font-size:16px}
+  .menu-matchup{display:grid;grid-template-columns:1fr auto 1fr;column-gap:10px;row-gap:4px;align-items:center}
+  .menu-matchup>.menu-deck-lab{grid-row:1}
+  .menu-matchup>.menu-deck-select{grid-row:2}
+  .menu-matchup>.menu-vs{grid-row:2;grid-column:2}
+  .menu-matchup>:nth-child(1),.menu-matchup>:nth-child(2){grid-column:1}
+  .menu-matchup>:nth-child(4),.menu-matchup>:nth-child(5){grid-column:3}
+  .menu-matchup>:nth-child(n+6){grid-column:1/-1;grid-row:auto}
+}
+
+/* โมดัลวิธีใช้โต๊ะ — ไม่ล้นจอ เลื่อนในการ์ดได้ */
+#tut{padding:max(12px,env(safe-area-inset-top,0px)) 12px max(12px,env(safe-area-inset-bottom,0px))}
+.tut-card{max-height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.tut-card>button{flex:none}
+@media (max-width:420px){
+  .tut-card{padding:18px 16px;gap:10px;border-radius:14px}
+  .tut-title{font-size:18px}
+  .tut-body{font-size:13px;line-height:1.6}
+}
+@media (orientation:landscape) and (max-height:540px){
+  .tut-card{max-width:680px;padding:14px 20px;gap:8px}
+  .tut-title{font-size:16px}
+  .tut-body{font-size:12.5px;line-height:1.5}
+  .tut-card .btn-primary.big{padding:9px}
+}

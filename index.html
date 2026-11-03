@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <script src="/js/api-origin.js?v=20261103"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#2a1810">
+<meta name="theme-color" content="#0b0b22">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,8 +15,11 @@
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260822">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20261103m">
+<link rel="stylesheet" href="css/campaign.css?v=20261103">
+<link rel="stylesheet" href="css/retro.css?v=20261103g">
+<script src="js/theme.js?v=20261103"></script>
 <script src="js/security.js?v=20260822"></script>
 <script src="js/analytics.js?v=20260831"></script>
 <script src="js/firebase-init.js?v=20261103c" defer></script>
@@ -33,6 +36,7 @@
 <!-- ═══ เมนูหลัก ═══ -->
 <div id="menu" class="screen">
   <div id="userBar">
+    <button type="button" id="btnTheme" class="btn-ghost theme-btn" title="สลับโหมดมืด/สว่าง" aria-label="สลับโหมดมืด/สว่าง"><span class="t-ico" aria-hidden="true">☀</span></button>
     <button id="btnLogin" class="btn-ghost">🔑 เข้าสู่ระบบ / สมัคร</button>
     <span id="userChip" class="hidden">👤 <b id="userName"></b><span id="userBadge" class="hidden" style="font-size:11px;background:#d49d2b;color:#221800;font-weight:bold;padding:1px 6px;border-radius:10px;margin-left:4px">☕ Supporter</span> · <a id="btnAdmin" class="link-btn hidden" href="/admin" style="margin:0">ตั้งค่า</a> · <button id="btnLogout" class="link-btn" style="margin:0">ออกจากระบบ</button></span>
   </div>
@@ -45,6 +49,7 @@
   <div id="menuNotice" class="menu-notice hidden"></div>
   <!-- เมนูหลัก: เลือกหน้า — โหมดเล่นอยู่ในเมนูย่อยแยก -->
   <div id="menuHome" class="menu-btns">
+    <button id="mnuCampaign" class="btn-campaign">⚔️ ผจญภัยไต่ด่าน<small>สู้บอทสุ่มเด็ค · เก็บเลเวล · ด่านไม่มีที่สิ้นสุด</small></button>
     <button id="mnuPlay" class="btn-primary big">เล่นเกม</button>
     <button id="mnuDeck" class="btn-dark big">เด็คของฉัน</button>
     <button id="mnuGallery" class="btn-dark big">ดูการ์ด / เปิดซอง</button>
@@ -63,6 +68,7 @@
       <!-- เล่นออนไลน์ — ซ่อนไว้ก่อน (อย่าลบ)
       <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
       -->
+      <button id="mnuCampaign2" class="btn-campaign">⚔️ ผจญภัยไต่ด่าน</button>
       <button id="mnuBot" class="btn-dark big">🤖 เล่นกับบอท</button>
       <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
       <!-- 🎴 โหมดคู่ต่อสู้ใช้การ์ดจริง — ซ่อนไว้ก่อน (อย่าลบ)
@@ -134,6 +140,45 @@
     <a class="menu-copy-link" href="https://bottcg.com/" target="_blank" rel="noopener noreferrer">เว็บทางการ bottcg.com</a>
   </div>
 </div>
+
+<!-- ═══ โหมดผจญภัยไต่ด่าน ═══ -->
+<div id="campaign" class="screen cp-screen hidden">
+  <div class="cp-bg" aria-hidden="true"></div>
+  <header class="cp-top">
+    <button type="button" id="cpBack" class="cp-icon-btn" title="กลับเมนู" aria-label="กลับเมนู">‹</button>
+    <div class="cp-player">
+      <div class="cp-lv" title="เลเวลผู้เล่น"><span>LV</span><b id="cpLv">1</b></div>
+      <div class="cp-player-mid">
+        <div class="cp-pname" id="cpPName">ผู้ท้าชิง</div>
+        <div class="cp-xpbar"><i id="cpXpFill"></i></div>
+        <div class="cp-xptext" id="cpXpText">0 / 80 XP</div>
+      </div>
+    </div>
+    <div class="cp-stats">
+      <div class="cp-stat" title="ด่านสูงสุดที่ผ่าน"><span>🏆</span><b id="cpBest">0</b></div>
+      <div class="cp-stat" title="ชนะติดกัน"><span>🔥</span><b id="cpStreak">0</b></div>
+      <div class="cp-stat" title="ดาวรวม"><span>⭐</span><b id="cpStarsTotal">0</b></div>
+    </div>
+  </header>
+  <div class="cp-chapter">
+    <button type="button" id="cpChPrev" class="cp-icon-btn" aria-label="บทก่อนหน้า">‹</button>
+    <div id="cpChapter" class="cp-chapter-title">บทที่ 1</div>
+    <button type="button" id="cpChNext" class="cp-icon-btn" aria-label="บทถัดไป">›</button>
+  </div>
+  <div id="cpMap" class="cp-map"><div id="cpPath" class="cp-path"></div></div>
+  <section id="cpSheet" class="cp-sheet">
+    <div id="cpOpp" class="cp-opp"><div class="cp-loading">กำลังเตรียมคู่ต่อสู้…</div></div>
+    <div class="cp-deck-row">
+      <label for="cpDeck">เด็คคุณ</label>
+      <select id="cpDeck" class="cp-select" title="เด็คที่ใช้ลงด่าน"></select>
+    </div>
+    <div class="cp-actions">
+      <button type="button" id="cpReroll" class="cp-btn cp-btn-ghost" title="สุ่มบอทและเด็คใหม่สำหรับด่านนี้">🎲 สุ่มบอท</button>
+      <button type="button" id="cpFight" class="cp-btn cp-btn-fight">⚔️ สู้เลย!</button>
+    </div>
+  </section>
+</div>
+<div id="cpVs" class="cp-vs hidden" aria-hidden="true"></div>
 
 <!-- ═══ ล็อบบี้ออนไลน์: เห็นใครออน + ท้าสู้ ═══ -->
 <div id="lanHall" class="screen hidden">
@@ -933,7 +978,13 @@
       <div><b id="stHell">-</b><span>Avatar ที่ลงนรก</span></div>
       <div><b id="stLife">-</b><span>LIFE ของคุณที่หงาย</span></div>
     </div>
-    <div class="row-2">
+    <div id="cpResult" class="cp-result hidden"></div>
+    <div id="cpResActions" class="cp-res-actions hidden">
+      <button type="button" id="cpResNext" class="cp-btn cp-btn-fight">ด่านต่อไป ▶</button>
+      <button type="button" id="cpResRetry" class="cp-btn cp-btn-ghost">↻ สู้ใหม่</button>
+      <button type="button" id="cpResMap" class="cp-btn cp-btn-ghost">🗺️ แผนที่</button>
+    </div>
+    <div id="endRowStd" class="row-2">
       <button id="btnRematch" class="btn-primary big">รีแมตช์</button>
       <button id="btnEndMenu" class="btn-dark big">กลับเมนูหลัก</button>
     </div>
@@ -1269,7 +1320,8 @@
 <script src="js/skins.js?v=20260822"></script>
 <script src="js/carddb.js?v=20260822"></script>
 <script src="js/lan.js?v=20261103"></script>
-<script src="js/game.js?v=20261103b"></script>
+<script src="js/campaign.js?v=20261103"></script>
+<script src="js/game.js?v=20261103c"></script>
 <script>
 /* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) {

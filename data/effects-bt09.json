@@ -864,22 +864,21 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
+              "op": "takeControl",
+              "filter": {
                 "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
+                "powerEquals": 0
+              },
+              "until": "permanent",
+              "keepTapped": false,
+              "thenPower": 1
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "name": "ริน บันนี่เกิร์ล"
+      "name": "ริน บันนี่เกิร์ล",
+      "note": "จุติ: ยึด Avatar ฝ่ายตรงข้ามที่ POWER 0 (ปัจจุบัน) 1 ใบ มาฝั่งเรา แล้ว POWER +1"
     },
     {
       "code": "BT09-024",

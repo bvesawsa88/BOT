@@ -3117,7 +3117,8 @@
     {
       "name": "ริน บันนี่เกิร์ล",
       "codes": [
-        "BT09-023"
+        "BT09-023",
+        "PRMO-138"
       ],
       "abilities": [
         {
@@ -3128,21 +3129,20 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
+              "op": "takeControl",
+              "filter": {
                 "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
+                "powerEquals": 0
+              },
+              "until": "permanent",
+              "keepTapped": false,
+              "thenPower": 1
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "จุติ: ยึด Avatar ฝ่ายตรงข้ามที่ POWER 0 (ปัจจุบัน) 1 ใบ มาฝั่งเรา แล้ว POWER +1"
     },
     {
       "name": "แรงงานทาสออฟฟิศ",
@@ -4138,7 +4138,8 @@
     {
       "name": "อู๊ด ประธานผู้รู้ความจริง",
       "codes": [
-        "BT04-020"
+        "BT04-020",
+        "PRMO-137"
       ],
       "abilities": [
         {

@@ -3844,6 +3844,230 @@
       ],
       "parseStatus": "auto",
       "note": "สั่งใช้ : ใช้ คาถา เพิ่มได้อีก 1 ใบ / มี จอมเวทย์ ศัตรูห้ามเลือกเป็นเป้าโจมตี/ความสามารถ"
+    },
+    {
+      "code": "PRMO-139",
+      "name": "หมอเสริมศักดิ์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "หมอมาแล้วววว"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "anyOf": [
+                  {
+                    "costMax": 2
+                  },
+                  {
+                    "nameIncludes": [
+                      "พยาบาล เอ๋"
+                    ]
+                  }
+                ]
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "PRMO-152",
+      "name": "เชาว์ปัญญาลิง - ชิงปัญญาเรา",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React ตอนสั่งใช้/จุติ/อัตโนมัติ → ยกเลิกความสามารถนั้น + nullify จนจบเทิร์น"
+    },
+    {
+      "code": "PRMO-138",
+      "name": "ริน บันนี่เกิร์ล",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "powerEquals": 0
+              },
+              "until": "permanent",
+              "keepTapped": false,
+              "thenPower": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: ยึด Avatar ฝ่ายตรงข้ามที่ POWER 0 (ปัจจุบัน) 1 ใบ มาฝั่งเรา แล้ว POWER +1"
+    },
+    {
+      "code": "PRMO-137",
+      "name": "อู๊ด ประธานผู้รู้ความจริง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "dest": "reorder",
+              "restTo": "choose",
+              "thenDestroyEnemyCostSumLte": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "นับ Cost สอดแนม 2 แล้วทำลายเลย"
+    },
+    {
+      "code": "PRMO-140",
+      "name": "มาโกะ มารดาแห่งภาคีมะม่วง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromMagicZone": true,
+          "cost": [
+            {
+              "op": "sendMagicToHell",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "excludeSelf": true
+            }
+          ],
+          "actions": [
+            {
+              "op": "summonSelfFromMagic",
+              "paidCost": true
+            }
+          ]
+        },
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "dest": "magic",
+              "distinctNames": true,
+              "multiMax": 99,
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownMagicNameIncludes",
+              "nameIncludes": "ต้นมะม่วง",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "fromAvatarZone": true,
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "magicPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "excludeSelf": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "abilitiesFromMagicZone": true,
+      "only": true
     }
   ]
 }

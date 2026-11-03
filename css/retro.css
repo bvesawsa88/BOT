@@ -1,0 +1,340 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ธีม 8-BIT RETRO — เลเยอร์ทับธีมเดิม (โหลดหลัง style.css / campaign.css)
+   ถอดธีม: เอา <link href="css/retro.css"> ออกจาก index.html ได้ทันที
+   · ฟอนต์พิกเซล (ละติน A–Z: Tiny5 · ไทย: Chakra Petch)
+   · พาเลตจำกัด · ขอบพิกเซลมุมบาก · เงาแข็ง · เคอร์เซอร์ ▶ กะพริบ
+   · หน้าต่างแบบเกม RPG · ท้องฟ้ากลางคืนเป็นแถบสี + ดาวพิกเซล + สแกนไลน์
+   ═══════════════════════════════════════════════════════════════════ */
+/* Tiny5 (OFL) โฮสต์เอง — ใช้เฉพาะตัวอักษร A–Z a–z · ตัวเลข/วรรคตอน/ไทยไปที่ Chakra Petch ให้อ่านง่าย */
+@font-face{font-family:'PxLatin';src:url('../assets/fonts/tiny5-latin.woff2') format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+0041-005A,U+0061-007A}
+:root{
+  --px-font:'PxLatin','Chakra Petch','IBM Plex Sans Thai',sans-serif;
+  --px-bg:#0b0b22; --px-bg2:#141440; --px-bg3:#1e1a5c; --px-bg4:#2c1f6e;
+  --px-win:#05051a; --px-win2:#101036;
+  --px-line:#f8f8f8; --px-mid:#7c7cc8; --px-dim:#a8a8d8;
+  --px-field:#000; --px-accent:var(--px-gold); --px-scan:rgba(0,0,0,.22); --px-outer:#000;
+  --px-gold:#fcc800; --px-gold-l:#fce49c; --px-gold-d:#a86400;
+  --px-red:#e03c28; --px-red-d:#7c1808;
+  --px-blue:#3c64f0; --px-blue-d:#18248c;
+  --px-green:#3cbc3c; --px-green-d:#0c5c0c;
+  /* ตัวแปรธีมเดิม → พาเลต 8-bit (cascade ทั้งเว็บ) */
+  --bg:var(--px-bg); --panel:var(--px-win); --card-ui:var(--px-win2); --border:var(--px-mid);
+  --red:var(--px-red); --red-dark:var(--px-red-d); --red-lite:#fc9c8c; --gold:var(--px-gold);
+  --cream:var(--px-line); --cream2:#d8d8f8; --dim:var(--px-dim); --green:var(--px-green-d);
+  --wood:var(--px-bg);
+  /* พื้นหลังท้องฟ้า: แถบสีขั้นบันได (ไม่ไล่เฉด) + ดาวพิกเซล */
+  --px-stars:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' shape-rendering='crispEdges'%3E%3Cg fill='%23f8f8f8'%3E%3Crect x='12' y='18' width='2' height='2'/%3E%3Crect x='70' y='8' width='2' height='2' opacity='.6'/%3E%3Crect x='128' y='30' width='4' height='4'/%3E%3Crect x='40' y='64' width='2' height='2' opacity='.7'/%3E%3Crect x='100' y='84' width='2' height='2'/%3E%3Crect x='146' y='112' width='2' height='2' opacity='.5'/%3E%3Crect x='22' y='130' width='4' height='4' opacity='.8'/%3E%3Crect x='80' y='144' width='2' height='2' opacity='.6'/%3E%3C/g%3E%3Cg fill='%23fcc800'%3E%3Crect x='58' y='108' width='2' height='2'/%3E%3Crect x='112' y='52' width='2' height='2' opacity='.8'/%3E%3C/g%3E%3C/svg%3E");
+  --px-sky:linear-gradient(180deg,var(--px-bg) 0 46%,var(--px-bg2) 46% 66%,var(--px-bg3) 66% 82%,var(--px-bg4) 82% 100%);
+  --wood-bg:var(--px-stars),var(--px-sky);
+}
+
+/* ── ฟอนต์พิกเซลทั้งเว็บ (ยกเว้นกล่อง debug ที่เป็น monospace) ── */
+html body,html body *:not(.bot-ai-debug):not(.bot-ai-debug *){font-family:var(--px-font)!important}
+html body{letter-spacing:.2px;-webkit-font-smoothing:none;font-smooth:never}
+html,body{background:var(--px-stars),var(--px-sky);background-color:var(--px-bg);background-size:160px 160px,100% 100%}
+::-webkit-scrollbar{width:10px;height:10px;background:var(--px-win)}
+::-webkit-scrollbar-thumb{background:var(--px-mid);border-radius:0;border:2px solid var(--px-win)}
+*{scrollbar-color:var(--px-mid) var(--px-win)}
+::selection{background:var(--px-gold);color:#000}
+
+@keyframes pxBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes pxTwinkle{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes pxBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* ═══ ปุ่มทั่วไป — สี่เหลี่ยม ขอบหนา เงาแข็ง กดแล้วยุบ ═══ */
+.btn-primary,.btn-dark,.btn-ghost,.btn-mini,.btn-gold,.btn-donate{
+  border-radius:0!important;border-width:3px!important;border-style:solid!important;
+  box-shadow:3px 3px 0 #000!important;filter:none!important;
+  transition:transform .05s steps(1),box-shadow .05s steps(1)
+}
+.btn-primary{background:var(--px-red);border-color:#000!important;color:#fff;
+  box-shadow:inset -3px -3px 0 var(--px-red-d),inset 3px 3px 0 rgba(255,255,255,.28),3px 3px 0 #000!important}
+.btn-dark,.btn-ghost,.btn-mini{background:var(--px-win2);border-color:var(--px-line)!important;color:var(--px-line)}
+.btn-gold{background:var(--px-gold);border-color:#000!important;color:#000}
+.btn-primary:hover,.btn-dark:hover,.btn-ghost:hover,.btn-mini:hover,.btn-gold:hover{filter:brightness(1.15)!important}
+.btn-primary:active,.btn-dark:active,.btn-ghost:active,.btn-mini:active,.btn-gold:active,.btn-donate:active{
+  transform:translate(3px,3px)!important;box-shadow:0 0 0 #000!important}
+.btn-primary:disabled,.btn-dark:disabled,.btn-primary.dim{opacity:.4!important}
+.link-btn{color:var(--px-dim)}
+.link-btn:hover{color:var(--px-accent)}
+input,select,textarea{border-radius:0!important}
+:focus-visible{outline:3px solid var(--px-gold)!important;outline-offset:2px}
+
+/* ═══ จอเมนู/ล็อบบี้/ห้อง — ท้องฟ้ากลางคืน + หน้าต่าง RPG ═══ */
+.screen:not(.cp-screen){
+  --ink:var(--px-line);
+  background:var(--px-stars),var(--px-sky);background-size:160px 160px,100% 100%;background-color:var(--px-bg);
+  color:var(--px-line)
+}
+/* หน้าต่าง: พื้นดำ ขอบขาวหนา + ขอบดำนอก + เส้นในสีม่วง */
+.screen:not(.cp-screen)::before{
+  position:fixed;top:14px;bottom:14px;width:var(--book-w);border-radius:0;
+  background:var(--px-win);background-image:none;
+  box-shadow:0 0 0 4px var(--px-line),0 0 0 8px var(--px-outer),inset 0 0 0 4px var(--px-outer),inset 0 0 0 6px var(--px-mid),12px 12px 0 8px rgba(0,0,0,.45)
+}
+/* ::after (รูห่วงสมุดเดิม) → สแกนไลน์ CRT จาง ๆ ทั้งจอ */
+.screen:not(.cp-screen)::after{
+  position:fixed;inset:0;top:0;bottom:0;left:0;width:auto;margin:0;opacity:1;z-index:1;
+  background:repeating-linear-gradient(180deg,var(--px-scan) 0 1px,transparent 1px 3px);background-size:auto
+}
+body.has-back .screen::after{top:0}
+@media (max-width:920px),(max-height:760px){
+  :root{--book-w:calc(100% - 28px)}
+  #menu::before{bottom:14px;border-radius:0}
+  #menu::after{bottom:0}
+  #menu{padding-bottom:calc(26px + env(safe-area-inset-bottom,0px))}
+}
+@media (orientation:landscape) and (max-height:540px){
+  :root{--book-w:min(780px,calc(100% - 28px))}
+}
+
+/* โลโก้: กลับเป็นสีขาวบนพื้นดำ + ลอยขึ้นลงแบบ 2 เฟรม */
+.menu-logo{filter:drop-shadow(4px 4px 0 #000) drop-shadow(0 0 0 var(--px-blue))!important;animation:pxBob 1.6s steps(2) infinite}
+.menu-title{color:var(--px-accent);text-shadow:4px 4px 0 #000}
+.float-card{display:none!important}
+
+/* ข้อความในหน้าต่าง */
+.screen .link-btn,#userChip .link-btn{color:var(--px-dim)}
+.screen .link-btn:hover{color:var(--px-accent)}
+.menu-group-label,.menu-vs,.lobby-kicker,.lobby-or{color:var(--px-accent)!important;letter-spacing:2px}
+.menu-group-label::before{content:'★ '}.menu-group-label::after{content:' ★'}
+.menu-vs{font-size:14px;text-shadow:2px 2px 0 var(--px-red-d)}
+.menu-deck-lab,.lobby-lab{color:var(--px-dim)!important}
+.menu-bot-hint{color:var(--px-dim);background:rgba(124,124,200,.12);border-left:4px solid var(--px-mid);border-radius:0}
+.menu-notice{background:var(--px-win2);color:var(--px-line);border:3px solid var(--px-line);border-radius:0;box-shadow:4px 4px 0 #000}
+#menu .menu-copy{color:var(--px-mid)}
+#menu .menu-copy-link{color:var(--px-dim)}
+#menu .menu-copy-link:hover{color:var(--px-accent)}
+#userChip,#userChip b{color:var(--px-line)}
+
+/* ปุ่มเมนู — ขอบพิกเซลมุมบาก (box-shadow 4 ทิศ) + เงานูน + ▶ ตอนชี้/โฟกัส */
+.screen .btn-ghost,.screen .btn-primary,.screen .btn-dark,.screen .btn-mini,.screen .btn-donate,
+.menu-btns .btn-primary.big,.menu-btns .btn-dark.big,.menu-btns .btn-donate{
+  position:relative;border:none!important;border-radius:0!important;
+  background:var(--px-win2);color:var(--px-line);
+  box-shadow:
+    0 -4px 0 0 var(--px-line),0 4px 0 0 var(--px-line),-4px 0 0 0 var(--px-line),4px 0 0 0 var(--px-line),
+    inset -4px -4px 0 0 rgba(0,0,0,.55),inset 4px 4px 0 0 rgba(255,255,255,.12),
+    0 8px 0 0 #000!important;
+  margin:4px 4px 8px
+}
+.menu-btns .btn-primary.big,.menu-btns .btn-dark.big,.menu-btns .btn-donate{font-size:16px;font-weight:700;padding:12px 16px;letter-spacing:.5px}
+.screen .btn-ghost:hover,.screen .btn-primary:hover,.screen .btn-dark:hover,.screen .btn-mini:hover,.screen .btn-donate:hover,
+.screen .btn-ghost:focus-visible,.screen .btn-primary:focus-visible,.screen .btn-dark:focus-visible,.screen .btn-donate:focus-visible{
+  background:var(--px-blue-d);color:#fff;filter:none!important;outline:none!important
+}
+.menu-btns button.big:hover::before,.menu-btns button.big:focus-visible::before,
+.menu-btns .btn-donate:hover::before,.menu-btns .btn-donate:focus-visible::before{
+  content:'▶';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--px-accent);
+  animation:pxBlink .7s steps(1) infinite
+}
+.screen .btn-ghost:active,.screen .btn-primary:active,.screen .btn-dark:active,.screen .btn-mini:active,.screen .btn-donate:active,
+.menu-btns button.big:not(:disabled):active,.menu-btns .btn-donate:active{
+  transform:translateY(4px)!important;
+  box-shadow:0 -4px 0 0 var(--px-line),0 4px 0 0 var(--px-line),-4px 0 0 0 var(--px-line),4px 0 0 0 var(--px-line),
+    inset 4px 4px 0 0 rgba(0,0,0,.45),0 4px 0 0 #000!important
+}
+/* ปุ่มกาแฟ = สีน้ำตาลอิฐ */
+.screen .btn-donate,.menu-btns .btn-donate{background:#5c2c10;color:var(--px-gold-l)}
+.screen .btn-donate:hover{background:#7c3c14}
+/* ปุ่มเริ่มเกม = แดง */
+.screen .btn-primary.big.start-btn,.start-btn,#btnBotStart,#btnSoloStart,#btnRealStart{
+  background:var(--px-red)!important;color:#fff!important;border:none!important
+}
+#btnBotStart:hover,#btnSoloStart:hover,#btnRealStart:hover{background:#f8583c!important}
+#userBar .btn-ghost{padding:7px 14px;font-size:12px;margin:4px}
+.menu-btns{gap:10px}
+.menu-btns button:not(:disabled):active{transform:translateY(4px)}
+
+/* ปุ่มผจญภัย = ปุ่มทองใหญ่ + ป้าย NEW! กะพริบ */
+.btn-campaign{
+  border-radius:0!important;margin:4px 4px 8px;color:#2a1400;letter-spacing:.5px;
+  background:var(--px-gold)!important;
+  box-shadow:
+    0 -4px 0 0 #000,0 4px 0 0 #000,-4px 0 0 0 #000,4px 0 0 0 #000,
+    inset -4px -4px 0 0 var(--px-gold-d),inset 4px 4px 0 0 var(--px-gold-l),
+    0 8px 0 0 rgba(0,0,0,.6)!important
+}
+.btn-campaign::after{
+  content:'NEW!';position:absolute;top:-10px;right:-6px;left:auto;width:auto;height:auto;
+  background:var(--px-red);color:#fff;font-size:11px;font-weight:700;padding:2px 6px;
+  box-shadow:2px 2px 0 #000;animation:pxBlink 1s steps(1) infinite
+}
+.btn-campaign{overflow:visible}
+.btn-campaign small{opacity:.85;color:#4a2800}
+.btn-campaign:hover{filter:brightness(1.08)}
+.btn-campaign:active{transform:translateY(4px)!important;
+  box-shadow:0 -4px 0 0 #000,0 4px 0 0 #000,-4px 0 0 0 #000,4px 0 0 0 #000,inset 4px 4px 0 0 var(--px-gold-d),0 4px 0 0 rgba(0,0,0,.6)!important}
+
+/* ปุ่มลอยมุมจอ (หน้าหลัก / ย้อนกลับ) */
+.home-btn{
+  border-radius:0!important;border:3px solid var(--px-line);background:var(--px-win2);color:var(--px-line);
+  box-shadow:3px 3px 0 #000!important
+}
+.home-btn:hover{background:var(--px-blue-d)}
+.home-btn:active{transform:translate(3px,3px)!important;box-shadow:none!important}
+.hole-back-dot{width:26px;height:26px;border-radius:0;background:var(--px-red);
+  box-shadow:0 0 0 3px #000,inset -3px -3px 0 var(--px-red-d)}
+.hole-back-dot::after{content:'◀';font-size:11px;margin:0;color:#fff}
+.hole-back:hover .hole-back-dot,.hole-back:focus-visible .hole-back-dot{transform:none;background:#f8583c;box-shadow:0 0 0 3px var(--px-gold)}
+
+/* ฟอร์มในหน้าต่าง */
+.screen .panel{background:var(--px-win2)!important;border:3px solid var(--px-line)!important;border-radius:0!important;box-shadow:4px 4px 0 #000!important;color:var(--px-line)}
+.screen .panel input,.screen .panel select,.screen .menu-deck-select,.menu-deck-select{
+  background:var(--px-field)!important;color:var(--px-line)!important;border:3px solid var(--px-line)!important;border-radius:0!important;
+  box-shadow:inset 3px 3px 0 rgba(255,255,255,.08)
+}
+.screen .panel-note,.screen .lan-hall-status,.screen .lan-peer-empty,.screen .lan-peer-meta,.screen .room-share,.screen .room-specs,
+.screen .opp-waiting,.screen .opp-deck-line,.player-name .you,.ready-no,.lobby-msg{color:var(--px-dim)!important}
+.screen .panel-title,.panel-title{color:var(--px-accent)!important}
+.lobby-title{color:var(--px-accent)!important;text-shadow:3px 3px 0 #000}
+.lobby-or::before,.lobby-or::after{background:var(--px-mid)!important;height:2px}
+.lobby-or span{background:var(--px-field)!important;border:3px solid var(--px-line)!important;border-radius:0!important;box-shadow:none!important}
+#lobby .panel,#room .panel,.room-invite,.panel.opp-panel{background:var(--px-win2)!important;border-radius:0!important}
+.room-code{color:var(--px-accent)!important;background:var(--px-field)!important;border-radius:0!important}
+.room-qr{border-radius:0!important;border:3px solid var(--px-line)!important}
+.lan-peer{background:var(--px-field)!important;border:3px solid var(--px-mid)!important;border-radius:0!important}
+#lobby .btn-primary.big,#lobby .btn-join,#room .btn-mini{border-radius:0!important}
+#lobby .btn-primary.big{background:var(--px-red)!important;color:#fff!important}
+#lobby .btn-join{background:var(--px-win2)!important;color:var(--px-line)!important}
+#room .btn-mini{background:var(--px-blue)!important;color:#fff!important}
+.btn-ready-on{background:var(--px-green)!important;color:#000!important}
+.ready-yes,.player-name .on,.lan-peer-meta .on,.lan-hall-status.ok{color:var(--px-green)!important}
+
+/* ═══ โมดัล / หน้าต่างป๊อปอัป — กล่องข้อความ RPG ═══ */
+.tut-card,.fb-card,.endask-card,.lan-challenge-card,.lan-drop-card,.donate-card,.pile-view-card,.panel{
+  border-radius:0!important;background:var(--px-win)!important;border:4px solid var(--px-line)!important;
+  box-shadow:0 0 0 4px #000,inset 0 0 0 3px #000,inset 0 0 0 5px var(--px-mid),10px 10px 0 4px rgba(0,0,0,.5)!important
+}
+.tut-title{color:var(--px-accent)!important;text-shadow:3px 3px 0 #000;letter-spacing:.5px}
+.tut-title::before{content:'▼ ';font-size:.7em;vertical-align:2px;animation:pxBlink 1s steps(1) infinite}
+.tut-body{color:var(--px-line)}
+.tut-body b{color:var(--px-accent)}
+#tut,#donateModal{background:rgba(5,5,26,.86)!important}
+#tut .btn-primary.big,#btnTutClose{background:var(--px-red)!important}
+.donate-qr-wrap,.donate-qr-ph{border-radius:0!important}
+.donate-amt,.donate-tmn{border-radius:0!important;border-width:3px!important}
+.donate-amt.on{background:var(--px-gold)!important;color:#000!important;border-color:#000!important}
+.donate-id-text{color:var(--px-accent)}
+
+/* ═══ บนโต๊ะเกม — แค่ "กรอบ UI" (ไม่แตะอาร์ตการ์ด/เสื่อ) ═══ */
+.table-home-btn,.table-menu-btn,#btnSwapSide,#btnSwapSideCtrl{
+  border-radius:0!important;border:3px solid var(--px-line)!important;background:var(--px-win2)!important;color:var(--px-line)!important;
+  box-shadow:3px 3px 0 #000!important
+}
+.table-home-btn:hover,.table-menu-btn:hover,.table-menu-btn.on{background:var(--px-gold)!important;color:#000!important;border-color:#000!important}
+#toast,.ann-flash,.sel-bar,.bot-update-banner,.teacher-banner{
+  border-radius:0!important;background:var(--px-win)!important;border:3px solid var(--px-line)!important;
+  box-shadow:0 0 0 3px #000,6px 6px 0 rgba(0,0,0,.5)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+.ann-flash{color:var(--px-accent)!important}
+.bot-update-banner button,.teacher-banner button{border-radius:0!important;box-shadow:2px 2px 0 #000}
+#logPane,#previewPane{border-radius:0!important}
+#mobileBar{background:var(--px-win)!important;border-top:4px solid var(--px-line)!important;box-shadow:0 -4px 0 #000!important}
+#mobileBar button.on{background:var(--px-blue-d)!important;color:#fff!important}
+#mobileBar .mb-end{border-radius:0!important;background:var(--px-gold)!important;color:#000!important;
+  box-shadow:inset -3px -3px 0 var(--px-gold-d),inset 3px 3px 0 var(--px-gold-l)!important}
+#mobileBar .mb-end b,#mobileBar .mb-end span{color:#000!important}
+@media (max-width:1100px) and (orientation:landscape),(max-height:520px) and (orientation:landscape){
+  #mobileBar{border-top:none!important;border-left:4px solid var(--px-line)!important;box-shadow:-4px 0 0 #000!important}
+  #mobileBar .mb-end{border:3px solid #000!important}
+}
+
+/* ═══ หน้าเครื่องมือ (แกลเลอรี/เด็ค/วิธีเล่น) ═══ */
+html .screen-page{background:var(--px-stars),var(--px-sky)!important;background-size:160px 160px,100% 100%!important;background-color:var(--px-bg)!important}
+html .db-top{background:var(--px-win)!important;border-bottom:4px solid var(--px-line)!important;box-shadow:0 4px 0 #000}
+html .db-side,html .db-deck{background:var(--px-win)!important}
+html .db-side input,html .db-side select,html .db-result select,html .gl-filters input,html .gl-filters select,html .gl-pack-controls select{
+  background:var(--px-field)!important;border:3px solid var(--px-line)!important;border-radius:0!important;color:var(--px-line)!important
+}
+html .db-chip{border-radius:0!important;border-width:2px!important}
+html .db-chip.on{background:var(--px-gold)!important;color:#000!important;border-color:#000!important}
+html .gl-card,html .db-card,html .db-deck-card{border-radius:4px}
+html .gl-card:hover,html .db-card:hover{transform:translate(-2px,-2px)!important;box-shadow:4px 4px 0 var(--px-gold)}
+html .db-hint{color:var(--px-dim)}
+
+/* ═══ โหมดผจญภัย — กรอบพิกเซล ═══ */
+.screen.cp-screen{
+  --cp-gold:var(--px-gold);--cp-gold-2:var(--px-gold-d);--cp-panel:var(--px-win);
+  --cp-line:var(--px-line);--cp-text:var(--px-line);--cp-dim:var(--px-dim);
+  background:var(--px-stars),linear-gradient(180deg,#0b2a14 0 40%,#0e3a1a 40% 64%,#14501e 64% 84%,#1c6a28 84% 100%)!important;
+  background-size:160px 160px,100% 100%!important
+}
+.cp-screen .cp-icon-btn,.cp-screen .cp-stat,.cp-screen .cp-chapter-title,.cp-screen .cp-xpbar,.cp-screen .cp-btn,
+.cp-screen select,.cp-screen .cp-portrait,.cp-screen .cp-sheet,.cp-screen [class*="cp-tag"],.cp-screen [class*="cp-chip"]{
+  border-radius:0!important
+}
+.cp-screen .cp-icon-btn,.cp-screen .cp-stat,.cp-screen .cp-chapter-title{
+  background:var(--px-win)!important;border:3px solid var(--px-line)!important;box-shadow:3px 3px 0 #000!important
+}
+.cp-screen .cp-lv{border-radius:0!important;background:var(--px-gold)!important;box-shadow:0 0 0 3px #000,inset -3px -3px 0 var(--px-gold-d)!important}
+.cp-screen .cp-xpbar{height:10px;background:var(--px-field)!important;border:2px solid var(--px-line)!important}
+.cp-screen .cp-xpbar i{background:repeating-linear-gradient(90deg,var(--px-blue) 0 6px,#7ce0fc 6px 8px)!important;box-shadow:none!important;transition:width .8s steps(10)}
+.cp-screen .cp-sheet{background:var(--px-win)!important;border-top:4px solid var(--px-line)!important;box-shadow:0 -4px 0 #000!important}
+.cp-screen .cp-btn-fight{box-shadow:inset -4px -4px 0 var(--px-gold-d),inset 4px 4px 0 var(--px-gold-l),4px 4px 0 #000!important}
+.cp-vs{background:repeating-linear-gradient(180deg,rgba(0,0,0,.25) 0 2px,transparent 2px 4px),#2a0808!important}
+
+/* ═══ ลดแอนิเมชันตามระบบ ═══ */
+@media (prefers-reduced-motion:reduce){
+  .menu-logo,.btn-campaign::after,.tut-title::before,.menu-btns button::before{animation:none!important}
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   โหมดสว่าง (กลางวัน) — html[data-theme="light"] · สลับด้วยปุ่ม ☾/☀ (js/theme.js)
+   ท้องฟ้าฟ้าอ่อนเป็นแถบ · หน้าต่างสีครีม · หมึกดำ · ไฮไลต์สีส้มอิฐ (ทองอ่านไม่ออกบนพื้นสว่าง)
+   ═══════════════════════════════════════════════════════════════════ */
+html[data-theme="light"]{
+  color-scheme:light;
+  --px-bg:#5ca8f0; --px-bg2:#80bcf8; --px-bg3:#a8d4fc; --px-bg4:#d0ecfc;
+  --px-win:#fcf4dc; --px-win2:#fffbee; --px-field:#ffffff;
+  --px-line:#181828; --px-mid:#8c8cd0; --px-dim:#4c4c84;
+  --px-accent:#b83c00; --px-scan:rgba(0,0,40,.05); --px-outer:#fffbee;
+  --px-blue-d:#3c64f0;
+  --cream2:#33335a; --red-lite:#c03018; --gold:var(--px-accent);
+  --px-sky:linear-gradient(180deg,var(--px-bg) 0 40%,var(--px-bg2) 40% 62%,var(--px-bg3) 62% 80%,var(--px-bg4) 80% 100%);
+  /* ดาว → ประกายเมฆขาว */
+  --px-stars:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' shape-rendering='crispEdges'%3E%3Cg fill='%23ffffff'%3E%3Crect x='16' y='20' width='24' height='6'/%3E%3Crect x='22' y='14' width='12' height='6'/%3E%3Crect x='100' y='92' width='30' height='6' opacity='.8'/%3E%3Crect x='108' y='86' width='14' height='6' opacity='.8'/%3E%3Crect x='66' y='140' width='4' height='4' opacity='.7'/%3E%3Crect x='140' y='30' width='4' height='4' opacity='.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-theme="light"] body{color:var(--px-line)}
+html[data-theme="light"] ::selection{background:var(--px-accent);color:#fff}
+/* ปุ่ม/ข้อความที่ธีมเดิมฮาร์ดโค้ดสีอ่อน */
+html[data-theme="light"] .pv-effect,html[data-theme="light"] .ctx-item,html[data-theme="light"] .gl-zoom-effect,
+html[data-theme="light"] .tut-body{color:var(--cream2)!important}
+html[data-theme="light"] .menu-logo{filter:drop-shadow(4px 4px 0 rgba(24,24,40,.25))!important}
+html[data-theme="light"] .menu-vs{text-shadow:2px 2px 0 rgba(184,60,0,.25)}
+html[data-theme="light"] .tut-title,html[data-theme="light"] .lobby-title,html[data-theme="light"] .menu-title{text-shadow:2px 2px 0 rgba(24,24,40,.15)}
+html[data-theme="light"] .screen .btn-donate,html[data-theme="light"] .menu-btns .btn-donate{background:#e8c08c;color:#3a1c00}
+html[data-theme="light"] .screen .btn-donate:hover{background:#f0cc9c}
+html[data-theme="light"] .btn-campaign small{color:#5a3000}
+html[data-theme="light"] #tut,html[data-theme="light"] #donateModal{background:rgba(24,24,60,.55)!important}
+html[data-theme="light"] .ann-flash{color:var(--px-accent)!important}
+/* ปุ่มหลักบนโต๊ะ/เมนู: ข้อความดำบนพื้นครีม — hover เป็นน้ำเงินตัวขาว (เหมือนโหมดมืด) */
+html[data-theme="light"] .screen .btn-ghost:hover,html[data-theme="light"] .screen .btn-dark:hover,
+html[data-theme="light"] .screen .btn-mini:hover{color:#fff}
+/* โหมดผจญภัย: ทุ่งหญ้ากลางวัน */
+html[data-theme="light"] .screen.cp-screen{
+  --cp-text:var(--px-line);--cp-dim:var(--px-dim);--cp-panel:var(--px-win);
+  background:var(--px-stars),linear-gradient(180deg,#5ca8f0 0 30%,#80bcf8 30% 44%,#7cd46c 44% 64%,#58bc48 64% 84%,#3ca034 84% 100%)!important;
+  background-size:160px 160px,100% 100%!important
+}
+html[data-theme="light"] .cp-screen .cp-xptext,html[data-theme="light"] .cp-screen .cp-pname{color:var(--px-line)}
+html[data-theme="light"] .cp-screen .cp-chapter-title,html[data-theme="light"] .cp-screen .cp-stat b{color:var(--px-accent)!important;text-shadow:none}
+html[data-theme="light"] .cp-screen .cp-icon-btn{color:var(--px-accent)!important}
+html[data-theme="light"] .cp-screen .cp-opp-name{color:var(--px-line);text-shadow:2px 2px 0 rgba(24,24,40,.15)}
+html[data-theme="light"] .cp-screen .cp-reward{color:#1a4cc8}
+html[data-theme="light"] .cp-screen .cp-reward b{color:var(--px-accent)}
+html[data-theme="light"] .cp-screen .cp-pips i{background:rgba(24,24,40,.18)}
+/* แท็กด่าน: กรอบพิกเซล (ทั้งสองโหมด) */
+.cp-screen .cp-tag{border-radius:0!important;background:var(--px-win2)!important;border:2px solid var(--px-mid)!important;color:var(--px-line)}
+.cp-screen .cp-pips i{border-radius:0}
+/* ทั้งสองโหมด: dropdown/ปุ่มรองในแผ่นล่างโหมดผจญภัย เป็นกรอบพิกเซล */
+.cp-screen .cp-select{background:var(--px-field)!important;color:var(--px-line)!important;border:3px solid var(--px-line)!important;border-radius:0!important}
+.cp-screen .cp-btn-ghost{background:var(--px-win2)!important;color:var(--px-line)!important;border:3px solid var(--px-line)!important;box-shadow:3px 3px 0 #000!important}
+/* โต๊ะเกม: พื้นหลังท้องฟ้ารอบเสื่อ (ทั้งสองโหมด — สีตามธีม) */
+html[data-theme="light"] #table{background:var(--px-sky)}
+html #board{background:var(--px-stars),var(--px-sky);background-size:160px 160px,100% 100%}
+
+/* ── ปุ่มสลับโหมด ── */
+.theme-btn{min-width:38px;padding:6px 10px!important;font-size:15px!important;line-height:1}
+.theme-btn .t-ico{display:inline-block;animation:pxBob 1.6s steps(2) infinite}
+@media (prefers-reduced-motion:reduce){.theme-btn .t-ico{animation:none}}

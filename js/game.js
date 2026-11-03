@@ -129,7 +129,9 @@
   let soloBot = false;  // true = โหมดเล่นกับบอท (ฝั่ง B เป็น AI) · false = ซ้อมมือคุมสองฝั่ง
   let botLevel = 'normal'; // easy | normal | hard | nightmare
   try { botLevel = localStorage.getItem('bot_level') || 'normal'; } catch (e) { }
+  let campaignRun = null; // ⚔️ โหมดผจญภัย: ด่านที่กำลังแข่ง (ผูกกับ st.campaign)
   function getBotLevel() {
+    if (campaignRun && campaignRun.level) return campaignRun.level;
     const el = byId('selBotLevel');
     const v = (el && el.value) || botLevel || 'normal';
     if (v === 'easy' || v === 'hard' || v === 'nightmare') return v;
@@ -700,7 +702,7 @@
   let vfxBusy = Promise.resolve(); // คิวแอนิเมชันไม่ให้ทับกัน
 
   /* ── สลับจอ ── */
-  const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'decks', 'deckbuilder', 'gallery', 'howto'];
+  const SCREENS = ['menu', 'lobby', 'lanHall', 'room', 'decks', 'deckbuilder', 'gallery', 'howto', 'campaign'];
   const SS_UI = 'bot_ui_v1';
   let curScreen = 'menu';
   let persistT = null;
@@ -750,7 +752,7 @@
       if (name === 'menu') history.replaceState(null, '', location.pathname);
       else if (name === 'table' && mode === 'solo') history.replaceState(null, '', location.pathname + '#table');
       else if (name === 'room' && room) history.replaceState(null, '', '/?room=' + room);
-      else if (['lobby', 'lanHall', 'decks', 'deckbuilder', 'gallery', 'howto'].includes(name))
+      else if (['lobby', 'lanHall', 'decks', 'deckbuilder', 'gallery', 'howto', 'campaign'].includes(name))
         history.replaceState(null, '', location.pathname + '#' + name);
     } catch (e) { }
   }
@@ -3969,6 +3971,12 @@
     const lifeUp = (st.zones[my + '.life'] || []).filter(k => st.inst[k].faceUp).length;
     byId('stLife').textContent = lifeUp + '/' + (st.zones[my + '.life'] || []).length;
     byId('btnRematch').classList.toggle('hidden', mode === 'online' && seat === 'S');
+    const cpOn = cpActive();
+    byId('cpResult').classList.toggle('hidden', !cpOn);
+    byId('cpResActions').classList.toggle('hidden', !cpOn);
+    byId('endRowStd').classList.toggle('hidden', cpOn);
+    if (cpOn) cpOnEnd(winner);
+    else byId('endSub').textContent = 'ผลตัดสินตามกติกาบนโต๊ะ';
     byId('endOv').classList.remove('hidden');
     if (mode === 'solo' && soloBot && typeof BotUniversal !== 'undefined' && BotUniversal.recordResult)
       BotUniversal.recordResult(st, winner);
@@ -6359,6 +6367,7 @@
   window.addEventListener('orientationchange', () => { setTimeout(() => { if (st) { syncPhaseSlot(); syncEndTurnUi(); } }, 200); });
   // btnStrict ถูกถอดออกจากหน้า (แมนนวล 100%)
   byId('btnBot').onclick = () => {
+    if (cpActive()) { toast('⚔️ โหมดผจญภัย — ปิดบอทไม่ได้'); return; }
     soloBot = !soloBot;
     toast(soloBot ? '🤖 เปิดบอท — B เล่นเอง' : 'ปิดบอท — คุณคุมทั้งสองฝั่ง');
     if (window.BotSkins) BotSkins.applyMatch(null, soloBot ? BotSkins.sponsorIds() : null);
@@ -6604,6 +6613,12 @@
 
   /* ── ออกจากโต๊ะ / กลับเมนู (solo = เคลียร์เกม · online = ออกจากห้อง) ── */
   function goHomeFromTable() {
+    if (cpActive()) {
+      if (st && !st.over && !campaignRun.done && !confirm('ยอมแพ้ด่านนี้แล้วกลับแผนที่? (นับเป็นแพ้)')) return;
+      cpForfeit();
+      cpLeaveToMap();
+      return;
+    }
     if (st && !st.over) {
       const msg = mode === 'online'
         ? 'ออกจากห้องและกลับเมนูหลัก? (เกมของอีกฝั่งอาจหยุด)'
@@ -6611,7 +6626,7 @@
       if (!confirm(msg)) return;
     }
     if (mode === 'online') leaveOnline();
-    else { mode = null; st = null; realMode = false; soloBot = false; clearPersistedTable(); showScreen('menu'); }
+    else { mode = null; st = null; realMode = false; soloBot = false; campaignRun = null; clearPersistedTable(); showScreen('menu'); }
   }
   function syncTableNav() {
     const homeTitle = mode === 'online' ? 'ออกจากห้องกลับเมนูหลัก' : 'กลับเมนูหลัก';
@@ -6633,6 +6648,7 @@
   }
   /* รีแมตช์โหมดซ้อม/บอท — ซ่อนจอจบก่อน แล้วสร้างกระดานใหม่ผ่าน startTable */
   function rematchSolo() {
+    if (cpActive()) { cpRetry(); return; }
     byId('endOv').classList.add('hidden');
     byId('endAsk').classList.add('hidden');
     byId('rematchAsk').classList.add('hidden');
@@ -6684,6 +6700,10 @@
   byId('askCancel').onclick = () => byId('endAsk').classList.add('hidden');
   function declareEnd(winner) {
     byId('endAsk').classList.add('hidden');
+    if (cpActive() && winner !== 'B' && !(st && st.over)) {
+      toast('⚔️ โหมดผจญภัยต้องชนะบนกระดานจริง — ประกาศได้เฉพาะยอมแพ้', 3200);
+      return;
+    }
     if (mode === 'solo') showEnd(winner, '');
     else if (netKind === 'lan') {
       if (lanIsHost) {
@@ -7329,7 +7349,7 @@
         localStorage.setItem('bot_active_deck', byId('selMenuDeck').value);
         localStorage.setItem('bot_opp_deck', byId('selMenuDeckB').value);
       } catch (e) { }
-      mode = 'solo'; seat = 'A'; realMode = false; soloBot = false;
+      mode = 'solo'; seat = 'A'; realMode = false; soloBot = false; campaignRun = null;
       st = BoTEngine.buildInitialState(db.all, Math.random, {
         A: act.spec,
         B: opp.spec
@@ -7350,7 +7370,7 @@
         localStorage.setItem('bot_active_deck', byId('selBotDeckYou').value);
         localStorage.setItem('bot_opp_deck', byId('selBotDeckBot').value);
       } catch (e) { }
-      mode = 'solo'; seat = 'A'; realMode = false; soloBot = true;
+      mode = 'solo'; seat = 'A'; realMode = false; soloBot = true; campaignRun = null;
       st = BoTEngine.buildInitialState(db.all, Math.random, {
         A: you.spec,
         B: botD.spec
@@ -7379,6 +7399,358 @@
     syncHomeBtn();
     ensurePlayReady().then(() => fillMenuDeckSelects()).catch(() => fillMenuDeckSelects());
   }
+  /* ═══ ⚔️ โหมดผจญภัยไต่ด่าน (Campaign) — UI + การแข่งต่อด่าน ═══
+     ตรรกะเด็ค/ด่าน/XP อยู่ใน js/campaign.js · ที่นี่ผูกกับเอนจิน + จอ */
+  const CP = window.Campaign || null;
+  let cpProg = null;          // เซฟความคืบหน้า (localStorage แยกตามบัญชี)
+  let cpDB = null, cpRules = null;
+  const cpOppCache = {};
+  const cpView = { chapter: 0, sel: 0 };
+  function cpActive() { return !!(campaignRun && mode === 'solo' && st && st.campaign === campaignRun); }
+  function cpKey() {
+    let u = '';
+    try { u = localStorage.getItem('bot_user') || ''; } catch (e) { }
+    return 'bot_campaign_v1_' + (u.trim().toLowerCase() || 'guest');
+  }
+  function cpLoad() {
+    try { return CP.normalize(JSON.parse(localStorage.getItem(cpKey()) || 'null')); }
+    catch (e) { return CP.normalize(null); }
+  }
+  function cpSave() { try { localStorage.setItem(cpKey(), JSON.stringify(cpProg)); } catch (e) { } }
+  function cpPrep() {
+    return Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
+      cpDB = db;
+      soloCards = db.all;
+      if (!cpRules) cpRules = CP.makeRules(db.all, db.ban);
+      return db;
+    });
+  }
+  function cpCardImg(code) {
+    const c = cpDB && cpDB.lookup(code);
+    return (c && (c.imageUrl || (c.image ? 'https://cdn.bangbon.app/cards/' + c.image : ''))) || '';
+  }
+  function cpDeckProfile(spec) { // สี + การ์ดเด่น ของเด็คใดๆ
+    const col = {};
+    let ace = null, aceScore = -1;
+    Object.entries((spec && spec.main) || {}).forEach(([k, n]) => {
+      const c = cpDB && cpDB.lookup(k);
+      if (!c || c.type !== 'Avatar') return;
+      if (c.color) col[c.color] = (col[c.color] || 0) + n;
+      const sc = (cpRules && cpRules.isOnly(c) ? 100 : 0) + (+c.cost || 0) * 3 + (+c.power || 0);
+      if (sc > aceScore) { aceScore = sc; ace = c; }
+    });
+    const colors = Object.entries(col).sort((a, b) => b[1] - a[1]).filter(([, n]) => n >= 6).map(([c]) => c);
+    return { colors, ace: ace ? { code: ace.code, name: ace.name, image: cpCardImg(ace.code) } : null };
+  }
+  function cpSum(o) { return Object.values(o || {}).reduce((a, b) => a + b, 0); }
+  /* คู่ต่อสู้ของด่าน — ผูก seed กับเซฟ (เปิดดูซ้ำได้คนเดิม) · กด 🎲 = roll ใหม่ */
+  function cpOpponent(n) {
+    const roll = cpProg.rolls[n] || 0;
+    const key = cpProg.salt + '|' + n + '|' + roll;
+    if (cpOppCache[key]) return cpOppCache[key];
+    const info = CP.stageInfo(n, cpProg.salt, roll);
+    const rng = CP.makeRng((info.seed ^ 0x9e3779b9) >>> 0);
+    let deck, deckName, prof, theme = '';
+    const curated = info.boss ? Object.keys(STARTERS || {}).filter(k => {
+      const d = STARTERS[k];
+      return d && cpSum(d.main) === 50 && cpSum(d.life) === 5;
+    }).sort() : [];
+    if (info.kind === 'legend') curated.push(...Object.keys(STARTERS || {}).filter(k => {
+      const d = STARTERS[k];
+      return d && cpSum(d.main) === 50 && cpSum(d.life) === 5;
+    }).sort());
+    if (curated.length && (info.kind === 'legend' || rng() < 0.7)) {
+      const k = curated[Math.floor(rng() * curated.length)];
+      const d = STARTERS[k];
+      deck = { main: Object.assign({}, d.main), life: Object.assign({}, d.life) };
+      deckName = d.name || k;
+      prof = cpDeckProfile(deck);
+    } else {
+      const g = CP.generateDeck(cpDB.all, {
+        rng, effectOf: BoTEngine.effectOf, rules: cpRules, tier: info.tier, style: info.style,
+        theme: info.kind === 'tribe' ? '*' : '', mono: info.kind === 'mono' || info.kind === 'tribe',
+      });
+      deck = { main: g.main, life: g.life };
+      theme = g.theme || '';
+      prof = { colors: g.colors, ace: g.ace ? { code: g.ace.code, name: g.ace.name, image: cpCardImg(g.ace.code) } : null };
+      deckName = 'เด็ค' + g.colors.join('/') + (theme ? ' · เผ่า' + theme : '');
+    }
+    return (cpOppCache[key] = { info, roll, deck, deckName, colors: prof.colors, ace: prof.ace, theme });
+  }
+
+  function cpRenderHeader() {
+    const p = cpProg;
+    let nm = '';
+    try { nm = localStorage.getItem('bot_nick') || localStorage.getItem('bot_user') || ''; } catch (e) { }
+    byId('cpPName').textContent = nm || 'ผู้ท้าชิง';
+    byId('cpLv').textContent = p.level;
+    const need = CP.xpNeed(p.level);
+    byId('cpXpFill').style.width = Math.min(100, p.xp / need * 100).toFixed(1) + '%';
+    byId('cpXpText').textContent = `${p.xp} / ${need} XP · ชนะ ${p.wins} แพ้ ${p.losses}`;
+    byId('cpBest').textContent = p.best;
+    byId('cpStreak').textContent = p.streak;
+    byId('cpStarsTotal').textContent = Object.values(p.stars).reduce((a, b) => a + b, 0);
+  }
+  function cpApplyTheme(ch) {
+    const el = byId('campaign');
+    el.style.setProperty('--cp-bg1', ch.bg[0]);
+    el.style.setProperty('--cp-bg2', ch.bg[1]);
+    el.style.setProperty('--cp-accent', ch.accent);
+  }
+  function cpRenderMap() {
+    const p = cpProg;
+    const maxCh = Math.floor((p.stage - 1) / 10);
+    cpView.chapter = Math.max(0, Math.min(cpView.chapter, maxCh));
+    const first = cpView.chapter * 10 + 1;
+    const ch = CP.chapterInfo(first);
+    cpApplyTheme(ch);
+    byId('cpChapter').textContent = ch.title;
+    byId('cpChPrev').disabled = cpView.chapter <= 0;
+    byId('cpChNext').disabled = cpView.chapter >= maxCh;
+    const STEP = 96, PAD = 70, H = STEP * 9 + PAD * 2;
+    const pts = [];
+    for (let i = 0; i < 10; i++) pts.push({ n: first + i, x: 50 + Math.sin(i * 1.15) * 30, y: H - PAD - i * STEP });
+    let d = '', dDone = '';
+    pts.forEach((pt, i) => {
+      if (!i) { d = `M ${pt.x} ${pt.y}`; dDone = d; return; }
+      const a = pts[i - 1], ym = (a.y + pt.y) / 2;
+      const seg = ` C ${a.x} ${ym}, ${pt.x} ${ym}, ${pt.x} ${pt.y}`;
+      d += seg;
+      if (pt.n <= p.stage) dDone += seg;
+    });
+    const nodes = pts.map(pt => {
+      const n = pt.n, info = CP.stageInfo(n, p.salt, p.rolls[n] || 0);
+      const cleared = !!p.stars[n], cur = n === p.stage, locked = n > p.stage;
+      const cls = ['cp-node', info.boss ? 'boss' : '', cleared ? 'cleared' : '', cur ? 'current' : '', locked ? 'locked' : '', n === cpView.sel ? 'sel' : ''].join(' ');
+      const stars = cleared ? '★'.repeat(p.stars[n]) + '☆'.repeat(3 - p.stars[n]) : '';
+      return `<button type="button" class="${cls}" data-n="${n}" style="left:${pt.x}%;top:${pt.y}px" aria-label="ด่าน ${n}">
+        <b>${locked ? '🔒' : n}</b>${!info.boss && CP.KIND_META[info.kind].icon ? `<span class="cp-node-kind" title="${esc(CP.KIND_META[info.kind].label)}">${CP.KIND_META[info.kind].icon}</span>` : ''}${stars ? `<span class="cp-node-stars" style="color:#ffd76a">${stars}</span>` : ''}</button>`;
+    }).join('');
+    const path = byId('cpPath');
+    path.style.height = H + 'px';
+    path.innerHTML = `<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" aria-hidden="true">
+        <path d="${d}" vector-effect="non-scaling-stroke"/><path class="done" d="${dDone}" vector-effect="non-scaling-stroke"/></svg>` + nodes;
+    path.querySelectorAll('.cp-node').forEach(b => b.onclick = () => {
+      const n = +b.dataset.n;
+      if (n > cpProg.stage) { toast(`🔒 ผ่านด่าน ${cpProg.stage} ก่อนนะ`); return; }
+      cpView.sel = n;
+      cpRenderMap();
+      cpRenderSheet();
+    });
+  }
+  function cpScrollToSel() {
+    const map = byId('cpMap');
+    const node = map.querySelector('.cp-node.sel') || map.querySelector('.cp-node.current');
+    if (node) map.scrollTop = Math.max(0, node.offsetTop - map.clientHeight / 2);
+  }
+  function cpGems(colors) {
+    return (colors || []).map(c => {
+      const m = CP.COLOR_META[c];
+      return m ? `<span class="cp-gem" style="background:${m.hex};color:${m.hex}" title="${esc(c)}"></span>` : '';
+    }).join('');
+  }
+  function cpRenderSheet() {
+    const box = byId('cpOpp');
+    if (!cpDB) { box.innerHTML = '<div class="cp-loading">กำลังเตรียมคู่ต่อสู้…</div>'; return; }
+    const n = cpView.sel;
+    let o;
+    try { o = cpOpponent(n); }
+    catch (err) { console.error('campaign opponent', err); box.innerHTML = '<div class="cp-loading">สร้างคู่ต่อสู้ไม่สำเร็จ — ลองกด 🎲</div>'; return; }
+    const info = o.info, lv = CP.LEVEL_META[info.level] || CP.LEVEL_META.normal, sty = CP.STYLES[info.style];
+    const pips = [1, 2, 3, 4].map(i => `<i class="${i <= lv.pips ? 'on' : ''}"></i>`).join('');
+    const cleared = cpProg.stars[n] || 0;
+    const km = CP.KIND_META[info.kind] || CP.KIND_META.normal;
+    const xpTxt = cleared ? `เล่นซ้ำ · ได้ ~${Math.round(info.xp * 0.4)} XP` : `รางวัล <b>+${info.xp} XP</b>`;
+    box.innerHTML = `
+      <div class="cp-portrait">${o.ace && o.ace.image ? `<img src="${esc(o.ace.image)}" alt="${esc(o.ace.name)}" loading="lazy">` : ''}
+        ${info.boss ? `<div class="cp-boss-tag">${info.bigBoss ? 'BIG BOSS' : 'BOSS'}</div>` : ''}</div>
+      <div class="cp-opp-info">
+        <div class="cp-stage-no">ด่าน ${n} · ${esc(info.chapter.name)}${cleared ? ' · ' + '★'.repeat(cleared) : ''}</div>
+        <div class="cp-opp-name">🤖 ${esc(info.name)}</div>
+        ${km.icon ? `<div class="cp-kind"><b>${km.icon} ${esc(km.label)}</b> — ${esc(km.desc)}</div>` : ''}
+        <div class="cp-tags">
+          <span class="cp-tag" title="ระดับความฉลาดบอท"><span class="cp-pips">${pips}</span>${esc(lv.label)}</span>
+          ${sty && !info.boss && info.kind !== 'legend' ? `<span class="cp-tag">${sty.icon} ${esc(sty.label)}</span>` : ''}
+          <span class="cp-tag">${cpGems(o.colors)} ${esc(o.deckName)}</span>
+        </div>
+        <div class="cp-reward">${xpTxt}${o.ace ? ` · การ์ดเด่น: ${esc(o.ace.name)}` : ''}</div>
+      </div>`;
+    byId('cpFight').textContent = info.boss ? '👑 ท้าบอส!' : '⚔️ สู้เลย!';
+  }
+  function cpFillDeckSelect() {
+    const sel = byId('cpDeck');
+    let saved = {};
+    try { saved = CardDB.savedDecks(); } catch (e) { }
+    const mine = Object.keys(saved).map(n => `<option value="${esc(n)}">💾 ${esc(n)}</option>`).join('');
+    const pre = Object.keys(STARTERS || {}).map(k => {
+      const d = STARTERS[k];
+      return `<option value="starter:${esc(k)}">📦 ${esc((d && (d.label || d.name)) || k)}</option>`;
+    }).join('');
+    sel.innerHTML = `<option value="random">🎲 เด็คสุ่ม (จัดให้ตามกติกาทุกด่าน)</option>`
+      + (mine ? `<optgroup label="เด็คของคุณ">${mine}</optgroup>` : '')
+      + (pre ? `<optgroup label="เด็คแนะนำ">${pre}</optgroup>` : '');
+    const want = cpProg.deck || (Object.keys(saved)[0] || 'random');
+    sel.value = want;
+    if (sel.value !== want) sel.value = 'random';
+    sel.onchange = () => { cpProg.deck = sel.value; cpSave(); };
+  }
+  function openCampaign() {
+    if (!CP) { toast('โหลดโหมดผจญภัยไม่สำเร็จ'); return; }
+    if (window.BotAnalytics) window.BotAnalytics.trackEvent('open_campaign', 'เปิดโหมดผจญภัย');
+    cpProg = cpLoad();
+    cpView.sel = cpProg.stage;
+    cpView.chapter = Math.floor((cpProg.stage - 1) / 10);
+    showScreen('campaign');
+    cpRenderHeader();
+    cpRenderMap();
+    cpRenderSheet();
+    requestAnimationFrame(cpScrollToSel);
+    byId('cpFight').disabled = true;
+    cpPrep().then(() => {
+      cpFillDeckSelect();
+      cpRenderSheet();
+      byId('cpFight').disabled = false;
+    }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
+  }
+  function cpShowVs(you, o) {
+    const ov = byId('cpVs');
+    const side = (cls, img, name, sub) => `<div class="cp-vs-side ${cls}">
+        <div class="cp-portrait">${img ? `<img src="${esc(img)}" alt="">` : ''}</div>
+        <div class="cp-vs-name">${esc(name)}</div><div class="cp-vs-sub">${sub}</div></div>`;
+    const lv = CP.LEVEL_META[o.info.level] || CP.LEVEL_META.normal;
+    ov.innerHTML = `<div class="cp-vs-stage">${o.info.boss ? '👑 BOSS · ' : ''}ด่าน ${o.info.n}</div>`
+      + side('cp-vs-l', you.ace && you.ace.image, byId('cpPName').textContent || 'คุณ', `LV ${cpProg.level} · ${esc(you.name)}`)
+      + `<div class="cp-vs-mid">VS</div>`
+      + side('cp-vs-r', o.ace && o.ace.image, o.info.name, `${esc(lv.label)} · ${cpGems(o.colors)}`);
+    ov.classList.remove('hidden');
+    return new Promise(res => {
+      let done = false;
+      const fin = () => { if (done) return; done = true; ov.classList.add('hidden'); ov.onclick = null; res(); };
+      ov.onclick = fin;
+      setTimeout(fin, 1900);
+    });
+  }
+  function startCampaignStage(n) {
+    if (!CP) return;
+    cpProg = cpProg || cpLoad();
+    if (n > cpProg.stage) { toast('🔒 ด่านนี้ยังไม่ปลดล็อก'); return; }
+    byId('cpFight').disabled = true;
+    cpPrep().then(db => {
+      const o = cpOpponent(n);
+      const pickV = (byId('cpDeck') && byId('cpDeck').value) || cpProg.deck || 'random';
+      let you;
+      if (pickV === 'random') {
+        const g = CP.generateDeck(db.all, {
+          rng: CP.makeRng((Math.random() * 4294967295) >>> 0), effectOf: BoTEngine.effectOf, rules: cpRules,
+          tier: Math.min(0.85, 0.45 + cpProg.level * 0.02),
+        });
+        you = { name: 'เด็คสุ่ม ' + g.colors.join('/'), spec: { main: g.main, life: g.life } };
+      } else you = resolveDeckChoice(pickV);
+      cpProg.deck = pickV;
+      cpSave();
+      you.ace = cpDeckProfile(you.spec).ace;
+      if (window.BotAnalytics) window.BotAnalytics.trackEvent('play_campaign', 'ผจญภัยด่าน ' + n);
+      return cpShowVs(you, o).then(() => {
+        campaignRun = {
+          stage: n, roll: o.roll, level: o.info.level, name: o.info.name, deckName: o.deckName,
+          youName: you.name, youDeck: you.spec, done: false, res: null,
+        };
+        mode = 'solo'; seat = 'A'; my = 'A'; opp = 'B'; realMode = false; soloBot = true;
+        st = BoTEngine.buildInitialState(db.all, Math.random, { A: you.spec, B: o.deck });
+        st.skipLethalPlead = true;
+        st.campaign = campaignRun;
+        botFailKeys = new Set();
+        botFailTurn = -1;
+        if (typeof BotUniversal !== 'undefined' && BotUniversal.beginMatch)
+          BotUniversal.beginMatch(st, { botSide: 'B', level: o.info.level, debug: BotUniversal.debugEnabled() });
+        if (o.info.level === 'nightmare' && typeof BotAI !== 'undefined' && BotAI.nightmareSculptHand)
+          BotAI.nightmareSculptHand(st, 'B', 5);
+        toast(`⚔️ ด่าน ${n} — ${o.info.name}`, 2400);
+        gameStart = Date.now(); selMap = {};
+        startTable();
+      });
+    }).catch(err => {
+      console.error('campaign start', err);
+      toast('เริ่มด่านไม่สำเร็จ — ลองใหม่');
+    }).then(() => { const b = byId('cpFight'); if (b) b.disabled = false; });
+  }
+  function cpOnEnd(winner) {
+    const run = campaignRun;
+    cpProg = cpProg || cpLoad();
+    if (!run.done) {
+      const lifeLost = (st.zones['A.life'] || []).filter(k => st.inst[k] && st.inst[k].faceUp).length;
+      const info = CP.stageInfo(run.stage, cpProg.salt, run.roll);
+      run.res = CP.applyResult(cpProg, run.stage, winner === 'A', lifeLost, info);
+      run.done = true;
+      cpSave();
+      persistUI(true);
+    }
+    const r = run.res;
+    byId('endTitle').innerHTML = r.won ? `ผ่านด่าน ${run.stage}! 🎉` : `แพ้ด่าน ${run.stage}`;
+    byId('endSub').textContent = `🤖 ${run.name} · ${run.deckName}`;
+    const stars = [1, 2, 3].map(i => `<span>★</span>`).join('');
+    byId('cpResult').innerHTML = `
+      ${r.won ? `<div class="cp-res-stars">${stars}</div>` : ''}
+      <div class="cp-res-line">ได้รับ <b>+${r.xp} XP</b>${r.won && !r.firstClear ? ' (เล่นซ้ำ)' : ''}${cpProg.streak > 1 ? ` · 🔥 ชนะติด ${cpProg.streak}` : ''}</div>
+      ${r.chapterBonus ? `<div class="cp-res-line">🏁 จบบท! โบนัส <b>+${r.chapterBonus} XP</b> · ปลดล็อก「${esc(CP.chapterInfo(run.stage + 1).name)}」</div>` : ''}
+      <div class="cp-res-line">LV <b>${cpProg.level}</b> · ${cpProg.xp}/${CP.xpNeed(cpProg.level)} XP${r.newBest ? ' · 🏆 สถิติใหม่!' : ''}</div>
+      ${r.levelUp ? `<div class="cp-res-lvup">⬆️ เลเวลอัป! LV ${cpProg.level}</div>` : ''}
+      ${!r.won ? `<div class="cp-res-line" style="opacity:.8">ลองเปลี่ยนเด็ค หรือกด 🎲 สุ่มบอทใหม่ที่แผนที่</div>` : ''}`;
+    if (r.won) {
+      const ss = byId('cpResult').querySelectorAll('.cp-res-stars span');
+      ss.forEach((el, i) => { if (i < r.stars) setTimeout(() => el.classList.add('on'), 250 + i * 320); });
+    }
+    const next = byId('cpResNext');
+    next.classList.toggle('hidden', !r.won);
+    next.textContent = (run.stage + 1) % 5 === 0 ? '👑 ด่านบอส ▶' : `ด่าน ${run.stage + 1} ▶`;
+  }
+  function cpForfeit() { // ออก/เริ่มใหม่กลางเกม = นับแพ้
+    if (!cpActive() || campaignRun.done || (st && st.over)) return;
+    cpProg = cpProg || cpLoad();
+    const info = CP.stageInfo(campaignRun.stage, cpProg.salt, campaignRun.roll);
+    campaignRun.res = CP.applyResult(cpProg, campaignRun.stage, false, 5, info);
+    campaignRun.done = true;
+    cpSave();
+  }
+  function cpLeaveToMap() {
+    clearTimeout(botT); botT = null;
+    mode = null; st = null; realMode = false; soloBot = false; campaignRun = null;
+    clearPersistedTable();
+    openCampaign();
+  }
+  function cpRetry() {
+    const n = campaignRun ? campaignRun.stage : (cpProg ? cpProg.stage : 1);
+    if (st && !st.over && campaignRun && !campaignRun.done && !confirm('เริ่มด่านนี้ใหม่? (เกมนี้นับเป็นแพ้)')) return;
+    cpForfeit();
+    byId('endOv').classList.add('hidden');
+    byId('rematchAsk').classList.add('hidden');
+    clearTimeout(botT); botT = null;
+    startCampaignStage(n);
+  }
+  byId('mnuCampaign').onclick = openCampaign;
+  byId('mnuCampaign2').onclick = openCampaign;
+  byId('cpBack').onclick = () => showScreen('menu');
+  byId('cpChPrev').onclick = () => { cpView.chapter--; cpRenderMap(); byId('cpMap').scrollTop = byId('cpMap').scrollHeight; };
+  byId('cpChNext').onclick = () => { cpView.chapter++; cpRenderMap(); cpScrollToSel(); };
+  byId('cpFight').onclick = () => startCampaignStage(cpView.sel);
+  byId('cpReroll').onclick = () => {
+    if (!cpProg) return;
+    const n = cpView.sel;
+    cpProg.rolls[n] = (cpProg.rolls[n] || 0) + 1;
+    cpSave();
+    cpRenderMap();
+    cpRenderSheet();
+    toast('🎲 สุ่มบอทใหม่แล้ว!');
+  };
+  byId('cpResNext').onclick = () => {
+    const n = campaignRun ? campaignRun.stage + 1 : (cpProg ? cpProg.stage : 1);
+    byId('endOv').classList.add('hidden');
+    clearTimeout(botT); botT = null;
+    if (cpProg) cpView.sel = n;
+    startCampaignStage(n);
+  };
+  byId('cpResRetry').onclick = () => cpRetry();
+  byId('cpResMap').onclick = () => cpLeaveToMap();
   byId('mnuBot').onclick = () => openPlaySetup('bot');
   byId('btnBotStart').onclick = () => startBotMatch();
   const btnBotPick = byId('btnBotPickDeck');
@@ -7563,7 +7935,7 @@
       mode = 'solo'; seat = 'A';
       st = BoTEngine.buildInitialState(db.all, Math.random, { A: act.spec, B: (resolveDeckChoice('SD01') || {}).spec });
       gameStart = Date.now(); selMap = {};
-      realMode = true; soloBot = false;
+      realMode = true; soloBot = false; campaignRun = null;
       startTable();
       toast(`🎴 โหมดการ์ดจริง · ใช้เด็ค "${act.name}" — กด 📺 บานสนาม แล้วแชร์เฉพาะหน้าต่างนั้นใน Discord`, 11000);
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
@@ -7833,6 +8205,8 @@
       realMode = !!data.realMode;
       soloBot = !!data.soloBot;
       st = data.st;
+      campaignRun = (st && st.campaign) || null;
+      if (campaignRun) { soloBot = true; cpProg = cpLoad(); }
       if (soloBot && st) st.skipLethalPlead = true;
       gameStart = data.gameStart || Date.now();
       selMap = {};
@@ -7852,6 +8226,11 @@
       return false; // ให้ auto-join ทำงานเอง
     }
     const hash = (location.hash || '').replace(/^#/, '');
+    if (hash === 'campaign') {
+      let d0 = null;
+      try { d0 = JSON.parse(sessionStorage.getItem(SS_UI) || 'null'); } catch (e) { }
+      if (!(d0 && d0.screen === 'table' && d0.mode === 'solo' && d0.st)) { openCampaign(); return true; }
+    }
     if (['decks', 'deckbuilder', 'gallery', 'howto', 'lobby', 'lanHall'].includes(hash)) {
       if (hash === 'howto') ensureHowto().then(() => showScreen('howto', true));
       else if (hash === 'lanHall') showScreen('lobby', true);
@@ -7882,6 +8261,7 @@
       joinLanRoom(data.room);
       return true;
     }
+    if (data.screen === 'campaign') { openCampaign(); return true; }
     if (['lobby', 'decks', 'deckbuilder', 'gallery', 'howto'].includes(data.screen)) {
       if (data.screen === 'howto') ensureHowto().then(() => showScreen('howto', true));
       else if (data.screen === 'decks' || data.screen === 'deckbuilder' || data.screen === 'gallery') {

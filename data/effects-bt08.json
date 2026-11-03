@@ -347,6 +347,7 @@
               "op": "scout",
               "count": 5,
               "filter": {
+                "type": "Magic",
                 "nameIncludes": [
                   "หมอมาแล้วววว"
                 ]
@@ -368,12 +369,16 @@
               "op": "hellPick",
               "filter": {
                 "type": "Avatar",
-                "costMaxOrName": {
-                  "costMax": 2,
-                  "nameIncludes": [
-                    "พยาบาล เอ๋"
-                  ]
-                }
+                "anyOf": [
+                  {
+                    "costMax": 2
+                  },
+                  {
+                    "nameIncludes": [
+                      "พยาบาล เอ๋"
+                    ]
+                  }
+                ]
               },
               "dest": "avatar"
             }

@@ -1,0 +1,175 @@
+/* ═══ โหมดผจญภัยไต่ด่าน (Campaign) — ธีมเกมการ์ดแฟนตาซี ═══ */
+:root{
+  --cp-gold:#f3c969; --cp-gold-2:#b8862c; --cp-ink:#0b0a10; --cp-panel:rgba(14,12,22,.82);
+  --cp-line:rgba(243,201,105,.35); --cp-text:#f5eedc; --cp-dim:#b3a98f;
+  --cp-bg1:#1d3b2a; --cp-bg2:#0d1f16; --cp-accent:#7ee08f;
+}
+
+/* ── หน้าจอหลัก ── */
+.cp-screen *,.cp-screen *::before,.cp-screen *::after,.cp-vs *,.cp-result *{box-sizing:border-box}
+.screen.cp-screen{justify-content:flex-start;gap:0;padding:0;color:var(--cp-text);
+  background:radial-gradient(120% 80% at 50% 0%,var(--cp-bg1),var(--cp-bg2) 60%,#050407);
+  font-family:'IBM Plex Sans Thai','Sarabun',sans-serif}
+.screen.cp-screen::before,.screen.cp-screen::after{display:none}
+.cp-bg{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.cp-bg::before{content:'';position:absolute;inset:-20%;
+  background:
+    radial-gradient(2px 2px at 12% 18%,rgba(255,240,200,.6),transparent 60%),
+    radial-gradient(1.5px 1.5px at 72% 32%,rgba(255,240,200,.5),transparent 60%),
+    radial-gradient(2px 2px at 38% 66%,rgba(255,240,200,.45),transparent 60%),
+    radial-gradient(1.5px 1.5px at 86% 78%,rgba(255,240,200,.5),transparent 60%),
+    radial-gradient(1px 1px at 22% 88%,rgba(255,240,200,.5),transparent 60%),
+    radial-gradient(1px 1px at 58% 12%,rgba(255,240,200,.6),transparent 60%);
+  background-size:340px 340px;animation:cpDrift 60s linear infinite;opacity:.8}
+.cp-bg::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(60% 40% at 50% 100%,color-mix(in srgb,var(--cp-accent) 22%,transparent),transparent 70%)}
+@keyframes cpDrift{to{transform:translateY(-340px)}}
+
+/* ── แถบบน: เลเวล / XP / สถิติ ── */
+.cp-top{position:relative;z-index:3;width:100%;max-width:720px;display:flex;align-items:center;gap:10px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 8px}
+.cp-icon-btn{flex:0 0 auto;width:38px;height:38px;border-radius:12px;border:1px solid var(--cp-line);
+  background:rgba(0,0,0,.35);color:var(--cp-gold);font-size:24px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.cp-icon-btn:hover{background:rgba(243,201,105,.12)}
+.cp-player{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:10px}
+.cp-lv{flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#ffe7a3,var(--cp-gold) 45%,var(--cp-gold-2));color:#2a1a00;
+  box-shadow:0 0 0 2px #3a2706,0 0 14px rgba(243,201,105,.45);font-weight:700;line-height:1}
+.cp-lv span{font-size:9px;letter-spacing:.08em}
+.cp-lv b{font-size:18px}
+.cp-player-mid{min-width:0;flex:1}
+.cp-pname{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-xpbar{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;margin:3px 0 2px;border:1px solid rgba(0,0,0,.4)}
+.cp-xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7be3ff,#5aa8ff);box-shadow:0 0 8px #5aa8ff;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.cp-xptext{font-size:11px;color:var(--cp-dim)}
+.cp-stats{flex:0 0 auto;display:flex;gap:6px}
+.cp-stat{display:flex;align-items:center;gap:3px;padding:4px 8px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--cp-line);font-size:13px}
+.cp-stat b{color:var(--cp-gold)}
+
+/* ── หัวบท ── */
+.cp-chapter{position:relative;z-index:3;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:720px;padding:2px 16px 4px}
+.cp-chapter-title{font-weight:700;font-size:15px;letter-spacing:.02em;color:var(--cp-gold);text-shadow:0 2px 0 #000;
+  padding:5px 18px;border-radius:999px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25));border:1px solid var(--cp-line);text-align:center}
+.cp-chapter .cp-icon-btn{width:32px;height:32px;font-size:18px}
+.cp-chapter .cp-icon-btn:disabled{opacity:.3;cursor:default}
+
+/* ── แผนที่ด่าน ── */
+.cp-map{position:relative;z-index:2;flex:1 1 auto;width:100%;max-width:720px;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cp-map::-webkit-scrollbar{display:none}
+.cp-path{position:relative;margin:0 auto;width:100%;max-width:420px}
+.cp-path svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.cp-path svg path{fill:none;stroke:rgba(243,201,105,.28);stroke-width:5;stroke-dasharray:2 12;stroke-linecap:round}
+.cp-path svg path.done{stroke:var(--cp-gold);stroke-dasharray:none;opacity:.55}
+.cp-node{position:absolute;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;border:none;padding:0;font-family:inherit;
+  background:radial-gradient(circle at 35% 30%,#5b5468,#2a2534 60%,#17131e);color:#cfc6b4;
+  box-shadow:0 0 0 3px #0b0a10,0 0 0 5px rgba(243,201,105,.25),0 6px 14px rgba(0,0,0,.6);transition:transform .15s}
+.cp-node:hover{transform:translate(-50%,-50%) scale(1.06)}
+.cp-node b{font-size:18px;line-height:1}
+.cp-node .cp-node-stars{position:absolute;bottom:-14px;font-size:11px;letter-spacing:-1px;white-space:nowrap;text-shadow:0 1px 2px #000}
+.cp-node.cleared{background:radial-gradient(circle at 35% 30%,#ffe7a3,var(--cp-gold) 45%,var(--cp-gold-2));color:#2a1a00;
+  box-shadow:0 0 0 3px #3a2706,0 0 0 5px rgba(243,201,105,.6),0 6px 14px rgba(0,0,0,.6)}
+.cp-node.current{background:radial-gradient(circle at 35% 30%,#ffb4a0,#e2483d 50%,#7a1610);color:#fff;
+  animation:cpPulse 1.6s ease-in-out infinite}
+.cp-node .cp-node-kind{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  font-size:13px;background:#16131f;box-shadow:0 0 0 2px var(--cp-gold-2),0 2px 6px rgba(0,0,0,.6)}
+.cp-kind{font-size:12px;color:var(--cp-dim);line-height:1.35}
+.cp-kind b{color:var(--cp-gold);font-weight:700}
+.cp-node.locked{cursor:not-allowed;opacity:.55}
+.cp-node.locked b{font-size:16px}
+.cp-node.boss{width:76px;height:76px}
+.cp-node.boss b{font-size:22px}
+.cp-node.boss::before{content:'👑';position:absolute;top:-20px;font-size:22px;filter:drop-shadow(0 2px 2px #000)}
+.cp-node.sel{outline:3px solid #fff;outline-offset:4px}
+@keyframes cpPulse{0%,100%{box-shadow:0 0 0 3px #3a0a06,0 0 0 6px rgba(226,72,61,.55),0 0 18px rgba(226,72,61,.6)}
+  50%{box-shadow:0 0 0 3px #3a0a06,0 0 0 12px rgba(226,72,61,.15),0 0 34px rgba(226,72,61,.9)}}
+
+/* ── แผงคู่ต่อสู้ด้านล่าง ── */
+.cp-sheet{position:relative;z-index:3;width:100%;max-width:720px;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(14,12,22,.6),var(--cp-panel) 30%);border-top:1px solid var(--cp-line);
+  border-radius:20px 20px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.55);backdrop-filter:blur(6px)}
+.cp-opp{display:flex;gap:14px;align-items:stretch}
+.cp-portrait{position:relative;flex:0 0 auto;width:96px;aspect-ratio:63/88;border-radius:10px;overflow:hidden;
+  background:#1a1622 center/cover no-repeat;box-shadow:0 0 0 2px #000,0 0 0 4px var(--cp-gold-2),0 8px 18px rgba(0,0,0,.6)}
+.cp-portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.cp-portrait .cp-boss-tag{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:11px;font-weight:700;letter-spacing:.12em;
+  padding:3px 0;background:linear-gradient(90deg,#7a1610,#e2483d,#7a1610);color:#fff}
+.cp-opp-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.cp-stage-no{font-size:12px;color:var(--cp-dim);letter-spacing:.04em}
+.cp-opp-name{font-size:19px;font-weight:700;line-height:1.2;color:#fff;text-shadow:0 2px 0 #000}
+.cp-tags{display:flex;flex-wrap:wrap;gap:5px}
+.cp-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.cp-pips{letter-spacing:1px}
+.cp-pips i{display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.18);transform:rotate(45deg);margin:0 2px}
+.cp-pips i.on{background:#ff6b5a;box-shadow:0 0 6px #ff6b5a}
+.cp-gem{width:12px;height:12px;border-radius:3px;transform:rotate(45deg);display:inline-block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 0 6px currentColor}
+.cp-reward{font-size:13px;color:#9fe6ff}
+.cp-reward b{color:#fff}
+.cp-deck-row{display:flex;align-items:center;gap:8px;margin-top:12px}
+.cp-deck-row label{flex:0 0 auto;font-size:13px;color:var(--cp-dim)}
+.cp-select{flex:1;min-width:0;height:38px;border-radius:10px;border:1px solid var(--cp-line);background:#16131f;color:var(--cp-text);padding:0 10px;font-family:inherit;font-size:14px}
+.cp-actions{display:flex;gap:10px;margin-top:12px}
+.cp-btn{height:48px;border-radius:14px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;padding:0 14px}
+.cp-btn-ghost{flex:0 0 auto;background:rgba(255,255,255,.08);color:var(--cp-text);border:1px solid rgba(255,255,255,.18)}
+.cp-btn-ghost:hover{background:rgba(255,255,255,.14)}
+.cp-btn-fight{flex:1;font-size:18px;color:#2a1a00;letter-spacing:.03em;
+  background:linear-gradient(180deg,#ffe7a3,var(--cp-gold) 45%,var(--cp-gold-2));
+  box-shadow:0 4px 0 #6b4a10,0 8px 20px rgba(243,201,105,.35);transition:transform .08s,box-shadow .08s}
+.cp-btn-fight:hover{filter:brightness(1.06)}
+.cp-btn-fight:active{transform:translateY(3px);box-shadow:0 1px 0 #6b4a10,0 4px 10px rgba(243,201,105,.3)}
+.cp-btn-fight:disabled,.cp-btn-ghost:disabled{opacity:.5;cursor:default}
+.cp-loading{text-align:center;color:var(--cp-dim);padding:16px 0}
+
+/* ── ปุ่มทางเข้าในเมนูหลัก ── */
+.btn-campaign{position:relative;overflow:hidden;width:100%;border:none;cursor:pointer;border-radius:14px;padding:14px 18px;
+  font-family:'IBM Plex Sans Thai',sans-serif;font-weight:700;font-size:18px;color:#2a1a00;
+  background:linear-gradient(180deg,#ffe7a3,#f3c969 45%,#b8862c);box-shadow:0 4px 0 #6b4a10,0 8px 18px rgba(0,0,0,.35)}
+.btn-campaign small{display:block;font-weight:600;font-size:11px;opacity:.75;margin-top:2px}
+.btn-campaign::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:cpShine 3.2s ease-in-out infinite}
+@keyframes cpShine{0%,55%{left:-60%}100%{left:130%}}
+
+/* ── VS splash ก่อนเริ่ม ── */
+.cp-vs{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;gap:4vw;
+  background:radial-gradient(circle at 50% 50%,rgba(60,10,6,.92),rgba(0,0,0,.96));font-family:'IBM Plex Sans Thai',sans-serif;color:#fff;overflow:hidden}
+.cp-vs.hidden{display:none}
+.cp-vs-side{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(34vw,180px)}
+.cp-vs-side .cp-portrait{width:100%}
+.cp-vs-name{font-weight:700;font-size:clamp(13px,3.6vw,18px);text-align:center;text-shadow:0 2px 0 #000}
+.cp-vs-sub{font-size:12px;color:var(--cp-dim);text-align:center}
+.cp-vs-l{animation:cpInL .5s cubic-bezier(.2,.9,.3,1.2) both}
+.cp-vs-r{animation:cpInR .5s cubic-bezier(.2,.9,.3,1.2) both}
+.cp-vs-mid{font-size:clamp(40px,12vw,84px);font-weight:700;font-style:italic;color:var(--cp-gold);
+  text-shadow:0 0 20px rgba(243,201,105,.8),0 4px 0 #6b2a10;animation:cpVsPop .6s .25s cubic-bezier(.2,1.4,.4,1) both}
+.cp-vs-stage{position:absolute;top:12%;left:0;right:0;text-align:center;font-weight:700;letter-spacing:.2em;color:var(--cp-gold);font-size:14px}
+@keyframes cpInL{from{transform:translateX(-60vw) rotate(-8deg);opacity:0}}
+@keyframes cpInR{from{transform:translateX(60vw) rotate(8deg);opacity:0}}
+@keyframes cpVsPop{from{transform:scale(3);opacity:0}}
+
+/* ── ผลด่านบนจอจบเกม ── */
+.cp-result{margin:4px 0 12px;text-align:center}
+.cp-result.hidden{display:none}
+.cp-res-stars{display:flex;justify-content:center;gap:8px;font-size:40px;line-height:1;margin:2px 0 8px}
+.cp-res-stars span{filter:grayscale(1) brightness(.4);transform:scale(.6);transition:all .35s cubic-bezier(.2,1.6,.4,1)}
+.cp-res-stars span.on{filter:drop-shadow(0 0 10px rgba(243,201,105,.9));transform:scale(1)}
+.cp-res-line{font-size:14px;margin:3px 0}
+.cp-res-line b{color:#f3c969}
+.cp-res-lvup{display:inline-block;margin-top:6px;padding:4px 14px;border-radius:999px;font-weight:700;color:#2a1a00;
+  background:linear-gradient(180deg,#ffe7a3,#f3c969);animation:cpVsPop .5s cubic-bezier(.2,1.4,.4,1) both}
+.cp-res-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.cp-res-actions.hidden{display:none}
+.cp-res-actions .cp-btn{height:44px;flex:1 1 140px}
+.cp-res-actions .cp-btn-ghost{color:inherit;border-color:currentColor;background:transparent}
+
+@media (max-width:420px){
+  .cp-stats .cp-stat:nth-child(3){display:none}
+  .cp-portrait{width:82px}
+  .cp-opp-name{font-size:17px}
+}
+@media (max-height:620px){
+  .cp-sheet{padding-top:8px}
+  .cp-portrait{width:70px}
+  .cp-actions{margin-top:8px}
+  .cp-deck-row{margin-top:8px}
+}
