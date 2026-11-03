@@ -5450,7 +5450,8 @@
       if (['attachTo', 'avatar', 'sacrifice', 'destroy', 'takeControl', 'coinDestroy'].includes(pp.dest) ||
           ['ownAvatars', 'ownMagic'].includes(pp.from) ||
           ['chooseBuff', 'chooseDestroy'].includes(pp.kind)) {
-        if (pileOverlayOpen() && !['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'deckOrHand', 'dark'].includes(pp.from)) {
+        // ownMagic/ownHand เปิดเป็นหน้าต่างใบใหญ่ด้านล่าง — อย่าปิด ไม่งั้นหน้าต่างจะปิด/เปิดสลับไปมาทุกครั้งที่ render
+        if (pileOverlayOpen() && !['ids', 'deckAll', 'hell', 'anyHell', 'deckOrHell', 'deckOrHand', 'dark', 'ownMagic', 'ownHand'].includes(pp.from)) {
           closePileView();
           return;
         }
