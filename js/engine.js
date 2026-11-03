@@ -2365,6 +2365,18 @@
     const e = fxCard(c);
     return !!(e && e.only);
   }
+  /* เซ่นไหว้ → hellPick บังคับ (มณโฑ ราชินีเหล่ายักษ์): เซ่นใบ sacK แล้วมีใบในนรกให้เรียกจริงไหม
+     (POWER เท่ากัน / คนละชื่อ) — ไม่มี then.hellPick บังคับ = true เสมอ */
+  function sacrificeFollowupOk(st, owner, sacK, sacAc) {
+    const hp = sacAc && (sacAc.then || []).find(x => x && x.op === 'hellPick' && x.optional === false);
+    const sc = st.inst[sacK];
+    if (!hp || !sc) return true;
+    const f = Object.assign({}, hp.filter || {});
+    if (f.sameSymbolAs === 'sacrificed') { f.symbol = sc.symbol; delete f.sameSymbolAs; }
+    if (f.samePowerAs === 'sacrificed') { f.power = +sc.power || 0; delete f.samePowerAs; }
+    if (f.nameNot === 'sacrificed') { f.nameNotEquals = sc.name; delete f.nameNot; }
+    return (st.zones[owner + '.hell'] || []).some(id => id !== sacK && matchFilterEx(st, id, f));
+  }
   function matchFilterEx(st, k, f) {
     const c = st.inst[k]; if (!c) return false;
     if (!f) return true;
@@ -3947,6 +3959,7 @@
         if (isUntargetableByOppAbility(st, k, p.chooser)) return false;
         if ((p.dest === 'bounceHand' || p.dest === 'hell' || p.dest === 'dark' || p.dest === 'destroy' || p.dest === 'sigurdDestroyEnemy' || p.dest === 'takeControl') && protectedFromOppLeave(st, k, p.chooser)) return false;
         if (p.requireUntapped && !(st.inst[k] && !st.inst[k].tapped)) return false;
+        if (p.dest === 'sacrificeOnly' && p.then && !sacrificeFollowupOk(st, p.chooser, k, { then: p.then })) return false;
         if (p.magicMax != null && st.inst[k] && st.inst[k].type === 'Magic' && (p.magicGot || 0) >= p.magicMax) return false;
         if (p.distinctNames && (p.pickedNames || []).includes((st.inst[k] && st.inst[k].name) || '')) return false;
         if (p.dest === 'avatar' && (p.from === 'hell' || p.from === 'anyHell' || p.from === 'deckOrHell') && noHellSummonCard(st, k))
@@ -4080,6 +4093,20 @@
         const min = +mDeckMin[1];
         const rem = (st.zones[owner + '.deck'] || []).length;
         if (rem < min) return `เด็คต้องเหลือ ≥ ${min} ใบ (ตอนนี้มี ${rem} ใบ)`;
+      }
+      if (cond === 'noModUsedThisTurn' && isMagicTypeUsed(st, owner, 'Modification'))
+        return 'เทิร์นนี้ใช้ Modification Magic ไปแล้ว';
+    }
+    /* ดาบศักดิ์สิทธิ์ ฯลฯ สั่งใช้จากนรก: ต้องมี Avatar ให้สวมก่อนจ่ายค่า (ธรณีสูบ) — กันสูบวนไม่จบ */
+    if (srcK && (zoneOf(st, srcK) || '').endsWith('.hell')) {
+      const attAc = (ab.actions || []).find(x => x && (x.op === 'attachFromHellToAvatar' || x.op === 'attachSelfFromHell'));
+      if (attAc) {
+        const filt = attAc.targetFilter || attAc.filter || {};
+        const pChk = { kind: 'pick', from: 'ownAvatars', src: srcK, chooser: owner, filter: filt, dest: 'attachTo', attachMod: srcK, optional: false };
+        if (!promptCandidates(st, pChk).length) {
+          const nm = filt.nameIncludes ? [].concat(filt.nameIncludes).join(' / ') : 'Avatar';
+          return `ไม่มี "${nm}" บน Avatar Zone ให้สวม`;
+        }
       }
     }
     {
@@ -13017,7 +13044,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const filt = Object.assign({}, sac.filter || {}, { _srcK: a.k });
             const incSelf = sac.includeSelf != null ? !!sac.includeSelf : !(sac.excludeSelf || (sac.filter && (sac.filter.excludeSelf || sac.filter.exceptSelf)));
             const p = { kind: 'pick', from: 'ownAvatars', src: a.k, chooser: owner, filter: filt, dest: 'sacrificeOnly', optional: false, includeSelf: incSelf };
-            if (!promptCandidates(st, p).length) return deny('ใช้ไม่ได้ — ไม่มี Avatar ให้เซ่นไหว้');
+            const sacC = promptCandidates(st, p);
+            if (!sacC.length) return deny('ใช้ไม่ได้ — ไม่มี Avatar ให้เซ่นไหว้');
+            if (!sacC.some(id => sacrificeFollowupOk(st, owner, id, sac)))
+              return deny('ใช้ไม่ได้ — ในนรกไม่มี Avatar ที่เรียกได้จากใบที่เซ่นไหว้ (POWER เท่ากัน คนละชื่อ)');
           }
         }
         if (ab.requireOwn) {

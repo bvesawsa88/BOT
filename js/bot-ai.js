@@ -817,14 +817,18 @@
       score += canDrop ? 75 : -30;
     }
     if (/มณโฑ/.test(nameOf(c))) {
-      const fieldYak = zoneIds(st, side + '.avatar').some(id => {
+      /* มณโฑนับเป็นยักษ์ (เซ่นตัวเองได้) — ต้องมีคู่: ยักษ์ในนรก POWER เท่าใบที่เซ่น และคนละชื่อ */
+      const isYak = x => x && (x.symbol === 'ยักษ์' || /มณโฑ ราชินี/.test(nameOf(x)));
+      const hellIds = zoneIds(st, side + '.hell');
+      const pairOk = zoneIds(st, side + '.avatar').some(id => {
         const x = st.inst[id];
-        return x && (x.symbol === 'ยักษ์' || /มณโฑ/.test(nameOf(x)));
+        if (!isYak(x)) return false;
+        return hellIds.some(h => {
+          const y = st.inst[h];
+          return isYak(y) && (+y.power || 0) === (+x.power || 0) && nameOf(y) !== nameOf(x);
+        });
       });
-      const hellYak = zoneIds(st, side + '.hell').some(id => {
-        const x = st.inst[id];
-        return x && x.symbol === 'ยักษ์';
-      });
+      const fieldYak = pairOk, hellYak = pairOk;
       const hellPhibek = zoneIds(st, side + '.hell').some(id => /พิเภก/.test(nameOf(st.inst[id])));
       if (hellPhibek) score += 90;
       else if (fieldYak && hellYak) score += 50;

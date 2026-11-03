@@ -190,6 +190,8 @@
         timerEl.textContent = left + ' วิ';
         timerEl.classList.toggle('urgent', left <= 3);
       }
+      const rwT = byId('reactWinTimer');
+      if (rwT) { rwT.textContent = left + ' วิ'; rwT.classList.toggle('urgent', left <= 3); }
       if (left <= 0) {
         clearInterval(reactTimerId); reactTimerId = null;
         const cur = st && (st.prompts || [])[0];
@@ -200,6 +202,80 @@
     };
     if (!reactTimerId) { tick(); reactTimerId = setInterval(tick, 250); }
     else tick();
+  }
+
+  /* หน้าต่าง React — โชว์การ์ดที่ใช้ได้ตรงกลางจอ แตะใบ = ใช้ · 「ไม่ใช้」= ผ่าน · ย่อดูสนามได้ */
+  let reactWinKey = '', reactWinMin = false;
+  function reactWinCands(pr) {
+    if (!st || !pr || pr.kind !== 'react') return [];
+    let ids = [];
+    try { ids = (BoTEngine.promptCandidates(st, pr) || []).slice(); } catch (e) { ids = (pr.options || []).slice(); }
+    if (st.pending && pr.reactTrigger === 'enemyDeclareAttack' && BoTEngine.attackReactOptions) {
+      (BoTEngine.attackReactOptions(st, st.pending.target) || []).forEach(k => { if (!ids.includes(k)) ids.push(k); });
+    }
+    return ids.filter(k => st.inst[k]);
+  }
+  function syncReactWin(pr, mine, txt) {
+    let win = byId('reactWin');
+    const ids = mine ? reactWinCands(pr) : [];
+    if (!ids.length) {
+      if (win) win.classList.add('hidden');
+      reactWinKey = ''; reactWinMin = false;
+      return;
+    }
+    if (!win) {
+      win = document.createElement('div');
+      win.id = 'reactWin';
+      win.className = 'hidden';
+      document.body.appendChild(win);
+      win.addEventListener('click', e => {
+        if (!st) return;
+        const cur = (st.prompts || [])[0];
+        if (e.target.closest('[data-rw="no"]')) {
+          if (cur) sendAction({ type: 'reactNo', by: promptBy() });
+          return;
+        }
+        if (e.target.closest('[data-rw="min"]')) { reactWinMin = !reactWinMin; render(); return; }
+        const cEl = e.target.closest('[data-rk]'); if (!cEl) return;
+        const k = cEl.dataset.rk;
+        if (cur && BoTEngine.promptTargetOk(st, k)) {
+          sendAction({ type: 'chooseTarget', k, by: mode === 'solo' ? cur.chooser : undefined });
+        } else if (st.pending) {
+          const defSide = st.pending.target;
+          sendAction({ type: 'playMagic', k, by: mode === 'solo' ? defSide : undefined });
+        }
+      });
+      win.addEventListener('pointerover', e => {
+        const cEl = e.target.closest('[data-rk]');
+        if (cEl && st) setPreview(cEl.dataset.rk);
+      });
+    }
+    const key = `${pr.mode || ''}|${pr.reactTrigger || ''}|${pr.target || ''}|${pr.src || ''}|${ids.join(',')}`;
+    if (key !== reactWinKey) { reactWinKey = key; reactWinMin = false; }
+    const noLbl = pr.reactTrigger === 'avatarWouldBeDestroyed' ? 'ไม่ใช้ — ถูกทำลาย' : 'ไม่ใช้';
+    const cards = ids.map(k => {
+      const c = st.inst[k];
+      const img = (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : '')) || '';
+      const z = BoTEngine.zoneOf(st, k) || '';
+      const zl = z.endsWith('.hand') ? 'มือ' : z.endsWith('.magic') ? 'Magic Zone' : z.endsWith('.avatar') ? 'สนาม' : z.endsWith('.hell') ? 'นรก' : z.endsWith('.construct') ? 'Construct' : '';
+      return `<button class="rw-card" data-rk="${esc(k)}" title="${esc(c.name)}">
+        <div class="rw-img" style="background-image:url('${esc(img)}')"></div>
+        <div class="rw-name">${esc(c.name)}</div>${zl ? `<div class="rw-zone">${zl}</div>` : ''}</button>`;
+    }).join('');
+    win.classList.toggle('rw-min', reactWinMin);
+    win.innerHTML = `<div class="rw-box">
+      <div class="rw-head"><div class="rw-title">💚 React ที่ใช้ได้ (${ids.length})</div>
+        <div class="rw-timer" id="reactWinTimer"></div>
+        <button class="rw-minbtn" data-rw="min">${reactWinMin ? 'เปิดหน้าต่าง' : 'ย่อ / ดูสนาม'}</button></div>
+      <div class="rw-why">${BotUtil.formatEffect(txt || '')}</div>
+      <div class="rw-cards">${cards}</div>
+      <div class="rw-foot"><span class="rw-hint">แตะการ์ดเพื่อใช้</span><button class="btn-dark rw-no" data-rw="no">${noLbl}</button></div>
+    </div>`;
+    if (reactDeadline) {
+      const left = Math.max(0, Math.ceil((reactDeadline - Date.now()) / 1000));
+      const t = byId('reactWinTimer'); if (t) { t.textContent = left + ' วิ'; t.classList.toggle('urgent', left <= 3); }
+    }
+    win.classList.remove('hidden');
   }
 
   function syncRpsModal(pr) {
@@ -4411,6 +4487,7 @@
         byId('btnReactNo').textContent = pr.reactTrigger === 'avatarWouldBeDestroyed' ? 'ไม่ใช้ — ถูกทำลาย' : 'ไม่ใช้';
       }
       syncReactTimer(pr);
+      syncReactWin(pr, mine, txt);
       const millRow = byId('milledOptionalRow');
       if (millRow) millRow.classList.toggle('hidden', !(mine && pr.kind === 'milledOptional'));
       // เลือกเทคหลังกด ⚡ — หน้าต่างกลางจอ กล่อง 2 ข้อ (แบบเลือกจน) ไม่ใช้ปุ่มสายฟ้าบนแถบ
@@ -4530,6 +4607,7 @@
     } else {
       pb.classList.add('hidden');
       syncReactTimer(null);
+      syncReactWin(null, false, '');
       const millRow = byId('milledOptionalRow');
       if (millRow) millRow.classList.add('hidden');
       const gt = byId('guessTypeRow'); if (gt) gt.classList.add('hidden');

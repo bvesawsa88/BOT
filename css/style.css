@@ -1765,3 +1765,32 @@ body.stream-win #roomInfo{opacity:.8}
   .tut-body{font-size:12.5px;line-height:1.5}
   .tut-card .btn-primary.big{padding:9px}
 }
+
+/* ── หน้าต่าง React: การ์ดที่ใช้ได้ (แทนข้อความแถว) ── */
+#reactWin{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:300;width:min(560px,calc(100vw - 32px));max-height:80vh;display:flex;pointer-events:auto}
+#reactWin.hidden{display:none}
+#reactWin .rw-box{flex:1;display:flex;flex-direction:column;min-height:0;background:rgba(18,26,20,.96);border:2px solid #3dcf7a;border-radius:14px;box-shadow:0 0 0 1px rgba(0,0,0,.4),0 14px 44px rgba(0,0,0,.6),0 0 22px rgba(61,207,122,.35);overflow:hidden}
+#reactWin .rw-head{display:flex;align-items:center;gap:8px;padding:10px 12px 4px}
+#reactWin .rw-title{font-weight:700;color:#bff5d3;font-size:15px;flex:1}
+#reactWin .rw-timer{font-weight:700;color:#fff;background:#2b6b45;border-radius:10px;padding:2px 8px;font-size:13px}
+#reactWin .rw-timer:empty{display:none}
+#reactWin .rw-timer.urgent{background:#c0392b;animation:reactPickPulse .6s ease-in-out infinite}
+#reactWin .rw-minbtn{background:transparent;border:1px solid #3dcf7a;color:#bff5d3;border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer}
+#reactWin .rw-why{padding:0 12px 8px;color:#dfe9e2;font-size:13px;line-height:1.4}
+#reactWin .rw-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:6px 12px 10px;overflow-y:auto;min-height:0}
+#reactWin .rw-card{width:118px;background:#0f1712;border:2px solid #3dcf7a;border-radius:10px;padding:4px;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .12s,box-shadow .12s}
+#reactWin .rw-card:hover,#reactWin .rw-card:focus-visible{transform:translateY(-3px);box-shadow:0 0 14px 4px rgba(61,207,122,.55);outline:none}
+#reactWin .rw-img{width:100%;aspect-ratio:63/88;background-size:cover;background-position:center;border-radius:6px;background-color:#222}
+#reactWin .rw-name{font-size:12px;line-height:1.25;text-align:center;max-height:2.5em;overflow:hidden}
+#reactWin .rw-zone{font-size:10px;color:#9fd8b4}
+#reactWin .rw-foot{display:flex;align-items:center;gap:8px;padding:8px 12px 12px;border-top:1px solid rgba(61,207,122,.25)}
+#reactWin .rw-hint{flex:1;color:#9fd8b4;font-size:12px}
+#reactWin .rw-no{padding:7px 16px}
+/* ย่อ — เหลือแถบเล็กด้านล่าง ให้ดูสนามได้ */
+#reactWin.rw-min{top:auto;bottom:96px;transform:translateX(-50%);width:auto;max-width:calc(100vw - 32px)}
+#reactWin.rw-min .rw-why,#reactWin.rw-min .rw-cards,#reactWin.rw-min .rw-hint{display:none}
+#reactWin.rw-min .rw-foot{border-top:0;padding:0 12px 10px}
+@media (max-width:600px){
+  #reactWin .rw-card{width:calc(33% - 8px);min-width:88px}
+  #reactWin.rw-min{bottom:120px}
+}
