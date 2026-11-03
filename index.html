@@ -250,16 +250,17 @@
   <aside class="db-side">
     <div class="db-filter-head">
       <button type="button" id="dbFilterToggle" class="db-filter-toggle" aria-expanded="true" aria-controls="dbFilterBody">
-        <span>ตัวกรอง</span>
+        <span>ตัวกรอง <span id="dbFilterCount" class="db-adv-count hidden"></span></span>
         <span class="db-filter-chev" aria-hidden="true"></span>
       </button>
       <button type="button" id="dbFiltersClose" class="btn-mini only-mobile">ปิด</button>
     </div>
     <div id="dbFilterBody" class="db-filter-body">
       <div class="db-filter-search">
-        <input id="dbQ" placeholder="ค้นหาชื่อ / ข้อความ effect / รหัส…" autocomplete="off">
-        <button id="dbClear" class="btn-dark small">ล้าง</button>
+        <input id="dbQ" type="search" placeholder="🔍 ค้นหาชื่อ / ข้อความ effect / รหัส…" autocomplete="off">
+        <button id="dbClear" class="btn-dark small" title="ล้างตัวกรองทั้งหมด">ล้างตัวกรอง</button>
       </div>
+      <!-- ตัวกรองหลัก — ใช้บ่อย แสดงตลอด -->
       <div class="db-filter-row">
         <span class="db-label">ประเภท</span>
         <div id="dbTypeChips" class="chip-row"></div>
@@ -272,37 +273,45 @@
         <span class="db-label">COST</span>
         <div id="dbCostChips" class="chip-row"></div>
       </div>
-      <div class="db-filter-row">
-        <span class="db-label">GEM</span>
-        <div id="dbGemChips" class="chip-row"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">POWER</span>
-        <div id="dbPowerChips" class="chip-row"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">สีเจม</span>
-        <div id="dbGemColorChips" class="chip-row"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">ซิมโบล</span>
-        <div id="dbSymbolChips" class="chip-row db-sym-chips"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">เมจิก</span>
-        <div id="dbSubtypeChips" class="chip-row db-sym-chips"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">ความสามารถ</span>
-        <div id="dbKeywordChips" class="chip-row db-kw-chips"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">ความหายาก</span>
-        <div id="dbRarityChips" class="chip-row"></div>
-      </div>
-      <div class="db-filter-row">
-        <span class="db-label">ซีรีส์</span>
-        <div id="dbSeriesChips" class="chip-row"></div>
+      <!-- ตัวกรองเพิ่มเติม — พับเก็บได้ -->
+      <button type="button" id="dbAdvToggle" class="db-adv-toggle" aria-expanded="false" aria-controls="dbAdvBody">
+        <span>ตัวกรองเพิ่มเติม <small>GEM · POWER · ซิมโบล · เมจิก · ความสามารถ · ความหายาก · ซีรีส์</small></span>
+        <span id="dbAdvCount" class="db-adv-count hidden"></span>
+        <span class="db-filter-chev" aria-hidden="true"></span>
+      </button>
+      <div id="dbAdvBody" class="db-adv-body">
+        <div class="db-filter-row">
+          <span class="db-label">GEM</span>
+          <div id="dbGemChips" class="chip-row"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">POWER</span>
+          <div id="dbPowerChips" class="chip-row"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">สีเจม</span>
+          <div id="dbGemColorChips" class="chip-row"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">ซิมโบล</span>
+          <div id="dbSymbolChips" class="chip-row db-sym-chips"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">เมจิก</span>
+          <div id="dbSubtypeChips" class="chip-row db-sym-chips"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">ความสามารถ</span>
+          <div id="dbKeywordChips" class="chip-row db-kw-chips"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">ความหายาก</span>
+          <div id="dbRarityChips" class="chip-row"></div>
+        </div>
+        <div class="db-filter-row">
+          <span class="db-label">ซีรีส์</span>
+          <div id="dbSeriesChips" class="chip-row"></div>
+        </div>
       </div>
     </div>
   </aside>
@@ -327,28 +336,47 @@
     <aside class="db-deck">
       <div class="db-deck-head">
         <input id="dbName" placeholder="ชื่อเด็ค…" autocomplete="off">
-        <button id="dbSave" class="btn-primary small">บันทึก</button>
+        <button id="dbSave" class="btn-primary small">💾 บันทึก</button>
         <button type="button" id="dbDeckClose" class="btn-mini only-mobile">ปิด</button>
       </div>
+      <!-- สรุปสั้น: จำนวน + สถานะเด็ค -->
+      <div class="db-deck-summary">
+        <div class="db-sum-box"><b id="dbMainCount">0</b><span>/50 MAIN</span></div>
+        <div class="db-sum-box green"><b id="dbLifeCount">0</b><span>/5 LIFE</span></div>
+        <div id="dbStatus" class="db-status"></div>
+      </div>
+      <div class="db-tabs" role="tablist">
+        <button type="button" class="db-tab on" data-tab="list" role="tab" aria-selected="true">การ์ดในเด็ค</button>
+        <button type="button" class="db-tab" data-tab="stats" role="tab" aria-selected="false">สถิติ &amp; กติกา <span id="dbTabBad" class="db-adv-count bad hidden"></span></button>
+      </div>
       <div class="db-deck-body">
-        <div id="dbChecks"></div>
-        <div id="dbCurve" class="db-curve"></div>
-        <div id="dbComp" class="db-comp"></div>
-        <div id="dbColors"></div>
-        <div class="db-sec gold">MAIN DECK · <span id="dbMainCount">0</span>/50</div>
-        <div id="dbMainList"></div>
-        <div class="db-sec green">LIFE CARD · <span id="dbLifeCount">0</span>/5</div>
-        <div id="dbLifeList"></div>
+        <div class="db-pane" data-pane="list">
+          <div id="dbChecksBad"></div>
+          <div class="db-sec gold">MAIN DECK</div>
+          <div id="dbMainList"></div>
+          <div class="db-sec green">LIFE CARD</div>
+          <div id="dbLifeList"></div>
+        </div>
+        <div class="db-pane hidden" data-pane="stats">
+          <div class="db-comp-label">ตรวจกติกา</div>
+          <div id="dbChecks"></div>
+          <div class="db-comp-label">COST CURVE (MAIN)</div>
+          <div id="dbCurve" class="db-curve"></div>
+          <div class="db-comp-label">ประเภทการ์ด</div>
+          <div id="dbComp" class="db-comp"></div>
+          <div id="dbColors"></div>
+        </div>
       </div>
       <div class="db-deck-foot">
-        <div class="row-2">
-          <select id="dbFillStarter" class="small" style="display:none;">
-            <option value="SD01">SD01 Starter</option>
-          </select>
-          <button id="dbFillSD01" class="btn-dark small" style="display:none;">ใส่เด็คตัวอย่าง</button>
-          <button id="dbClearDeck" class="btn-dark small">ล้างเด็ค</button>
+        <div class="db-foot-row">
+          <button id="dbImport" class="btn-dark small" title="วางรหัสเด็คจาก bottcg.com หรือที่ export ไว้">⬇ Import</button>
+          <button id="dbExport" class="btn-dark small" title="คัดลอกรหัสเด็คไปแชร์">⬆ Export</button>
+          <button id="dbClearDeck" class="btn-dark small db-danger" title="เอาการ์ดออกจากเด็คทั้งหมด">🗑 ล้างเด็ค</button>
         </div>
-        <div class="row-2"><button id="dbExport" class="btn-dark small">Export โค้ด</button><button id="dbImport" class="btn-dark small">Import โค้ด</button></div>
+        <div class="row-2" style="display:none">
+          <select id="dbFillStarter" class="small"><option value="SD01">SD01 Starter</option></select>
+          <button id="dbFillSD01" class="btn-dark small">ใส่เด็คตัวอย่าง</button>
+        </div>
         <div id="dbMsg" class="db-msg"></div>
       </div>
     </aside>

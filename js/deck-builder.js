@@ -431,7 +431,7 @@
     // แผงเด็คขวา
     const { m: mainCount, l: lifeCount } = counts();
     byId('dbMainCount').textContent = mainCount; byId('dbLifeCount').textContent = lifeCount;
-    byId('dbDeckBtn').textContent = `เด็ค ${mainCount}/50`;
+    byId('dbDeckBtn').textContent = `เด็ค ${mainCount}/50 · ${lifeCount}/5`;
     // ★ ตรวจลิมิตต่อชื่อ ครอบคลุมทั้ง Main และ LIFE (เดิมสแกนแค่ main + นับต่อรหัส)
     const overNames = Object.entries(perNameCounts(DB.deck)).filter(([, v]) => v.n > v.lim);
     const allCodes = Object.keys({ ...DB.deck.main, ...DB.deck.life });
@@ -460,8 +460,25 @@
         || Object.keys(DB.deck.life).some(k => nameOf(k) === nm));
       if (have.length > 1) checks.push([false, `เลือกใส่ได้อย่างเดียว: ${pair.join(' หรือ ')}`]);
     });
-    byId('dbChecks').innerHTML = checks.map(([ok, label, warn]) =>
-      `<div class="db-check ${ok ? 'ok' : warn ? 'warn' : 'bad'}">${ok ? '✓' : warn ? '!' : '✗'} ${esc(label)}</div>`).join('');
+    const checkHtml = ([ok, label, warn]) =>
+      `<div class="db-check ${ok ? 'ok' : warn ? 'warn' : 'bad'}">${ok ? '✓' : warn ? '!' : '✗'} ${esc(label)}</div>`;
+    byId('dbChecks').innerHTML = checks.map(checkHtml).join('');
+    // แท็บรายการการ์ด: โชว์เฉพาะข้อที่ยังไม่ผ่าน (ไม่ต้องสลับแท็บก็เห็นปัญหา)
+    const badChecks = checks.filter(([ok]) => !ok);
+    const errCount = badChecks.filter(([, , warn]) => !warn).length;
+    byId('dbChecksBad').innerHTML = badChecks.length && (mainCount || lifeCount)
+      ? `<div class="db-checks-bad">${badChecks.map(checkHtml).join('')}</div>` : '';
+    const st = byId('dbStatus');
+    if (!mainCount && !lifeCount) { st.className = 'db-status'; st.textContent = 'เริ่มเพิ่มการ์ดจากซ้าย'; }
+    else if (!errCount) { st.className = 'db-status ok'; st.textContent = badChecks.length ? '✓ ถูกกติกา (มีคำเตือน)' : '✓ พร้อมเล่น'; }
+    else { st.className = 'db-status bad'; st.textContent = `✗ ยังไม่ครบ ${errCount} ข้อ`; }
+    byId('dbTabBad').textContent = errCount || '';
+    byId('dbTabBad').classList.toggle('hidden', !errCount);
+    byId('dbMainCount').parentElement.classList.toggle('done', mainCount === 50);
+    byId('dbLifeCount').parentElement.classList.toggle('done', lifeCount === 5);
+    byId('dbMainCount').parentElement.classList.toggle('over', mainCount > 50);
+    byId('dbLifeCount').parentElement.classList.toggle('over', lifeCount > 5);
+    renderFilterCounts();
 
     // cost curve
     const curve = [0, 1, 2, 3, 4, 5, 6, 7, '8+'].map(v => {
@@ -500,9 +517,53 @@
     };
     byId('dbMainList').innerHTML = groupedSpec(DB.deck.main).map(g =>
       `<div class="db-group-h">${esc(g.label)} · ${g.total}</div><div class="db-deck-cards">` + g.items.map(([k, n]) => entry(k, n)).join('') + `</div>`
-    ).join('');
-    byId('dbLifeList').innerHTML = `<div class="db-deck-cards">` + Object.entries(DB.deck.life).map(([k, n]) => entry(k, n)).join('') + `</div>`;
+    ).join('') || `<div class="db-empty-hint">ยังไม่มีการ์ด — กด <b>+</b> ที่การ์ดด้านซ้าย หรือ Import โค้ดเด็ค</div>`;
+    byId('dbLifeList').innerHTML = lifeCount
+      ? `<div class="db-deck-cards">` + Object.entries(DB.deck.life).map(([k, n]) => entry(k, n)).join('') + `</div>`
+      : `<div class="db-empty-hint">ยังไม่มี LIFE Card — กรองประเภท “Life” แล้วเพิ่ม 5 ใบ</div>`;
   }
+
+  /* จำนวนตัวกรองที่เปิดอยู่ — โชว์ที่หัวตัวกรอง / ปุ่มมือถือ / หัวตัวกรองเพิ่มเติม */
+  function renderFilterCounts() {
+    const main = [DB.q.trim(), DB.type, DB.color, DB.cost].filter(Boolean).length;
+    const adv = [DB.gem, DB.power, DB.gemColor, DB.symbol, DB.subtype, DB.keyword, DB.rarity].filter(Boolean).length + (DB.series && DB.series.length ? 1 : 0);
+    const set = (id, n) => { const el = byId(id); if (!el) return; el.textContent = n || ''; el.classList.toggle('hidden', !n); };
+    set('dbFilterCount', main + adv);
+    set('dbAdvCount', adv);
+    byId('dbFiltersBtn').textContent = main + adv ? `ฟิลเตอร์ (${main + adv})` : 'ฟิลเตอร์';
+    byId('dbClear').disabled = !(main + adv);
+  }
+
+  /* แท็บแผงเด็ค: การ์ดในเด็ค / สถิติ & กติกา */
+  function setDeckTab(tab) {
+    document.querySelectorAll('#deckbuilder .db-tab').forEach(b => {
+      const on = b.dataset.tab === tab;
+      b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('#deckbuilder .db-pane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== tab));
+    try { localStorage.setItem('bot_db_tab', tab); } catch (err) { }
+  }
+  document.querySelector('#deckbuilder .db-tabs').addEventListener('click', e => {
+    const b = e.target.closest('.db-tab'); if (b) setDeckTab(b.dataset.tab);
+  });
+  try { const t = localStorage.getItem('bot_db_tab'); if (t === 'stats') setDeckTab('stats'); } catch (err) { }
+
+  /* ตัวกรองเพิ่มเติม — พับ/กาง (จำค่าไว้) · กางอัตโนมัติถ้ามีตัวกรองขั้นสูงเปิดอยู่ */
+  function applyAdvFold(open) {
+    byId('dbAdvBody').classList.toggle('hidden', !open);
+    byId('dbAdvToggle').classList.toggle('open', open);
+    byId('dbAdvToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  (function initAdvFold() {
+    let open = false;
+    try { open = localStorage.getItem('bot_db_adv_open') === '1'; } catch (err) { }
+    applyAdvFold(open);
+  })();
+  byId('dbAdvToggle').onclick = () => {
+    const open = byId('dbAdvBody').classList.contains('hidden');
+    applyAdvFold(open);
+    try { localStorage.setItem('bot_db_adv_open', open ? '1' : '0'); } catch (err) { }
+  };
 
   /* events — deck builder */
   byId('dbBack').onclick = () => { closeDbDrawers(); BOT.showScreen('decks'); window.openDeckList(); };
@@ -669,7 +730,12 @@
     BOT.showScreen('decks');
     window.openDeckList();
   };
-  byId('dbClearDeck').onclick = () => { DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB(); };
+  byId('dbClearDeck').onclick = () => {
+    const { m, l } = counts();
+    if (!m && !l) { msg('เด็คว่างอยู่แล้ว'); return; }
+    if (!confirm(`ล้างการ์ดทั้งหมดในเด็ค (${m} + ${l} ใบ)?`)) return;
+    DB.deck = { main: {}, life: {} }; msg('ล้างเด็คแล้ว'); renderDB();
+  };
   let STARTERS_DB = null, startersP = null;
   function fillStarterSelect(db) {
     const sel = byId('dbFillStarter');

@@ -223,6 +223,43 @@
 
 .db-drawer-mask{display:none}
 
+/* ── จัดเด็ค: จัดระเบียบใหม่ ── */
+.db-adv-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;line-height:1;vertical-align:1px}
+.db-adv-count.bad{background:var(--red-lite,#e05a4a)}
+.db-adv-toggle{display:flex;align-items:center;gap:8px;width:100%;margin:2px 0 0;padding:6px 10px;background:rgba(0,0,0,.18);border:1px dashed var(--border);border-radius:7px;color:var(--cream2);font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:left;min-width:0}
+.db-adv-toggle > span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.db-adv-toggle small{font-weight:400;color:var(--dim);margin-left:6px}
+.db-adv-toggle:hover{color:#fff;border-color:var(--cream2)}
+.db-adv-toggle .db-filter-chev{transform:rotate(-90deg)}
+.db-adv-toggle.open .db-filter-chev{transform:none}
+.db-adv-body{display:flex;flex-direction:column;gap:7px;padding:4px 0 0 10px;border-left:2px solid var(--border);max-height:38vh;overflow-y:auto}
+.db-label{min-width:62px}
+#dbClear:disabled{opacity:.4;cursor:default}
+
+.db-deck-summary{flex:none;display:flex;align-items:stretch;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border)}
+.db-sum-box{display:flex;align-items:baseline;gap:3px;padding:4px 10px;background:var(--card-ui);border:1px solid var(--border);border-radius:7px;font-family:'IBM Plex Sans Thai',sans-serif}
+.db-sum-box b{font-size:18px;color:var(--gold);line-height:1.1}
+.db-sum-box span{font-size:10.5px;color:var(--dim);font-weight:600}
+.db-sum-box.green b{color:#7fbf8f}
+.db-sum-box.done{border-color:#4f9a64;background:rgba(79,154,100,.14)}
+.db-sum-box.over{border-color:var(--red-lite,#e05a4a)}
+.db-sum-box.over b{color:var(--red-lite,#e05a4a)}
+.db-status{flex:1;display:flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:7px;font-size:11.5px;font-weight:700;color:var(--dim);background:rgba(0,0,0,.18);text-align:center;min-width:0}
+.db-status.ok{color:#7fbf8f;background:rgba(79,154,100,.14)}
+.db-status.bad{color:var(--red-lite,#e05a4a);background:rgba(192,57,43,.14)}
+
+.db-tabs{flex:none;display:flex;border-bottom:1px solid var(--border)}
+.db-tab{flex:1;padding:8px 6px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--dim);font-family:'IBM Plex Sans Thai',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer}
+.db-tab:hover{color:var(--cream)}
+.db-tab.on{color:var(--gold);border-bottom-color:var(--gold)}
+.db-pane{display:flex;flex-direction:column;gap:8px}
+.db-checks-bad{display:flex;flex-direction:column;gap:3px;padding:7px 9px;border-radius:7px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.35)}
+.db-empty-hint{font-size:11.5px;color:var(--dim);padding:10px;border:1px dashed var(--border);border-radius:7px;text-align:center}
+.db-foot-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.db-foot-row button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px;padding-right:4px}
+.db-danger:hover{background:#a93226!important;color:#fff!important}
+.db-sec{margin-top:2px}
+
 @media (max-width:920px){
   .screen-page .db-top{position:relative;z-index:160;gap:6px;padding:0 8px}
   .screen-page .db-top .brand,.screen-page .db-top .room-info{display:none}
@@ -236,6 +273,8 @@
   .db-side{position:fixed;left:0;top:42px;bottom:0;z-index:150;width:min(84vw,300px);transform:translateX(-105%);transition:transform .2s,visibility .2s;box-shadow:8px 0 24px rgba(0,0,0,.5);border-bottom:none;overflow-y:auto;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));pointer-events:none;visibility:hidden}
   .db-side.open{transform:none;pointer-events:auto;visibility:visible}
   .db-filter-row{flex-wrap:wrap}
+  .db-adv-body{max-height:none;overflow:visible}
+  .db-adv-toggle small{display:none}
   .db-deck{position:fixed;right:0;top:42px;bottom:0;z-index:150;width:min(92vw,420px);transform:translateX(105%);transition:transform .2s,visibility .2s;box-shadow:-8px 0 24px rgba(0,0,0,.5);pointer-events:none;visibility:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
   .db-deck.open{transform:none;pointer-events:auto;visibility:visible}
   .db-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
