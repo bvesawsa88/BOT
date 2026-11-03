@@ -321,6 +321,62 @@ function sanitizeCounts(obj) {
   return out;
 }
 
+/* เซฟโหมดผจญภัย — ตัวเลขจำกัดช่วง · stars/rolls เป็น map เลขด่าน→จำนวน */
+function sanitizeCampaign(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const int = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.floor(+v) || 0));
+  const intMap = (m, hi) => {
+    const o = {};
+    if (!m || typeof m !== 'object' || Array.isArray(m)) return o;
+    for (const k of Object.keys(m).slice(0, 5000)) {
+      const n = Math.floor(+k);
+      if (!(n >= 1 && n <= 100000)) continue;
+      const v = int(m[k], 0, hi);
+      if (v) o[n] = v;
+    }
+    return o;
+  };
+  return {
+    v: 1,
+    stage: int(raw.stage, 1, 100000),
+    best: int(raw.best, 0, 100000),
+    xp: int(raw.xp, 0, 1e9),
+    level: int(raw.level, 1, 100000),
+    wins: int(raw.wins, 0, 1e9),
+    losses: int(raw.losses, 0, 1e9),
+    streak: int(raw.streak, 0, 1e6),
+    bestStreak: int(raw.bestStreak, 0, 1e6),
+    stars: intMap(raw.stars, 3),
+    rolls: intMap(raw.rolls, 1e6),
+    salt: String(raw.salt || '').replace(/[^a-z0-9]/gi, '').slice(0, 16),
+    deck: String(raw.deck || '').slice(0, 80),
+    t: int(raw.t, 0, 1e15),
+  };
+}
+
+/* รวมเซฟ 2 ชุดโดยไม่ให้ความคืบหน้าถอยหลัง (เครื่องเก่าที่ค้างอยู่ส่งมาทับไม่ได้) */
+function mergeCampaign(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  const games = (p) => (p.wins || 0) + (p.losses || 0);
+  const lead = (games(b) > games(a) || (games(b) === games(a) && (b.t || 0) >= (a.t || 0))) ? b : a;
+  const other = lead === a ? b : a;
+  const out = Object.assign({}, lead);
+  const lvA = (a.level || 1) * 1e9 + (a.xp || 0), lvB = (b.level || 1) * 1e9 + (b.xp || 0);
+  const lv = lvB >= lvA ? b : a;
+  out.level = lv.level; out.xp = lv.xp;
+  out.stage = Math.max(a.stage || 1, b.stage || 1);
+  out.best = Math.max(a.best || 0, b.best || 0);
+  out.wins = Math.max(a.wins || 0, b.wins || 0);
+  out.losses = Math.max(a.losses || 0, b.losses || 0);
+  out.bestStreak = Math.max(a.bestStreak || 0, b.bestStreak || 0);
+  out.stars = Object.assign({}, other.stars);
+  for (const k of Object.keys(lead.stars || {})) out.stars[k] = Math.max(out.stars[k] || 0, lead.stars[k]);
+  out.rolls = Object.assign({}, other.rolls, lead.rolls);
+  out.salt = a.salt || b.salt; // ใช้ salt เดิมของบัญชี — ด่านจะไม่สุ่มเปลี่ยน
+  return out;
+}
+
 function sanitizeDecks(raw, maxLimit) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const out = {};
@@ -705,6 +761,40 @@ async function handleAuth(req, res, urlPath) {
         json(res, 200, { ok: true, maxDecks: maxLimit });
       } catch (e) {
         console.error('[auth]', e.message || e);
+        json(res, 500, { ok: false, error: 'server error' });
+      }
+      return;
+    }
+    json(res, 405, { ok: false, error: 'method not allowed' });
+    return;
+  }
+
+  /* ความคืบหน้าโหมดผจญภัย (Campaign) — เก็บในบัญชีเพื่อเล่นต่อข้ามเครื่อง */
+  if (route === '/auth/campaign') {
+    const token = bearer(req);
+    const hit = findByToken(loadUsers(), token);
+    if (!hit) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+    if (req.method === 'GET') {
+      json(res, 200, { ok: true, campaign: hit.user.campaign || null });
+      return;
+    }
+    if (req.method === 'PUT') {
+      let body;
+      try { body = JSON.parse(await readBody(req, 131072) || '{}'); }
+      catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
+      const inc = sanitizeCampaign(body.campaign);
+      if (!inc) { json(res, 400, { ok: false, error: 'invalid campaign' }); return; }
+      try {
+        const out = await mutateUsers((users2) => {
+          const h = findByToken(users2, token);
+          if (!h) return null;
+          h.user.campaign = mergeCampaign(h.user.campaign, inc);
+          return h.user.campaign;
+        });
+        if (!out) { json(res, 401, { ok: false, error: 'ยังไม่ได้เข้าสู่ระบบ' }); return; }
+        json(res, 200, { ok: true, campaign: out });
+      } catch (e) {
+        console.error('[auth/campaign]', e.message || e);
         json(res, 500, { ok: false, error: 'server error' });
       }
       return;

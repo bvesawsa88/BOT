@@ -7449,7 +7449,35 @@
     try { return CP.normalize(JSON.parse(localStorage.getItem(cpKey()) || 'null')); }
     catch (e) { return CP.normalize(null); }
   }
-  function cpSave() { try { localStorage.setItem(cpKey(), JSON.stringify(cpProg)); } catch (e) { } }
+  function cpSaveLocal() { try { localStorage.setItem(cpKey(), JSON.stringify(cpProg)); } catch (e) { } }
+  function cpSave() {
+    if (cpProg) cpProg.t = Date.now();
+    cpSaveLocal();
+    cpPushSoon();
+  }
+  /* ซิงก์เซฟกับบัญชี (/auth/campaign) — เซิร์ฟเวอร์รวมเซฟแบบไม่ให้ถอยหลังแล้วส่งกลับ */
+  let cpPushTimer = 0;
+  function cpPushSoon() {
+    clearTimeout(cpPushTimer);
+    cpPushTimer = setTimeout(() => { cpSync(); }, 800);
+  }
+  function cpSync() {
+    const t = getAuthToken();
+    if (!t || !cpProg || !CP) return Promise.resolve(false);
+    const key = cpKey();
+    return fetch('/auth/campaign', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
+      body: JSON.stringify({ campaign: cpProg }),
+    }).then(r => r.ok ? r.json() : null).then(j => {
+      if (!j || !j.ok || !j.campaign || key !== cpKey()) return false;
+      const keepDeck = cpProg.deck;
+      cpProg = CP.normalize(j.campaign);
+      if (keepDeck) cpProg.deck = keepDeck;
+      cpSaveLocal();
+      return true;
+    }).catch(() => false);
+  }
   /* เด็คชุมชนจาก bottcg.com/decks/public (sync ด้วย tools/sync-public-decks.js) */
   function loadPublicDecks() {
     if (publicDecks) return Promise.resolve(publicDecks);
@@ -7662,7 +7690,16 @@
     cpRenderSheet();
     requestAnimationFrame(cpScrollToSel);
     byId('cpFight').disabled = true;
-    cpPrep().then(() => {
+    const synced = cpSync().then(ok => {
+      if (!ok || cpActive() || byId('campaign').classList.contains('hidden')) return;
+      cpView.sel = cpProg.stage;
+      cpView.chapter = Math.floor((cpProg.stage - 1) / 10);
+      cpRenderHeader();
+      cpRenderMap();
+      cpRenderSheet();
+      requestAnimationFrame(cpScrollToSel);
+    });
+    Promise.all([cpPrep(), synced]).then(() => {
       cpFillDeckSelect();
       cpRenderSheet();
       byId('cpFight').disabled = false;
