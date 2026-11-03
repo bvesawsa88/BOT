@@ -78,8 +78,38 @@ const pc = C.normalize(null);
 for (let n = 1; n <= 10; n++) var rc = C.applyResult(pc, n, true, 0, C.stageInfo(n, pc.salt));
 ok(rc.chapterBonus > 0 && pc.stage === 11, 'chapter clear bonus at stage 10');
 
+// เด็คชุมชน bottcg.com
+const pubFile = path.join(__dirname, '../data/public-decks.json');
+const pub = fs.existsSync(pubFile) ? JSON.parse(fs.readFileSync(pubFile, 'utf8')).decks : [];
+ok(pub.length >= 50, 'community decks synced: ' + pub.length);
+const pubBad = pub.filter(d => C.validateDeck(d, cards, rules).some(e => !/^PR /.test(e)));
+ok(pubBad.length === 0, 'all community decks legal (50+5, Only#1, limits, ban)');
+const pickKinds = { boss: 0, mono: 0, tribe: 0, legend: 0, normal: 0 };
+for (let i = 0; i < 400; i++) {
+  const info = C.stageInfo(1 + (i % 40), 'pub' + i);
+  const d = C.pickPublicDeck(pub, info, C.makeRng(i + 1));
+  if (!d) { if (info.boss || info.kind === 'elite' || info.kind === 'legend') fail('strong stage got no community deck'); continue; }
+  if (info.kind === 'mono' && d.colors.length !== 1) fail('mono stage picked multi-color deck');
+  if (info.kind === 'tribe' && !d.tribe) fail('tribe stage picked deck without tribe');
+  if (pickKinds[info.kind] != null) pickKinds[info.kind]++;
+}
+ok(pickKinds.boss > 0 && pickKinds.mono > 0 && pickKinds.tribe > 0 && pickKinds.normal > 0, 'community decks match stage kinds ' + JSON.stringify(pickKinds));
+const bossPicks = new Set();
+for (let i = 0; i < 200; i++) { const d = C.pickPublicDeck(pub, C.stageInfo(10, 'b' + i), C.makeRng(i + 9)); bossPicks.add(d.id); }
+const topIds = new Set(pub.slice(0, Math.ceil(pub.length * 0.1)).map(d => d.id));
+ok([...bossPicks].every(id => topIds.has(id)), 'big boss uses top-10% liked decks');
+
 const t0 = Date.now();
 let finished = 0;
+for (let g = 0; g < 4; g++) {
+  const A = pub[(g * 37) % pub.length], B = pub[(g * 53 + 11) % pub.length];
+  const res = U.playGame(cards, { A, B }, { seed: 300 + g, maxSteps: 700, maxTurns: 30 });
+  console.log('  community game', g, A.name, 'vs', B.name, '→', res.over ? 'winner ' + res.winner : 'cap', 'turn', res.turns, 'steps', res.steps);
+  if (res.steps < 10) fail('community game ' + g + ' stalled');
+  if (res.over) finished++;
+}
+ok(finished >= 2, `community self-play finished ${finished}/4`);
+finished = 0;
 for (let g = 0; g < 6; g++) {
   const A = C.generateDeck(cards, { rng: C.makeRng(77 + g), effectOf, rules, tier: 0.5 });
   const B = C.generateDeck(cards, { rng: C.makeRng(177 + g), effectOf, rules, tier: 0.8 });

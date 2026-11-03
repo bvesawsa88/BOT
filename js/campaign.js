@@ -420,6 +420,47 @@
     return { n, seed, boss, bigBoss, kind, level, tier, style, name, xp, chapter: chapterInfo(n) };
   }
 
+  /* โปรไฟล์เด็ค: สีหลัก · เผ่าเด่น · Cost เฉลี่ย · การ์ดเด่น */
+  function deckProfile(deck, byCode, rules) {
+    const col = {}, sym = {};
+    let cost = 0, nAv = 0, ace = null, aceScore = -1;
+    Object.entries(deck.main || {}).forEach(([k, n]) => {
+      const c = byCode[k];
+      if (!c || c.type !== 'Avatar') return;
+      nAv += n; cost += (+c.cost || 0) * n;
+      if (c.color) col[c.color] = (col[c.color] || 0) + n;
+      symbolsOf(c).forEach(s => { sym[s] = (sym[s] || 0) + n; });
+      const sc = (rules && rules.isOnly(c) ? 100 : 0) + (+c.cost || 0) * 3 + (+c.power || 0);
+      if (sc > aceScore) { aceScore = sc; ace = c.code; }
+    });
+    const colors = Object.entries(col).sort((a, b) => b[1] - a[1]).filter(([, n]) => n >= 6).map(([c]) => c);
+    const topSym = Object.entries(sym).sort((a, b) => b[1] - a[1])[0];
+    return {
+      colors, ace,
+      tribe: topSym && topSym[1] >= 12 ? topSym[0] : '',
+      avgCost: nAv ? Math.round(cost / nAv * 100) / 100 : 0,
+    };
+  }
+
+  /* เลือกเด็คชุมชน (bottcg.com) ให้ตรงประเภทด่าน — คืน null = ใช้เด็คสุ่มแทน
+     decks เรียงตามยอดไลก์มาก→น้อย · บอส/เอลีท/ตำนาน หยิบจากกลุ่มไลก์สูง */
+  function pickPublicDeck(decks, info, rng) {
+    if (!decks || !decks.length) return null;
+    const k = info.kind;
+    const strong = k === 'boss' || k === 'bigBoss' || k === 'elite' || k === 'legend';
+    if (!strong && rng() >= 0.75) return null;
+    let cands = decks;
+    if (k === 'mono') cands = decks.filter(d => d.colors && d.colors.length === 1);
+    else if (k === 'tribe') cands = decks.filter(d => d.tribe);
+    else if (k === 'rush') cands = decks.filter(d => d.avgCost && d.avgCost <= 2.2);
+    if (!cands.length) return strong ? pick(rng, decks) : null;
+    if (strong) {
+      const frac = k === 'bigBoss' ? 0.1 : k === 'boss' ? 0.2 : 0.35;
+      cands = cands.slice(0, Math.max(3, Math.ceil(cands.length * frac)));
+    }
+    return pick(rng, cands);
+  }
+
   function starsFor(lifeLost, turns) {
     if (lifeLost <= 1) return 3;
     if (lifeLost <= 3) return 2;
@@ -473,7 +514,7 @@
 
   return {
     makeRng, hashStr, makeRules, preparePool, uniqueByCode, playable, generateDeck, validateDeck,
-    stageInfo, chapterInfo, starsFor, xpNeed, defaultProgress, normalize, applyResult,
+    stageInfo, chapterInfo, deckProfile, pickPublicDeck, starsFor, xpNeed, defaultProgress, normalize, applyResult,
     COLORS, COLOR_META, STYLES, LEVEL_META, KIND_META,
   };
 });

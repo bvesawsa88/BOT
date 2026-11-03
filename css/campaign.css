@@ -173,3 +173,7 @@
   .cp-actions{margin-top:8px}
   .cp-deck-row{margin-top:8px}
 }
+.cp-community{font-size:12px;color:var(--cp-dim);line-height:1.4}
+.cp-community b{color:var(--cp-text)}
+.cp-community a{color:#9fe6ff;text-decoration:none;white-space:nowrap}
+.cp-community a:hover{text-decoration:underline}

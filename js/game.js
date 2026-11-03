@@ -56,6 +56,16 @@
 
   function resolveDeckChoice(val) {
     if (!val) val = 'SD01';
+    // 🌐 เด็คชุมชน bottcg.com — public:random = สุ่มใหม่ทุกครั้ง · public:<uuid> = เด็คนั้น
+    if (val.indexOf('public:') === 0 && publicDecks && publicDecks.length) {
+      const id = val.slice(7);
+      const d = id === 'random' ? publicDecks[Math.floor(Math.random() * publicDecks.length)] : publicDeckById(id);
+      if (d) return {
+        name: d.name + (d.by ? ' (โดย ' + d.by + ')' : ''),
+        spec: { main: Object.assign({}, d.main), life: Object.assign({}, d.life) },
+      };
+      val = 'SD01';
+    }
     const key = val.replace(/^starter:/, '');
     try {
       const sv = CardDB.savedDecks();
@@ -129,6 +139,7 @@
   let soloBot = false;  // true = โหมดเล่นกับบอท (ฝั่ง B เป็น AI) · false = ซ้อมมือคุมสองฝั่ง
   let botLevel = 'normal'; // easy | normal | hard | nightmare
   try { botLevel = localStorage.getItem('bot_level') || 'normal'; } catch (e) { }
+  let publicDecks = null, publicDecksP = null; // 🌐 เด็คชุมชน bottcg.com (โหลดตอนใช้)
   let campaignRun = null; // ⚔️ โหมดผจญภัย: ด่านที่กำลังแข่ง (ผูกกับ st.campaign)
   function getBotLevel() {
     if (campaignRun && campaignRun.level) return campaignRun.level;
@@ -2192,7 +2203,7 @@
       opts = `<option value="starter:ป่าพงไพร">ป่าพงไพร</option>`;
     }
 
-    const ok = v => v && (saved[v] || (v.indexOf('starter:') === 0 && STARTERS && STARTERS[v.slice(8)]) || (STARTERS && STARTERS[v]));
+    const ok = v => v && ((v.indexOf('public:') === 0 && v === 'public:random') || saved[v] || (v.indexOf('starter:') === 0 && STARTERS && STARTERS[v.slice(8)]) || (STARTERS && STARTERS[v]));
     let act = names.length ? names[0] : (presetKeys.length ? 'starter:' + presetKeys[0] : 'starter:ป่าพงไพร');
     let opp = presetKeys.includes('ธอร์อีสาน') ? 'starter:ธอร์อีสาน' : (presetKeys.includes('ป่าพงไพร') ? 'starter:ป่าพงไพร' : (names.length ? names[0] : 'starter:ป่าพงไพร'));
     try {
@@ -2212,6 +2223,16 @@
       if (ok(opp)) botBot.value = opp;
       else if (names.length) botBot.value = names[0];
       updateBotDeckHint();
+      loadPublicDecks().then(list => {
+        if (!list.length || botBot.querySelector('optgroup[data-public]')) return;
+        const top = list.slice(0, 40).map(d =>
+          `<option value="public:${esc(d.id)}">🌐 ${esc(d.name)}${d.by ? ' · ' + esc(d.by) : ''} ❤️${d.likes}</option>`).join('');
+        botBot.insertAdjacentHTML('afterbegin', `<optgroup data-public label="เด็คชุมชน bottcg.com (${list.length} เด็ค)">
+          <option value="public:random">🎲 สุ่มเด็คชุมชน — เปลี่ยนทุกเกม</option>${top}</optgroup>`);
+        let want = '';
+        try { want = localStorage.getItem('bot_opp_deck') || ''; } catch (e) { }
+        if (want.indexOf('public:') === 0) { botBot.value = want; if (botBot.value !== want) botBot.value = 'public:random'; }
+      });
     }
   }
   function selectedDeck() {
@@ -7368,7 +7389,7 @@
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   }
   function startBotMatch() {
-    Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
+    Promise.all([ensurePlayReady(), CardDB.load(), loadPublicDecks()]).then(([, db]) => {
       if (window.BotAnalytics) window.BotAnalytics.trackEvent('play_bot', 'เล่นกับบอท (' + (getBotLevel() || 'normal') + ')');
       soloCards = db.cards || db.all;
       setBotLevel(getBotLevel());
@@ -7425,8 +7446,18 @@
     catch (e) { return CP.normalize(null); }
   }
   function cpSave() { try { localStorage.setItem(cpKey(), JSON.stringify(cpProg)); } catch (e) { } }
+  /* เด็คชุมชนจาก bottcg.com/decks/public (sync ด้วย tools/sync-public-decks.js) */
+  function loadPublicDecks() {
+    if (publicDecks) return Promise.resolve(publicDecks);
+    if (publicDecksP) return publicDecksP;
+    publicDecksP = fetch(asset('data/public-decks.json')).then(r => r.ok ? r.json() : null)
+      .then(j => (publicDecks = (j && Array.isArray(j.decks)) ? j.decks : []))
+      .catch(() => (publicDecks = []));
+    return publicDecksP;
+  }
+  function publicDeckById(id) { return (publicDecks || []).find(d => d.id === id) || null; }
   function cpPrep() {
-    return Promise.all([ensurePlayReady(), CardDB.load()]).then(([, db]) => {
+    return Promise.all([ensurePlayReady(), CardDB.load(), loadPublicDecks()]).then(([, db]) => {
       cpDB = db;
       soloCards = db.all;
       if (!cpRules) cpRules = CP.makeRules(db.all, db.ban);
@@ -7458,7 +7489,8 @@
     if (cpOppCache[key]) return cpOppCache[key];
     const info = CP.stageInfo(n, cpProg.salt, roll);
     const rng = CP.makeRng((info.seed ^ 0x9e3779b9) >>> 0);
-    let deck, deckName, prof, theme = '';
+    let deck, deckName, prof, theme = '', community = null;
+    const pub = CP.pickPublicDeck(publicDecks, info, rng);
     const curated = info.boss ? Object.keys(STARTERS || {}).filter(k => {
       const d = STARTERS[k];
       return d && cpSum(d.main) === 50 && cpSum(d.life) === 5;
@@ -7467,7 +7499,17 @@
       const d = STARTERS[k];
       return d && cpSum(d.main) === 50 && cpSum(d.life) === 5;
     }).sort());
-    if (curated.length && (info.kind === 'legend' || rng() < 0.7)) {
+    if (pub) {
+      deck = { main: Object.assign({}, pub.main), life: Object.assign({}, pub.life) };
+      deckName = pub.name;
+      prof = cpDeckProfile(deck);
+      if (pub.cover && cpDB.lookup(pub.cover)) {
+        const cv = cpDB.lookup(pub.cover);
+        prof.ace = { code: cv.code, name: cv.name, image: cpCardImg(cv.code) };
+      }
+      theme = pub.tribe || '';
+      community = { id: pub.id, by: pub.by, likes: pub.likes, views: pub.views };
+    } else if (curated.length && (info.kind === 'legend' || rng() < 0.7)) {
       const k = curated[Math.floor(rng() * curated.length)];
       const d = STARTERS[k];
       deck = { main: Object.assign({}, d.main), life: Object.assign({}, d.life) };
@@ -7483,7 +7525,7 @@
       prof = { colors: g.colors, ace: g.ace ? { code: g.ace.code, name: g.ace.name, image: cpCardImg(g.ace.code) } : null };
       deckName = 'เด็ค' + g.colors.join('/') + (theme ? ' · เผ่า' + theme : '');
     }
-    return (cpOppCache[key] = { info, roll, deck, deckName, colors: prof.colors, ace: prof.ace, theme });
+    return (cpOppCache[key] = { info, roll, deck, deckName, colors: prof.colors, ace: prof.ace, theme, community });
   }
 
   function cpRenderHeader() {
@@ -7578,9 +7620,11 @@
         ${km.icon ? `<div class="cp-kind"><b>${km.icon} ${esc(km.label)}</b> — ${esc(km.desc)}</div>` : ''}
         <div class="cp-tags">
           <span class="cp-tag" title="ระดับความฉลาดบอท"><span class="cp-pips">${pips}</span>${esc(lv.label)}</span>
-          ${sty && !info.boss && info.kind !== 'legend' ? `<span class="cp-tag">${sty.icon} ${esc(sty.label)}</span>` : ''}
+          ${sty && !info.boss && info.kind !== 'legend' && !o.community ? `<span class="cp-tag">${sty.icon} ${esc(sty.label)}</span>` : ''}
           <span class="cp-tag">${cpGems(o.colors)} ${esc(o.deckName)}</span>
         </div>
+        ${o.community ? `<div class="cp-community">🌐 เด็คชุมชน${o.community.by ? ' โดย <b>' + esc(o.community.by) + '</b>' : ''} · ❤️ ${o.community.likes} · 👁 ${o.community.views}
+          · <a href="https://bottcg.com/decks/${encodeURIComponent(o.community.id)}" target="_blank" rel="noopener noreferrer">ดูเด็ค ↗</a></div>` : ''}
         <div class="cp-reward">${xpTxt}${o.ace ? ` · การ์ดเด่น: ${esc(o.ace.name)}` : ''}</div>
       </div>`;
     byId('cpFight').textContent = info.boss ? '👑 ท้าบอส!' : '⚔️ สู้เลย!';
@@ -7661,6 +7705,7 @@
       return cpShowVs(you, o).then(() => {
         campaignRun = {
           stage: n, roll: o.roll, level: o.info.level, name: o.info.name, deckName: o.deckName,
+          deckBy: (o.community && o.community.by) || '',
           youName: you.name, youDeck: you.spec, done: false, res: null,
         };
         mode = 'solo'; seat = 'A'; my = 'A'; opp = 'B'; realMode = false; soloBot = true;
@@ -7695,7 +7740,7 @@
     }
     const r = run.res;
     byId('endTitle').innerHTML = r.won ? `ผ่านด่าน ${run.stage}! 🎉` : `แพ้ด่าน ${run.stage}`;
-    byId('endSub').textContent = `🤖 ${run.name} · ${run.deckName}`;
+    byId('endSub').textContent = `🤖 ${run.name} · ${run.deckName}${run.deckBy ? ' (เด็คโดย ' + run.deckBy + ')' : ''}`;
     const stars = [1, 2, 3].map(i => `<span>★</span>`).join('');
     byId('cpResult').innerHTML = `
       ${r.won ? `<div class="cp-res-stars">${stars}</div>` : ''}
