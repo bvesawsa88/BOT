@@ -1071,7 +1071,7 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "avatarAboutToBeDestroyed"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "cost": [
@@ -1081,7 +1081,7 @@
           ],
           "actions": [
             {
-              "op": "preventDestruction"
+              "op": "preventDestroy"
             }
           ]
         }

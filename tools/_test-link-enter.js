@@ -39,6 +39,23 @@ function put(st, zone, code, extra) {
   st.zones[zone].push(k);
   return k;
 }
+/* กติกาใหม่ต้องจับคู่ก่อนเข้า Link — เทสต์นี้วางคู่ลงสนามแล้วถือว่าจับคู่ทันที */
+const normLink = s => String(s || '').replace(/โพลีกอน/g, 'โพลิกอน');
+const linkPartner = c => { const m = /\[\s*(?:Link|คู่หู)\s*[-–—]?\s*([^\]\n]+?)\s*\]/i.exec(c.effect || ''); return m ? normLink(m[1]) : ''; };
+const putRaw = put;
+put = function (st, zone, code, extra) {
+  const k = putRaw(st, zone, code, extra);
+  if (!zone.endsWith('.avatar')) return k;
+  const c = st.inst[k];
+  const mate = st.zones[zone].find(o => {
+    const oc = st.inst[o];
+    if (o === k || oc.pairWith) return false;
+    const a = linkPartner(c), b = linkPartner(oc);
+    return (a && normLink(oc.name).includes(a)) || (b && normLink(c.name).includes(b));
+  });
+  if (mate) { c.pairWith = mate; st.inst[mate].pairWith = k; }
+  return k;
+};
 function fail(msg) { console.error('FAIL', msg); process.exit(1); }
 function ok(cond, msg) { if (!cond) fail(msg); console.log('ok', msg); }
 function apply(st, a) { return BoT.applyAction(st, a); }
@@ -90,7 +107,8 @@ function tick(st, seed) {
   const hoku = put(st, 'A.avatar', 'BT09-007');
   const weak = put(st, 'B.avatar', 'SD01-011');
   const strong = put(st, 'B.avatar', 'SD01-002');
-  put(st, 'A.avatar', 'BT09-022');
+  const sona = put(st, 'A.avatar', 'BT09-022');
+  st.inst[hoku].pairWith = sona; st.inst[sona].pairWith = hoku;
   tick(st, 4);
   ok(zone(st, strong) === 'B.hell', 'highest power enemy destroyed: ' + zone(st, strong));
   ok(zone(st, weak) === 'B.avatar', 'lower power enemy remains');

@@ -144,13 +144,10 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "allyAboutToBeDestroyed",
-            "filter": {
-              "nameIncludes": [
-                "พี่หน่วง"
-              ]
-            }
+            "on": "avatarWouldBeDestroyed"
           },
+          "react": true,
+          "requireTargetNameIncludes": "พี่หน่วง",
           "cost": [
             {
               "op": "destroyConstruct",
@@ -522,12 +519,13 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "constructAboutToBeDestroyed"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
+          "targetType": "Construct",
           "actions": [
             {
-              "op": "preventDestruction"
+              "op": "preventDestroy"
             }
           ]
         }
@@ -648,7 +646,7 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "avatarAboutToBeDestroyed"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "cost": [
@@ -658,7 +656,7 @@
           ],
           "actions": [
             {
-              "op": "preventDestruction"
+              "op": "preventDestroy"
             }
           ]
         }

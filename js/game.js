@@ -4176,8 +4176,7 @@
     }
     // สวนกลับตอนถูกโจมตี — ใบ React ในมือกะพริบเขียวด้วย
     if (st.pending && (mode === 'solo' || seat === st.pending.target) && BoTEngine.attackReactOptions) {
-      const cops = BoTEngine.attackReactOptions(st, st.pending.target) || [];
-      if (cops.includes(k)) classes.push('react-pick');
+      if (attackReactCached(k)) classes.push('react-pick');
     }
     // มือเกิน 7 — กะพริบแดงให้ทิ้ง (อย่าทับไฮไลต์เป้าเอฟเฟกต์)
     if (cls === 'hand' && showingHandDiscard() && (BoTEngine.zoneOf(st, k) || '') === my + '.hand'
@@ -4298,8 +4297,15 @@
   };
 
   /* เป้าของ prompt ใช้ร่วมกันทั้งรอบวาด — ล้างตอนเริ่มวาดและจบ tick กันค่าเก่า */
-  let promptTargetSet = null, promptTargetFor = null;
-  function clearPromptTargetCache() { promptTargetSet = null; promptTargetFor = null; }
+  let promptTargetSet = null, promptTargetFor = null, attackReactSet = null;
+  function clearPromptTargetCache() { promptTargetSet = null; promptTargetFor = null; attackReactSet = null; }
+  function attackReactCached(k) {
+    if (!attackReactSet) {
+      attackReactSet = new Set(BoTEngine.attackReactOptions(st, st.pending.target) || []);
+      Promise.resolve().then(clearPromptTargetCache);
+    }
+    return attackReactSet.has(k);
+  }
   function promptTargetCached(pr, k) {
     if (!promptTargetSet || promptTargetFor !== pr) {
       promptTargetSet = new Set(BoTEngine.promptCandidates(st, pr) || []);

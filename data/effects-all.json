@@ -2158,7 +2158,7 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "avatarAboutToBeDestroyed"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
           "cost": [
@@ -2168,7 +2168,7 @@
           ],
           "actions": [
             {
-              "op": "preventDestruction"
+              "op": "preventDestroy"
             }
           ]
         }
@@ -8824,12 +8824,13 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "constructAboutToBeDestroyed"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
+          "targetType": "Construct",
           "actions": [
             {
-              "op": "preventDestruction"
+              "op": "preventDestroy"
             }
           ]
         }
@@ -11104,13 +11105,10 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "allyAboutToBeDestroyed",
-            "filter": {
-              "nameIncludes": [
-                "พี่หน่วง"
-              ]
-            }
+            "on": "avatarWouldBeDestroyed"
           },
+          "react": true,
+          "requireTargetNameIncludes": "พี่หน่วง",
           "cost": [
             {
               "op": "destroyConstruct",
@@ -14039,10 +14037,10 @@
         "สัตว์"
       ],
       "onlyAttackableAllyNameIncludes": "โฮคุ",
-      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]",
       "linkOnlyKeys": [
         "onlyAttackableAllyNameIncludes"
-      ]
+      ],
+      "note": "POWER +1 ถ้ามี Avatar ใบอื่นบนสนาม · นับเป็นสัตว์ด้วย · ศัตรูต้องโจมตีโฮคุ · เมื่อเข้า Link ทำลาย Avatar ศัตรู POWER สูงสุด 1 ใบ · [Link โซน่า]"
     },
     {
       "code": "BT09-008",
@@ -14179,10 +14177,10 @@
       ],
       "parseStatus": "auto",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]",
       "linkOnlyKeys": [
         "protectAllyNameIncludes"
-      ]
+      ],
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
     },
     {
       "code": "BT09-011",
@@ -17272,10 +17270,10 @@
       ],
       "parseStatus": "auto",
       "onlyAttackableAllyNameIncludes": "เดสสึหวา",
-      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]",
       "linkOnlyKeys": [
         "onlyAttackableAllyNameIncludes"
-      ]
+      ],
+      "note": "จุติ ทิ้งคาถาหรือ Avatar จอมเวทย์ แล้วจั่ว 2 · เมื่อใช้ Magic คาถา เลือกจอมเวทย์เรา POWER +1 · ศัตรูต้องโจมตีเดสสึหวา · ถูกโจมตีเทิร์นละครั้งจั่ว 1 · [Link จอมเวทย์ โกลเด้น]"
     },
     {
       "code": "BT10-027",
@@ -19209,10 +19207,10 @@
       ],
       "parseStatus": "auto",
       "onlyAttackableAllyNameIncludes": "กิมมิคแมน",
-      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]",
       "linkOnlyKeys": [
         "onlyAttackableAllyNameIncludes"
-      ]
+      ],
+      "note": "เมื่อกิมมิคแมนถูกทำลายในเทิร์นศัตรู: POWER ตั้งต้นเป็น 6 · ต่อเนื่อง ฝ่ายตรงข้ามต้องโจมตีกิมมิคแมนถ้ามีบนสนาม · [Link กิมมิคแมน]"
     },
     {
       "code": "BT11-009",
@@ -34088,10 +34086,10 @@
       ],
       "parseStatus": "auto",
       "protectAllyNameIncludes": "เจ้าหญิงรวงข้าว",
-      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]",
       "linkOnlyKeys": [
         "protectAllyNameIncludes"
-      ]
+      ],
+      "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
     },
     {
       "code": "PRMO-129",

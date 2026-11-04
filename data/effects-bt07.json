@@ -1704,13 +1704,10 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "allyAboutToBeDestroyed",
-            "filter": {
-              "nameIncludes": [
-                "พี่หน่วง"
-              ]
-            }
+            "on": "avatarWouldBeDestroyed"
           },
+          "react": true,
+          "requireTargetNameIncludes": "พี่หน่วง",
           "cost": [
             {
               "op": "destroyConstruct",

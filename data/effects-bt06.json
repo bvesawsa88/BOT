@@ -1399,12 +1399,13 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "constructAboutToBeDestroyed"
+            "on": "avatarWouldBeDestroyed"
           },
           "react": true,
+          "targetType": "Construct",
           "actions": [
             {
-              "op": "preventDestruction"
+              "op": "preventDestroy"
             }
           ]
         }
