@@ -112,25 +112,8 @@
       "name": "มือปืนนคร บ่าวจุ้ย",
       "uniqueOnField": true,
       "uniqueAttachedNames": true,
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "เทพ"
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "คำสั่งเสีย : นำ Avatar Symbol เทพ 1 ใบ จากนรกขึ้นมือ"
     },
     {

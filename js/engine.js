@@ -3572,6 +3572,10 @@
                 );
               else if (ac.amountPer === 'ownAvatarSymbol')
                 amt = (ac.per || 1) * (st.zones[side + '.avatar'] || []).filter(x => (ac.includeSelf || x !== k) && cardSymbols(st, x).includes(ac.symbol) && st.inst[x].faceUp).length;
+              else if (ac.amountPer === 'ownAvatarNameIncludes')
+                amt = (ac.per || 1) * (st.zones[side + '.avatar'] || []).filter(x => x !== k && [].concat(ac.nameIncludes || []).some(n => nameMatches(st.inst[x], n))).length;
+              else if (ac.amountPer === 'ownHellNameIncludesPerN')
+                amt = (ac.per || 1) * Math.floor((st.zones[side + '.hell'] || []).filter(x => [].concat(ac.nameIncludes || []).some(n => nameMatches(st.inst[x], n))).length / (ac.perN || 1));
               else if (ac.amountPer === 'allFieldModifications')
                 amt = (ac.per || 1) * Object.values(st.inst).filter(x => x && x.subtype === 'Modification' && x.attachedTo).length
                   + (ac.per || 1) * ['A.magic', 'B.magic'].reduce((n, z) => n + (st.zones[z] || []).filter(id => st.inst[id] && st.inst[id].subtype === 'Modification').length, 0);

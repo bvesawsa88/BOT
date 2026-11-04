@@ -7723,19 +7723,21 @@
           },
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "แม่ศรีนวล"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "จุติ : นำ Avatar แม่ศรีนวล จาก Deck ขึ้นมือ แล้วสับ Deck"
     },
     {
@@ -7772,90 +7774,22 @@
     {
       "code": "BT06-012",
       "name": "กัปตัน 7 สี",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "layer": 3,
-              "target": {
-                "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarNameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง ถ้ามี Avatar ทหาร หรือ รด. ใบอื่น ใบนี้ POWER +2"
     },
     {
       "code": "BT06-013",
       "name": "บึงทมิฬ  People  - คุณบลูลอบสเตอร์",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : เลือก Avatar ทหาร หรือ รด. 1 ใบ จากนรกขึ้นมือ"
     },
     {
       "code": "BT06-014",
       "name": "สวีนนีย์ มนุษย์ดาว R18",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ],
-                "costMax": 3
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
     },
     {
@@ -9639,30 +9573,6 @@
       "name": "เจมี่ ขยะสังคม",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "actions": [
-            {
-              "op": "moveMagicToAvatarZone",
-              "filter": {
-                "nameIncludes": [
-                  "เสามงคล"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "สั่งใช้ : ย้าย เสามงคล จาก Magic Zone ไป Avatar Zone"
-    },
-    {
-      "code": "BT07-010",
-      "name": "น้องไอซ์ จี่สมอง",
-      "abilities": [
-        {
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
@@ -9671,10 +9581,30 @@
           "actions": [
             {
               "op": "scout",
-              "count": 5,
+              "count": 7,
               "filter": {
                 "nameIncludes": [
-                  "เสามงคล"
+                  "อาวุธชีวภาพ เอ็มตัวเต็ง"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธชีวภาพ เอ็มตัวเต็ง"
                 ]
               },
               "dest": "hand",
@@ -9684,67 +9614,28 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
+      "note": "สั่งใช้ : ย้าย เสามงคล จาก Magic Zone ไป Avatar Zone"
+    },
+    {
+      "code": "BT07-010",
+      "name": "น้องไอซ์ จี่สมอง",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
       "code": "BT07-011",
       "name": "ไอ้แม๊ก ขยะสังคม",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "type": "Magic",
-                "subtype": "Normal",
-                "nameIncludes": [
-                  "แผนการ"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : นำ Normal Magic แผนการ จาก Deck ขึ้นมือ"
     },
     {
       "code": "BT07-012",
       "name": "ครุฑสุบรรณ เจ้าเวหา",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง Avatar ทหาร หรือ รด. ฝ่ายเรา POWER +1"
     },
     {
@@ -9925,53 +9816,56 @@
       "name": "ราชินีหิมะ ชีหลิน",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "สัตว์มหัศจรรย์",
-                "costMax": 4
-              },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amountPer": "ownAvatarNameIncludes",
+              "nameIncludes": [
+                "ทหารหิมะ"
+              ],
+              "per": 2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarNameIncludes",
+              "nameIncludes": [
+                "ราชาหิมะ"
+              ],
+              "per": 3,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "จุติ : อัญเชิญ Avatar สัตว์มหัศจรรย์ Cost <= 4 จาก Deck 1 ใบ"
     },
     {
       "code": "BT07-020",
       "name": "พลทหารหิมะ",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ครุฑ"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "verified",
       "note": "คำสั่งเสีย : นำ ครุฑ 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -10099,26 +9993,25 @@
       "name": "คุณเก่งพลังช้าง",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พี่หน่วง",
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "อาคารผู้โดยสารชั้นต่ำ"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ : นำ อาคารผู้โดยสารชั้นต่ำ จาก Deck ขึ้นมือ"
     },
     {
@@ -11721,27 +11614,51 @@
       "name": "เอเจ้นท์สมูท",
       "abilities": [
         {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "เอเจ้นท์สมูท"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 2,
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "เอเจ้นท์สมูท"
+              ],
+              "perN": 2,
+              "per": 1,
               "layer": 3,
               "target": {
                 "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarSymbol": "สัตว์"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง ถ้ามี Avatar สัตว์ ใบอื่น ใบนี้ POWER +2"
     },
     {
@@ -11898,25 +11815,25 @@
       "name": "เปรตรัททาทุย",
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "destroyed"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ตำรวจ"
-                ]
-              },
-              "dest": "hand"
+              "op": "modifyPower",
+              "amountPer": "ownRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "คำสั่งเสีย : นำ Avatar ตำรวจ 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -11958,37 +11875,28 @@
       "name": "ริกกี้ เชฟมัมมามิย่า",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "activated"
+            "on": "summoned",
+            "if": "paidCost"
           },
-          "cost": [
-            {
-              "op": "discard",
-              "from": "hand",
-              "count": 1,
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              }
-            }
-          ],
           "actions": [
             {
-              "op": "destroy",
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "permanent",
+              "layer": 4,
               "target": {
                 "select": "choose",
                 "type": "Avatar",
                 "side": "enemy",
-                "costMax": 4,
                 "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> ทำลาย Avatar ศัตรู Cost <= 4"
     },
     {
@@ -12089,28 +11997,8 @@
     {
       "code": "BT08-019",
       "name": "สุมาอี้ กุนซือเจ้าเล่ห์แห่งวุยก๊ก",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "สัตว์",
-                "costMax": 3
-              },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "คำสั่งเสีย : อัญเชิญ Avatar สัตว์ Cost <= 3 จาก Deck 1 ใบ"
     },
     {
@@ -12258,31 +12146,8 @@
     {
       "code": "BT08-025",
       "name": "อีสานสลิงเกอร์ ปิ่น",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
     },
     {
@@ -13844,29 +13709,32 @@
       "name": "นางฟ้าลูกซอง",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activatedFromHell"
           },
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
               "target": {
-                "select": "all",
+                "select": "choose",
                 "type": "Avatar",
                 "side": "own",
-                "nameIncludes": [
-                  "ทหาร"
-                ]
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง Avatar ทหาร ทุกใบ POWER +1"
     },
     {
@@ -16727,27 +16595,8 @@
     {
       "code": "BT10-012",
       "name": "บ่าวแสม ซามูไรปักษ์ใต้",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "อัศวิน"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "extraSymbols": [
         "หุ่นยนต์"
       ],
@@ -16813,38 +16662,8 @@
     {
       "code": "BT10-014",
       "name": "ลิขวิดบอย",
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "cost": [
-            {
-              "op": "discard",
-              "from": "hand",
-              "count": 1,
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              }
-            }
-          ],
-          "actions": [
-            {
-              "op": "bounce",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> เด้ง Avatar ศัตรู 1 ใบ"
     },
     {
@@ -16920,20 +16739,22 @@
           },
           "actions": [
             {
-              "op": "deckPick",
+              "op": "scout",
+              "count": 3,
               "filter": {
                 "type": "Avatar",
-                "symbol": "สัตว์",
-                "costMax": 4
+                "nameIncludes": [
+                  "สิ่งปฏิกูล"
+                ]
               },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "hell"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "คำสั่งเสีย : อัญเชิญ Avatar Symbol สัตว์ Cost <= 4 จาก Deck"
     },
     {
@@ -17128,31 +16949,8 @@
     {
       "code": "BT10-024",
       "name": "ฯลฯ กระบือชาวร๊อค",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "layer": 3,
-              "target": {
-                "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarNameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง ถ้ามี Avatar หิมะ ใบอื่น ใบนี้ POWER +2"
     },
     {
@@ -17531,27 +17329,8 @@
     {
       "code": "BT10-033",
       "name": "พระอีสาน",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "คน",
-                "costMax": 3
-              },
-              "dest": "avatar"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : อัญเชิญ Avatar Symbol คน Cost <= 3 จากนรก"
     },
     {
@@ -19057,25 +18836,8 @@
     {
       "code": "BT11-004",
       "name": "มือปืนนคร บ่าวจุ้ย",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "เทพ"
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "uniqueOnField": true,
       "uniqueAttachedNames": true,
       "note": "คำสั่งเสีย : นำ Avatar Symbol เทพ 1 ใบ จากนรกขึ้นมือ"
@@ -32832,27 +32594,8 @@
     {
       "code": "PRMO-089",
       "name": "พลทหารหิมะ",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ครุฑ"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "verified",
       "note": "คำสั่งเสีย : นำ ครุฑ 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -32922,31 +32665,8 @@
     {
       "code": "PRMO-093",
       "name": "อีสานสลิงเกอร์ ปิ่น",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
     },
     {
@@ -33767,29 +33487,32 @@
       "name": "นางฟ้าลูกซอง",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activatedFromHell"
           },
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
               "target": {
-                "select": "all",
+                "select": "choose",
                 "type": "Avatar",
                 "side": "own",
-                "nameIncludes": [
-                  "ทหาร"
-                ]
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง Avatar ทหาร ทุกใบ POWER +1"
     },
     {
@@ -35191,31 +34914,8 @@
     {
       "code": "RM01-018",
       "name": "สวีนนีย์ มนุษย์ดาว R18",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ],
-                "costMax": 3
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
     },
     {

@@ -1265,31 +1265,8 @@
     {
       "code": "RM01-018",
       "name": "สวีนนีย์ มนุษย์ดาว R18",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ],
-                "costMax": 3
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
     },
     {

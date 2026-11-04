@@ -162,26 +162,25 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พี่หน่วง",
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "อาคารผู้โดยสารชั้นต่ำ"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "จุติ : นำ อาคารผู้โดยสารชั้นต่ำ จาก Deck ขึ้นมือ"
     },
     {
@@ -2347,27 +2346,8 @@
       "codes": [
         "BT10-033"
       ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "คน",
-                "costMax": 3
-              },
-              "dest": "avatar"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : อัญเชิญ Avatar Symbol คน Cost <= 3 จากนรก"
     },
     {
@@ -4046,31 +4026,8 @@
         "BT08-025",
         "PRMO-093"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
     },
     {

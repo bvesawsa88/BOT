@@ -124,29 +124,32 @@
       "name": "นางฟ้าลูกซอง",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activatedFromHell"
           },
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
               "target": {
-                "select": "all",
+                "select": "choose",
                 "type": "Avatar",
                 "side": "own",
-                "nameIncludes": [
-                  "ทหาร"
-                ]
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง Avatar ทหาร ทุกใบ POWER +1"
     },
     {
@@ -2053,27 +2056,8 @@
     {
       "code": "PRMO-089",
       "name": "พลทหารหิมะ",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ครุฑ"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "verified",
       "note": "คำสั่งเสีย : นำ ครุฑ 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -3066,31 +3050,8 @@
     {
       "code": "PRMO-093",
       "name": "อีสานสลิงเกอร์ ปิ่น",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
     },
     {

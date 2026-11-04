@@ -555,23 +555,48 @@
       ],
       "abilities": [
         {
-          "keyword": "สั่งใช้",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "activated"
+            "on": "summoned",
+            "if": "paidCost"
           },
           "actions": [
             {
-              "op": "moveMagicToAvatarZone",
+              "op": "scout",
+              "count": 7,
               "filter": {
                 "nameIncludes": [
-                  "เสามงคล"
+                  "อาวุธชีวภาพ เอ็มตัวเต็ง"
                 ]
-              }
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธชีวภาพ เอ็มตัวเต็ง"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "สั่งใช้ : ย้าย เสามงคล จาก Magic Zone ไป Avatar Zone"
     },
     {
@@ -1747,30 +1772,8 @@
       "codes": [
         "BT07-010"
       ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "scout",
-              "count": 5,
-              "filter": {
-                "nameIncludes": [
-                  "เสามงคล"
-                ]
-              },
-              "dest": "hand",
-              "pickCount": 1,
-              "restTo": "bottom"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
@@ -1896,29 +1899,32 @@
       ],
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activatedFromHell"
           },
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
               "target": {
-                "select": "all",
+                "select": "choose",
                 "type": "Avatar",
                 "side": "own",
-                "nameIncludes": [
-                  "ทหาร"
-                ]
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง Avatar ทหาร ทุกใบ POWER +1"
     },
     {
@@ -2088,30 +2094,11 @@
       "codes": [
         "BT10-012"
       ],
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "อัศวิน"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "extraSymbols": [
         "หุ่นยนต์"
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "คำสั่งเสีย : นำ Avatar อัศวิน 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -2861,19 +2848,21 @@
           },
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "แม่ศรีนวล"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "จุติ : นำ Avatar แม่ศรีนวล จาก Deck ขึ้นมือ แล้วสับ Deck"
     },
     {
@@ -3462,27 +3451,10 @@
       "codes": [
         "BT11-004"
       ],
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "เทพ"
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "uniqueOnField": true,
       "uniqueAttachedNames": true,
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "note": "คำสั่งเสีย : นำ Avatar Symbol เทพ 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -5119,27 +5091,51 @@
       ],
       "abilities": [
         {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "เอเจ้นท์สมูท"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 2,
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "เอเจ้นท์สมูท"
+              ],
+              "perN": 2,
+              "per": 1,
               "layer": 3,
               "target": {
                 "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarSymbol": "สัตว์"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง ถ้ามี Avatar สัตว์ ใบอื่น ใบนี้ POWER +2"
     },
     {

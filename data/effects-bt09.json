@@ -67,29 +67,32 @@
       "code": "BT09-003",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activatedFromHell"
           },
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
               "target": {
-                "select": "all",
+                "select": "choose",
                 "type": "Avatar",
                 "side": "own",
-                "nameIncludes": [
-                  "ทหาร"
-                ]
+                "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "นางฟ้าลูกซอง",
       "note": "ต่อเนื่อง Avatar ทหาร ทุกใบ POWER +1"
     },

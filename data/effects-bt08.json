@@ -241,27 +241,51 @@
       "name": "เอเจ้นท์สมูท",
       "abilities": [
         {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "เอเจ้นท์สมูท"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 2,
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "เอเจ้นท์สมูท"
+              ],
+              "perN": 2,
+              "per": 1,
               "layer": 3,
               "target": {
                 "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarSymbol": "สัตว์"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง ถ้ามี Avatar สัตว์ ใบอื่น ใบนี้ POWER +2"
     },
     {
@@ -417,25 +441,25 @@
       "code": "BT08-013",
       "abilities": [
         {
-          "keyword": "คำสั่งเสีย",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "destroyed"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ตำรวจ"
-                ]
-              },
-              "dest": "hand"
+              "op": "modifyPower",
+              "amountPer": "ownRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "name": "เปรตรัททาทุย",
       "note": "คำสั่งเสีย : นำ Avatar ตำรวจ 1 ใบ จากนรกขึ้นมือ"
     },
@@ -477,37 +501,28 @@
       "code": "BT08-015",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
+          "keyword": "จุติ",
           "trigger": {
-            "on": "activated"
+            "on": "summoned",
+            "if": "paidCost"
           },
-          "cost": [
-            {
-              "op": "discard",
-              "from": "hand",
-              "count": 1,
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              }
-            }
-          ],
           "actions": [
             {
-              "op": "destroy",
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "permanent",
+              "layer": 4,
               "target": {
                 "select": "choose",
                 "type": "Avatar",
                 "side": "enemy",
-                "costMax": 4,
                 "count": 1
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "ริกกี้ เชฟมัมมามิย่า",
       "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> ทำลาย Avatar ศัตรู Cost <= 4"
     },
@@ -608,28 +623,8 @@
     },
     {
       "code": "BT08-019",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "สัตว์",
-                "costMax": 3
-              },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "สุมาอี้ กุนซือเจ้าเล่ห์แห่งวุยก๊ก",
       "note": "คำสั่งเสีย : อัญเชิญ Avatar สัตว์ Cost <= 3 จาก Deck 1 ใบ"
     },
@@ -777,31 +772,8 @@
     },
     {
       "code": "BT08-025",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "อีสานสลิงเกอร์ ปิ่น",
       "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
     },

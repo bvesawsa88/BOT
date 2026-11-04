@@ -510,27 +510,8 @@
     },
     {
       "code": "BT10-012",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "อัศวิน"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "บ่าวแสม ซามูไรปักษ์ใต้",
       "note": "คำสั่งเสีย : นำ Avatar อัศวิน 1 ใบ จากนรกขึ้นมือ",
       "extraSymbols": [
@@ -596,38 +577,8 @@
     },
     {
       "code": "BT10-014",
-      "abilities": [
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "cost": [
-            {
-              "op": "discard",
-              "from": "hand",
-              "count": 1,
-              "filter": {
-                "nameIncludes": [
-                  "คาถา"
-                ]
-              }
-            }
-          ],
-          "actions": [
-            {
-              "op": "bounce",
-              "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "side": "enemy",
-                "count": 1
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "ลิขวิดบอย",
       "note": "สั่งใช้ : ทิ้ง คาถา 1 ใบ -> เด้ง Avatar ศัตรู 1 ใบ"
     },
@@ -703,20 +654,22 @@
           },
           "actions": [
             {
-              "op": "deckPick",
+              "op": "scout",
+              "count": 3,
               "filter": {
                 "type": "Avatar",
-                "symbol": "สัตว์",
-                "costMax": 4
+                "nameIncludes": [
+                  "สิ่งปฏิกูล"
+                ]
               },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "hell"
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "name": "สิ่งปฏิกูลมีชีวิต",
       "note": "คำสั่งเสีย : อัญเชิญ Avatar Symbol สัตว์ Cost <= 4 จาก Deck"
     },
@@ -911,31 +864,8 @@
     },
     {
       "code": "BT10-024",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "layer": 3,
-              "target": {
-                "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarNameIncludes": [
-                  "หิมะ"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "ฯลฯ กระบือชาวร๊อค",
       "note": "ต่อเนื่อง ถ้ามี Avatar หิมะ ใบอื่น ใบนี้ POWER +2"
     },
@@ -1314,27 +1244,8 @@
     },
     {
       "code": "BT10-033",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "คน",
-                "costMax": 3
-              },
-              "dest": "avatar"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "พระอีสาน",
       "note": "จุติ : อัญเชิญ Avatar Symbol คน Cost <= 3 จากนรก"
     },

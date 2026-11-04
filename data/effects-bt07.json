@@ -243,30 +243,6 @@
       "code": "BT07-009",
       "abilities": [
         {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "actions": [
-            {
-              "op": "moveMagicToAvatarZone",
-              "filter": {
-                "nameIncludes": [
-                  "เสามงคล"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "name": "เจมี่ ขยะสังคม",
-      "note": "สั่งใช้ : ย้าย เสามงคล จาก Magic Zone ไป Avatar Zone"
-    },
-    {
-      "code": "BT07-010",
-      "abilities": [
-        {
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
@@ -275,10 +251,30 @@
           "actions": [
             {
               "op": "scout",
-              "count": 5,
+              "count": 7,
               "filter": {
                 "nameIncludes": [
-                  "เสามงคล"
+                  "อาวุธชีวภาพ เอ็มตัวเต็ง"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "อาวุธชีวภาพ เอ็มตัวเต็ง"
                 ]
               },
               "dest": "hand",
@@ -288,67 +284,28 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
+      "name": "เจมี่ ขยะสังคม",
+      "note": "สั่งใช้ : ย้าย เสามงคล จาก Magic Zone ไป Avatar Zone"
+    },
+    {
+      "code": "BT07-010",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "น้องไอซ์ จี่สมอง",
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
       "code": "BT07-011",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "deckPick",
-              "filter": {
-                "type": "Magic",
-                "subtype": "Normal",
-                "nameIncludes": [
-                  "แผนการ"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "ไอ้แม๊ก ขยะสังคม",
       "note": "จุติ : นำ Normal Magic แผนการ จาก Deck ขึ้นมือ"
     },
     {
       "code": "BT07-012",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "ครุฑสุบรรณ เจ้าเวหา",
       "note": "ต่อเนื่อง Avatar ทหาร หรือ รด. ฝ่ายเรา POWER +1"
     },
@@ -529,53 +486,56 @@
       "code": "BT07-019",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "type": "Avatar",
-                "symbol": "สัตว์มหัศจรรย์",
-                "costMax": 4
-              },
-              "dest": "avatar",
-              "paidCost": false,
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amountPer": "ownAvatarNameIncludes",
+              "nameIncludes": [
+                "ทหารหิมะ"
+              ],
+              "per": 2,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarNameIncludes",
+              "nameIncludes": [
+                "ราชาหิมะ"
+              ],
+              "per": 3,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "ราชินีหิมะ ชีหลิน",
       "note": "จุติ : อัญเชิญ Avatar สัตว์มหัศจรรย์ Cost <= 4 จาก Deck 1 ใบ"
     },
     {
       "code": "BT07-020",
-      "abilities": [
-        {
-          "keyword": "คำสั่งเสีย",
-          "trigger": {
-            "on": "destroyed"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ครุฑ"
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "verified",
       "name": "พลทหารหิมะ",
       "note": "คำสั่งเสีย : นำ ครุฑ 1 ใบ จากนรกขึ้นมือ"
     },
@@ -703,26 +663,25 @@
       "code": "BT07-024",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "ต่อเนื่อง",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "static",
+            "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พี่หน่วง",
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "อาคารผู้โดยสารชั้นต่ำ"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "name": "คุณเก่งพลังช้าง",
       "note": "จุติ : นำ อาคารผู้โดยสารชั้นต่ำ จาก Deck ขึ้นมือ"
     },

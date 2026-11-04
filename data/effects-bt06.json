@@ -289,19 +289,21 @@
           },
           "actions": [
             {
-              "op": "deckPick",
-              "filter": {
-                "nameIncludes": [
-                  "แม่ศรีนวล"
-                ]
-              },
-              "dest": "hand",
-              "shuffleAfter": true
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1
+              }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "พระอิศวรปลอม",
       "note": "จุติ : นำ Avatar แม่ศรีนวล จาก Deck ขึ้นมือ แล้วสับ Deck"
     },
@@ -338,90 +340,22 @@
     },
     {
       "code": "BT06-012",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "layer": 3,
-              "target": {
-                "select": "self"
-              },
-              "condition": {
-                "hasOtherOwnAvatarNameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "กัปตัน 7 สี",
       "note": "ต่อเนื่อง ถ้ามี Avatar ทหาร หรือ รด. ใบอื่น ใบนี้ POWER +2"
     },
     {
       "code": "BT06-013",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ]
-              },
-              "dest": "hand"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "บึงทมิฬ  People  - คุณบลูลอบสเตอร์",
       "note": "จุติ : เลือก Avatar ทหาร หรือ รด. 1 ใบ จากนรกขึ้นมือ"
     },
     {
       "code": "BT06-014",
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "nameIncludes": [
-                  "ทหาร",
-                  "รด."
-                ],
-                "costMax": 3
-              },
-              "dest": "avatar",
-              "paidCost": false
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "สวีนนีย์ มนุษย์ดาว R18",
       "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
     },
