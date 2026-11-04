@@ -2667,15 +2667,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "ม่วง"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "ไม่นะ เตียวเสียน!"
     },
     {

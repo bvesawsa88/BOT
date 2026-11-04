@@ -152,3 +152,23 @@ function passAll(st) { let g = 0; while (st.prompts[0] && st.prompts[0].kind ===
 }
 
 console.log('ALL ABILITY BATCH 3 TESTS PASSED');
+
+/* การ์ด LIFE: นัดผลตามข้อความ */
+{
+  const st = emptyState();
+  const av = put(st, 'B.avatar', 'SD01-001');
+  st.active = 'B'; st.phase = 'Main';
+  const life = put(st, 'B.hell', 'BT05-072');
+  st.scheduled.push({ player: 'B', when: 'nextOwnBattlePhase', op: 'runActions', src: life, actions: [{ op: 'buffAllOwn', zone: 'avatar', amount: 1 }] });
+  const foe = put(st, 'A.avatar', 'SD01-001');
+  const before = BoT.effPower(st, av);
+  act(st, { type: 'declareAttack', atk: av, def: foe, by: 'B', seed: 4 });
+  ok(st.log.some(l => (l.t || '').includes('ทุกใบ POWER +1')), 'ไม่นะ ไมเกรน: Avatar ฝ่ายเจ้าของ +1 ตอนเริ่ม Battle Phase');
+  ok(!st.scheduled.some(s => s.when === 'nextOwnBattlePhase'), 'ไม่นะ ไมเกรน: ใช้นัดแล้ว');
+  ok(before === 5, 'ไม่นะ ไมเกรน: ก่อน Battle ยังไม่เพิ่ม');
+}
+const lifeData = code => JSON.stringify(BoT.effectOf(code, byCode(code).name).abilities);
+['SD06-022', 'SD06-023', 'SD06-024', 'SD07-021', 'SD07-022', 'SD07-023', 'BT05-072', 'BT10-075'].forEach(code => {
+  ok(!lifeData(code).includes('"op":"draw"'), code + ': ไม่ใช่จั่วการ์ดแล้ว');
+});
+console.log('ALL LIFE TESTS PASSED');

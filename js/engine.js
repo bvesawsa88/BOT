@@ -7945,6 +7945,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         fx.snd = 'tap';
       } else if (ac.op === 'preventDestroy') {
         resumeWouldDestroy(st, fx, true);
+      } else if (ac.op === 'buffAllOwn') {
+        const zoneName = ac.zone || 'avatar';
+        (st.zones[ctx.owner + '.' + zoneName] || []).forEach(id => st.buffs.push({ k: id, amt: ac.amount || 0, until: 'endOfTurn', from: ctx.src }));
+        addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${zoneName === 'construct' ? 'Construct' : 'Avatar'} ฝ่าย ${ctx.owner} ทุกใบ POWER +${ac.amount || 0} จนจบเทิร์น`);
       } else if (ac.op === 'protectSelfUntilEndTurn') {
         if (st.inst[ctx.src]) { st.inst[ctx.src].protectUntilEndTurn = true; addLog(st, 'S', `${nameOf(st, ctx.src)} จะไม่ถูกทำลายจนจบเทิร์น`); }
       } else if (ac.op === 'discardSelfFromHand') {
@@ -8986,6 +8990,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       st.phase = phase;
       addLog(st, st.active, `เข้าเฟส ${phase}`);
       if (phase === 'Battle') {
+        const dueBattle = (st.scheduled || []).filter(s => s.player === st.active && s.when === 'nextOwnBattlePhase');
+        st.scheduled = (st.scheduled || []).filter(s => !(s.player === st.active && s.when === 'nextOwnBattlePhase'));
+        dueBattle.forEach(s => {
+          addLog(st, st.active, `ทำเอฟเฟกต์ที่นัดไว้ (เริ่ม Battle Phase)`);
+          runActions(st, fx, s.actions || [], { src: s.src, owner: st.active, rng });
+        });
         (st.zones[st.active + '.avatar'] || []).slice().forEach(k => {
           abil(st, k, 'battlePhaseStart').forEach(ab => runActions(st, fx, ab.actions, { src: k, owner: st.active, rng }));
         });

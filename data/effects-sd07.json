@@ -463,15 +463,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "เขียว"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD07-022",
@@ -483,15 +492,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "ฟ้า"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD07-023",
@@ -503,15 +521,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "แดง"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD07-024",

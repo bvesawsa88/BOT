@@ -568,15 +568,20 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnBattlePhase",
+              "actions": [
+                {
+                  "op": "buffAllOwn",
+                  "zone": "avatar",
+                  "amount": 1
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "แมปจาก BT05-072"
     },
     {

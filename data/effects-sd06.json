@@ -516,15 +516,20 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnBattlePhase",
+              "actions": [
+                {
+                  "op": "buffAllOwn",
+                  "zone": "construct",
+                  "amount": 1
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD06-023",
@@ -536,15 +541,23 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Construct"
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD06-024",
@@ -556,15 +569,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Construct"
+                  },
+                  "dest": "hand",
+                  "pickCount": 1,
+                  "restTo": "bottom"
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD06-025",

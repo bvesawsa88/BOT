@@ -7334,15 +7334,20 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnBattlePhase",
+              "actions": [
+                {
+                  "op": "buffAllOwn",
+                  "zone": "avatar",
+                  "amount": 1
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "BT05-073",
@@ -18875,15 +18880,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "ม่วง"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "BT11-001",
@@ -28527,15 +28541,20 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnBattlePhase",
+              "actions": [
+                {
+                  "op": "buffAllOwn",
+                  "zone": "avatar",
+                  "amount": 1
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "KD04-023",
@@ -39293,15 +39312,20 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnBattlePhase",
+              "actions": [
+                {
+                  "op": "buffAllOwn",
+                  "zone": "construct",
+                  "amount": 1
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD06-023",
@@ -39313,15 +39337,23 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Construct"
+                  },
+                  "dest": "hand",
+                  "showAll": true
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD06-024",
@@ -39333,15 +39365,25 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "scout",
+                  "count": 5,
+                  "filter": {
+                    "type": "Construct"
+                  },
+                  "dest": "hand",
+                  "pickCount": 1,
+                  "restTo": "bottom"
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD06-025",
@@ -39825,15 +39867,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "เขียว"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD07-022",
@@ -39845,15 +39896,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "ฟ้า"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD07-023",
@@ -39865,15 +39925,24 @@
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "schedule",
+              "when": "nextOwnMainPhase",
+              "actions": [
+                {
+                  "op": "handSummon",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 4,
+                    "color": "แดง"
+                  },
+                  "paidCost": false
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "SD07-024",
