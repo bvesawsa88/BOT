@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=20260821">
 <script src="js/security.js?v=20260821"></script>
-<script src="js/analytics.js?v=20260831"></script>
 <style>
   html,body{overflow:auto;height:auto;min-height:100%;-webkit-user-select:text;user-select:text}
   .ad{max-width:680px;margin:0 auto;padding:20px 14px 60px}
@@ -89,6 +88,44 @@
   .an-act-badge.online{background:#fef3c7;color:#92400e}
   .an-act-badge.deck{background:#fce7f3;color:#be185d}
   .an-act-badge.page{background:#f3f4f6;color:#4b5563}
+  .an-act-badge.win{background:#dcfce7;color:#166534}
+  /* Analytics dashboard */
+  .an-root{--an-s1:#2a78d6;--an-s2:#eb6834;--an-surface:#fffdf8;--an-grid:rgba(26,22,18,.09);--an-muted:rgba(26,22,18,.62)}
+  .an-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 4px}
+  .an-seg{display:inline-flex;border:1.5px solid rgba(26,22,18,.2);border-radius:9px;overflow:hidden}
+  .an-seg button{border:0;background:transparent;color:var(--ink);padding:6px 11px;font:600 12.5px 'IBM Plex Sans Thai',sans-serif;cursor:pointer}
+  .an-seg button+button{border-left:1.5px solid rgba(26,22,18,.12)}
+  .an-seg button.on{background:var(--ink);color:#fff}
+  .an-status{font-size:11.5px;color:var(--an-muted);margin-left:auto}
+  .an-status.err{color:#b91c1c;font-weight:600}
+  .an-panel{background:var(--an-surface);border:1.5px solid rgba(26,22,18,.13);border-radius:12px;padding:12px;margin-bottom:12px;min-width:0}
+  .an-panel h3{margin:0 0 2px;font:700 13.5px 'IBM Plex Sans Thai',sans-serif}
+  .an-panel .an-note{font-size:11.5px;color:var(--an-muted);margin:0 0 8px}
+  .an-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin:0 0 6px}
+  .an-legend span{display:inline-flex;align-items:center;gap:5px}
+  .an-legend i{width:14px;height:2px;border-radius:1px;display:inline-block}
+  .an-chart{width:100%;position:relative;touch-action:pan-y}
+  .an-chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .an-chart text{font:11px Sarabun,sans-serif;fill:var(--an-muted)}
+  .an-chart text.an-peak{fill:var(--ink);font-weight:700}
+  .an-hit{fill:transparent;cursor:crosshair}
+  .an-hbar:hover .an-hbar-mark,.an-hbar:focus .an-hbar-mark{opacity:.72}
+  .an-hbar:focus{outline:none}
+  .an-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .an-bar-row{display:grid;grid-template-columns:minmax(84px,38%) 1fr auto;gap:8px;align-items:center;font-size:12px;padding:3px 0}
+  .an-bar-track{height:8px;min-width:0}
+  .an-bar-fill{height:8px;background:var(--an-s1);border-radius:0 4px 4px 0;min-width:2px}
+  .an-bar-val{font-weight:700;font-variant-numeric:tabular-nums}
+  .an-bar-val small{font-weight:400;color:var(--an-muted);margin-left:3px}
+  .an-empty{font-size:12px;color:var(--an-muted);padding:10px 0}
+  .an-tip{position:fixed;z-index:60;pointer-events:none;background:#1a1612;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:220px}
+  .an-tip-head{opacity:.75;font-size:11px;margin-bottom:2px}
+  .an-tip-row{display:flex;align-items:center;gap:6px}
+  .an-tip-row b{font-size:13px;font-variant-numeric:tabular-nums}
+  .an-tip-row i{width:10px;height:2px;border-radius:1px;display:inline-block}
+  .an-search{flex:1;min-width:130px;max-width:220px;padding:5px 9px;font-size:12px;border:1.5px solid rgba(26,22,18,.2);border-radius:8px;background:#fff;color:var(--ink)}
+  .an-details summary{cursor:pointer;font:700 13.5px 'IBM Plex Sans Thai',sans-serif}
+  .an-num-cell{text-align:right;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -114,7 +151,7 @@
     <div class="ad-tabs">
       <button type="button" class="ad-tab on" data-tab="settings">🎨 ตั้งค่าสปอนเซอร์ & เว็บ</button>
       <button type="button" class="ad-tab" data-tab="users">👥 จัดการยูสเซอร์ & สิทธิ์</button>
-      <button type="button" class="ad-tab" data-tab="analytics">📊 สถิติคนเข้าใช้งาน</button>
+      <button type="button" class="ad-tab" data-tab="analytics">📊 สถิติการใช้งาน</button>
     </div>
 
     <!-- TAB 1: Site & Sponsor Settings -->
@@ -189,57 +226,96 @@
     </div>
 
     <!-- TAB 3: Analytics Dashboard -->
-    <div id="tabContentAnalytics" class="hidden">
-      <h1>📊 สถิติคนเข้าใช้งาน & การเล่นเกม</h1>
-      <p class="ad-sub">ระบบติดตามสถิติ Real-time, ยอดผู้เข้าชม, ออนไลน์สูงสุด, สัดส่วนอุปกรณ์ และประวัติกิจกรรม</p>
+    <div id="tabContentAnalytics" class="hidden an-root">
+      <h1>📊 สถิติการใช้งานเว็บ</h1>
+      <p class="ad-sub">ดูจำนวนคนเข้า ช่วงเวลา ฟีเจอร์ที่ใช้ และกิจกรรมล่าสุด · เวลาไทย · รีเฟรชเองทุก 30 วินาที</p>
 
-      <div class="an-sec">⚡ สถิติปัจจุบัน & ผู้เข้าชม</div>
       <div class="an-grid">
         <div class="an-card active">
           <div id="anActiveOnline" class="an-num">0</div>
           <div class="an-label">🟢 ออนไลน์ขณะนี้</div>
+        </div>
+        <div class="an-card">
+          <div id="anTodayVisits" class="an-num">0</div>
+          <div class="an-label">👥 เข้าชมวันนี้</div>
+          <div id="anTodayUniques" class="an-sublabel">0 คน</div>
+        </div>
+        <div class="an-card">
+          <div id="anTotalVisits" class="an-num">0</div>
+          <div class="an-label">🌐 เข้าชมทั้งหมด</div>
+          <div id="anTotalUniques" class="an-sublabel">0 คนไม่ซ้ำ</div>
         </div>
         <div class="an-card highlight">
           <div id="anPeakOnline" class="an-num">0</div>
           <div class="an-label">🚀 ออนไลน์สูงสุด</div>
           <div id="anPeakTime" class="an-sublabel">—</div>
         </div>
-        <div class="an-card">
-          <div id="anTodayVisits" class="an-num">0</div>
-          <div class="an-label">👥 เข้าชมวันนี้</div>
-          <div id="anTodayUniques" class="an-sublabel">0 ไม่ซ้ำ</div>
-        </div>
-        <div class="an-card">
-          <div id="anTotalVisits" class="an-num">0</div>
-          <div class="an-label">🌐 เข้าชมทั้งหมด</div>
-          <div id="anTotalUniques" class="an-sublabel">0 ไม่ซ้ำ</div>
-        </div>
       </div>
 
-      <div class="an-sec">🎮 สถิติกิจกรรม & การเล่น</div>
+      <div class="an-toolbar">
+        <div id="anRange" class="an-seg" role="group" aria-label="ช่วงเวลา">
+          <button type="button" data-range="7">7 วัน</button>
+          <button type="button" data-range="30" class="on">30 วัน</button>
+          <button type="button" data-range="90">90 วัน</button>
+          <button type="button" data-range="all">ทั้งหมด</button>
+        </div>
+        <button type="button" id="anReload" class="btn-dark small">🔄 รีเฟรช</button>
+        <button type="button" id="anCsv" class="btn-dark small">⬇️ CSV</button>
+        <span id="anStatus" class="an-status" role="status"></span>
+      </div>
+
+      <p id="anCloudWarn" class="an-status err hidden" style="margin:6px 0 0">⚠️ เซิร์ฟเวอร์นี้ไม่ได้ซิงก์สถิติขึ้น Firestore — ข้อมูลอยู่ในไฟล์ของเครื่องนี้เท่านั้น และอาจหายเมื่อ restart</p>
+
+      <div class="an-sec">สรุปช่วงที่เลือก</div>
       <div class="an-grid">
-        <div class="an-card">
-          <div id="anBotGames" class="an-num">0</div>
-          <div class="an-label">🤖 เกมสู้บอท</div>
-        </div>
-        <div class="an-card">
-          <div id="anOnlineGames" class="an-num">0</div>
-          <div class="an-label">⚔️ เกมออนไลน์</div>
-        </div>
-        <div class="an-card">
-          <div id="anDeckSaves" class="an-num">0</div>
-          <div class="an-label">🎴 บันทึกเด็ค</div>
-        </div>
+        <div class="an-card"><div id="anRVisits" class="an-num">0</div><div class="an-label">เข้าชม</div></div>
+        <div class="an-card"><div id="anRDaily" class="an-num">0</div><div class="an-label">คนเฉลี่ยต่อวัน</div></div>
+        <div class="an-card"><div id="anRNew" class="an-num">0</div><div class="an-label">คนใหม่</div></div>
+        <div class="an-card"><div id="anRTime" class="an-num">—</div><div class="an-label">เวลาใช้งานต่อครั้ง</div></div>
+        <div class="an-card"><div id="anRGames" class="an-num">0</div><div class="an-label">เกมที่เริ่มเล่น</div></div>
+        <div class="an-card"><div id="anRDecks" class="an-num">0</div><div class="an-label">บันทึกเด็ค</div></div>
       </div>
 
-      <div style="background:rgba(26,22,18,.04);border-radius:10px;padding:10px 12px;font-size:12px;margin-bottom:14px">
-        <div id="anDeviceStat" style="margin-bottom:4px">💻 คอม: 0 · 📱 มือถือ: 0 · 📑 แท็บเล็ต: 0</div>
-        <div id="anAuthStat">👤 Guest: 0 · 🔑 สมัครสมาชิก: 0 · 🌐 Google: 0 · 💬 Discord: 0</div>
+      <div class="an-panel">
+        <h3>ผู้เข้าชมรายวัน</h3>
+        <div class="an-legend">
+          <span><i style="background:var(--an-s1)"></i>เข้าชม</span>
+          <span><i style="background:var(--an-s2)"></i>คน (ไม่ซ้ำในวันนั้น)</span>
+        </div>
+        <div id="anDailyChart" class="an-chart"></div>
       </div>
+
+      <div class="an-panel">
+        <h3>ช่วงเวลาที่คนเข้าเว็บ</h3>
+        <p class="an-note">จำนวนการเข้าชมแยกตามชั่วโมง</p>
+        <div id="anHourChart" class="an-chart"></div>
+      </div>
+
+      <div class="an-panel">
+        <h3>ฟีเจอร์ที่ถูกใช้</h3>
+        <p class="an-note">นับจำนวนครั้ง เรียงจากมากไปน้อย</p>
+        <div id="anFeatures"></div>
+      </div>
+
+      <div class="an-cols">
+        <div class="an-panel"><h3>อุปกรณ์</h3><div id="anDevices"></div></div>
+        <div class="an-panel"><h3>ประเภทผู้ใช้</h3><div id="anAuth"></div></div>
+        <div class="an-panel"><h3>มาจากไหน</h3><div id="anSources"></div></div>
+      </div>
+
+      <details class="an-panel an-details">
+        <summary>ตารางรายวัน</summary>
+        <div style="overflow-x:auto">
+          <table class="an-table">
+            <thead><tr><th>วันที่</th><th class="an-num-cell">เข้าชม</th><th class="an-num-cell">คน</th><th class="an-num-cell">คนใหม่</th><th class="an-num-cell">เกม</th><th class="an-num-cell">เด็ค</th><th class="an-num-cell">ออนไลน์สูงสุด</th></tr></thead>
+            <tbody id="anDailyTable"></tbody>
+          </table>
+        </div>
+      </details>
 
       <div class="an-sec">
-        <span>📜 ประวัติกิจกรรมล่าสุด (Live Sessions)</span>
-        <button type="button" id="anReload" class="btn-dark small">🔄 รีเฟรชสถิติ</button>
+        <span>📜 กิจกรรมล่าสุด</span>
+        <input id="anSessionSearch" class="an-search" type="search" placeholder="ค้นหาชื่อผู้ใช้" aria-label="ค้นหาชื่อผู้ใช้">
       </div>
 
       <div style="overflow-x:auto">
@@ -247,9 +323,9 @@
           <thead>
             <tr>
               <th>ผู้ใช้งาน</th>
-              <th>อุปกรณ์ / สิทธิ์</th>
-              <th>เวลาเข้า / สภาพ</th>
-              <th>กิจกรรมใน Session</th>
+              <th>อุปกรณ์ / ที่มา</th>
+              <th>เวลาเข้า</th>
+              <th>กิจกรรม</th>
             </tr>
           </thead>
           <tbody id="anSessionList">
@@ -257,6 +333,7 @@
           </tbody>
         </table>
       </div>
+      <div id="anTip" class="an-tip hidden"></div>
     </div>
   </div>
 </div>
@@ -354,6 +431,7 @@
       document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('on'));
       tab.classList.add('on');
       const target = tab.dataset.tab;
+      try { localStorage.setItem('bot_admin_tab', target); } catch (e) { }
       byId('tabContentSettings').classList.toggle('hidden', target !== 'settings');
       byId('tabContentUsers').classList.toggle('hidden', target !== 'users');
       byId('tabContentAnalytics').classList.toggle('hidden', target !== 'analytics');
@@ -386,6 +464,10 @@
     settings = j.settings;
     fillSettings();
     showLogin(false);
+    let lastTab = '';
+    try { lastTab = localStorage.getItem('bot_admin_tab') || ''; } catch (e) { }
+    const tab = lastTab && document.querySelector('.ad-tab[data-tab="' + lastTab + '"]');
+    if (tab) tab.click();
   }
 
   async function boot() {
@@ -618,74 +700,332 @@
   }
 
   /* ═══ ANALYTICS LOGIC ═══ */
+  const AN_EVENTS = {
+    play_bot: '🤖 เล่นกับบอท', play_online: '⚔️ เกมออนไลน์ (สร้างห้อง)', join_online: '🤝 เข้าร่วมเกมออนไลน์',
+    play_solo: '🎲 เล่นคนเดียว 2 ฝั่ง', play_campaign: '🗺️ เล่นด่านผจญภัย', open_campaign: '🧭 เปิดโหมดผจญภัย',
+    bot_win: '🏆 ชนะบอท', bot_lose: '💀 แพ้บอท', finish_game: '🏁 เล่นจบเกม', save_deck: '🎴 บันทึกเด็ค',
+    view_decks: '📚 เปิดหน้าเด็ค', view_gallery: '🖼️ เปิดคลังการ์ด', view_howto: '📖 เปิดวิธีเล่น', view_lobby: '🚪 เปิดห้องออนไลน์',
+  };
+  const AN_DEVICES = { desktop: '💻 คอม', mobile: '📱 มือถือ', tablet: '📑 แท็บเล็ต' };
+  const AN_AUTH = { guest: '👤 Guest', local: '🔑 สมาชิก', google: '🌐 Google', discord: '💬 Discord' };
+  const AN_SOURCES = { direct: '🔗 เข้าตรง', facebook: 'Facebook', discord: 'Discord', google: 'Google', line: 'LINE', youtube: 'YouTube', tiktok: 'TikTok', other: 'เว็บอื่น' };
+  const AN_REFRESH_MS = 30000;
+  let anData = null;
+  let anRange = 30;
+
   async function loadAnalyticsData() {
+    const status = byId('anStatus');
     try {
       const r = await fetch('/admin/analytics', { headers: authHeaders() });
       const j = await r.json();
-      if (!j.ok || !j.analytics) return;
-      renderAnalytics(j.analytics);
-    } catch (e) { }
+      if (!j.ok || !j.analytics) throw new Error(j.error || 'โหลดไม่สำเร็จ');
+      anData = j.analytics;
+      byId('anCloudWarn').classList.toggle('hidden', !!anData.cloudSync);
+      renderAnalytics();
+      status.classList.remove('err');
+      status.textContent = 'อัปเดต ' + new Date().toLocaleTimeString('th-TH');
+    } catch (e) {
+      status.classList.add('err');
+      status.textContent = 'โหลดสถิติไม่สำเร็จ: ' + (e.message || e);
+    }
   }
 
-  function renderAnalytics(an) {
-    const active = an.activeOnline || 0;
-    const peak = (an.peakOnline && an.peakOnline.count) || 0;
-    const peakTime = an.peakOnline && an.peakOnline.timestamp ? new Date(an.peakOnline.timestamp).toLocaleString('th-TH') : '—';
-    const today = an.today || {};
-    const totals = an.totals || {};
-
-    if (byId('anActiveOnline')) byId('anActiveOnline').textContent = active;
-    if (byId('anPeakOnline')) byId('anPeakOnline').textContent = peak;
-    if (byId('anPeakTime')) byId('anPeakTime').textContent = peak ? `เมื่อ ${peakTime}` : 'ยังไม่มีสถิติ';
-
-    if (byId('anTodayVisits')) byId('anTodayVisits').textContent = today.visits || 0;
-    if (byId('anTodayUniques')) byId('anTodayUniques').textContent = `${today.uniques || 0} ไม่ซ้ำ`;
-    if (byId('anTotalVisits')) byId('anTotalVisits').textContent = totals.visits || 0;
-    if (byId('anTotalUniques')) byId('anTotalUniques').textContent = `${totals.uniques || 0} ไม่ซ้ำ`;
-
-    if (byId('anBotGames')) byId('anBotGames').textContent = totals.botGames || 0;
-    if (byId('anOnlineGames')) byId('anOnlineGames').textContent = totals.onlineGames || 0;
-    if (byId('anDeckSaves')) byId('anDeckSaves').textContent = totals.deckSaves || 0;
-
-    const dev = an.devices || {};
-    if (byId('anDeviceStat')) byId('anDeviceStat').textContent = `💻 คอม: ${dev.desktop || 0} · 📱 มือถือ: ${dev.mobile || 0} · 📑 แท็บเล็ต: ${dev.tablet || 0}`;
-
-    const auth = an.authTypes || {};
-    if (byId('anAuthStat')) byId('anAuthStat').textContent = `👤 Guest: ${auth.guest || 0} · 🔑 สมัครสมาชิก: ${auth.local || 0} · 🌐 Google: ${auth.google || 0} · 💬 Discord: ${auth.discord || 0}`;
-
-    const sessions = an.recentSessions || [];
-    const listEl = byId('anSessionList');
-    if (!listEl) return;
-
-    if (!sessions.length) {
-      listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;opacity:.6">ยังไม่มีประวัติการเข้าใช้งาน</td></tr>';
-      return;
+  function anShiftDay(key, delta) {
+    const d = new Date(key + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() + delta);
+    return d.toISOString().slice(0, 10);
+  }
+  function anDayLabel(key, withYear) {
+    const opt = { day: 'numeric', month: 'short', timeZone: 'UTC' };
+    if (withYear) opt.year = '2-digit';
+    return new Date(key + 'T00:00:00Z').toLocaleDateString('th-TH', opt);
+  }
+  /* ทุกวันในช่วงที่เลือก รวมวันที่ไม่มีคนเข้า (นับเป็น 0) */
+  function anRangeDays() {
+    const daily = anData.daily || {};
+    const end = anData.todayKey;
+    let count = anRange;
+    if (count === 'all') {
+      const first = Object.keys(daily).sort()[0] || end;
+      count = Math.round((new Date(end + 'T00:00:00Z') - new Date(first + 'T00:00:00Z')) / 86400000) + 1;
     }
+    const days = [];
+    for (let i = count - 1; i >= 0; i--) {
+      const key = anShiftDay(end, -i);
+      days.push(Object.assign({ key }, daily[key]));
+    }
+    return days;
+  }
+  const anNew = (d) => (d.newVisitors != null ? d.newVisitors : d.uniques) || 0; // วันเก่า uniques คือคนใหม่
+  const anGames = (d) => (d.botGames || 0) + (d.onlineGames || 0) + ((d.events && d.events.play_campaign) || 0) + ((d.events && d.events.play_solo) || 0);
+  const anSum = (days, fn) => days.reduce((n, d) => n + (fn(d) || 0), 0);
+  function anSumMap(days, field) {
+    const out = {};
+    days.forEach((d) => Object.entries(d[field] || {}).forEach(([k, v]) => { out[k] = (out[k] || 0) + (v || 0); }));
+    return out;
+  }
+  function anDuration(sec) {
+    if (sec < 60) return Math.round(sec) + ' วิ';
+    if (sec < 3600) return Math.round(sec / 60) + ' นาที';
+    return (sec / 3600).toFixed(1) + ' ชม.';
+  }
 
-    listEl.innerHTML = sessions.map((s) => {
-      const isOnlineNow = Date.now() - s.lastPing < 60000;
-      const statusDot = isOnlineNow ? '🟢 <b style="color:#16a34a">ออนไลน์</b>' : '⚪ จบ Session';
-      const devIcon = s.device === 'mobile' ? '📱 มือถือ' : s.device === 'tablet' ? '📑 แท็บเล็ต' : '💻 คอม';
-      const userText = s.username !== 'Guest' ? `<b>${escapeHtml(s.username)}</b>` : `<span style="opacity:.7">Guest (${(s.visitorId || '').slice(0, 8)})</span>`;
-      const startT = s.startTime ? new Date(s.startTime).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '—';
-      const durationMin = s.startTime ? Math.max(1, Math.round((s.lastPing - new Date(s.startTime).getTime()) / 60000)) : 1;
+  function anShowTip(ev, head, rows) {
+    const tip = byId('anTip');
+    tip.textContent = '';
+    const h = document.createElement('div');
+    h.className = 'an-tip-head';
+    h.textContent = head;
+    tip.appendChild(h);
+    rows.forEach((row) => {
+      const line = document.createElement('div');
+      line.className = 'an-tip-row';
+      if (row.color) {
+        const key = document.createElement('i');
+        key.style.background = row.color;
+        line.appendChild(key);
+      }
+      const val = document.createElement('b');
+      val.textContent = row.value;
+      line.appendChild(val);
+      line.appendChild(document.createTextNode(row.label));
+      tip.appendChild(line);
+    });
+    tip.classList.remove('hidden');
+    const x = Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    const y = Math.max(8, ev.clientY - tip.offsetHeight - 12);
+    tip.style.left = Math.max(8, x) + 'px';
+    tip.style.top = y + 'px';
+  }
+  function anHideTip() { byId('anTip').classList.add('hidden'); }
 
-      const actionsHtml = (s.actions || []).map(act => {
-        let cls = 'page';
-        if (act.name === 'play_bot') cls = 'bot';
-        else if (act.name === 'play_online') cls = 'online';
-        else if (act.name === 'save_deck') cls = 'deck';
-        return `<span class="an-act-badge ${cls}">${escapeHtml(act.label)}</span>`;
-      }).join('') || '<span style="opacity:.5;font-size:11px">เข้าชมเว็บ</span>';
+  function anTicks(max) {
+    const top = Math.max(4, max);
+    const step = Math.ceil(top / 4 / (top > 40 ? 5 : 1)) * (top > 40 ? 5 : 1);
+    return [0, step, step * 2, step * 3, step * 4];
+  }
 
-      return `<tr>
-        <td>${userText}<br><small style="opacity:.65">${statusDot}</small></td>
-        <td>${devIcon}<br><small style="opacity:.65">${s.authType}</small></td>
-        <td>${startT}<br><small style="opacity:.65">${durationMin} นาที</small></td>
-        <td><div>${actionsHtml}</div></td>
-      </tr>`;
+  function anRenderDaily(days) {
+    const el = byId('anDailyChart');
+    const W = Math.max(280, el.clientWidth || 600);
+    const H = 210;
+    const m = { l: 32, r: 10, t: 8, b: 24 };
+    const series = [
+      { label: 'เข้าชม', color: '#2a78d6', get: (d) => d.visits || 0 },
+      { label: 'คน', color: '#eb6834', get: (d) => d.uniques || 0 },
+    ];
+    const ticks = anTicks(Math.max(...days.map((d) => d.visits || 0), ...days.map((d) => d.uniques || 0)));
+    const yMax = ticks[ticks.length - 1];
+    const px = (i) => m.l + (days.length > 1 ? i * (W - m.l - m.r) / (days.length - 1) : (W - m.l - m.r) / 2);
+    const py = (v) => H - m.b - v * (H - m.t - m.b) / yMax;
+
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="กราฟผู้เข้าชมรายวัน ดูตัวเลขได้จากตารางรายวัน">';
+    ticks.forEach((t) => {
+      svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + py(t) + '" y2="' + py(t) + '" stroke="var(--an-grid)"/>';
+      svg += '<text x="' + (m.l - 6) + '" y="' + (py(t) + 4) + '" text-anchor="end">' + t + '</text>';
+    });
+    const labelCount = Math.min(days.length, W < 420 ? 3 : 5);
+    const shown = new Set();
+    for (let i = 0; i < labelCount; i++) shown.add(labelCount > 1 ? Math.round(i * (days.length - 1) / (labelCount - 1)) : 0);
+    shown.forEach((i) => {
+      const anchor = days.length === 1 ? 'middle' : i === 0 ? 'start' : i === days.length - 1 ? 'end' : 'middle';
+      svg += '<text x="' + px(i) + '" y="' + (H - 6) + '" text-anchor="' + anchor + '">' + anDayLabel(days[i].key) + '</text>';
+    });
+    svg += '<line id="anCross" y1="' + m.t + '" y2="' + (H - m.b) + '" stroke="rgba(26,22,18,.35)" visibility="hidden"/>';
+    series.forEach((s) => {
+      const pts = days.map((d, i) => px(i).toFixed(1) + ',' + py(s.get(d)).toFixed(1)).join(' ');
+      svg += '<polyline points="' + pts + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      if (days.length <= 31) {
+        days.forEach((d, i) => {
+          svg += '<circle cx="' + px(i) + '" cy="' + py(s.get(d)) + '" r="3.5" fill="' + s.color + '" stroke="var(--an-surface)" stroke-width="2"/>';
+        });
+      }
+    });
+    svg += '<rect class="an-hit" x="' + m.l + '" y="0" width="' + (W - m.l - m.r) + '" height="' + (H - m.b) + '"/></svg>';
+    el.innerHTML = svg;
+
+    const hit = el.querySelector('.an-hit');
+    const cross = el.querySelector('#anCross');
+    hit.onpointermove = (ev) => {
+      const box = el.getBoundingClientRect();
+      const x = (ev.clientX - box.left) * W / box.width;
+      const step = days.length > 1 ? (W - m.l - m.r) / (days.length - 1) : 1;
+      const i = Math.max(0, Math.min(days.length - 1, Math.round((x - m.l) / step)));
+      cross.setAttribute('x1', px(i));
+      cross.setAttribute('x2', px(i));
+      cross.setAttribute('visibility', 'visible');
+      anShowTip(ev, anDayLabel(days[i].key, true), series.map((s) => ({ color: s.color, value: s.get(days[i]), label: s.label })));
+    };
+    hit.onpointerleave = () => { cross.setAttribute('visibility', 'hidden'); anHideTip(); };
+  }
+
+  function anRenderHours(days) {
+    const el = byId('anHourChart');
+    const hours = new Array(24).fill(0);
+    days.forEach((d) => (d.hours || []).forEach((v, h) => { hours[h] += v || 0; }));
+    const max = Math.max(...hours);
+    if (!max) { el.innerHTML = '<div class="an-empty">ยังไม่มีข้อมูลในช่วงนี้</div>'; return; }
+
+    const W = Math.max(280, el.clientWidth || 600);
+    const H = 150;
+    const m = { l: 4, r: 4, t: 18, b: 22 };
+    const slot = (W - m.l - m.r) / 24;
+    const barW = Math.max(3, slot - 2);
+    const plotH = H - m.t - m.b;
+    const peakHour = hours.indexOf(max);
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="จำนวนการเข้าชมแยกตามชั่วโมง ชั่วโมงที่คนเข้ามากสุดคือ ' + peakHour + ' นาฬิกา">';
+    svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + (H - m.b) + '" y2="' + (H - m.b) + '" stroke="var(--an-grid)"/>';
+    hours.forEach((v, h) => {
+      const x = m.l + h * slot + (slot - barW) / 2;
+      const bh = v ? Math.max(3, v * plotH / max) : 0;
+      const y = H - m.b - bh;
+      const r = Math.min(4, barW / 2, bh);
+      svg += '<g class="an-hbar" data-h="' + h + '" tabindex="0">';
+      svg += '<rect x="' + (m.l + h * slot) + '" y="0" width="' + slot + '" height="' + (H - m.b) + '" fill="transparent"/>';
+      if (v) {
+        svg += '<path class="an-hbar-mark" fill="#2a78d6" d="M' + x + ' ' + (y + bh) + 'V' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y
+          + 'H' + (x + barW - r) + 'Q' + (x + barW) + ' ' + y + ' ' + (x + barW) + ' ' + (y + r) + 'V' + (y + bh) + 'Z"/>';
+      }
+      svg += '</g>';
+      if (h === peakHour) svg += '<text class="an-peak" x="' + (x + barW / 2) + '" y="' + (y - 5) + '" text-anchor="middle">' + v + '</text>';
+    });
+    [0, 6, 12, 18].forEach((h) => {
+      svg += '<text x="' + (m.l + h * slot) + '" y="' + (H - 6) + '">' + String(h).padStart(2, '0') + ':00</text>';
+    });
+    el.innerHTML = svg + '</svg>';
+
+    el.querySelectorAll('.an-hbar').forEach((g) => {
+      const h = Number(g.dataset.h);
+      const show = (ev) => anShowTip(ev, String(h).padStart(2, '0') + ':00–' + String(h).padStart(2, '0') + ':59', [{ value: hours[h], label: 'เข้าชม' }]);
+      g.onpointermove = show;
+      g.onfocus = () => { const b = g.getBoundingClientRect(); show({ clientX: b.left, clientY: b.top }); };
+      g.onpointerleave = anHideTip;
+      g.onblur = anHideTip;
+    });
+  }
+
+  function anRenderBars(id, counts, labels, withShare) {
+    const el = byId(id);
+    const rows = Object.entries(counts).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+    if (!rows.length) { el.innerHTML = '<div class="an-empty">ยังไม่มีข้อมูลในช่วงนี้</div>'; return; }
+    const max = rows[0][1];
+    const total = rows.reduce((n, r) => n + r[1], 0);
+    el.innerHTML = rows.map(([k, v]) => {
+      const share = withShare ? '<small>' + Math.round(v * 100 / total) + '%</small>' : '';
+      return '<div class="an-bar-row"><span>' + escapeHtml(labels[k] || k) + '</span>'
+        + '<div class="an-bar-track"><div class="an-bar-fill" style="width:' + (v * 100 / max).toFixed(1) + '%"></div></div>'
+        + '<span class="an-bar-val">' + v.toLocaleString('th-TH') + share + '</span></div>';
     }).join('');
   }
+
+  function anRenderDailyTable(days) {
+    byId('anDailyTable').innerHTML = days.slice().reverse().map((d) => '<tr><td>' + anDayLabel(d.key, true) + '</td>'
+      + [d.visits || 0, d.uniques || 0, anNew(d), anGames(d), d.deckSaves || 0, d.peakOnline || 0]
+        .map((v) => '<td class="an-num-cell">' + v + '</td>').join('') + '</tr>').join('');
+  }
+
+  function anRenderSessions() {
+    const listEl = byId('anSessionList');
+    const q = byId('anSessionSearch').value.trim().toLowerCase();
+    const sessions = (anData.recentSessions || []).filter((s) => !q || String(s.username || '').toLowerCase().includes(q));
+    if (!sessions.length) {
+      listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;opacity:.6">' + (q ? 'ไม่พบผู้ใช้นี้' : 'ยังไม่มีประวัติการเข้าใช้งาน') + '</td></tr>';
+      return;
+    }
+    const now = anData.serverTime || Date.now();
+    const onlineMs = anData.onlineWindowMs || 60000;
+    listEl.innerHTML = sessions.map((s) => {
+      const isOnlineNow = now - s.lastPing < onlineMs;
+      const statusDot = isOnlineNow ? '🟢 <b style="color:#16a34a">ออนไลน์</b>' : '⚪ ออกแล้ว';
+      const userText = s.username !== 'Guest' ? '<b>' + escapeHtml(s.username) + '</b>' : '<span style="opacity:.7">Guest (' + escapeHtml((s.visitorId || '').slice(2, 8)) + ')</span>';
+      const start = s.startTime ? new Date(s.startTime) : null;
+      const startT = start ? start.toLocaleString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+      const seconds = start ? Math.max(0, (s.lastPing - start.getTime()) / 1000) : 0;
+      const duration = seconds < 60 ? 'ไม่ถึง 1 นาที' : anDuration(seconds);
+      const actionsHtml = (s.actions || []).filter((act) => act.name !== 'page_view').map((act) => {
+        let cls = 'page';
+        if (act.name === 'play_bot' || act.name === 'play_campaign' || act.name === 'play_solo') cls = 'bot';
+        else if (act.name === 'play_online' || act.name === 'join_online') cls = 'online';
+        else if (act.name === 'save_deck') cls = 'deck';
+        else if (act.name === 'bot_win') cls = 'win';
+        return '<span class="an-act-badge ' + cls + '">' + escapeHtml(act.label) + '</span>';
+      }).join('') || '<span style="opacity:.5;font-size:11px">เข้าชมเว็บ</span>';
+
+      return '<tr><td>' + userText + '<br><small style="opacity:.65">' + statusDot + '</small></td>'
+        + '<td>' + (AN_DEVICES[s.device] || '💻 คอม') + '<br><small style="opacity:.65">' + escapeHtml(AN_SOURCES[s.source] || AN_AUTH[s.authType] || '') + '</small></td>'
+        + '<td>' + startT + '<br><small style="opacity:.65">' + duration + '</small></td>'
+        + '<td><div>' + actionsHtml + '</div></td></tr>';
+    }).join('');
+  }
+
+  function renderAnalytics() {
+    if (!anData) return;
+    const an = anData;
+    const today = an.today || {};
+    const totals = an.totals || {};
+    const peak = (an.peakOnline && an.peakOnline.count) || 0;
+    const peakTime = an.peakOnline && an.peakOnline.timestamp ? new Date(an.peakOnline.timestamp).toLocaleString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+
+    byId('anActiveOnline').textContent = an.activeOnline || 0;
+    byId('anPeakOnline').textContent = peak;
+    byId('anPeakTime').textContent = peak ? peakTime : 'ยังไม่มีสถิติ';
+    byId('anTodayVisits').textContent = today.visits || 0;
+    byId('anTodayUniques').textContent = (today.uniques || 0) + ' คน';
+    byId('anTotalVisits').textContent = (totals.visits || 0).toLocaleString('th-TH');
+    byId('anTotalUniques').textContent = (totals.uniques || 0).toLocaleString('th-TH') + ' คนไม่ซ้ำ';
+
+    const days = anRangeDays();
+    const tracked = days.filter((d) => d.activeSeconds != null); // วันเก่ายังไม่ได้เก็บเวลาใช้งาน
+    const trackedVisits = anSum(tracked, (d) => d.visits);
+    byId('anRVisits').textContent = anSum(days, (d) => d.visits).toLocaleString('th-TH');
+    byId('anRDaily').textContent = (anSum(days, (d) => d.uniques) / days.length).toFixed(1);
+    byId('anRNew').textContent = anSum(days, anNew).toLocaleString('th-TH');
+    byId('anRTime').textContent = trackedVisits ? anDuration(anSum(tracked, (d) => d.activeSeconds) / trackedVisits) : '—';
+    byId('anRGames').textContent = anSum(days, anGames).toLocaleString('th-TH');
+    byId('anRDecks').textContent = anSum(days, (d) => d.deckSaves).toLocaleString('th-TH');
+
+    anRenderDaily(days);
+    anRenderHours(days);
+    const features = anSumMap(days, 'events');
+    delete features.page_view;
+    anRenderBars('anFeatures', features, AN_EVENTS, false);
+    anRenderBars('anDevices', anSumMap(days, 'devices'), AN_DEVICES, true);
+    anRenderBars('anAuth', anSumMap(days, 'authTypes'), AN_AUTH, true);
+    anRenderBars('anSources', anSumMap(days, 'sources'), AN_SOURCES, true);
+    anRenderDailyTable(days);
+    anRenderSessions();
+  }
+
+  function anDownloadCsv() {
+    if (!anData) return;
+    const featureKeys = Object.keys(AN_EVENTS);
+    const head = ['date', 'visits', 'people', 'new_people', 'games', 'deck_saves', 'peak_online', 'active_seconds'].concat(featureKeys);
+    const rows = anRangeDays().map((d) => [d.key, d.visits || 0, d.uniques || 0, anNew(d), anGames(d), d.deckSaves || 0, d.peakOnline || 0, d.activeSeconds || 0]
+      .concat(featureKeys.map((k) => (d.events && d.events[k]) || 0)).join(','));
+    const blob = new Blob(['\ufeff' + [head.join(',')].concat(rows).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bot-stats-' + anData.todayKey + '.csv';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  byId('anRange').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-range]');
+    if (!btn) return;
+    byId('anRange').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === btn));
+    anRange = btn.dataset.range === 'all' ? 'all' : Number(btn.dataset.range);
+    renderAnalytics();
+  });
+  byId('anSessionSearch').oninput = () => { if (anData) anRenderSessions(); };
+  byId('anCsv').onclick = anDownloadCsv;
+  const anVisible = () => !document.hidden && !byId('tabContentAnalytics').classList.contains('hidden');
+  setInterval(() => { if (anVisible()) loadAnalyticsData(); }, AN_REFRESH_MS);
+  let anResizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(anResizeT);
+    anResizeT = setTimeout(() => { if (anVisible()) renderAnalytics(); }, 150);
+  });
 
   byId('btnDoLogin').onclick = doLogin;
   byId('loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });

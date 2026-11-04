@@ -195,7 +195,6 @@
     }
 
     function saveDecks(sv) {
-      if (window.BotAnalytics) window.BotAnalytics.trackEvent('save_deck', 'บันทึกเด็ค');
       writeLocalDecks(sv);
       if (isLoggedIn()) {
         return pushDecks(sv);

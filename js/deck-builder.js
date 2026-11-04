@@ -717,6 +717,7 @@
     }
     sv[name] = { main: DB.deck.main, life: DB.deck.life };
     CardDB.saveDecks(sv);
+    if (window.BotAnalytics) window.BotAnalytics.trackEvent('save_deck', 'บันทึกเด็ค');
     if (typeof window.fillDeckSelect === 'function') window.fillDeckSelect();
     if (typeof window.fillMenuDeckSelects === 'function') window.fillMenuDeckSelects();
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }

@@ -53,6 +53,13 @@
   const sessionId = getSessionId();
   const device = getDeviceType();
 
+  function externalReferrer() {
+    try {
+      const ref = document.referrer || '';
+      return ref && new URL(ref).host !== location.host ? ref.slice(0, 200) : '';
+    } catch (e) { return ''; }
+  }
+
   async function sendPing(action) {
     const payload = {
       visitorId,
@@ -60,6 +67,7 @@
       device,
       token: getAuthToken(),
       url: window.location.pathname,
+      referrer: externalReferrer(),
       action: action || null,
     };
     try {
@@ -75,10 +83,13 @@
   // Initial page view event
   sendPing({ name: 'page_view', label: 'เข้าเว็บ' });
 
-  // Periodic heartbeat every 30 seconds
+  // Heartbeat every 30 seconds — พับจอแล้วหยุด เพื่อให้ยอดออนไลน์/เวลาใช้งานตรงกับคนที่เปิดดูอยู่จริง
   setInterval(() => {
-    sendPing(null);
+    if (!document.hidden) sendPing(null);
   }, 30000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) sendPing(null);
+  });
 
   // Expose global tracker
   window.BotAnalytics = {
