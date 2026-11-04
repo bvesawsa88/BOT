@@ -2025,6 +2025,7 @@
               "op": "modifyPower",
               "amount": 4,
               "duration": "permanent",
+              "destroyAtEnd": true,
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -2036,7 +2037,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 และจะถูกทำลายตอน End Phase (ถ้ากันทำลายได้ POWER ค้างจนออกจากสนาม)"
     },
     {
       "code": "BT02-046",
@@ -11783,15 +11784,29 @@
           },
           "actions": [
             {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ไอ้นัท"
+                ]
+              },
+              "dest": "attachToSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeColor": "ม่วง",
+          "actions": [
+            {
               "op": "modifyPower",
               "amount": 3,
-              "duration": "endOfTurn",
-              "layer": 4,
+              "duration": "combat",
               "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
+                "select": "self"
               }
             }
           ]
@@ -11805,14 +11820,17 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 3,
+              "amount": 2,
               "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "เลอติ๊ก เด็กไม่ชอบแดรคคูลา"
+                ]
               }
             }
           ]
@@ -26337,6 +26355,7 @@
               "op": "modifyPower",
               "amount": 4,
               "duration": "permanent",
+              "destroyAtEnd": true,
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -26348,7 +26367,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 และจะถูกทำลายตอน End Phase (ถ้ากันทำลายได้ POWER ค้างจนออกจากสนาม)"
     },
     {
       "code": "KD01-015",
@@ -30333,6 +30352,7 @@
               "op": "modifyPower",
               "amount": 4,
               "duration": "permanent",
+              "destroyAtEnd": true,
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -30344,7 +30364,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 และจะถูกทำลายตอน End Phase (ถ้ากันทำลายได้ POWER ค้างจนออกจากสนาม)"
     },
     {
       "code": "ODY1-087",

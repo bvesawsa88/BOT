@@ -23,6 +23,7 @@
 
   let EFFECTS = {};
   let EFFECTS_BY_NAME = {};
+  let EFFECT_PEERS_BY_NAME = {};
   /* วันจำหน่ายชุด (ms) — reprint ชื่อเดียวกันใช้ชุดที่จำหน่ายทีหลังเป็นหลัก (data/set-releases.json) */
   let SET_RELEASE_TS = Object.create(null);
   /* ค่าเริ่มต้น — sync กับ data/set-releases.json (Node/เทสต์ไม่ต้อง fetch) */
@@ -114,9 +115,11 @@
   }
   function rebuildNameIndex() {
     EFFECTS_BY_NAME = {};
+    EFFECT_PEERS_BY_NAME = {};
     for (const code in EFFECTS) {
       const e = EFFECTS[code];
       if (!e || !e.name) continue;
+      (EFFECT_PEERS_BY_NAME[e.name] || (EFFECT_PEERS_BY_NAME[e.name] = [])).push(e);
       const cur = EFFECTS_BY_NAME[e.name];
       if (effectBetter(e, cur)) EFFECTS_BY_NAME[e.name] = e;
     }
@@ -156,9 +159,10 @@
   function inheritMetaFromNamePeers(chosen, nm) {
     if (!chosen || !nm) return chosen;
     let out = null;
-    for (const code in EFFECTS) {
-      const peer = EFFECTS[code];
-      if (!peer || peer === chosen || peer.name !== nm) continue;
+    const peers = EFFECT_PEERS_BY_NAME[nm] || [];
+    for (let p = 0; p < peers.length; p++) {
+      const peer = peers[p];
+      if (peer === chosen) continue;
       for (let i = 0; i < INHERIT_META_KEYS.length; i++) {
         const k = INHERIT_META_KEYS[i];
         if (chosen[k] != null) continue;
@@ -4514,6 +4518,55 @@
     }
   }
 
+  /* ไม่มีการยกเลิกความสามารถ (กดไม่ใช้ หรือ React ที่ขัดถูกขัดกลับ) — ทำความสามารถที่ค้างไว้ต่อ */
+  function continueAbilityAfterNoReact(st, fx, rng) {
+    if (!st._pendingAbility) return;
+    const pend = st._pendingAbility; delete st._pendingAbility;
+    if (pend.cancelled) {
+      addLog(st, 'S', `ความสามารถถูกยกเลิกแล้ว — ไม่ทำงาน`);
+    } else if (pend.type === 'unity' || pend.type === 'humanShield' || pend.type === 'backstab'
+      || pend.type === 'declareAtkAuto' || pend.type === 'whenAttackedAuto' || pend.type === 'defenderAtkAuto') {
+      resumeAbilityReactPending(st, fx, pend, rng);
+    } else if (pend.type === 'costPaidActivate') {
+      if (pend.juti && offerRichNegateOnJuti(st, fx, pend.owner, pend.src, {
+        type: 'costPaidActivate', k: pend.src, src: pend.src, owner: pend.owner,
+        actions: pend.actions || [], keepSrc: true
+      })) {
+        /* รอคนรวย */
+      } else {
+        runPaidCostEffect(st, fx, {
+          src: pend.src, owner: pend.owner, actions: pend.actions || [],
+          keepSrc: pend.keepSrc !== false, counterAtkCtx: pend.counterAtkCtx || null,
+          onceTag: pend.onceTag || null
+        }, rng);
+      }
+    } else if (pend.type === 'activateFull') {
+      payCostAndRunActivated(st, fx, pend.owner, pend.src, pend.costList || [], pend.actions || [], rng);
+    } else if (pend.type === 'activate' && pend.actions) {
+      // หลังข้าม React ในมือ — ให้คนรวยยกเลิกจุติได้ก่อนรันผล
+      if (offerRichNegateOnJuti(st, fx, pend.owner, pend.src, {
+        type: 'summonedJuti', k: pend.src, owner: pend.owner,
+        actions: pend.actions, costList: pend.costList || []
+      })) {
+        /* รอคนรวย */
+      } else if (pend.costList && pend.costList.length)
+        payCostAndRunActivated(st, fx, pend.owner, pend.src, pend.costList, pend.actions, rng);
+      else
+        runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng });
+    } else if (pend.type === 'summoned') {
+      triggerSummon(st, fx, pend.k, pend.owner, Object.assign({}, pend.opts || {}, { _skipReact: true }));
+    } else if (pend.type === 'declareAtk' && pend.actions) {
+      runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng, attacker: pend.src });
+      if (st._pendingDeclareBuff && st._pendingDeclareBuff.length) {
+        st._pendingDeclareBuff.splice(0).forEach(pb => {
+          if (pb.k === pend.src) applySelfPowerBuffsFromAb(st, pb.k, pb.ab, pb.label || 'โจมตี');
+        });
+      }
+    } else if (pend.type === 'chooseMode' && pend.actions) {
+      runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng, onceTag: pend.onceTag || null });
+    }
+  }
+
   function superAirCostIds(st, owner, spec) {
     spec = spec || {};
     const needle = spec.nameIncludesExtra || 'Super Air';
@@ -4944,6 +4997,7 @@
       runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, toHellAfter: toHell, rng: r });
       fireEnemyActivate(st, fx, pend.owner, r);
     } else if (pend.type === 'reactActions') {
+      if (pend.abilityReact) noteAbilityReactCancel(st, pend.target);
       // React อื่น (อุบัติเหตุ ฯลฯ) หลังไม่ถูกชายจากอนาคตยกเลิก
       if (pend.mode === 'destroyAttacker') {
         if (st.inst[pend.target] && (zoneOf(st, pend.target) || '').endsWith('.avatar')) {
@@ -5011,6 +5065,7 @@
         markMagicTypeUsed(st, pend.owner, magicSubtype(st.inst[pend.src]) || 'React');
       }
       if (zoneOf(st, pend.src)) doMove(st, pend.src, pend.owner + '.hell', null, fx);
+      if (pend.abilityReact) resumeAbilityReactIfNeeded(st, fx, r);
       fx.snd = 'clash';
       // เทคจุติ: โดนอุบัติเหตุทำลายแล้วยังรันจุติ
       if (pend.pendingSummon) resumePendingSummon(st, fx, pend.pendingSummon);
@@ -5070,6 +5125,10 @@
           && (pend.innerPending.actions || []).some(x => x.op === 'preventDestroy'))
       )) {
         resumeWouldDestroy(st, fx, false);
+      } else if (pend.innerPending && pend.innerPending.abilityReact) {
+        // React ขัดความสามารถถูกขัดกลับ — ความสามารถที่ค้างไว้ทำงานต่อ
+        continueAbilityAfterNoReact(st, fx, r);
+        if (pend.innerPending.pendingSummon) resumePendingSummon(st, fx, pend.innerPending.pendingSummon);
       } else if (pend.innerPending && pend.innerPending.pendingSummon) {
         resumePendingSummon(st, fx, pend.innerPending.pendingSummon);
       } else if (cancelledLandPlay) {
@@ -8370,7 +8429,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     const untilOf = (ac) => ac.duration === 'permanent' ? 'permanent' : (ac.duration === 'endOfTurn' ? 'endOfTurn' : 'combat');
     const untilLabel = (u) => u === 'permanent' ? ' ถาวร' : u === 'endOfTurn' ? ' จนจบเทิร์น' : ' จนจบการต่อสู้';
     const applyFight = (fighter, foe) => {
-      abil(st, fighter, 'onFight').forEach(ab => (ab.actions || []).forEach(ac => {
+      abil(st, fighter, 'onFight').filter(ab => !ab.foeColor || (foe && st.inst[foe] && st.inst[foe].color === ab.foeColor)).forEach(ab => (ab.actions || []).forEach(ac => {
         if (ac.op === 'modifyPower' && ac.target && ac.target.select === 'self') {
           const until = untilOf(ac);
           st.buffs.push({ k: fighter, amt: ac.amount || 0, until, from: fighter, onFight: true });
@@ -9222,7 +9281,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if (!avs.length || avs.some(id => !nameMatches(st.inst[id], needle)))
               return deny(`ใช้ไม่ได้ — Avatar Zone ต้องมีเพียง "${needle}" เท่านั้น`);
           }
-          if (abOnly && abOnly.requireOwnNameIncludes) {
+          if (abOnly && abOnly.requireOwnNameIncludes && c.subtype !== 'Land') { // Land: วางได้เสมอ — เช็คตอนสั่งใช้
             const ok = (st.zones[owner + '.avatar'] || []).some(id => nameMatches(st.inst[id], abOnly.requireOwnNameIncludes));
             if (!ok) return deny(`ใช้ "${c.name}" ไม่ได้ — ต้องมี Avatar ชื่อมี "${abOnly.requireOwnNameIncludes}" บนสนาม`);
           }
@@ -9834,13 +9893,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               resolvePendingMagic(st, fx, pend, rng);
               break;
             }
-            if (p.abilityReact) {
-              noteAbilityReactCancel(st, p.target);
-            } else if (offerMagicNegateReact(st, fx, p.chooser, p.src)) {
+            if (offerMagicNegateReact(st, fx, p.chooser, p.src)) {
               st._pendingMagic = {
                 type: 'reactActions', src: p.src, owner: p.chooser,
                 actions: p.actions || [], target: p.target, triggerSource: p.target,
-                mode: p.mode || 'runActions', pendingSummon
+                mode: p.mode || 'runActions', pendingSummon, abilityReact: !!p.abilityReact
               };
               fx.snd = 'place';
               break;
@@ -11795,14 +11852,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           resolvePendingMagic(st, fx, pend, rng);
           break;
         }
-        if (p.abilityReact) {
-          noteAbilityReactCancel(st, p.target);
-        } else if (offerMagicNegateReact(st, fx, p.chooser, p.src)) {
+        if (offerMagicNegateReact(st, fx, p.chooser, p.src)) {
           // React อื่น (อุบัติเหตุ ฯลฯ) — ให้ฝ่ายตรงข้ามขัดด้วยชายจากอนาคตก่อน
           st._pendingMagic = {
             type: 'reactActions', src: p.src, owner: p.chooser,
             actions: p.actions || [], target: p.target, triggerSource: p.target,
-            mode: p.mode || 'runActions', pendingSummon
+            mode: p.mode || 'runActions', pendingSummon, abilityReact: !!p.abilityReact
           };
           fx.snd = 'place';
           break;
@@ -11864,52 +11919,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           fx.snd = 'clash';
           break;
         }
-        if (p.abilityReact && st._pendingAbility) {
-          const pend = st._pendingAbility; delete st._pendingAbility;
-          if (pend.cancelled) {
-            addLog(st, 'S', `ความสามารถถูกยกเลิกแล้ว — ไม่ทำงาน`);
-          } else if (pend.type === 'unity' || pend.type === 'humanShield' || pend.type === 'backstab'
-            || pend.type === 'declareAtkAuto' || pend.type === 'whenAttackedAuto' || pend.type === 'defenderAtkAuto') {
-            resumeAbilityReactPending(st, fx, pend, rng);
-          } else if (pend.type === 'costPaidActivate') {
-            if (pend.juti && offerRichNegateOnJuti(st, fx, pend.owner, pend.src, {
-              type: 'costPaidActivate', k: pend.src, src: pend.src, owner: pend.owner,
-              actions: pend.actions || [], keepSrc: true
-            })) {
-              /* รอคนรวย */
-            } else {
-              runPaidCostEffect(st, fx, {
-                src: pend.src, owner: pend.owner, actions: pend.actions || [],
-                keepSrc: pend.keepSrc !== false, counterAtkCtx: pend.counterAtkCtx || null,
-                onceTag: pend.onceTag || null
-              }, rng);
-            }
-          } else if (pend.type === 'activateFull') {
-            payCostAndRunActivated(st, fx, pend.owner, pend.src, pend.costList || [], pend.actions || [], rng);
-          } else if (pend.type === 'activate' && pend.actions) {
-            // หลังข้าม React ในมือ — ให้คนรวยยกเลิกจุติได้ก่อนรันผล
-            if (offerRichNegateOnJuti(st, fx, pend.owner, pend.src, {
-              type: 'summonedJuti', k: pend.src, owner: pend.owner,
-              actions: pend.actions, costList: pend.costList || []
-            })) {
-              /* รอคนรวย */
-            } else if (pend.costList && pend.costList.length)
-              payCostAndRunActivated(st, fx, pend.owner, pend.src, pend.costList, pend.actions, rng);
-            else
-              runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng });
-          } else if (pend.type === 'summoned') {
-            triggerSummon(st, fx, pend.k, pend.owner, Object.assign({}, pend.opts || {}, { _skipReact: true }));
-          } else if (pend.type === 'declareAtk' && pend.actions) {
-            runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng, attacker: pend.src });
-            if (st._pendingDeclareBuff && st._pendingDeclareBuff.length) {
-              st._pendingDeclareBuff.splice(0).forEach(pb => {
-                if (pb.k === pend.src) applySelfPowerBuffsFromAb(st, pb.k, pb.ab, pb.label || 'โจมตี');
-              });
-            }
-          } else if (pend.type === 'chooseMode' && pend.actions) {
-            runActions(st, fx, pend.actions, { src: pend.src, owner: pend.owner, rng, onceTag: pend.onceTag || null });
-          }
-        }
+        if (p.abilityReact) continueAbilityAfterNoReact(st, fx, rng);
         // ไม่ใช้อุบัติเหตุ → Avatar รอด → รันจุติ
         if (pendingSummon) resumePendingSummon(st, fx, pendingSummon);
         break;

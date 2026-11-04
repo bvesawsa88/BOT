@@ -938,6 +938,7 @@
               "op": "modifyPower",
               "amount": 4,
               "duration": "permanent",
+              "destroyAtEnd": true,
               "target": {
                 "select": "choose",
                 "type": "Avatar",
@@ -949,7 +950,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 ถาวร (จนกว่าจะออกจากสนาม)"
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 และจะถูกทำลายตอน End Phase (ถ้ากันทำลายได้ POWER ค้างจนออกจากสนาม)"
     },
     {
       "code": "BT02-046",

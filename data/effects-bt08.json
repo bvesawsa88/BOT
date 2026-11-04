@@ -268,15 +268,29 @@
           },
           "actions": [
             {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ไอ้นัท"
+                ]
+              },
+              "dest": "attachToSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeColor": "ม่วง",
+          "actions": [
+            {
               "op": "modifyPower",
               "amount": 3,
-              "duration": "endOfTurn",
-              "layer": 4,
+              "duration": "combat",
               "target": {
-                "select": "choose",
-                "type": "Avatar",
-                "count": 1,
-                "side": "any"
+                "select": "self"
               }
             }
           ]
@@ -290,14 +304,17 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 3,
+              "amount": 2,
               "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "เลอติ๊ก เด็กไม่ชอบแดรคคูลา"
+                ]
               }
             }
           ]

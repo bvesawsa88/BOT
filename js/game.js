@@ -2623,6 +2623,8 @@
   /* ── บอทฝั่ง B — heuristic + BotAI (อาร์คไทป์ / เงื่อนไขแลนด์ / ลำดับเทค) ── */
   function botActive() { return mode === 'solo' && soloBot && st && !st.over && !byId('table').classList.contains('hidden'); }
   function botDelayMs() {
+    const pr = st && (st.prompts || [])[0];
+    if (pr && pr.kind === 'react' && pr.chooser === 'B' && !(pr.options && pr.options.length)) return 40;
     const lv = getBotLevel();
     return lv === 'easy' ? 900 : lv === 'nightmare' ? 360 : lv === 'hard' ? 480 : 650;
   }
@@ -4168,7 +4170,7 @@
     if (opts.extraClass) String(opts.extraClass).split(/\s+/).filter(Boolean).forEach(c => classes.push(c));
     // ไฮไลต์เป้าที่เลือกได้ของ prompt + React ที่เปิดใช้ได้ (เขียว)
     const pr0 = (st.prompts || [])[0];
-    if (pr0 && (mode === 'solo' || seat === pr0.chooser) && BoTEngine.promptTargetOk(st, k)) {
+    if (pr0 && (mode === 'solo' || seat === pr0.chooser) && promptTargetCached(pr0, k)) {
       classes.push(pr0.kind === 'react' ? 'react-pick' : 'targetable');
       if (pr0.from === 'ownMagic') classes.push('pick-ok');
     }
@@ -4295,7 +4297,19 @@
     return `<div class="pile-top" data-cid="${topId}" style="background-image:url('${esc(imgUrl)}')"></div>`;
   };
 
+  /* เป้าของ prompt ใช้ร่วมกันทั้งรอบวาด — ล้างตอนเริ่มวาดและจบ tick กันค่าเก่า */
+  let promptTargetSet = null, promptTargetFor = null;
+  function clearPromptTargetCache() { promptTargetSet = null; promptTargetFor = null; }
+  function promptTargetCached(pr, k) {
+    if (!promptTargetSet || promptTargetFor !== pr) {
+      promptTargetSet = new Set(BoTEngine.promptCandidates(st, pr) || []);
+      promptTargetFor = pr;
+      Promise.resolve().then(clearPromptTargetCache);
+    }
+    return promptTargetSet.has(k);
+  }
   function render() {
+    clearPromptTargetCache();
     if (!st) return;
     if (STREAM) {
       byId('roomInfo').textContent = '📺 บานสนาม (ถ่ายทอด)' + (room ? ' · ห้อง #' + room : '') + ' — ไม่แสดงการ์ดในมือ';
@@ -5521,6 +5535,7 @@
     }
   }
   function renderPileView() {
+    clearPromptTargetCache();
     const ov = byId('pileView');
     // โหมดเลือกจากเอฟเฟกต์ (สอดแนม/ค้นเด็ค/เลือกจากนรก) — เปิดค้างจนกว่าจะเลือกหรือข้าม
     const pp = st && (st.prompts || [])[0];

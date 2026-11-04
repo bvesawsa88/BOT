@@ -157,6 +157,8 @@ function deck(st) { for (let i = 0; i < 8; i++) { put(st, 'A.deck', 'SD01-007');
   const pr = st.prompts.find(p => p.kind === 'react' && p.chooser === 'A');
   ok(pr && (pr.options || []).includes(monkey), 'ลิง: เปิด React ให้ใช้เมื่อศัตรูสั่งใช้ความสามารถ Avatar');
   act(st, { type: 'reactYes', k: monkey, by: 'A', seed: 5 });
+  ok(st.prompts[0] && st.prompts[0].chooser === 'B' && st.prompts[0].magicNegate && st.prompts[0].target === monkey, 'ลิง: เปิดหน้าต่างให้ศัตรูขัดลิงก่อน');
+  act(st, { type: 'reactNo', by: 'B', seed: 6 });
   ok(zone(st, mako) === 'B.avatar' && !st.prompts.some(p => p.src === mako && p.chooser === 'B' && p.kind === 'pick'),
     'ลิง: ความสามารถของ Avatar ศัตรูถูกยกเลิก');
   ok(BoT.effPower(st, mako) === 6, 'ลิง: มาโกะสูญเสียความสามารถต่อเนื่อง (POWER กลับเป็น 6)');

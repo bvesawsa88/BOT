@@ -39,6 +39,11 @@ function put(st, zone, code, extra) {
   st.zones[zone].push(k);
   return k;
 }
+/* React ขัดความสามารถเปิดหน้าต่างให้ศัตรูขัดกลับก่อน — ศัตรูไม่ขัด */
+function passCounter(st) {
+  while ((st.prompts || [])[0] && st.prompts[0].kind === 'react' && st.prompts[0].magicNegate)
+    apply(st, { type: 'reactNo', by: st.prompts[0].chooser });
+}
 function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); }
 function apply(st, a) { return BoT.applyAction(st, a); }
 function zone(st, k) { return BoT.zoneOf(st, k); }
@@ -163,6 +168,7 @@ function skipNegate(st) {
   const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact);
   ok(react && react.options && react.options.includes(hyper), 'hypersense offered on enemy activate');
   apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  passCounter(st);
   ok(!!st.inst[enemy].nullifyUntilEOT, 'enemy nullified until EOT');
 }
 
@@ -180,6 +186,7 @@ function skipNegate(st) {
   ok(react && react.options && react.options.includes(hyper),
     'hypersense offered on enemy juti (no accident): ' + JSON.stringify((st.prompts || []).map(p => p.kind + ':' + (p.reactTrigger || ''))));
   apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  passCounter(st);
   ok(!!st.inst[juti].nullifyUntilEOT, 'juti avatar nullified until EOT');
 }
 
@@ -242,6 +249,7 @@ function skipNegate(st) {
   const react = (st.prompts || []).find(p => p.kind === 'react' && p.abilityReact);
   ok(react && react.options && react.options.includes(hyper), 'hypersense offered on human shield');
   apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  passCounter(st);
   ok(!!st.inst[sh].nullifyUntilEOT, 'shield avatar nullified');
   ok(!st.inst[sh].tapped, 'shield cancelled — not tapped');
   ok(st.pending && st.pending.def === def, 'attack still on original def');
@@ -276,6 +284,7 @@ function skipNegate(st) {
   const base = BoT.effPower(st, narai);
   apply(st, { type: 'declareAttack', atk: narai, def, by: 'B' });
   apply(st, { type: 'reactYes', k: hyper, by: 'A' });
+  passCounter(st);
   ok(!!st.inst[narai].nullifyUntilEOT, 'narai nullified');
   ok(BoT.effPower(st, narai) === base, 'auto POWER cancelled by hypersense');
   ok(!!st.inst[narai].tapped, 'attack still declared (tapped)');
