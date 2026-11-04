@@ -9119,29 +9119,8 @@
     {
       "code": "BT06-060",
       "name": "คาเฟ่หมาแมว",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "code": "BT06-061",
@@ -9181,19 +9160,22 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "any",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "BT06-063",
@@ -9237,13 +9219,14 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -9255,7 +9238,7 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "BT06-065",
@@ -10170,23 +10153,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พี่หน่วง",
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "BT07-027",
@@ -11283,29 +11263,8 @@
     {
       "code": "BT07-068",
       "name": "ดินแดนหิมะสีเทา",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "code": "BT07-069",
@@ -11624,19 +11583,20 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน",
+                "excludeSelf": true
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "BT08-005",
@@ -12530,30 +12490,8 @@
     {
       "code": "BT08-032",
       "name": "ชาโค่ล Overdose",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "code": "BT08-033",
@@ -13656,25 +13594,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "cost": 0
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "BT08-068",
@@ -13684,18 +13622,17 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
-                "side": "own",
+                "side": "any",
                 "zone": "avatarZone",
                 "nameIncludes": [
                   "บึงทมิฬ People"
@@ -13705,7 +13642,7 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "BT08-069",
@@ -18849,29 +18786,8 @@
     {
       "code": "BT10-071",
       "name": "Myth Universe Podcast",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "code": "BT10-072",
@@ -18918,25 +18834,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "side": "any",
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "BT10-074",
@@ -20173,34 +20089,16 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
+              "op": "deckPick",
+              "filter": {
                 "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+                "nameIncludes": [
+                  "สมาชม"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
             }
           ]
         },
@@ -20213,8 +20111,7 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
+              "amount": -1,
               "layer": 3,
               "target": {
                 "select": "all",
@@ -20226,7 +20123,7 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "BT11-032",
@@ -25363,24 +25260,15 @@
       "name": "ดินแดนแห่งความหลากหลาย",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==landZone"
           },
-          "condition": {
-            "own": {
-              "avatarZone": {
-                "min": 2,
-                "allDistinctSymbols": true
-              }
-            }
-          },
+          "requireOwnAvatarsDistinctSymbolsMin": 2,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -25392,7 +25280,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "Land ต่อเนื่อง: ถ้า AZ ฝ่ายเรามี Avatar 2+ ใบ Symbol ไม่ซ้ำ → Avatar ทุกใบ POWER+1"
     },
     {
@@ -32991,30 +32879,8 @@
     {
       "code": "PRMO-094",
       "name": "ชาโค่ล Overdose",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "code": "PRMO-095",
@@ -33252,29 +33118,8 @@
     {
       "code": "PRMO-103",
       "name": "ดินแดนหิมะสีเทา",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "code": "PRMO-104",
@@ -33284,25 +33129,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "PRMO-105",
@@ -33325,30 +33170,9 @@
               }
             }
           ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "PRMO-106",
@@ -36538,19 +36362,22 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "any",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "RM01-059",
@@ -38980,23 +38807,21 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireCritical": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial",
+      "controlImmune": true
     },
     {
       "code": "SD06-002",
@@ -39008,23 +38833,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnConstructNameIncludes": "ค่ายบางระจัน",
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-003",
@@ -39047,30 +38869,9 @@
               }
             }
           ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-004",
@@ -39116,23 +38917,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "onlyOppTurn": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-006",
@@ -39408,25 +39206,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-019",
@@ -39995,13 +39793,12 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -40010,13 +39807,14 @@
                 "zone": "avatarZone",
                 "nameIncludes": [
                   "ขุนพล"
-                ]
+                ],
+                "color": "ม่วง"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD07-021",

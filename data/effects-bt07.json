@@ -768,23 +768,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พี่หน่วง",
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "ทนายกิ๊บ"
     },
     {
@@ -1883,29 +1880,8 @@
     },
     {
       "code": "BT07-068",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "ดินแดนหิมะสีเทา"
     },
     {

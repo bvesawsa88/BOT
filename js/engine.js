@@ -3453,6 +3453,13 @@
             const hasOther = ['A', 'B'].some(s => (st.zones[s + '.avatar'] || []).some(id => id !== src && st.inst[id]));
             if (!hasOther) return;
           }
+          if (ab.requireCritical && !inCritical(st, srcOwn)) return;
+          if (ab.requireOwnConstructNameIncludes && !(st.zones[srcOwn + '.construct'] || []).some(id => nameMatches(st.inst[id], ab.requireOwnConstructNameIncludes))) return;
+          if (ab.requireOwnAvatarsDistinctSymbolsMin) {
+            const ids = st.zones[srcOwn + '.avatar'] || [];
+            const syms = ids.reduce((all, id) => all.concat(cardSymbols(st, id)), []);
+            if (ids.length < ab.requireOwnAvatarsDistinctSymbolsMin || new Set(syms).size !== syms.length) return;
+          }
           if (ab.requireOwnAnyLinked && !anyOwnLinked(st, srcOwn)) return;
           if (ab.requireOwnLinkedNamesAll && !ownLinkedNamesAll(st, srcOwn, ab.requireOwnLinkedNamesAll)) return;
           if (ab.unlessOwnLinkedNamesAll && ownLinkedNamesAll(st, srcOwn, ab.unlessOwnLinkedNamesAll)) return;
@@ -3518,6 +3525,7 @@
               if (t.color && c.color !== t.color) return;
               if (t.nameIncludes && !t.nameIncludes.some(n => nameMatches(c, n))) return;
               if (t.nameNotIncludes && t.nameNotIncludes.some(n => nameMatches(c, n))) return;
+              if (t.textIncludes && !(c.effect || '').includes(t.textIncludes)) return;
               if (t.requireLinked && !inLinkStatus(st, k)) return;
               if (t.requireAttachedNameIncludes && !hasAttachedNameIncludes(st, k, t.requireAttachedNameIncludes)) return;
               if (t.cost != null && (+c.cost || 0) !== +t.cost) return;

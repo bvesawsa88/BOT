@@ -889,30 +889,8 @@
         "BT08-032",
         "PRMO-094"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto"
+      "abilities": [],
+      "parseStatus": "partial"
     },
     {
       "name": "ช่างตัดเสื้อ อาณาจักรของแพง",

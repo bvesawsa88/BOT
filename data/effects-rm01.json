@@ -947,19 +947,22 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "any",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "code": "RM01-059",

@@ -110,19 +110,20 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน",
+                "excludeSelf": true
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "name": "น้าเอี๊ยด นักบรรเลง"
     },
     {
@@ -1016,30 +1017,8 @@
     },
     {
       "code": "BT08-032",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "ชาโค่ล Overdose"
     },
     {
@@ -2148,25 +2127,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "cost": 0
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "สนามของนักวิ่งตัวจริง"
     },
     {
@@ -2176,18 +2155,17 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
-                "side": "own",
+                "side": "any",
                 "zone": "avatarZone",
                 "nameIncludes": [
                   "บึงทมิฬ People"
@@ -2197,7 +2175,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "name": "ยิมทมิฬ"
     },
     {

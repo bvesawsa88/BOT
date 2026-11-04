@@ -10,23 +10,21 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireCritical": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial",
+      "controlImmune": true
     },
     {
       "code": "SD06-002",
@@ -38,23 +36,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnConstructNameIncludes": "ค่ายบางระจัน",
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-003",
@@ -77,30 +72,9 @@
               }
             }
           ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-004",
@@ -146,23 +120,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "onlyOppTurn": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-006",
@@ -438,25 +409,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD06-019",

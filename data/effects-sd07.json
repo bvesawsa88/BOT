@@ -426,13 +426,12 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -441,13 +440,14 @@
                 "zone": "avatarZone",
                 "nameIncludes": [
                   "ขุนพล"
-                ]
+                ],
+                "color": "ม่วง"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "SD07-021",

@@ -1694,29 +1694,8 @@
     },
     {
       "code": "BT06-060",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "คาเฟ่หมาแมว"
     },
     {
@@ -1762,19 +1741,22 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "any",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "nameIncludes": [
+                  "นาค"
+                ],
+                "symbol": "สัตว์วิเศษ"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "ถ้ำนาคา"
     },
     {
@@ -1818,13 +1800,14 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -1836,7 +1819,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "name": "เวทีเพื่อชีวิต"
     },
     {

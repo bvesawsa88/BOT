@@ -2618,29 +2618,8 @@
     },
     {
       "code": "BT10-071",
-      "abilities": [
-        {
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==landZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
+      "abilities": [],
+      "parseStatus": "partial",
       "name": "Myth Universe Podcast"
     },
     {
@@ -2687,25 +2666,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "side": "any",
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "partial",
       "name": "ดวงจันทร์วันเพ็ญ"
     },
     {

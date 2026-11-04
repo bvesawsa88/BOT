@@ -50,25 +50,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "ดวงจันทร์วันเพ็ญ",
@@ -80,25 +80,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "side": "any",
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "นครทิเนนทอล",
@@ -280,13 +280,14 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -298,7 +299,7 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "name": "สนามของนักวิ่งตัวจริง",
@@ -310,25 +311,25 @@
           "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
-            "if": "self.zone==avatarZone"
+            "if": "self.zone==construct"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "cost": 0
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "name": "เสาธง",

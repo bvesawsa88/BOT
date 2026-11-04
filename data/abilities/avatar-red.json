@@ -444,23 +444,21 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireCritical": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "controlImmune": true,
+      "parseStatus": "partial"
     },
     {
       "name": "จิวท่าย ขุนพลคนเหล็กแห่งง่อก๊ก",
@@ -1466,30 +1464,9 @@
               }
             }
           ]
-        },
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
-              }
-            }
-          ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "ทาโกะซัง สูตรสวรรค์",
@@ -2008,19 +1985,20 @@
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
                 "type": "Avatar",
                 "side": "own",
-                "zone": "avatarZone"
+                "zone": "avatarZone",
+                "textIncludes": "ค่ายบางระจัน",
+                "excludeSelf": true
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "นินจาไร้นาม",
@@ -2989,23 +2967,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "onlyOppTurn": true,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "พี่เช 10 ล้อท่าอิฐ",
@@ -5044,23 +5019,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnConstructNameIncludes": "ค่ายบางระจัน",
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "อีช่า - สาวน้อยคนเก่ง",

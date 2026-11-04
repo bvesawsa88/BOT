@@ -1199,34 +1199,16 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
+              "op": "deckPick",
+              "filter": {
                 "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+                "nameIncludes": [
+                  "สมาชม"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
             }
           ]
         },
@@ -1239,8 +1221,7 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
+              "amount": -1,
               "layer": 3,
               "target": {
                 "select": "all",
@@ -1252,7 +1233,7 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "code": "BT11-032",

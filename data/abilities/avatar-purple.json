@@ -198,34 +198,16 @@
           },
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "choose",
+              "op": "deckPick",
+              "filter": {
                 "type": "Avatar",
-                "count": 1,
-                "side": "any"
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
+                "nameIncludes": [
+                  "สมาชม"
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "shuffleAfter": true
             }
           ]
         },
@@ -238,8 +220,7 @@
           "actions": [
             {
               "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
+              "amount": -1,
               "layer": 3,
               "target": {
                 "select": "all",
@@ -251,7 +232,7 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "partial"
     },
     {
       "name": "งี่เง่ากับงอแง",
@@ -1276,23 +1257,20 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireOwnNameIncludes": "พี่หน่วง",
           "actions": [
             {
               "op": "modifyPower",
               "amount": 2,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone"
+                "select": "self"
               }
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "verified"
     },
     {
       "name": "ทนายเตะปาก",

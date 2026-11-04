@@ -1013,24 +1013,15 @@
       "name": "ดินแดนแห่งความหลากหลาย",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
           "trigger": {
             "on": "static",
             "if": "self.zone==landZone"
           },
-          "condition": {
-            "own": {
-              "avatarZone": {
-                "min": 2,
-                "allDistinctSymbols": true
-              }
-            }
-          },
+          "requireOwnAvatarsDistinctSymbolsMin": 2,
           "actions": [
             {
               "op": "modifyPower",
               "amount": 1,
-              "duration": "whileOnField",
               "layer": 3,
               "target": {
                 "select": "all",
@@ -1042,7 +1033,7 @@
           ]
         }
       ],
-      "parseStatus": "auto",
+      "parseStatus": "verified",
       "note": "Land ต่อเนื่อง: ถ้า AZ ฝ่ายเรามี Avatar 2+ ใบ Symbol ไม่ซ้ำ → Avatar ทุกใบ POWER+1"
     },
     {
