@@ -430,7 +430,9 @@ function createStore(opts) {
 
   /* ── schedule / flush (debounce + ทำทีละงาน) ── */
   const pushers = { users: pushUsers, settings: pushSettings, analytics: pushAnalytics, uploads: pushUploads };
-  const delays = { users: 400, settings: 400, analytics: 5000, uploads: 400 };
+  const delays = { users: 400, settings: 400, analytics: 60000, uploads: 400 };
+  // heartbeat ทำให้สถิติเปลี่ยนตลอด ถ้า debounce แบบเลื่อนเวลาจะไม่มีวันได้ push → ใช้รอบเวลาคงที่แทน
+  const throttled = { analytics: true };
   const timers = {};
   const dirty = new Set();
   let chain = Promise.resolve();
@@ -450,8 +452,9 @@ function createStore(opts) {
     if (!enabled || !pushers[kind]) return;
     dirty.add(kind);
     if (!hydrated) return; // ยัง hydrate ไม่เสร็จ — จะ flush หลัง hydrate
+    if (throttled[kind] && timers[kind]) return;
     clearTimeout(timers[kind]);
-    timers[kind] = setTimeout(() => runKind(kind), delay == null ? delays[kind] : delay);
+    timers[kind] = setTimeout(() => { timers[kind] = null; runKind(kind); }, delay == null ? delays[kind] : delay);
   }
 
   async function flush() {

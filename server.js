@@ -1353,25 +1353,25 @@ async function handleAdminApi(req, res, urlPath) {
     const analytics = loadAnalytics();
     const now = Date.now();
     let currentActiveCount = 0;
-    for (const [sId, sData] of activeAnalyticsSessions.entries()) {
-      if (now - sData.lastPing < 60000) {
-        currentActiveCount++;
-      }
+    for (const sData of activeAnalyticsSessions.values()) {
+      if (now - sData.lastPing < ANALYTICS_ONLINE_MS) currentActiveCount++;
     }
 
-    const dateKey = new Date().toISOString().slice(0, 10);
-    const today = analytics.daily[dateKey] || { visits: 0, uniques: 0, botGames: 0, onlineGames: 0, deckSaves: 0, peakOnline: 0 };
-
+    const dateKey = analyticsDayKey(now);
     json(res, 200, {
       ok: true,
       analytics: {
+        serverTime: now,
+        cloudSync: ANALYTICS_CLOUD_SYNC && cloud.enabled,
+        todayKey: dateKey,
+        onlineWindowMs: ANALYTICS_ONLINE_MS,
         activeOnline: currentActiveCount,
         peakOnline: analytics.peakOnline || { count: 0, timestamp: null },
-        today,
+        today: Object.assign(newAnalyticsDay(), analytics.daily[dateKey]),
         totals: analytics.totals,
         devices: analytics.devices,
         authTypes: analytics.authTypes,
-        recentSessions: (analytics.recentSessions || []).slice(0, 100),
+        recentSessions: analytics.recentSessions || [],
         daily: analytics.daily,
       }
     });
@@ -1384,6 +1384,43 @@ async function handleAdminApi(req, res, urlPath) {
 /* ── Analytics Engine ── */
 const ANALYTICS_FILE = path.join(ROOT, 'data', 'analytics.json');
 const activeAnalyticsSessions = new Map();
+const ANALYTICS_ONLINE_MS = 60000;          // ไม่มี ping เกินนี้ = ไม่ออนไลน์แล้ว
+const ANALYTICS_SESSION_MS = 30 * 60000;    // เงียบเกินนี้ กลับมาอีกครั้งนับเป็นการเข้าชมใหม่
+const ANALYTICS_MAX_GAP_MS = 90000;         // ช่วงห่าง ping ที่ยังนับเป็นเวลาใช้งาน (พับจอแล้วไม่นับ)
+const ANALYTICS_TZ_MS = 7 * 3600000;        // ตัดวัน/ชั่วโมงตามเวลาไทย
+const ANALYTICS_MAX_DAYS = 400;
+const ANALYTICS_MAX_SESSIONS = 100;
+const ANALYTICS_MAX_ACTIONS = 20;
+const ANALYTICS_MAX_DAY_VISITORS = 10000;
+/* ping ไม่ต้องล็อกอิน → รับเฉพาะชื่อ event ที่รู้จัก ไม่งั้นเอกสารสถิติจะบวมได้ไม่จำกัด */
+const ANALYTICS_EVENTS = new Set([
+  'page_view', 'view_lobby', 'view_decks', 'view_gallery', 'view_howto', 'open_campaign',
+  'play_bot', 'play_solo', 'play_online', 'join_online', 'play_campaign',
+  'bot_win', 'bot_lose', 'finish_game', 'save_deck',
+]);
+/* ซิงก์สถิติขึ้น Firestore เฉพาะเซิร์ฟเวอร์จริง — เครื่อง dev ใช้โปรเจกต์เดียวกันแต่ต้องไม่เขียนทับยอดจริง */
+const ANALYTICS_CLOUD_SYNC = !!(process.env.RENDER || process.env.K_SERVICE || process.env.ANALYTICS_CLOUD === '1');
+
+function analyticsDayKey(ms) { return new Date(ms + ANALYTICS_TZ_MS).toISOString().slice(0, 10); }
+function analyticsHour(ms) { return new Date(ms + ANALYTICS_TZ_MS).getUTCHours(); }
+function newAnalyticsDay() {
+  return {
+    visits: 0, uniques: 0, newVisitors: 0, botGames: 0, onlineGames: 0, deckSaves: 0, peakOnline: 0,
+    activeSeconds: 0, hours: new Array(24).fill(0), events: {}, devices: {}, authTypes: {}, sources: {},
+  };
+}
+function analyticsSource(referrer) {
+  if (!referrer) return 'direct';
+  let host = '';
+  try { host = new URL(String(referrer)).hostname.toLowerCase(); } catch (e) { return 'other'; }
+  if (/(^|\.)(facebook\.com|fb\.com|fb\.me|messenger\.com)$/.test(host)) return 'facebook';
+  if (/(^|\.)(discord\.com|discord\.gg|discordapp\.com)$/.test(host)) return 'discord';
+  if (/(^|\.)google\.[a-z.]+$/.test(host)) return 'google';
+  if (/(^|\.)(line\.me|line-apps\.com)$/.test(host)) return 'line';
+  if (/(^|\.)(youtube\.com|youtu\.be)$/.test(host)) return 'youtube';
+  if (/(^|\.)tiktok\.com$/.test(host)) return 'tiktok';
+  return 'other';
+}
 
 function loadAnalytics() {
   const defaultData = {
@@ -1393,6 +1430,7 @@ function loadAnalytics() {
     devices: { desktop: 0, mobile: 0, tablet: 0 },
     authTypes: { guest: 0, local: 0, google: 0, discord: 0 },
     uniqueVisitorsSet: [],
+    dayVisitors: { date: '', ids: [] },
     recentSessions: [],
   };
   try {
@@ -1416,7 +1454,7 @@ function saveAnalytics(data) {
     try { fs.unlinkSync(ANALYTICS_FILE); } catch (e2) { }
     fs.renameSync(tmp, ANALYTICS_FILE);
   }
-  cloud.schedule('analytics');
+  if (ANALYTICS_CLOUD_SYNC) cloud.schedule('analytics');
 }
 
 async function handleAnalyticsPing(req, res) {
@@ -1425,8 +1463,8 @@ async function handleAnalyticsPing(req, res) {
   try { body = JSON.parse(await readBody(req, 16384) || '{}'); }
   catch (e) { json(res, 400, { ok: false, error: 'invalid json' }); return; }
 
-  const visitorId = String(body.visitorId || '').slice(0, 64);
-  const sessionId = String(body.sessionId || '').slice(0, 64);
+  const visitorId = String(body.visitorId || '').replace(/[^\w-]/g, '').slice(0, 64);
+  const sessionId = String(body.sessionId || '').replace(/[^\w-]/g, '').slice(0, 64);
   const device = ['desktop', 'mobile', 'tablet'].includes(body.device) ? body.device : 'desktop';
   const token = String(body.token || '');
   const action = body.action && typeof body.action === 'object' ? body.action : null;
@@ -1448,32 +1486,54 @@ async function handleAnalyticsPing(req, res) {
   }
 
   const now = Date.now();
-  const dateKey = new Date().toISOString().slice(0, 10);
+  const dateKey = analyticsDayKey(now);
   const analytics = loadAnalytics();
 
-  if (!analytics.daily[dateKey]) {
-    analytics.daily[dateKey] = { visits: 0, uniques: 0, botGames: 0, onlineGames: 0, deckSaves: 0, peakOnline: 0 };
-  }
+  analytics.daily[dateKey] = Object.assign(newAnalyticsDay(), analytics.daily[dateKey]);
   const today = analytics.daily[dateKey];
+  const dayKeys = Object.keys(analytics.daily).sort();
+  while (dayKeys.length > ANALYTICS_MAX_DAYS) delete analytics.daily[dayKeys.shift()];
 
+  if (!Array.isArray(analytics.recentSessions)) analytics.recentSessions = [];
+  const recent = analytics.recentSessions;
+  const rowIdx = recent.findIndex((s) => s.sessionId === sessionId);
+
+  // เซิร์ฟเวอร์เพิ่ง restart → กู้ session จากไฟล์ ไม่นับเป็นการเข้าชมใหม่
   let sess = activeAnalyticsSessions.get(sessionId);
+  if (!sess && rowIdx >= 0) sess = recent[rowIdx];
+  if (sess && now - sess.lastPing >= ANALYTICS_SESSION_MS) sess = null;
+
   if (!sess) {
     analytics.totals.visits = (analytics.totals.visits || 0) + 1;
-    today.visits = (today.visits || 0) + 1;
+    today.visits += 1;
+    const hour = analyticsHour(now);
+    today.hours[hour] = (today.hours[hour] || 0) + 1;
 
     if (!Array.isArray(analytics.uniqueVisitorsSet)) analytics.uniqueVisitorsSet = [];
     if (!analytics.uniqueVisitorsSet.includes(visitorId)) {
       analytics.uniqueVisitorsSet.push(visitorId);
       if (analytics.uniqueVisitorsSet.length > 50000) analytics.uniqueVisitorsSet.shift();
       analytics.totals.uniques = (analytics.totals.uniques || 0) + 1;
-      today.uniques = (today.uniques || 0) + 1;
+      today.newVisitors += 1;
+    }
+
+    if (!analytics.dayVisitors || analytics.dayVisitors.date !== dateKey) analytics.dayVisitors = { date: dateKey, ids: [] };
+    const dayId = visitorId.slice(2, 14);
+    if (!analytics.dayVisitors.ids.includes(dayId)) {
+      if (analytics.dayVisitors.ids.length < ANALYTICS_MAX_DAY_VISITORS) analytics.dayVisitors.ids.push(dayId);
+      today.uniques += 1;
     }
 
     if (!analytics.devices) analytics.devices = { desktop: 0, mobile: 0, tablet: 0 };
     analytics.devices[device] = (analytics.devices[device] || 0) + 1;
+    today.devices[device] = (today.devices[device] || 0) + 1;
 
     if (!analytics.authTypes) analytics.authTypes = { guest: 0, local: 0, google: 0, discord: 0 };
     analytics.authTypes[authType] = (analytics.authTypes[authType] || 0) + 1;
+    today.authTypes[authType] = (today.authTypes[authType] || 0) + 1;
+
+    const source = analyticsSource(body.referrer);
+    today.sources[source] = (today.sources[source] || 0) + 1;
 
     sess = {
       sessionId,
@@ -1481,44 +1541,52 @@ async function handleAnalyticsPing(req, res) {
       device,
       authType,
       username,
-      startTime: new Date().toISOString(),
+      source,
+      startTime: new Date(now).toISOString(),
       lastPing: now,
       actions: []
     };
-    activeAnalyticsSessions.set(sessionId, sess);
-
-    if (!Array.isArray(analytics.recentSessions)) analytics.recentSessions = [];
-    analytics.recentSessions.unshift(sess);
-    if (analytics.recentSessions.length > 200) analytics.recentSessions.pop();
+    recent.unshift(sess);
+    recent.length = Math.min(recent.length, ANALYTICS_MAX_SESSIONS);
   } else {
+    const gap = now - sess.lastPing;
+    if (gap > 0 && gap <= ANALYTICS_MAX_GAP_MS) today.activeSeconds += Math.round(gap / 1000);
     sess.lastPing = now;
     sess.username = username;
     sess.authType = authType;
+    // recent มาจากไฟล์ที่เพิ่งโหลด เป็นคนละ object กับใน Map — ต้องใส่กลับ ไม่งั้นกิจกรรมจะไม่ถูกบันทึก
+    if (rowIdx >= 0) recent[rowIdx] = sess;
+    else {
+      recent.unshift(sess);
+      recent.length = Math.min(recent.length, ANALYTICS_MAX_SESSIONS);
+    }
   }
+  activeAnalyticsSessions.set(sessionId, sess);
 
-  if (action && action.name) {
-    const actName = String(action.name).slice(0, 32);
-    const actLabel = String(action.label || actName).slice(0, 64);
-    sess.actions.push({ time: new Date().toISOString(), name: actName, label: actLabel });
-    if (sess.actions.length > 50) sess.actions.shift();
+  const actName = action && ANALYTICS_EVENTS.has(action.name) ? action.name : '';
+  if (actName) {
+    const actLabel = String(action.label || actName).slice(0, 48);
+    sess.actions.push({ time: new Date(now).toISOString(), name: actName, label: actLabel });
+    if (sess.actions.length > ANALYTICS_MAX_ACTIONS) sess.actions.shift();
+    today.events[actName] = (today.events[actName] || 0) + 1;
 
     if (actName === 'play_bot') {
       analytics.totals.botGames = (analytics.totals.botGames || 0) + 1;
-      today.botGames = (today.botGames || 0) + 1;
+      today.botGames += 1;
     } else if (actName === 'play_online') {
       analytics.totals.onlineGames = (analytics.totals.onlineGames || 0) + 1;
-      today.onlineGames = (today.onlineGames || 0) + 1;
+      today.onlineGames += 1;
     } else if (actName === 'save_deck') {
       analytics.totals.deckSaves = (analytics.totals.deckSaves || 0) + 1;
-      today.deckSaves = (today.deckSaves || 0) + 1;
+      today.deckSaves += 1;
     }
   }
 
   let currentActiveCount = 0;
   for (const [sId, sData] of activeAnalyticsSessions.entries()) {
-    if (now - sData.lastPing < 60000) {
+    if (now - sData.lastPing < ANALYTICS_ONLINE_MS) {
       currentActiveCount++;
-    } else if (now - sData.lastPing > 1800000) {
+    } else if (now - sData.lastPing > ANALYTICS_SESSION_MS) {
       activeAnalyticsSessions.delete(sId);
     }
   }
