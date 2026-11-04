@@ -1648,22 +1648,25 @@ body.stream-win #roomInfo{opacity:.8}
 .bot-update-banner button:hover{filter:brightness(1.15);transform:scale(1.03)}
 .bot-update-banner button:active{transform:scale(.97)}
 @keyframes botSlideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+/* ป้ายเล็กตรงรอยต่อสองสนาม — ไม่ทับแถวมือ/โซนการ์ดของอีกฝ่าย ไม่ว่าถือการ์ดกี่ใบ */
 .teacher-banner{
-  position:fixed;top:14px;left:50%;transform:translateX(-50%);
-  z-index:9999;display:flex;align-items:center;gap:12px;
+  position:absolute;top:0;left:4px;transform:translateY(-50%);
+  z-index:9999;display:flex;align-items:center;gap:4px;
   background:rgba(20,32,54,.94);border:1.5px solid #4a90e2;
-  color:#e4efff;padding:7px 16px;border-radius:20px;
-  box-shadow:0 6px 25px rgba(0,0,0,.6);font-size:13px;
+  color:#e4efff;padding:2px 3px;border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.5);font-size:13px;line-height:1;
   font-family:'IBM Plex Sans Thai',sans-serif;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  animation:botSlideDown .3s ease;
 }
 .teacher-banner button{
   background:#3a7bd5;color:#fff;border:none;
-  padding:4px 12px;border-radius:12px;font-weight:700;
+  padding:4px 6px;border-radius:8px;font-weight:700;
   font-size:11px;cursor:pointer;transition:filter .15s;
 }
 .teacher-banner button:hover{filter:brightness(1.2)}
+@media (max-width:1100px) and (orientation:landscape),(max-height:520px) and (orientation:landscape){
+  .teacher-banner{top:-20px}
+}
 #btnTeacherMode.active{
   background:#1e4c7a;color:#d5ebff;border-color:#4a90e2;
   box-shadow:0 0 8px rgba(74,144,226,.4);
@@ -1776,6 +1779,18 @@ body.stream-win #roomInfo{opacity:.8}
 #reactWin .rw-timer:empty{display:none}
 #reactWin .rw-timer.urgent{background:#c0392b;animation:reactPickPulse .6s ease-in-out infinite}
 #reactWin .rw-minbtn{background:transparent;border:1px solid #3dcf7a;color:#bff5d3;border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer}
+/* การ์ดที่อีกฝ่ายใช้ — ด้านบนของหน้าต่าง */
+#reactWin .rw-cause{display:flex;gap:10px;align-items:flex-start;width:auto;margin:2px 12px 8px;padding:6px;text-align:left;
+  background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.18);border-radius:10px;color:#fff;cursor:pointer}
+#reactWin .rw-cause-img{flex:none;width:84px;aspect-ratio:63/88;background-size:cover;background-position:center;background-color:#222;border-radius:6px}
+#reactWin .rw-cause-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#reactWin .rw-cause-lbl{font-size:12px;color:#9fd8b4;line-height:1.3}
+#reactWin .rw-cause-name{font-size:15px;font-weight:700;line-height:1.25}
+#reactWin .rw-cause-eff{font-size:12px;line-height:1.4;color:#dfe9e2;max-height:6.8em;overflow-y:auto}
+#reactWin .rw-sub{padding:0 12px 2px;font-size:13px;font-weight:700;color:#bff5d3}
+#reactWin.rw-info .rw-title{color:#ffe08a}
+#promptBar.rw-covered{display:none!important}
+#reactWin.rw-min .rw-cause,#reactWin.rw-min .rw-sub{display:none}
 #reactWin .rw-why{padding:0 12px 8px;color:#dfe9e2;font-size:13px;line-height:1.4}
 #reactWin .rw-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:6px 12px 10px;overflow-y:auto;min-height:0}
 #reactWin .rw-card{width:118px;background:#0f1712;border:2px solid #3dcf7a;border-radius:10px;padding:4px;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .12s,box-shadow .12s}
@@ -1793,4 +1808,18 @@ body.stream-win #roomInfo{opacity:.8}
 @media (max-width:600px){
   #reactWin .rw-card{width:calc(33% - 8px);min-width:88px}
   #reactWin.rw-min{bottom:120px}
+}
+
+/* จอเตี้ย (มือถือแนวนอน): ย่อส่วนการ์ดอีกฝ่าย ให้เห็นการ์ดของเราครบ */
+@media (max-height:520px){
+  #reactWin{top:50%;width:min(720px,calc(100vw - 80px));max-height:calc(100vh - 12px)}
+  #reactWin .rw-head{padding:6px 10px 2px}
+  #reactWin .rw-cause{margin:2px 10px 4px;padding:4px}
+  #reactWin .rw-cause-img{width:44px}
+  #reactWin .rw-cause-eff{max-height:2.9em}
+  #reactWin .rw-cards{padding:2px 10px 4px;gap:8px}
+  #reactWin .rw-card{width:78px;padding:2px}
+  #reactWin .rw-name{font-size:11px;max-height:1.3em}
+  #reactWin .rw-zone{display:none}
+  #reactWin .rw-foot{padding:4px 10px 6px}
 }

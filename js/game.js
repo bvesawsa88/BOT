@@ -243,12 +243,16 @@
     let win = byId('reactWin');
     const ids = mine ? reactWinCands(pr) : [];
     const infoOnly = !!(mine && !ids.length && pr && pr.kind === 'react' && (pr.magicNegate || pr.mode === 'negateMagic'));
+    const pBar = byId('promptBar');
     if (!ids.length && !infoOnly) {
       if (win) win.classList.add('hidden');
+      if (pBar) pBar.classList.remove('rw-covered');
       reactWinKey = ''; reactWinMin = false;
       clearReactInfo();
       return;
     }
+    // หน้าต่างบอกครบแล้ว — ซ่อนแถบข้อความซ้ำ (ย่อหน้าต่างอยู่ = เหลือแถบไว้ดูว่ากำลังถามอะไร)
+    if (pBar) pBar.classList.toggle('rw-covered', infoOnly || !reactWinMin);
     if (!win) {
       win = document.createElement('div');
       win.id = 'reactWin';
@@ -316,13 +320,15 @@
         <div class="rw-img" style="background-image:url('${esc(img)}')"></div>
         <div class="rw-name">${esc(c.name)}</div>${zl ? `<div class="rw-zone">${zl}</div>` : ''}</button>`;
     }).join('');
+    // การ์ดต้นเหตุอาจเป็นของเราเอง (เช่น Avatar ที่กำลังจะถูกทำลาย) — อย่าขึ้นว่าอีกฝ่ายใช้
+    const byOpp = !!(pr.target && st.inst[pr.target] && BoTEngine.ownerOf(st, pr.target) !== pr.chooser);
     win.classList.toggle('rw-min', reactWinMin);
     win.innerHTML = `<div class="rw-box">
-      <div class="rw-head"><div class="rw-title">${pr.target && st.inst[pr.target] ? '⚡ อีกฝ่ายใช้การ์ด' : '💚 React ที่ใช้ได้'}</div>
+      <div class="rw-head"><div class="rw-title">${byOpp ? '⚡ อีกฝ่ายใช้การ์ด' : '💚 React ที่ใช้ได้'}</div>
         <div class="rw-timer" id="reactWinTimer"></div>
         <button class="rw-minbtn" data-rw="min">${reactWinMin ? 'เปิดหน้าต่าง' : 'ย่อ / ดูสนาม'}</button></div>
       ${reactCauseHtml(pr) || `<div class="rw-why">${BotUtil.formatEffect(txt || '')}</div>`}
-      <div class="rw-sub">💚 จะใช้อะไรขัด? (${ids.length} ใบ)</div>
+      <div class="rw-sub">💚 ${byOpp ? 'จะใช้อะไรขัด?' : 'จะใช้ใบไหน?'} (${ids.length} ใบ)</div>
       <div class="rw-cards">${cards}</div>
       <div class="rw-foot"><span class="rw-hint">แตะการ์ดเพื่อใช้</span><button class="btn-dark rw-no" data-rw="no">${noLbl}</button></div>
     </div>`;
@@ -920,8 +926,31 @@
     syncHomeBtn();
   }
 
+  const VIEW_EVENTS = {
+    lobby: ['view_lobby', 'เปิดห้องออนไลน์'],
+    decks: ['view_decks', 'เปิดหน้าเด็ค'],
+    gallery: ['view_gallery', 'เปิดคลังการ์ด'],
+    howto: ['view_howto', 'เปิดวิธีเล่น'],
+  };
   function showScreen(name) {
     applyScreen(name);
+    if (VIEW_EVENTS[name] && window.BotAnalytics) window.BotAnalytics.trackEvent(VIEW_EVENTS[name][0], VIEW_EVENTS[name][1]);
+  }
+  /* เจ้าของห้องเป็นคนนับ 1 เกม — ฝั่งที่เข้าร่วมบันทึกแยกเพื่อไม่ให้ยอดเกมซ้ำ */
+  function trackOnlineStart(isHost) {
+    if (!window.BotAnalytics || seat === 'S') return;
+    if (isHost) window.BotAnalytics.trackEvent('play_online', 'เล่นออนไลน์ (เจ้าของห้อง)');
+    else window.BotAnalytics.trackEvent('join_online', 'เล่นออนไลน์ (เข้าร่วม)');
+  }
+  let gameEndTracked = 0;
+  function trackGameEnd(winner) {
+    if (!window.BotAnalytics || seat === 'S' || gameEndTracked === gameStart) return;
+    gameEndTracked = gameStart;
+    const mins = Math.max(1, Math.round((Date.now() - gameStart) / 60000));
+    if (mode === 'solo' && soloBot) {
+      const won = winner === 'A';
+      window.BotAnalytics.trackEvent(won ? 'bot_win' : 'bot_lose', (won ? 'ชนะบอท' : 'แพ้บอท') + ' (' + mins + ' นาที)');
+    } else window.BotAnalytics.trackEvent('finish_game', 'จบเกม (' + mins + ' นาที)');
   }
   window.BOT = { showScreen, _st: () => st, _seat: () => seat, _mode: () => mode }; // showScreen ให้ deck-builder/gallery · debug helpers
 
@@ -1292,6 +1321,7 @@
       if (m.t === 'start') {
         ensurePlayReady().then(() => {
           st = m.state; seqNum = m.seq; gameStart = Date.now(); selMap = {}; startTable();
+          trackOnlineStart(seat === 'A');
         });
         return;
       }
@@ -1591,6 +1621,7 @@
       lanSend({ t: 'start', state: st, seq: 0 });
       reportTable('lan');
       startTable();
+      trackOnlineStart(true);
     }).catch(err => {
       console.error('lanHostStartGame error:', err);
       toast('โหลดข้อมูลการ์ดไม่สำเร็จ');
@@ -1702,6 +1733,7 @@
         lanAutoMatch = false;
         presenceSetStatus('busy');
         startTable();
+        trackOnlineStart(false);
       }).catch(err => {
         console.error('Failed to start table on guest:', err);
         toast('เกิดข้อผิดพลาดในการโหลดเกม: ' + (err && err.message || err));
@@ -4136,6 +4168,7 @@
     if (mode === 'solo' && soloBot && typeof BotUniversal !== 'undefined' && BotUniversal.recordResult)
       BotUniversal.recordResult(st, winner);
     if (teacherMode && teacherSession) saveTeacherSession(winner === my);
+    trackGameEnd(winner);
   }
 
   /* ── render โต๊ะ ── */
@@ -6855,6 +6888,7 @@
         mullMode = false;
         gameStart = Date.now();
         startTable();
+        if (soloBot && window.BotAnalytics) window.BotAnalytics.trackEvent('play_bot', 'รีแมตช์บอท');
         persistUI(true);
         toast('รีแมตช์ — เริ่มเกมใหม่');
       } catch (err) {
@@ -7542,6 +7576,7 @@
       toast(`ฝั่ง A: ${act.name} · ฝั่ง B: ${opp.name}`);
       gameStart = Date.now(); selMap = {};
       startTable();
+      if (window.BotAnalytics) window.BotAnalytics.trackEvent('play_solo', 'เล่นคนเดียว 2 ฝั่ง');
     }).catch(() => toast('โหลดข้อมูลการ์ดไม่สำเร็จ'));
   }
   function startBotMatch() {

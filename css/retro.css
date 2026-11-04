@@ -334,6 +334,21 @@ html[data-theme="light"] .cp-screen .cp-pips i{background:rgba(24,24,40,.18)}
 html[data-theme="light"] #table{background:var(--px-sky)}
 html #board{background:var(--px-stars),var(--px-sky);background-size:160px 160px,100% 100%}
 
+/* ── แถบครูผู้สอน (ป้ายเล็ก) + หน้าต่าง React: กรอบพิกเซล ทั้งสองโหมด ── */
+html .teacher-banner{padding:2px 3px;border-width:2px!important;box-shadow:2px 2px 0 #000!important}
+html .teacher-banner button{padding:3px 5px;box-shadow:none!important;border-width:2px!important;font-size:11px}
+#reactWin .rw-box{background:var(--px-win)!important;border:4px solid var(--px-line)!important;border-radius:0!important;
+  box-shadow:0 0 0 4px var(--px-outer),8px 8px 0 4px rgba(0,0,0,.45)!important}
+#reactWin .rw-title,#reactWin.rw-info .rw-title,#reactWin .rw-sub{color:var(--px-accent)}
+#reactWin .rw-cause{background:var(--px-win2);border:3px solid var(--px-mid);border-radius:0;color:var(--px-line)}
+#reactWin .rw-cause-img,#reactWin .rw-img{border-radius:0}
+#reactWin .rw-cause-lbl,#reactWin .rw-hint,#reactWin .rw-zone{color:var(--px-dim)}
+#reactWin .rw-cause-eff,#reactWin .rw-why{color:var(--cream2)}
+#reactWin .rw-card{background:var(--px-win2);border:3px solid var(--px-green);border-radius:0;color:var(--px-line)}
+#reactWin .rw-minbtn{border:2px solid var(--px-line);border-radius:0;color:var(--px-line)}
+#reactWin .rw-timer{border-radius:0}
+#reactWin .rw-foot{border-top:3px solid var(--px-mid)}
+
 /* ── ปุ่มสลับโหมด ── */
 .theme-btn{min-width:38px;padding:6px 10px!important;font-size:15px!important;line-height:1}
 .theme-btn .t-ico{display:inline-block;animation:pxBob 1.6s steps(2) infinite}

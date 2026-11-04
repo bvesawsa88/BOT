@@ -16,12 +16,12 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png">
 <title>Battle of Talingchan — โต๊ะออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261103m">
+<link rel="stylesheet" href="css/style.css?v=20261104d">
 <link rel="stylesheet" href="css/campaign.css?v=20261103">
-<link rel="stylesheet" href="css/retro.css?v=20261103g">
+<link rel="stylesheet" href="css/retro.css?v=20261104b">
 <script src="js/theme.js?v=20261103"></script>
 <script src="js/security.js?v=20260822"></script>
-<script src="js/analytics.js?v=20260831"></script>
+<script src="js/analytics.js?v=20261104"></script>
 <script src="js/firebase-init.js?v=20261103c" defer></script>
 </head>
 <body>
@@ -809,10 +809,6 @@
     </div>
   </div>
 
-  <div id="teacherBanner" class="teacher-banner hidden">
-    <span>🎓 <b>โหมดครูผู้สอน:</b> กำลังบันทึกการเล่นของคุณเป็นต้นแบบให้ AI...</span>
-    <button type="button" id="btnTeacherSave" class="btn-mini">บันทึกความรู้</button>
-  </div>
   <pre id="botAiDebug" class="bot-ai-debug hidden" aria-live="polite"></pre>
   <div id="phaseFlash" class="hidden"></div>
   <div id="annFlash" class="ann-flash"></div>
@@ -855,7 +851,7 @@
           </div>
 
           <!-- ฝั่งเรา -->
-          <div class="mat mat-my"><div class="mat-in">
+          <div class="mat mat-my"><div id="teacherBanner" class="teacher-banner hidden" title="โหมดครูผู้สอน: กำลังบันทึกการเล่นของคุณเป็นต้นแบบให้ AI"><span role="img" aria-label="โหมดครูผู้สอนเปิดอยู่">🎓</span><button type="button" id="btnTeacherSave" class="btn-mini" title="บันทึกความรู้ให้ AI">บันทึก</button></div><div class="mat-in">
             <div class="mz mz-construct" data-lb="CONSTRUCT" data-drop="" id="myConstructZone"><div id="myConstruct" class="zone-cards"></div></div>
             <div class="mz mz-land" data-lb="LAND" data-drop="land" id="myLandZone"><div id="land" class="zone-cards"></div></div>
             <div class="mz mz-avatar" data-lb="AVATAR" data-drop="" id="myAvatarZone"><b id="myAvatarTag" class="cap-badge"></b><div id="myAvatar" class="zone-cards"></div></div>
@@ -1318,10 +1314,10 @@
 
 <script src="js/util.js?v=20260822"></script>
 <script src="js/skins.js?v=20260822"></script>
-<script src="js/carddb.js?v=20260822"></script>
+<script src="js/carddb.js?v=20261104"></script>
 <script src="js/lan.js?v=20261103"></script>
 <script src="js/campaign.js?v=20261103"></script>
-<script src="js/game.js?v=20261103c"></script>
+<script src="js/game.js?v=20261104c"></script>
 <script>
 /* PWA: ติดตั้งเป็นแอปได้ (มือถือ+PC) — SW แบบ network-only ไม่แคช */
 if ('serviceWorker' in navigator) {
