@@ -274,14 +274,14 @@
           ]
         }
       ],
-      "costOnlyForSymbol": [
-        "ไอดอล",
-        "โปรดิวเซอร์"
-      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
       "hostAttachNameIncludes": "ไอดอล",
+      "costOnlyForNameIncludes": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "parseStatus": "auto",
       "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
@@ -309,6 +309,7 @@
           ]
         }
       ],
+      "oncePerTurnCard": true,
       "parseStatus": "auto"
     },
     {

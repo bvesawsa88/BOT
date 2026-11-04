@@ -483,7 +483,13 @@
       ],
       "parseStatus": "auto",
       "name": "กุ่ย หน้าตาดี",
-      "note": "คำสั่งเสีย : ธรณีสูบ 3 ใบ"
+      "note": "คำสั่งเสีย : ธรณีสูบ 3 ใบ",
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless"
     },
     {
       "code": "BT09-013",
@@ -504,7 +510,13 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "ฮอล หน้าตาดี"
+      "name": "ฮอล หน้าตาดี",
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless"
     },
     {
       "code": "BT09-014",
@@ -565,7 +577,13 @@
       ],
       "parseStatus": "auto",
       "name": "เพนกวินหิมะ เหลียง",
-      "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
+      "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ",
+      "nameAliases": [
+        "ทหารหิมะ"
+      ],
+      "extraSymbols": [
+        "ต่างชาติ"
+      ]
     },
     {
       "code": "BT09-016",
@@ -1150,7 +1168,8 @@
       ],
       "parseStatus": "auto",
       "name": "วินดิโก้",
-      "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
+      "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก",
+      "noPaidSummon": true
     },
     {
       "code": "BT09-033",
@@ -1257,7 +1276,8 @@
       "name": "เนฟิล ยักษ์ตัวสุดท้าย",
       "note": "คุมใบอื่นไม่ได้ / จบการต่อสู้ Power ลดตามศัตรูที่สู้ / Power 0 ทำลาย / คำสั่งเสีย หงาย LIFE 1",
       "uniqueOnField": true,
-      "blockModification": true
+      "blockModification": true,
+      "cannotBeAttached": true
     },
     {
       "code": "BT09-036",
@@ -1672,8 +1692,7 @@
       "parseStatus": "auto",
       "name": "ขอโทษสังคม",
       "note": "การขอโทษจาก DJ ปีโป้ ได้รับการยกโทษเสมอ",
-      "costOnlyForNameIncludes": "DJ ปีโป้",
-      "costOnlyForSymbol": [
+      "costOnlyForNameIncludes": [
         "DJ ปีโป้"
       ]
     },
@@ -2155,7 +2174,8 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "ค้อนโยเนียร์"
+      "name": "ค้อนโยเนียร์",
+      "oncePerTurnCard": true
     },
     {
       "code": "BT09-065",

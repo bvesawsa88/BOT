@@ -810,7 +810,8 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "พี่วัฒน์ BGN"
+      "name": "พี่วัฒน์ BGN",
+      "oncePerTurnCard": true
     },
     {
       "code": "BT07-028",

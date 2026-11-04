@@ -1233,7 +1233,11 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "nameAliases": [
+        "สมาชม"
+      ],
+      "uniqueOnField": true
     },
     {
       "code": "BT11-032",

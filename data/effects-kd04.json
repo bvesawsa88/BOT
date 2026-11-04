@@ -168,7 +168,9 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT03-006"
+      "note": "แมปจาก BT03-006",
+      "costOnlyForSymbol": "หุ่นยนต์",
+      "costOnlyForColor": "แดง"
     },
     {
       "code": "KD04-006",

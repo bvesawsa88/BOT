@@ -105,7 +105,10 @@
       ],
       "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone",
-      "costOnlyForNameIncludes": "ไอดอล"
+      "costOnlyForNameIncludes": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ]
     },
     {
       "code": "KD03-003",
@@ -341,7 +344,10 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "แมปจาก BT04-013"
+      "note": "แมปจาก BT04-013",
+      "costOnlyForNameIncludes": [
+        "ไอดอล"
+      ]
     },
     {
       "code": "KD03-010",
@@ -610,11 +616,11 @@
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
-      "costOnlyForSymbol": [
+      "hostAttachNameIncludes": "ไอดอล",
+      "costOnlyForNameIncludes": [
         "ไอดอล",
         "โปรดิวเซอร์"
-      ],
-      "hostAttachNameIncludes": "ไอดอล"
+      ]
     },
     {
       "code": "KD03-020",

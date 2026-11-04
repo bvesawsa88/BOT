@@ -17,7 +17,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "เทพ"
     },
     {
       "code": "BT03-002",
@@ -157,7 +158,9 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "หุ่นยนต์",
+      "costOnlyForColor": "แดง"
     },
     {
       "code": "BT03-007",
@@ -283,7 +286,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "กะปอม"
     },
     {
       "code": "BT03-013",

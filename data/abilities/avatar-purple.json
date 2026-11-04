@@ -232,6 +232,10 @@
           ]
         }
       ],
+      "nameAliases": [
+        "สมาชม"
+      ],
+      "uniqueOnField": true,
       "parseStatus": "partial"
     },
     {
@@ -2470,6 +2474,7 @@
           ]
         }
       ],
+      "oncePerTurnCard": true,
       "parseStatus": "auto"
     },
     {
@@ -3543,6 +3548,7 @@
           ]
         }
       ],
+      "noPaidSummon": true,
       "parseStatus": "auto",
       "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
     },
@@ -4364,6 +4370,10 @@
             }
           ]
         }
+      ],
+      "costOnlyForNameIncludes": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
       ],
       "parseStatus": "auto",
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone"

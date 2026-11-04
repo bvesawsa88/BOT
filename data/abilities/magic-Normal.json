@@ -278,7 +278,7 @@
           ]
         }
       ],
-      "costOnlyForSymbol": [
+      "costOnlyForNameIncludes": [
         "DJ ปีโป้"
       ],
       "parseStatus": "auto",
@@ -534,6 +534,9 @@
             }
           ]
         }
+      ],
+      "costOnlyForNameIncludes": [
+        "จอมเวทย์"
       ],
       "parseStatus": "auto",
       "note": "ใช้ได้เมื่อมี จอมเวทย์ : สอดแนม 5 ใบ อัญเชิญ จุติ จอมเวทย์"

@@ -509,6 +509,9 @@
           ]
         }
       ],
+      "nameAliases": [
+        "ขุนพล"
+      ],
       "parseStatus": "auto",
       "note": "จุติ : สอดแนม 3 ใบ เอา Modification Magic 1 ใบขึ้นมือ"
     },
@@ -884,6 +887,7 @@
           ]
         }
       ],
+      "uniqueOnField": true,
       "parseStatus": "auto",
       "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน"
     },
@@ -911,6 +915,9 @@
             }
           ]
         }
+      ],
+      "nameAliases": [
+        "ขุนพล"
       ],
       "parseStatus": "auto",
       "note": "คำสั่งเสีย : ทำลาย Avatar ศัตรู 1 ใบที่ Cost <= 3"
@@ -1014,6 +1021,9 @@
             }
           ]
         }
+      ],
+      "extraColors": [
+        "เขียว"
       ],
       "parseStatus": "auto",
       "note": "จุติ : สอดแนม Deck ศัตรู 3 ใบ แล้วเรียง"
@@ -2098,6 +2108,9 @@
           ]
         }
       ],
+      "extraSymbols": [
+        "หุ่นยนต์"
+      ],
       "parseStatus": "auto",
       "note": "คำสั่งเสีย : นำ Avatar อัศวิน 1 ใบ จากนรกขึ้นมือ"
     },
@@ -2604,6 +2617,7 @@
           ]
         }
       ],
+      "costOnlyForSymbol": "เทพ",
       "parseStatus": "auto"
     },
     {
@@ -3758,6 +3772,8 @@
           ]
         }
       ],
+      "costOnlyForSymbol": "หุ่นยนต์",
+      "costOnlyForColor": "แดง",
       "parseStatus": "auto"
     },
     {
@@ -3826,6 +3842,7 @@
           ]
         }
       ],
+      "oncePerTurnCard": true,
       "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
@@ -3873,6 +3890,7 @@
           ]
         }
       ],
+      "oncePerTurnCard": true,
       "parseStatus": "auto",
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },

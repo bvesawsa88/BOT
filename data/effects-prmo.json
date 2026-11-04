@@ -47,7 +47,8 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน"
+      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน",
+      "uniqueOnField": true
     },
     {
       "code": "PRMO-102",
@@ -3264,7 +3265,13 @@
       "code": "PRMO-094",
       "name": "ชาโค่ล Overdose",
       "abilities": [],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "ธรณีสูบ",
+        "สอดแนม"
+      ],
+      "overdoseLockOwnAbilities": true
     },
     {
       "code": "PRMO-135",

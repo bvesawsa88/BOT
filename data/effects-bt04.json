@@ -359,7 +359,9 @@
       ],
       "parseStatus": "auto",
       "name": "โอตะตัวกะปอม",
-      "costOnlyForNameIncludes": "ไอดอล"
+      "costOnlyForNameIncludes": [
+        "ไอดอล"
+      ]
     },
     {
       "code": "BT04-014",
@@ -1336,11 +1338,11 @@
       "drawOnAttachIfHostNameIncludes": "ไอดอล",
       "parseStatus": "auto",
       "hostAttachNameIncludes": "ไอดอล",
-      "costOnlyForSymbol": [
+      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์",
+      "costOnlyForNameIncludes": [
         "ไอดอล",
         "โปรดิวเซอร์"
-      ],
-      "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
+      ]
     },
     {
       "code": "BT04-055",

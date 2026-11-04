@@ -175,6 +175,12 @@
           ]
         }
       ],
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless",
       "parseStatus": "auto",
       "note": "คำสั่งเสีย : ธรณีสูบ 3 ใบ"
     },
@@ -689,6 +695,9 @@
           ]
         }
       ],
+      "nameAliases": [
+        "ขุนพล"
+      ],
       "parseStatus": "auto",
       "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
     },
@@ -1167,6 +1176,7 @@
           ]
         }
       ],
+      "costOnlyForSymbol": "กะปอม",
       "parseStatus": "auto"
     },
     {
@@ -2493,6 +2503,12 @@
             }
           ]
         }
+      ],
+      "nameAliases": [
+        "ทหารหิมะ"
+      ],
+      "extraSymbols": [
+        "ต่างชาติ"
       ],
       "parseStatus": "auto",
       "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
@@ -4808,6 +4824,9 @@
           ]
         }
       ],
+      "costOnlyForNameIncludes": [
+        "ไอดอล"
+      ],
       "parseStatus": "auto"
     },
     {
@@ -5068,6 +5087,12 @@
           ]
         }
       ],
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless",
       "parseStatus": "auto"
     },
     {

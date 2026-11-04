@@ -150,7 +150,10 @@
       ],
       "parseStatus": "auto",
       "name": "ซุนกวน ผู้นำพยัคฆ์แห่งง่อก๊ก",
-      "note": "คำสั่งเสีย : ทำลาย Avatar ศัตรู 1 ใบที่ Cost <= 3"
+      "note": "คำสั่งเสีย : ทำลาย Avatar ศัตรู 1 ใบที่ Cost <= 3",
+      "nameAliases": [
+        "ขุนพล"
+      ]
     },
     {
       "code": "BT08-006",
@@ -178,7 +181,10 @@
       ],
       "parseStatus": "auto",
       "name": "จิวยี่ กุนซือสำอางแห่งง่อก๊ก",
-      "note": "จุติ : สอดแนม 3 ใบ เอา Modification Magic 1 ใบขึ้นมือ"
+      "note": "จุติ : สอดแนม 3 ใบ เอา Modification Magic 1 ใบขึ้นมือ",
+      "nameAliases": [
+        "ขุนพล"
+      ]
     },
     {
       "code": "BT08-007",
@@ -349,7 +355,8 @@
       ],
       "parseStatus": "auto",
       "name": "ซาบะริว นักกวาดล้างมือเก๋า",
-      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน"
+      "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน",
+      "uniqueOnField": true
     },
     {
       "code": "BT08-012",
@@ -594,7 +601,10 @@
       ],
       "parseStatus": "auto",
       "name": "โจโฉ ผู้นำเบ็ดเสร็จแห่งวุยก๊ก",
-      "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
+      "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ",
+      "nameAliases": [
+        "ขุนพล"
+      ]
     },
     {
       "code": "BT08-019",
@@ -1019,7 +1029,13 @@
       "code": "BT08-032",
       "abilities": [],
       "parseStatus": "partial",
-      "name": "ชาโค่ล Overdose"
+      "name": "ชาโค่ล Overdose",
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "ธรณีสูบ",
+        "สอดแนม"
+      ],
+      "overdoseLockOwnAbilities": true
     },
     {
       "code": "BT08-033",
@@ -1109,7 +1125,10 @@
         }
       ],
       "parseStatus": "auto",
-      "name": "เล่าปี่ ผู้นำคุณธรรมแห่งจ๊กก๊ก"
+      "name": "เล่าปี่ ผู้นำคุณธรรมแห่งจ๊กก๊ก",
+      "nameAliases": [
+        "ขุนพล"
+      ]
     },
     {
       "code": "BT08-036",

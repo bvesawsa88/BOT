@@ -2922,8 +2922,7 @@
       const info = payGemInfo(st.inst[o], c0);
       const ok = BoTEngine.gemPaysFor ? BoTEngine.gemPaysFor(info.gc, avColor) : (!avColor || info.gc === 'ขาว' || info.gc === avColor);
       const pe = BoTEngine.effectOf && BoTEngine.effectOf(st.inst[o].code, st.inst[o].name);
-      if (pe && pe.costOnlyForNameIncludes && !(c0.name || '').includes(pe.costOnlyForNameIncludes)) continue;
-      if (pe && pe.costOnlyForSymbol && c0.symbol !== pe.costOnlyForSymbol) continue;
+      if (BoTEngine.costOnlyDeny(st.inst[o], c0)) continue;
       // เก็บแลนด์/เอนเอเบลอร์เด็คไว้จ่ายทีหลัง
       let keep = botCardVal(o);
       const AI = botAI();

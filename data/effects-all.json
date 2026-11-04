@@ -2423,7 +2423,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "เทพ"
     },
     {
       "code": "BT03-002",
@@ -2563,7 +2564,9 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "หุ่นยนต์",
+      "costOnlyForColor": "แดง"
     },
     {
       "code": "BT03-007",
@@ -2689,7 +2692,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "กะปอม"
     },
     {
       "code": "BT03-013",
@@ -4188,7 +4192,10 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForNameIncludes": [
+        "ไอดอล"
+      ]
     },
     {
       "code": "BT04-014",
@@ -5155,14 +5162,14 @@
         }
       ],
       "parseStatus": "auto",
-      "costOnlyForSymbol": [
-        "ไอดอล",
-        "โปรดิวเซอร์"
-      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
       "hostAttachNameIncludes": "ไอดอล",
+      "costOnlyForNameIncludes": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
@@ -10194,7 +10201,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "oncePerTurnCard": true
     },
     {
       "code": "BT07-028",
@@ -11622,6 +11630,9 @@
         }
       ],
       "parseStatus": "auto",
+      "nameAliases": [
+        "ขุนพล"
+      ],
       "note": "คำสั่งเสีย : ทำลาย Avatar ศัตรู 1 ใบที่ Cost <= 3"
     },
     {
@@ -11650,6 +11661,9 @@
         }
       ],
       "parseStatus": "auto",
+      "nameAliases": [
+        "ขุนพล"
+      ],
       "note": "จุติ : สอดแนม 3 ใบ เอา Modification Magic 1 ใบขึ้นมือ"
     },
     {
@@ -11821,6 +11835,7 @@
         }
       ],
       "parseStatus": "auto",
+      "uniqueOnField": true,
       "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน"
     },
     {
@@ -12066,6 +12081,9 @@
         }
       ],
       "parseStatus": "auto",
+      "nameAliases": [
+        "ขุนพล"
+      ],
       "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
     },
     {
@@ -12491,7 +12509,13 @@
       "code": "BT08-032",
       "name": "ชาโค่ล Overdose",
       "abilities": [],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "ธรณีสูบ",
+        "สอดแนม"
+      ],
+      "overdoseLockOwnAbilities": true
     },
     {
       "code": "BT08-033",
@@ -12581,7 +12605,10 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "nameAliases": [
+        "ขุนพล"
+      ]
     },
     {
       "code": "BT08-036",
@@ -14232,6 +14259,12 @@
         }
       ],
       "parseStatus": "auto",
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless",
       "note": "คำสั่งเสีย : ธรณีสูบ 3 ใบ"
     },
     {
@@ -14253,7 +14286,13 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "gemAsCostForNameIncludes": [
+        "กุ่ย",
+        "ฮอล",
+        "นาย"
+      ],
+      "gemAsCostColor": "colorless"
     },
     {
       "code": "BT09-014",
@@ -14314,6 +14353,12 @@
         }
       ],
       "parseStatus": "auto",
+      "nameAliases": [
+        "ทหารหิมะ"
+      ],
+      "extraSymbols": [
+        "ต่างชาติ"
+      ],
       "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
     },
     {
@@ -14897,6 +14942,7 @@
         }
       ],
       "parseStatus": "auto",
+      "noPaidSummon": true,
       "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
     },
     {
@@ -15003,6 +15049,7 @@
       ],
       "parseStatus": "auto",
       "uniqueOnField": true,
+      "cannotBeAttached": true,
       "note": "คุมใบอื่นไม่ได้ / จบการต่อสู้ Power ลดตามศัตรูที่สู้ / Power 0 ทำลาย / คำสั่งเสีย หงาย LIFE 1"
     },
     {
@@ -15417,7 +15464,7 @@
         }
       ],
       "parseStatus": "auto",
-      "costOnlyForSymbol": [
+      "costOnlyForNameIncludes": [
         "DJ ปีโป้"
       ],
       "note": "การขอโทษจาก DJ ปีโป้ ได้รับการยกโทษเสมอ"
@@ -15900,7 +15947,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "oncePerTurnCard": true
     },
     {
       "code": "BT09-065",
@@ -16671,6 +16719,9 @@
         }
       ],
       "parseStatus": "auto",
+      "extraColors": [
+        "เขียว"
+      ],
       "note": "จุติ : สอดแนม Deck ศัตรู 3 ใบ แล้วเรียง"
     },
     {
@@ -16697,6 +16748,9 @@
         }
       ],
       "parseStatus": "auto",
+      "extraSymbols": [
+        "หุ่นยนต์"
+      ],
       "note": "คำสั่งเสีย : นำ Avatar อัศวิน 1 ใบ จากนรกขึ้นมือ"
     },
     {
@@ -18255,6 +18309,9 @@
         }
       ],
       "parseStatus": "auto",
+      "costOnlyForNameIncludes": [
+        "จอมเวทย์"
+      ],
       "note": "ใช้ได้เมื่อมี จอมเวทย์ : สอดแนม 5 ใบ อัญเชิญ จุติ จอมเวทย์"
     },
     {
@@ -20123,7 +20180,11 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "nameAliases": [
+        "สมาชม"
+      ],
+      "uniqueOnField": true
     },
     {
       "code": "BT11-032",
@@ -25990,6 +26051,7 @@
         }
       ],
       "parseStatus": "auto",
+      "oncePerTurnCard": true,
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
@@ -26031,6 +26093,7 @@
         }
       ],
       "parseStatus": "auto",
+      "oncePerTurnCard": true,
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
@@ -26050,7 +26113,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "เทพ"
     },
     {
       "code": "KD01-005",
@@ -27301,6 +27365,10 @@
         }
       ],
       "parseStatus": "auto",
+      "costOnlyForNameIncludes": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) นำการ์ดใบนี้ที่อยู่ใน Avatar Zone ไปสวมใส่ให้ Avatar \"ไอดอล\" หรือ \"บีมมิ\" บน Avatar Zone"
     },
     {
@@ -27531,7 +27599,10 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForNameIncludes": [
+        "ไอดอล"
+      ]
     },
     {
       "code": "KD03-010",
@@ -27791,14 +27862,14 @@
         }
       ],
       "parseStatus": "auto",
-      "costOnlyForSymbol": [
-        "ไอดอล",
-        "โปรดิวเซอร์"
-      ],
       "attachOnly": {
         "nameIncludes": "ไอดอล"
       },
       "hostAttachNameIncludes": "ไอดอล",
+      "costOnlyForNameIncludes": [
+        "ไอดอล",
+        "โปรดิวเซอร์"
+      ],
       "note": "สวมไอดอล จั่ว 1 / เป็น Cost ให้ไอดอลและโปรดิวเซอร์"
     },
     {
@@ -28143,7 +28214,9 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "costOnlyForSymbol": "หุ่นยนต์",
+      "costOnlyForColor": "แดง"
     },
     {
       "code": "KD04-006",
@@ -32880,7 +32953,13 @@
       "code": "PRMO-094",
       "name": "ชาโค่ล Overdose",
       "abilities": [],
-      "parseStatus": "partial"
+      "parseStatus": "partial",
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseSuppressEnemyKeywords": [
+        "ธรณีสูบ",
+        "สอดแนม"
+      ],
+      "overdoseLockOwnAbilities": true
     },
     {
       "code": "PRMO-095",
@@ -33763,6 +33842,7 @@
         }
       ],
       "parseStatus": "auto",
+      "uniqueOnField": true,
       "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน"
     },
     {

@@ -2262,9 +2262,28 @@
 
   /* จำกัดโฮสต์ตาม attachOnly (นวมรัททาทุย / ไบโพล่า / ดาบอัศวิน ฯลฯ) — คืนข้อความ deny หรือ null
      โฮสต์ฝั่งเพมมุ ฯลฯ ใช้ hostAttachNameIncludes จำกัดว่าสวมได้เฉพาะชื่อนั้น */
+  /* ใบจ่าย Cost ที่จำกัดผู้รับ — ชื่อ / Symbol (รวม Symbol เสริม) / สี · คืนข้อความเมื่อใช้ไม่ได้ */
+  function costOnlyDeny(payCard, target) {
+    const pe = fxCard(payCard);
+    if (!pe || !target) return null;
+    if (pe.costOnlyForNameIncludes) {
+      const names = [].concat(pe.costOnlyForNameIncludes);
+      if (!names.some(n => nameMatches(target, n))) return `"${payCard.name}" ใช้เป็น Cost ได้เฉพาะ Avatar "${names.join('" หรือ "')}"`;
+    }
+    if (pe.costOnlyForSymbol) {
+      const te = fxCard(target);
+      const syms = String(target.symbol || '').split(/[,/]/).map(x => x.trim()).concat((te && te.extraSymbols) || []);
+      const want = [].concat(pe.costOnlyForSymbol);
+      if (!want.some(x => syms.includes(x))) return `"${payCard.name}" ใช้เป็น Cost ได้เฉพาะ Avatar Symbol ${want.join(' / ')}`;
+    }
+    if (pe.costOnlyForColor && !avatarCostColors(target).includes(pe.costOnlyForColor) && avatarCostColors(target).length)
+      return `"${payCard.name}" ใช้เป็น Cost ได้เฉพาะ Avatar สี${pe.costOnlyForColor}`;
+    return null;
+  }
   function attachOnlyDeny(st, modCode, hostK, modNameHint) {
     const host = st.inst[hostK];
     if (!host) return 'ไม่มี Avatar เป้าหมาย';
+    { const hostFx = fxCard(host); if (hostFx && hostFx.cannotBeAttached) return `${host.name} สวมใส่การ์ดไม่ได้`; }
     const eAtt = resolveEffect(modCode, modNameHint);
     const ao = eAtt && eAtt.attachOnly;
     if (ao) {
@@ -9205,11 +9224,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           for (const pk of payIds) {
             const pc = st.inst[pk];
             if (!pc) continue;
-            const pe = fxCard(pc);
-            if (pe && pe.costOnlyForNameIncludes && !nameMatches(c, pe.costOnlyForNameIncludes))
-              return deny(`"${pc.name}" ใช้เป็น Cost ได้เฉพาะ Avatar "${pe.costOnlyForNameIncludes}"`);
-            if (pe && pe.costOnlyForSymbol && c.symbol !== pe.costOnlyForSymbol)
-              return deny(`"${pc.name}" ใช้เป็น Cost ได้เฉพาะ Avatar Symbol ${pe.costOnlyForSymbol}`);
+            const costOnlyMsg = costOnlyDeny(pc, c);
+            if (costOnlyMsg) return deny(costOnlyMsg);
           }
           payIds.forEach(pk => {
             const pc = st.inst[pk];
@@ -13220,6 +13236,14 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (!claimOncePerTurn(st, a.k, z === 'land' ? ('landAct:' + owner) : 'activated'))
             return deny(`"${c.name}" ใช้ความสามารถไปแล้วในเทิร์นนี้`);
         }
+        {
+          // # ใช้ความสามารถของการ์ดชื่อนี้ได้เทิร์นละครั้ง — นับรวมทุกใบชื่อเดียวกัน
+          const eName = fxCard(c);
+          if (eName && eName.oncePerTurnCard) {
+            if (isOncePerTurnCardSpent(st, owner, c.name || c.code)) return deny(`ใช้ความสามารถของ "${c.name}" ได้เทิร์นละ 1 ครั้ง`);
+            markOncePerTurnCard(st, owner, c.name || c.code);
+          }
+        }
         addLog(st, owner, `⚡ สั่งใช้ ${c.name}`);
         // จ่ายคอสก่อน แล้วค่อยให้เชาว์ปัญญาลิงขัด (คอสไม่คืน) — ไม่มีคอสจึงถามเชาว์ก่อนรันผล
         if (!(costList && costList.length) && z.endsWith('.avatar') && offerAbilityReact(st, fx, owner, a.k, {
@@ -13971,5 +13995,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, avatarCostColors, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
+  return { costOnlyDeny, attachOnlyDeny, buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, avatarCostColors, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
 });
