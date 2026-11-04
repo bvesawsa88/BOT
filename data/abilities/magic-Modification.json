@@ -327,6 +327,10 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "amountIfHostNameIncludes": {
+                "name": "กวนอู",
+                "amount": 2
+              },
               "duration": "whileEquipped",
               "layer": 2,
               "target": {

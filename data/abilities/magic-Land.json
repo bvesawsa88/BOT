@@ -320,8 +320,39 @@
         "BT07-068",
         "PRMO-103"
       ],
-      "abilities": [],
-      "parseStatus": "partial"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "ทหารหิมะ"
+              ],
+              "perN": 2,
+              "per": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1,
+                "nameIncludes": [
+                  "หิมะ"
+                ],
+                "symbol": "ต่างชาติ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
     },
     {
       "name": "ดินแดนแห่งความหลากหลาย",

@@ -186,6 +186,7 @@
       "name": "บุญช่วย ควายรักชาติ",
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
           },
@@ -208,6 +209,10 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "amountIfOwnConstruct": {
+                "name": "ค่ายบางระจัน",
+                "amount": 2
+              },
               "duration": "whileEquipped",
               "layer": 2,
               "target": {
@@ -423,6 +428,16 @@
                 "zone": "avatarZone",
                 "textIncludes": "ค่ายบางระจัน"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "sendAllOwnAvatarsToHell"
             }
           ]
         }

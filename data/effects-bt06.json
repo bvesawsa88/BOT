@@ -340,8 +340,72 @@
     },
     {
       "code": "BT06-012",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "สีแดง: POWER +2",
+                  "requireOwnOtherColor": "แดง",
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "permanent",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "สีฟ้า: จั่ว 1",
+                  "requireOwnOtherColor": "ฟ้า",
+                  "actions": [
+                    {
+                      "op": "draw",
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "สีม่วง: ธรณีสูบ 1 แล้วคืนนรกใต้เด็ค",
+                  "requireOwnOtherColor": "ม่วง",
+                  "actions": [
+                    {
+                      "op": "millSelf",
+                      "count": 1
+                    },
+                    {
+                      "op": "hellPick",
+                      "filter": {},
+                      "dest": "deckBottom"
+                    }
+                  ]
+                },
+                {
+                  "label": "สีเขียว: ไม่ถูกทำลายจนจบเทิร์น",
+                  "requireOwnOtherColor": "เขียว",
+                  "actions": [
+                    {
+                      "op": "protectSelfUntilEndTurn"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "name": "กัปตัน 7 สี",
       "note": "ต่อเนื่อง ถ้ามี Avatar ทหาร หรือ รด. ใบอื่น ใบนี้ POWER +2"
     },

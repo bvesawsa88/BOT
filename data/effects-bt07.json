@@ -290,15 +290,43 @@
     },
     {
       "code": "BT07-010",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "destroyDefenderIfPowerMax": 3,
+          "actions": []
+        }
+      ],
+      "parseStatus": "verified",
       "name": "น้องไอซ์ จี่สมอง",
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
       "code": "BT07-011",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "zones": [
+                "magic"
+              ],
+              "side": "enemy",
+              "bounceToHand": true,
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "name": "ไอ้แม๊ก ขยะสังคม",
       "note": "จุติ : นำ Normal Magic แผนการ จาก Deck ขึ้นมือ"
     },
@@ -1840,8 +1868,39 @@
     },
     {
       "code": "BT07-068",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "ทหารหิมะ"
+              ],
+              "perN": 2,
+              "per": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1,
+                "nameIncludes": [
+                  "หิมะ"
+                ],
+                "symbol": "ต่างชาติ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "name": "ดินแดนหิมะสีเทา"
     },
     {

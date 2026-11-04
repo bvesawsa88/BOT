@@ -1772,8 +1772,18 @@
       "codes": [
         "BT07-010"
       ],
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "destroyDefenderIfPowerMax": 3,
+          "actions": []
+        }
+      ],
+      "parseStatus": "verified",
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
@@ -2108,6 +2118,7 @@
       ],
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
           },
@@ -2130,6 +2141,10 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "amountIfOwnConstruct": {
+                "name": "ค่ายบางระจัน",
+                "amount": 2
+              },
               "duration": "whileEquipped",
               "layer": 2,
               "target": {

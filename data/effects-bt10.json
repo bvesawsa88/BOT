@@ -864,8 +864,21 @@
     },
     {
       "code": "BT10-024",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "name": "ฯลฯ กระบือชาวร๊อค",
       "note": "ต่อเนื่อง ถ้ามี Avatar หิมะ ใบอื่น ใบนี้ POWER +2"
     },
@@ -1244,8 +1257,31 @@
     },
     {
       "code": "BT10-033",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "อีสานสลิงเกอร์"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "combat",
+              "target": {
+                "select": "combatOwn"
+              }
+            },
+            {
+              "op": "discardSelfFromHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "name": "พระอีสาน",
       "note": "จุติ : อัญเชิญ Avatar Symbol คน Cost <= 3 จากนรก"
     },

@@ -2346,8 +2346,31 @@
       "codes": [
         "BT10-033"
       ],
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "อีสานสลิงเกอร์"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "combat",
+              "target": {
+                "select": "combatOwn"
+              }
+            },
+            {
+              "op": "discardSelfFromHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "note": "จุติ : อัญเชิญ Avatar Symbol คน Cost <= 3 จากนรก"
     },
     {

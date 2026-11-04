@@ -206,6 +206,30 @@
 
   /* หน้าต่าง React — โชว์การ์ดที่ใช้ได้ตรงกลางจอ แตะใบ = ใช้ · 「ไม่ใช้」= ผ่าน · ย่อดูสนามได้ */
   let reactWinKey = '', reactWinMin = false;
+  /* ไม่มีใบขัด: โชว์แค่ว่าอีกฝ่ายใช้อะไร แล้วผ่านให้เอง (ส่ง reactNo เหมือนกดปุ่ม — กติกาในเอนจินไม่เปลี่ยน) */
+  const REACT_INFO_MS = 2600;
+  let reactInfoTimer = null, reactInfoKey = '';
+  function clearReactInfo() {
+    if (reactInfoTimer) { clearTimeout(reactInfoTimer); reactInfoTimer = null; }
+    reactInfoKey = '';
+  }
+  function reactCardImg(c) {
+    return (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : '')) || '';
+  }
+  /* การ์ดต้นเหตุของหน้าต่าง: เวทที่ถูกใช้ / ตัวที่ประกาศโจมตี / ตัวที่ถูกอัญเชิญ ฯลฯ */
+  function reactCauseHtml(pr) {
+    const k = pr && pr.target;
+    const c = k && st.inst[k];
+    if (!c) return pr && pr.label ? `<div class="rw-why">${BotUtil.formatEffect(pr.label)}</div>` : '';
+    const eff = c.effect || c.text || '';
+    return `<button type="button" class="rw-cause" data-rc="${esc(k)}" title="${esc(c.name)}">
+      <span class="rw-cause-img" style="background-image:url('${esc(reactCardImg(c))}')"></span>
+      <span class="rw-cause-info">
+        <span class="rw-cause-lbl">${esc(pr.label || '')}</span>
+        <span class="rw-cause-name">${esc(c.name)}</span>
+        ${eff ? `<span class="rw-cause-eff">${BotUtil.formatEffect(eff)}</span>` : ''}
+      </span></button>`;
+  }
   function reactWinCands(pr) {
     if (!st || !pr || pr.kind !== 'react') return [];
     let ids = [];
@@ -218,9 +242,11 @@
   function syncReactWin(pr, mine, txt) {
     let win = byId('reactWin');
     const ids = mine ? reactWinCands(pr) : [];
-    if (!ids.length) {
+    const infoOnly = !!(mine && !ids.length && pr && pr.kind === 'react' && (pr.magicNegate || pr.mode === 'negateMagic'));
+    if (!ids.length && !infoOnly) {
       if (win) win.classList.add('hidden');
       reactWinKey = ''; reactWinMin = false;
+      clearReactInfo();
       return;
     }
     if (!win) {
@@ -232,9 +258,12 @@
         if (!st) return;
         const cur = (st.prompts || [])[0];
         if (e.target.closest('[data-rw="no"]')) {
+          clearReactInfo();
           if (cur) sendAction({ type: 'reactNo', by: promptBy() });
           return;
         }
+        const causeEl = e.target.closest('[data-rc]');
+        if (causeEl) { setPreview(causeEl.dataset.rc); return; }
         if (e.target.closest('[data-rw="min"]')) { reactWinMin = !reactWinMin; render(); return; }
         const cEl = e.target.closest('[data-rk]'); if (!cEl) return;
         const k = cEl.dataset.rk;
@@ -246,16 +275,41 @@
         }
       });
       win.addEventListener('pointerover', e => {
-        const cEl = e.target.closest('[data-rk]');
-        if (cEl && st) setPreview(cEl.dataset.rk);
+        const cEl = e.target.closest('[data-rk],[data-rc]');
+        if (cEl && st) setPreview(cEl.dataset.rk || cEl.dataset.rc);
       });
     }
+    if (infoOnly) {
+      const iKey = `${pr.target || ''}|${pr.reactTrigger || ''}`;
+      win.classList.remove('rw-min');
+      win.classList.add('rw-info');
+      win.innerHTML = `<div class="rw-box">
+        <div class="rw-head"><div class="rw-title">⚡ อีกฝ่ายใช้การ์ด</div></div>
+        ${reactCauseHtml(pr)}
+        <div class="rw-foot"><span class="rw-hint">ไม่มีการ์ดขัด — เกมไปต่อเอง</span><button class="btn-dark rw-no" data-rw="no">ตกลง</button></div>
+      </div>`;
+      win.classList.remove('hidden');
+      if (iKey !== reactInfoKey) {
+        clearReactInfo();
+        reactInfoKey = iKey;
+        reactInfoTimer = setTimeout(() => {
+          reactInfoTimer = null;
+          const cur = st && (st.prompts || [])[0];
+          if (cur && cur.kind === 'react' && cur.target === pr.target && (cur.magicNegate || cur.mode === 'negateMagic')) {
+            sendAction({ type: 'reactNo', by: promptBy() });
+          }
+        }, REACT_INFO_MS);
+      }
+      return;
+    }
+    clearReactInfo();
+    win.classList.remove('rw-info');
     const key = `${pr.mode || ''}|${pr.reactTrigger || ''}|${pr.target || ''}|${pr.src || ''}|${ids.join(',')}`;
     if (key !== reactWinKey) { reactWinKey = key; reactWinMin = false; }
     const noLbl = pr.reactTrigger === 'avatarWouldBeDestroyed' ? 'ไม่ใช้ — ถูกทำลาย' : 'ไม่ใช้';
     const cards = ids.map(k => {
       const c = st.inst[k];
-      const img = (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : '')) || '';
+      const img = reactCardImg(c);
       const z = BoTEngine.zoneOf(st, k) || '';
       const zl = z.endsWith('.hand') ? 'มือ' : z.endsWith('.magic') ? 'Magic Zone' : z.endsWith('.avatar') ? 'สนาม' : z.endsWith('.hell') ? 'นรก' : z.endsWith('.construct') ? 'Construct' : '';
       return `<button class="rw-card" data-rk="${esc(k)}" title="${esc(c.name)}">
@@ -264,10 +318,11 @@
     }).join('');
     win.classList.toggle('rw-min', reactWinMin);
     win.innerHTML = `<div class="rw-box">
-      <div class="rw-head"><div class="rw-title">💚 React ที่ใช้ได้ (${ids.length})</div>
+      <div class="rw-head"><div class="rw-title">${pr.target && st.inst[pr.target] ? '⚡ อีกฝ่ายใช้การ์ด' : '💚 React ที่ใช้ได้'}</div>
         <div class="rw-timer" id="reactWinTimer"></div>
         <button class="rw-minbtn" data-rw="min">${reactWinMin ? 'เปิดหน้าต่าง' : 'ย่อ / ดูสนาม'}</button></div>
-      <div class="rw-why">${BotUtil.formatEffect(txt || '')}</div>
+      ${reactCauseHtml(pr) || `<div class="rw-why">${BotUtil.formatEffect(txt || '')}</div>`}
+      <div class="rw-sub">💚 จะใช้อะไรขัด? (${ids.length} ใบ)</div>
       <div class="rw-cards">${cards}</div>
       <div class="rw-foot"><span class="rw-hint">แตะการ์ดเพื่อใช้</span><button class="btn-dark rw-no" data-rw="no">${noLbl}</button></div>
     </div>`;
@@ -2580,9 +2635,7 @@
           const n = (pr0.options && pr0.options.length) || 0;
           const why = pr0.label || (pr0.mode === 'negateMagic' ? 'ขัด Magic' : 'ตอบโต้');
           if (pr0.magicNegate || pr0.mode === 'negateMagic') {
-            toast(n
-              ? `💚 จะขัดไหม? (${why}) — มี React ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`
-              : `⏳ จะขัดไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
+            if (n) toast(`💚 จะขัดไหม? (${why}) — มี React ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`, 4500);
           } else if (pr0.reactTrigger === 'enemyDeclareAttack') {
             toast(n
               ? `💚 จะใช้ React ไหม? (${why}) — มี ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`

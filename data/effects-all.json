@@ -7774,8 +7774,72 @@
     {
       "code": "BT06-012",
       "name": "กัปตัน 7 สี",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "สีแดง: POWER +2",
+                  "requireOwnOtherColor": "แดง",
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "permanent",
+                      "target": {
+                        "select": "self"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "สีฟ้า: จั่ว 1",
+                  "requireOwnOtherColor": "ฟ้า",
+                  "actions": [
+                    {
+                      "op": "draw",
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "สีม่วง: ธรณีสูบ 1 แล้วคืนนรกใต้เด็ค",
+                  "requireOwnOtherColor": "ม่วง",
+                  "actions": [
+                    {
+                      "op": "millSelf",
+                      "count": 1
+                    },
+                    {
+                      "op": "hellPick",
+                      "filter": {},
+                      "dest": "deckBottom"
+                    }
+                  ]
+                },
+                {
+                  "label": "สีเขียว: ไม่ถูกทำลายจนจบเทิร์น",
+                  "requireOwnOtherColor": "เขียว",
+                  "actions": [
+                    {
+                      "op": "protectSelfUntilEndTurn"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง ถ้ามี Avatar ทหาร หรือ รด. ใบอื่น ใบนี้ POWER +2"
     },
     {
@@ -9620,15 +9684,43 @@
     {
       "code": "BT07-010",
       "name": "น้องไอซ์ จี่สมอง",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "destroyDefenderIfPowerMax": 3,
+          "actions": []
+        }
+      ],
+      "parseStatus": "verified",
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
       "code": "BT07-011",
       "name": "ไอ้แม๊ก ขยะสังคม",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "zones": [
+                "magic"
+              ],
+              "side": "enemy",
+              "bounceToHand": true,
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "note": "จุติ : นำ Normal Magic แผนการ จาก Deck ขึ้นมือ"
     },
     {
@@ -11164,8 +11256,39 @@
     {
       "code": "BT07-068",
       "name": "ดินแดนหิมะสีเทา",
-      "abilities": [],
-      "parseStatus": "partial"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "ทหารหิมะ"
+              ],
+              "perN": 2,
+              "per": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1,
+                "nameIncludes": [
+                  "หิมะ"
+                ],
+                "symbol": "ต่างชาติ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
     },
     {
       "code": "BT07-069",
@@ -16949,8 +17072,21 @@
     {
       "code": "BT10-024",
       "name": "ฯลฯ กระบือชาวร๊อค",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "allyDeclareAttack"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "note": "ต่อเนื่อง ถ้ามี Avatar หิมะ ใบอื่น ใบนี้ POWER +2"
     },
     {
@@ -17329,8 +17465,31 @@
     {
       "code": "BT10-033",
       "name": "พระอีสาน",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "อีสานสลิงเกอร์"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "combat",
+              "target": {
+                "select": "combatOwn"
+              }
+            },
+            {
+              "op": "discardSelfFromHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "note": "จุติ : อัญเชิญ Avatar Symbol คน Cost <= 3 จากนรก"
     },
     {
@@ -32917,8 +33076,39 @@
     {
       "code": "PRMO-103",
       "name": "ดินแดนหิมะสีเทา",
-      "abilities": [],
-      "parseStatus": "partial"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "ทหารหิมะ"
+              ],
+              "perN": 2,
+              "per": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "any",
+                "count": 1,
+                "nameIncludes": [
+                  "หิมะ"
+                ],
+                "symbol": "ต่างชาติ"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified"
     },
     {
       "code": "PRMO-104",
@@ -32942,6 +33132,16 @@
                 "zone": "avatarZone",
                 "textIncludes": "ค่ายบางระจัน"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "sendAllOwnAvatarsToHell"
             }
           ]
         }
@@ -38763,6 +38963,7 @@
       "name": "บุญช่วย ควายรักชาติ",
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
           },
@@ -38785,6 +38986,10 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "amountIfOwnConstruct": {
+                "name": "ค่ายบางระจัน",
+                "amount": 2
+              },
               "duration": "whileEquipped",
               "layer": 2,
               "target": {
@@ -39000,6 +39205,16 @@
                 "zone": "avatarZone",
                 "textIncludes": "ค่ายบางระจัน"
               }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "sendAllOwnAvatarsToHell"
             }
           ]
         }
@@ -39523,6 +39738,10 @@
             {
               "op": "modifyPower",
               "amount": 1,
+              "amountIfHostNameIncludes": {
+                "name": "กวนอู",
+                "amount": 2
+              },
               "duration": "whileEquipped",
               "layer": 2,
               "target": {
