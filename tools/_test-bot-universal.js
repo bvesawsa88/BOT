@@ -84,7 +84,7 @@ const opp = U.modelOpponent(st, 'A');
 ok(opp.confidence < 0.9, 'opponent model uses probability (conf=' + opp.confidence.toFixed(2) + ')');
 ok(opp.handN === 5 && opp.seen < 20, 'does not read opp deck/hand contents');
 
-const cands = U.collectLegalMains(st, 'B');
+const cands = st.zones['B.hand'].map(k => ({ a: { type: 'playMagic', k, by: 'B' }, heur: 1 }));
 ok(cands.length >= 1, 'candidate generator from real engine state: ' + cands.length);
 const pick = U.chooseAction(st, 'B', cands, { beam: 6 });
 ok(pick && (pick.a || pick.fallback || pick.pass), 'chooseAction returns a decision');

@@ -33,7 +33,6 @@
       "tools/**",
       "scratch/**",
       "server.js",
-      "engine.js",
       "download_assets.js",
       "firebase-store.js",
       "firebase-auth.js",

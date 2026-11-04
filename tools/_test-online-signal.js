@@ -6,6 +6,7 @@ const assert = require('assert');
 
 const PORT = 3097;
 process.env.PORT = String(PORT);
+process.env.FIREBASE_DISABLED = '1';
 process.env.DISCORD_FEEDBACK_WEBHOOK = '';
 
 require(path.join(__dirname, '..', 'server.js'));

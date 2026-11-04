@@ -17,7 +17,7 @@
   };
 
   function eng() { return root.BoTEngine; }
-  function uni() { return root.BotUniversal || null; }
+  function uni() { return root.BotUniversal; }
   function nm(c, needle) {
     if (!c || !needle) return false;
     const E = eng();
@@ -103,15 +103,12 @@
   }
 
   function detectArchetype(st, side) {
-    const U = uni();
-    if (U && U.deckOf) {
-      const d = U.deckOf(st, side);
-      const land = d && d.landIdentity;
-      if (land) {
-        if (land.indexOf(LAND.ISAN) >= 0 || /โคกอีสานนูน/.test(land)) return ARCH.ISAN;
-        if (land.indexOf(LAND.FOREST) >= 0 || /ป่าพงไพร/.test(land)) return ARCH.FOREST;
-        if (land.indexOf(LAND.SWAMP) >= 0 || /บึงทมิฬ/.test(land)) return ARCH.SWAMP;
-      }
+    const d = uni().deckOf(st, side);
+    const land = d && d.landIdentity;
+    if (land) {
+      if (land.indexOf(LAND.ISAN) >= 0) return ARCH.ISAN;
+      if (land.indexOf(LAND.FOREST) >= 0) return ARCH.FOREST;
+      if (land.indexOf(LAND.SWAMP) >= 0) return ARCH.SWAMP;
     }
     const names = scanSideNames(st, side);
     let isan = 0, forest = 0, swamp = 0;
@@ -130,11 +127,8 @@
   }
 
   function wantedLandNeedle(arch) {
-    const U = uni();
-    if (U && U.lastStrategy) {
-      const s = U.lastStrategy();
-      if (s && s.landIdentity) return s.landIdentity;
-    }
+    const s = uni().lastStrategy();
+    if (s && s.landIdentity) return s.landIdentity;
     if (arch === ARCH.ISAN) return LAND.ISAN;
     if (arch === ARCH.FOREST) return LAND.FOREST;
     if (arch === ARCH.SWAMP) return LAND.SWAMP;
@@ -151,11 +145,7 @@
   /** ใบนี้เป็นแลนด์เป้าหมายของอาร์คไทป์ไหม */
   function isWantedLandCard(c, arch) {
     if (!c || c.subtype !== 'Land') return false;
-    const U = uni();
-    if (U && U.isWantedLand) return !!U.isWantedLand(c);
-    const need = wantedLandNeedle(arch);
-    if (!need) return true;
-    return nm(c, need);
+    return !!uni().isWantedLand(c);
   }
 
   /** ใบ POWER 0 แต่ GEM สูง — เก็บไว้จ่าย Cost (วีรชนชีวภาพ ฯลฯ) อย่าลงสนาม */
@@ -195,8 +185,7 @@
 
   function cardIsKeyEnabler(c, arch) {
     if (!c) return false;
-    const U = uni();
-    if (U && U.isKeyCard && U.isKeyCard(c)) return true;
+    if (uni().isKeyCard(c)) return true;
     const n = nameOf(c);
     if (arch === ARCH.ISAN) {
       return /อีสานสลิงเกอร์/.test(n) || /โคกอีสานนูน/.test(n);
@@ -628,8 +617,7 @@
   function summonSynergyBonus(st, side, k, arch) {
     const c = st.inst[k]; if (!c) return 0;
     let bonus = 0;
-    const U = uni();
-    if (U && U.playSynergy) bonus += U.playSynergy(st, side, c);
+    bonus += uni().playSynergy(st, side, c);
     const needs = landNeedlesOfCard(c);
     needs.forEach(need => {
       if (hasLandNamed(st, need)) bonus += 55;
@@ -893,11 +881,8 @@
 
   /** ลำดับ Main ตาม strategy แบบ dynamic (ไม่ยึดชื่อเด็ค) */
   function mainPriority(arch, lv) {
-    const U = uni();
-    if (U && U.mainPriority) {
-      const p = U.mainPriority(lv, U.lastStrategy && U.lastStrategy());
-      if (p && p.length) return p;
-    }
+    const p = uni().mainPriority(lv, uni().lastStrategy());
+    if (p && p.length) return p;
     if (lv === 'easy') return ['summon'];
     if (arch === ARCH.ISAN)
       return ['magic', 'summon', 'activate', 'attach', 'summon', 'activate', 'magic'];
@@ -960,14 +945,12 @@
     });
   }
   function isDeckKeyCard(c) {
-    const U = uni();
-    if (U && U.isKeyCard && U.isKeyCard(c)) return true;
+    if (uni().isKeyCard(c)) return true;
     const n = nameOf(c);
     return /พญายักษ์ ทศกัณ/.test(n) || /ภูติผลไม้ แตงกวา/.test(n);
   }
   function isBodyguardCard(c) {
-    const U = uni();
-    if (U && U.hasKeyword && U.hasKeyword(c, 'โล่มนุษย์')) return true;
+    if (uni().hasKeyword(c, 'โล่มนุษย์')) return true;
     const n = nameOf(c);
     return /ยักษ์หินแผ่นดินใหญ่/.test(n) || /ภูติผลไม้ มะม่วง/.test(n);
   }
@@ -1182,27 +1165,9 @@
   /** มัลลิแกน — เก็บ enabler / แลนด์เด็ค / เคิร์ฟเล่นได้ */
   function mulliganKeepScore(st, side, k, arch, canPlay) {
     const c = st.inst[k]; if (!c) return 0;
-    const U = uni();
-    if (U && U.mulliganKeepScore) {
-      const u = U.mulliganKeepScore(st, side, k, canPlay);
-      if (u) {
-        let s = u;
-        if (isWantedLandCard(c, arch)) s += 8;
-        if (cardIsKeyEnabler(c, arch)) s += 6;
-        return s;
-      }
-    }
-    let s = 5;
-    if (isWantedLandCard(c, arch)) s += 50;
-    if (cardIsKeyEnabler(c, arch)) s += 40;
-    if (c.type === 'Avatar' && canPlay) s += 25 + Math.max(0, 6 - (+c.cost || 0)) * 3;
-    if (c.type === 'Avatar' && !canPlay && (+c.cost || 0) >= 6) s -= 30;
-    if (isGemBattery(c)) s += 8;
-    if (c.subtype === 'React') s += 12;
-    if (holdsForTankCombo(c)) s += 40;
-    if (nameHasTank(c)) s += 18;
-    if (c.subtype === 'Modification' && !zoneIds(st, side + '.hand').some(id => st.inst[id] && st.inst[id].type === 'Avatar'))
-      s -= 20;
+    let s = uni().mulliganKeepScore(st, side, k, canPlay);
+    if (isWantedLandCard(c, arch)) s += 8;
+    if (cardIsKeyEnabler(c, arch)) s += 6;
     return s;
   }
 
@@ -1282,22 +1247,17 @@
     if (hasNationInHand(st, side) && tankOnField(st, side))
       v += 50 + zoneIds(st, opp + '.avatar').length * 36;
     if ((st.prompts || []).length) v -= 12;
-    const U = uni();
-    if (U && U.positionBonus) v += U.positionBonus(st, side);
-    return v;
+    return v + uni().positionBonus(st, side);
   }
 
   root.BotAI = {
     LAND, ARCH,
     detectArchetype,
-    landOnBoard,
     hasLandNamed,
-    landHelpsArchetype,
     isWantedLandCard,
     cardIsKeyEnabler,
     isGemBattery,
     paidAsCostMatches,
-    landNeedlesOfCard,
     summonSynergyBonus,
     magicPlayScore,
     activateScore,
@@ -1308,35 +1268,23 @@
     stackBestOnDeckTop,
     stackBestLifeReveal,
     nightmareSculptHand,
-    situationalPickScore,
     mulliganKeepScore,
     shouldActivateBeforeSummon,
     evalPosition,
-    hellReturned,
-    ownNameOnField,
     wantedLandNeedle,
     modGrantsKickEgg,
-    effectOpsBonus,
     reactStopScore,
     magicNegateThreat,
-    holdsForTankCombo,
     comboHoldScore,
-    ownTankCount,
-    nameHasTank,
-    hasNationInHand,
-    tankOnField,
     cheapestTankInHand,
     nationTrapArmed,
     nationTrapSetup,
     holdForNationTrap,
     shouldLifeAttack,
     canForceLifeWin,
-    hasWinningCounterReact,
     boardLosing,
     finishComboReady,
     finishComboParts,
-    isGreenBeater,
-    lifeUpCount,
     isDeckKeyCard,
     isBodyguardCard,
   };

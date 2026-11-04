@@ -13,7 +13,7 @@ const BASE = `http://127.0.0.1:${PORT}`;
 const ADMIN_PASSWORD = 'test-admin-pass';
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bot-analytics-'));
-for (const f of ['server.js', 'firebase-store.js', 'firebase-auth.js', 'engine.js', 'admin.html']) {
+for (const f of ['server.js', 'firebase-store.js', 'firebase-auth.js', 'admin.html']) {
   fs.copyFileSync(path.join(ROOT, f), path.join(tmp, f));
 }
 fs.mkdirSync(path.join(tmp, 'data'));

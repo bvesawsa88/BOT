@@ -697,6 +697,42 @@
     });
     return powerAsGemSym;
   }
+  /* GEM ที่การ์ดใบนี้ให้เมื่อจ่ายอัญเชิญ summonC (รวมเจมพิเศษตามชื่อ) */
+  function payGemInfo(payC, summonC) {
+    const printed = +payC.gem || 0;
+    const e = resolveEffect(payC.code, payC.name) || EFFECTS[payC.code] || null;
+    if (e && e.gemAsCostForNameIncludes && summonC
+      && (summonC.name || '').includes(e.gemAsCostForNameIncludes)) {
+      return {
+        g: e.gemAsCostValue != null ? e.gemAsCostValue : 5,
+        gc: e.gemAsCostColor || 'ขาว',
+        printed,
+        boosted: true,
+        forName: e.gemAsCostForNameIncludes,
+      };
+    }
+    return { g: printed, gc: gemColorOf(payC), printed, boosted: false, forName: (e && e.gemAsCostForNameIncludes) || '' };
+  }
+  /* การ์ดใบนี้มีความสามารถที่สั่งใช้ได้จากโซนปัจจุบันไหม */
+  function hasActivatedAbility(st, k) {
+    const c = st.inst[k]; if (!c) return false;
+    const kz = zoneOf(st, k) || '';
+    const e = resolveEffect(c.code, c.name) || EFFECTS[c.code] || {};
+    const onField = ['.avatar', '.magic', '.construct'].some(z => kz.endsWith(z)) || kz === 'land';
+    // Normal/React one-shot บน Magic Zone = ใช้ตอน playMagic แล้ว ไม่โชว์ปุ่มสั่งใช้ซ้ำ
+    if (c.type === 'Magic' && kz.endsWith('.magic')) {
+      const sub = c.subtype || 'Normal';
+      if ((sub === 'Normal' || sub === 'React') && !e.stayOnMagic && !e.remainOnMagic) return false;
+    }
+    return (e.abilities || []).some(ab => {
+      const on = ab.trigger && ab.trigger.on;
+      if ((on === 'activated' || on === 'activatedFromField' || on === 'activatedAnyTurn') && onField) return true;
+      if (on === 'activatedFromHand' && kz.endsWith('.hand')) return true;
+      if ((on === 'activatedFromHell' || ab.fromHell) && kz.endsWith('.hell')) return true;
+      if (on === 'activatedFromDarkDimension' && kz.endsWith('.dark')) return true;
+      return false;
+    });
+  }
   /* GEM ที่ใบ payK จ่ายให้อัญเชิญ summonK ได้จริง (สีตรง / ขาว / POWER ยักษ์) */
   function gemUsableTowardSummon(st, payK, summonK) {
     const pc = st.inst[payK], c = st.inst[summonK];
@@ -14047,5 +14083,5 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     return fx;
   }
 
-  return { costOnlyDeny, attachOnlyDeny, buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, avatarCostColors, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
+  return { payGemInfo, hasActivatedAbility, costOnlyDeny, attachOnlyDeny, buildInitialState, applyAction, zoneOf, ownerOf, zLabel, effPower, powerBreakdown, effCost, freeSummonOk, nameMatches, loadEffects, mergeEffects, loadSetReleases, keywordsOf, promptTargetOk, promptCandidates, counterOptions, attackReactOptions, humanShieldOptions, avatarCap, syncHeimdall, effectOf: (code, nameHint) => resolveEffect(code, nameHint) || EFFECTS[code] || null, hasKw, gemColorOf, gemPaysFor, avatarCostColors, gemPayDenyMsg, chooseModeOptionDeny, activatedTargetDeny, inOverdose, cannotChangeState, tryUntap, doMove, cardSymbols, isPartitionLandCard, hasPartitionLandOnField, inLinkStatus, pairDenyReason, canPairCard, buddyPairAllowed, buddyPartnerNameOf };
 });

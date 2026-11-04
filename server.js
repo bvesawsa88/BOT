@@ -1616,6 +1616,7 @@ function getServerVersion() {
       path.join(ROOT, 'index.html'),
       path.join(ROOT, 'js', 'game.js'),
       path.join(ROOT, 'js', 'bot-ai.js'),
+      path.join(ROOT, 'js', 'bot-core.js'),
       path.join(ROOT, 'js', 'carddb.js'),
       path.join(ROOT, 'css', 'style.css')
     ];

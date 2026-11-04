@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "build": "esbuild src/firebase-client.js --bundle --format=iife --minify --target=es2019 --outfile=js/firebase-init.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node tools/run-tests.js"
   },
   "engines": {
     "node": "22"

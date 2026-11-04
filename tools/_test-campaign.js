@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const BoT = require('../js/engine.js');
 global.BoTEngine = BoT;
-const U = require('../js/bot-universal.js');
+const Core = require('../js/bot-core.js');
 const C = require('../js/campaign.js');
 
 const cards = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/cards.json'), 'utf8'));
@@ -103,7 +103,7 @@ const t0 = Date.now();
 let finished = 0;
 for (let g = 0; g < 4; g++) {
   const A = pub[(g * 37) % pub.length], B = pub[(g * 53 + 11) % pub.length];
-  const res = U.playGame(cards, { A, B }, { seed: 300 + g, maxSteps: 700, maxTurns: 30 });
+  const res = Core.playMatch(cards, { A, B }, { seed: 300 + g, maxSteps: 700, maxTurns: 30 });
   console.log('  community game', g, A.name, 'vs', B.name, '→', res.over ? 'winner ' + res.winner : 'cap', 'turn', res.turns, 'steps', res.steps);
   if (res.steps < 10) fail('community game ' + g + ' stalled');
   if (res.over) finished++;
@@ -113,7 +113,7 @@ finished = 0;
 for (let g = 0; g < 6; g++) {
   const A = C.generateDeck(cards, { rng: C.makeRng(77 + g), effectOf, rules, tier: 0.5 });
   const B = C.generateDeck(cards, { rng: C.makeRng(177 + g), effectOf, rules, tier: 0.8 });
-  const res = U.playGame(cards, { A, B }, { seed: 11 + g, maxSteps: 700, maxTurns: 30 });
+  const res = Core.playMatch(cards, { A, B }, { seed: 11 + g, maxSteps: 700, maxTurns: 30 });
   if (res.over) finished++;
   console.log('  game', g, A.colors.join('+'), A.style, 'vs', B.colors.join('+'), B.style, '→', res.over ? 'winner ' + res.winner : 'cap', 'turn', res.turns, 'steps', res.steps);
   if (res.steps < 10) fail('game ' + g + ' stalled');

@@ -1,8 +1,8 @@
 /* BotUniversal — Adaptive AI ที่อ่านคุณสมบัติการ์ด + ความสัมพันธ์ + สถานการณ์
    ไม่ผูก Strategy กับชื่อเด็ค ใช้คู่กับ heuristic กติกาใน bot-ai.js / game.js
    โมดูล: CardAnalyzer · DeckAnalyzer · StrategyEngine · GameStateAnalyzer ·
-          OpponentModel · CandidateMove · MoveEvaluator · SearchEngine ·
-          MulliganEngine · MatchupAnalyzer · LearningEngine · SelfPlayEngine · DebugEngine */
+          OpponentModel · CandidateMove · MoveEvaluator ·
+          MulliganEngine · MatchupAnalyzer · LearningEngine · DebugEngine */
 (function (root, factory) {
   'use strict';
   const api = factory(root);
@@ -72,6 +72,7 @@
   let matchDecks = { A: null, B: null };
   let lastExplain = null;
   let lastStrategy = null;
+  const strategyBySide = { A: null, B: null };
   let lastStateSnap = null;
   let learnMem = null;
   let debugOn = false;
@@ -793,11 +794,6 @@
     return { a: scored[0].a, explain: lastExplain };
   }
 
-  /* ═══════════════ 8. Search (beam wrapper) ═══════════════ */
-  function beamPick(cands, sim, evalPos, width) {
-    return chooseAction(null, botSide, cands, { sim, evalPos, beam: width || 8 });
-  }
-
   /* ═══════════════ 9. Mulligan ═══════════════ */
   function mulliganKeepScore(st, side, k, canPlay) {
     const c = st.inst[k]; if (!c) return 0;
@@ -985,11 +981,6 @@
     savePlaybook();
     return d;
   }
-  function clearPlaybook() {
-    playbookMem = defaultPlaybook();
-    savePlaybook();
-  }
-
   /* ── Zero-Blunder Guard (ตรวจจับและตัดการเล่นพลาด 100%) ── */
   function detectGuaranteedLethal(st, side) {
     if (!st || !side) return null;
@@ -1122,267 +1113,21 @@
     return lastStrategy;
   }
 
-  function bindDeckCards(side, cards) {
-    matchDecks[side] = analyzeDeck(cards);
-    return matchDecks[side];
-  }
-
-  /* ═══════════════ 14. Self-play (engine จริง) ═══════════════ */
-  function simplePay(st, side, summonK, cost) {
-    if (cost <= 0) return [];
-    const E = eng();
-    const c0 = st.inst[summonK];
-    if (!c0) return null;
-    const eAll = effectOf(c0);
-    const avColor = (E && E.avatarCostColors) ? E.avatarCostColors(c0, eAll) : ((eAll && eAll.allColors) ? '' : (c0.color || ''));
-    const hand = zoneIds(st, side + '.hand').filter(x => x !== summonK);
-    const usable = [];
-    const fp = fingerprintCards(cardsFromState(st, side));
-    const pb = getPlaybookForDeck(fp);
-    hand.forEach(k => {
-      const x = st.inst[k]; if (!x) return;
-      const gc = (E && E.gemColorOf) ? E.gemColorOf(x) : (((x && x.gemColor) && x.gemColor !== 'ใส' && x.gemColor !== 'ไร้สี') ? x.gemColor : 'ขาว');
-      const ok = E && E.gemPaysFor ? E.gemPaysFor(gc, avColor) : (!avColor || gc === 'ขาว' || gc === avColor);
-      const g = +x.gem || 0;
-      if (ok && g > 0) {
-        let keepVal = cardValue(st, side, x);
-        if (pb) {
-          const xn = nameOf(x);
-          if (pb.gemAvoid && pb.gemAvoid[xn]) keepVal += Math.min(pb.gemAvoid[xn] * 12, 60);
-          if (pb.gemUsed && pb.gemUsed[xn]) keepVal -= Math.min(pb.gemUsed[xn] * 8, 40);
-        }
-        usable.push({ k, g, keep: keepVal });
-      }
-    });
-    usable.sort((a, b) => a.keep - b.keep || b.g - a.g);
-    const pay = [];
-    let gem = 0;
-    for (let i = 0; i < usable.length && gem < cost; i++) {
-      pay.push(usable[i].k);
-      gem += usable[i].g;
-    }
-    if (gem < cost) return null;
-    return pay;
-  }
-
-  function collectLegalMains(st, side) {
-    const E = eng();
-    const out = [];
-    const hand = zoneIds(st, side + '.hand');
-    const magicUsed = (st.magicUsed && st.magicUsed[side]) || {};
-    hand.forEach(k => {
-      const c = st.inst[k]; if (!c) return;
-      if (c.type === 'Magic') {
-        const mtype = c.subtype || 'Normal';
-        if (mtype === 'React') return;
-        if (magicUsed[mtype]) return;
-        const p = analyzeCard(c);
-        out.push({ a: { type: 'playMagic', k, by: side }, heur: p.isLand ? 40 : 18 + (p.tags.removal || 0) * 6 });
-      }
-      if (c.type === 'Avatar' || c.type === 'Construct') {
-        const eBot = effectOf(c);
-        if (eBot && (eBot.noPaidSummon || eBot.noHandSummon || eBot.sacrificeSummon)) return;
-        const free = !!(E && E.freeSummonOk && E.freeSummonOk(st, k));
-        const cost = free ? 0 : ((E && E.effCost) ? E.effCost(st, k) : (+c.cost || 0));
-        const pay = free ? [] : simplePay(st, side, k, cost);
-        if (pay == null) return;
-        const a = { type: 'summon', k, to: side + (c.type === 'Construct' ? '.construct' : '.avatar'), payIds: pay, by: side };
-        if (free) a.free = true;
-        out.push({ a, heur: (+c.power || 0) * 10 - cost * 2 });
-      }
-    });
-    const pools = [
-      ...zoneIds(st, side + '.avatar'),
-      ...zoneIds(st, side + '.construct'),
-      ...zoneIds(st, side + '.magic'),
-      ...zoneIds(st, 'land').filter(k => st.inst[k] && st.inst[k].controller === side),
-    ];
-    pools.forEach(k => {
-      const e = effectOf(st.inst[k]);
-      const abs = (e && e.abilities) || [];
-      const actAb = abs.find(ab => ab.trigger && ab.trigger.on === 'activated');
-      if (!actAb) return;
-      const E = eng();
-      if (E && E.activatedTargetDeny && E.activatedTargetDeny(st, side, actAb, k)) return;
-      out.push({ a: { type: 'activateAbility', k, by: side }, heur: 12 });
-    });
-    const mods = zoneIds(st, side + '.magic').filter(k => {
-      const c = st.inst[k];
-      return c && c.subtype === 'Modification' && !c.attachedTo;
-    });
-    const hosts = zoneIds(st, side + '.avatar');
-    mods.forEach(mod => {
-      hosts.forEach(host => {
-        out.push({ a: { type: 'attach', k: mod, to: host, by: side }, heur: 20 });
-      });
-    });
-    return out;
-  }
-
-  function collectAttacks(st, side) {
-    const E = eng();
-    const pwr = k => {
-      try { return (E && E.effPower) ? E.effPower(st, k) : (+(st.inst[k] && st.inst[k].power) || 0); }
-      catch (e) { return +(st.inst[k] && st.inst[k].power) || 0; }
-    };
-    const hasEgg = k => !!(E && E.hasKw && E.hasKw(st, k, 'เตะไข่'));
-    const mine = zoneIds(st, side + '.avatar').filter(k => {
-      const c = st.inst[k];
-      return c && !c.tapped && c.faceUp !== false && c.type === 'Avatar' && pwr(k) > 0;
-    });
-    const opp = otherSide(side);
-    const enemies = zoneIds(st, opp + '.avatar').filter(k => st.inst[k] && st.inst[k].type === 'Avatar');
-    const out = [];
-    const lethalInfo = detectGuaranteedLethal(st, side);
-    mine.forEach(atk => {
-      const ap = pwr(atk);
-      enemies.forEach(def => {
-        if (ap > pwr(def)) out.push({ a: { type: 'declareAttack', atk, def, by: side }, heur: 40 + pwr(def) });
-        else if (ap === pwr(def) && pwr(def) >= 4) {
-          out.push({ a: { type: 'declareAttack', atk, def, by: side }, heur: 30 + pwr(def) });
-        }
-      });
-      if (!enemies.length || hasEgg(atk)) {
-        const lives = zoneIds(st, opp + '.life');
-        if (lives.length) {
-          const isLethal = lethalInfo && lethalInfo.isLethal;
-          out.push({ a: { type: 'declareAttack', atk, life: lives[0] || true, by: side }, heur: isLethal ? 50000 : 50 });
-        }
-      }
-    });
-    return out;
-  }
-
-  function promptAction(st, pr) {
-    const E = eng();
-    const chooser = pr.chooser;
-    if (pr.kind === 'react') return { type: 'reactNo', by: chooser };
-    if (pr.kind === 'chooseMode' && pr.options && pr.options.length)
-      return { type: 'chooseMode', k: pr.src, opt: 0, by: chooser };
-    if (pr.kind === 'peekTop') return { type: 'peekTopPlace', where: 'top', by: chooser };
-    const cands = (E && E.promptCandidates && E.promptCandidates(st, pr)) || [];
-    if (cands[0]) {
-      const deck = matchDecks[chooser];
-      const ranked = cands.slice().sort((a, b) => cardValue(st, chooser, st.inst[b]) - cardValue(st, chooser, st.inst[a]));
-      const pick = (pr.dest === 'discard' || pr.dest === 'sacrifice' || pr.dest === 'sacrificeOnly') ? ranked[ranked.length - 1] : ranked[0];
-      return { type: 'chooseTarget', k: pick || cands[0], by: chooser };
-    }
-    if (pr.optional !== false) return { type: 'skipPrompt', by: chooser };
-    return { type: 'skipPrompt', by: chooser };
-  }
-
-  function nextSelfPlayAction(st, side) {
-    const E = eng();
-    if (!st || st.over) return null;
-    if (st.awaitBattleStart) return { type: 'beginDuel', by: side };
-    if (st.turn === 1 && !st.fpDrawn && !(st.mulliganDone && st.mulliganDone[side])) {
-      const ids = mulliganIds(st, side, k => {
-        const c = st.inst[k];
-        if (!c || c.type !== 'Avatar') return false;
-        const cost = +c.cost || 0;
-        return !!simplePay(st, side, k, cost);
-      });
-      return { type: 'mulligan', p: side, ids, by: side };
-    }
-    const pr = (st.prompts || [])[0];
-    if (pr && pr.chooser === side) return promptAction(st, pr);
-    if (st.scout && st.scout.p === side) return { type: 'scoutEnd', where: 'top', by: side };
-    if (st.pending && st.pending.target === side) {
-      if (st.pending.by && st.pending.by !== side) {
-        return { type: 'resolveAttack', by: side };
-      }
-    }
-    if ((st.chain || []).length && st.chainPri === side) return { type: 'chainPass', by: side };
-    if (st.active !== side) return null;
-    if (st.phase === 'Main') {
-      const bag = collectLegalMains(st, side);
-      const pick = chooseAction(st, side, bag, { beam: 8 });
-      if (pick && pick.a) return pick.a;
-      return { type: 'setPhase', phase: 'Battle', by: side };
-    }
-    if (st.phase === 'Battle') {
-      const atk = collectAttacks(st, side);
-      const pick = chooseAction(st, side, atk, { beam: 6 });
-      if (pick && pick.a) return pick.a;
-      const hand = zoneIds(st, side + '.hand');
-      if (hand.length > 7) {
-        const drop = hand.slice().sort((a, b) => cardValue(st, side, st.inst[a]) - cardValue(st, side, st.inst[b]))[0];
-        return { type: 'move', k: drop, to: side + '.hell', by: side };
-      }
-      return { type: 'endTurn', by: side };
-    }
-    return { type: st.phase === 'End' ? 'endTurn' : 'setPhase', phase: 'Main', by: side };
-  }
-
-  function playGame(cards, decks, opts) {
-    opts = opts || {};
-    const E = eng();
-    if (!E || !E.buildInitialState) throw new Error('BoTEngine required');
-    let seed = opts.seed != null ? opts.seed : 1;
-    const rng = function () {
-      seed = (seed * 16807) % 2147483647;
-      return (seed - 1) / 2147483646;
-    };
-    const st = E.buildInitialState(cards, rng, decks, { strict: true });
-    beginMatch(st, { botSide: 'B' });
-    bindDeckCards('A', cardsFromState(st, 'A'));
-    const maxSteps = opts.maxSteps || 900;
-    const maxTurns = opts.maxTurns || 36;
-    let steps = 0;
-    let denies = 0;
-    const actSeed = { n: 7 };
-    while (!st.over && steps < maxSteps && (st.turn || 1) <= maxTurns) {
-      steps++;
-      let actor = st.active;
-      const pr = (st.prompts || [])[0];
-      if (pr) actor = pr.chooser;
-      else if (st.scout) actor = st.scout.p;
-      else if (st.pending && st.pending.target) actor = st.pending.target;
-      else if (st.awaitBattleStart) actor = st.firstPlayer || 'A';
-      else if (st.turn === 1 && !st.fpDrawn) {
-        const d = st.mulliganDone || {};
-        actor = !d.A ? 'A' : !d.B ? 'B' : actor;
-      }
-      const a = nextSelfPlayAction(st, actor);
-      if (!a) {
-        if (st.active && st.phase === 'Main') {
-          E.applyAction(st, { type: 'setPhase', phase: 'Battle', by: st.active, seed: actSeed.n++ });
-          continue;
-        }
-        if (st.active) {
-          E.applyAction(st, { type: 'endTurn', by: st.active, seed: actSeed.n++ });
-          continue;
-        }
-        break;
-      }
-      const fx = E.applyAction(st, Object.assign({ seed: actSeed.n++ }, a));
-      if (fx && fx.deny) {
-        denies++;
-        if (denies > 40) break;
-        if (a.type !== 'endTurn' && st.active === actor) {
-          if (st.phase === 'Main')
-            E.applyAction(st, { type: 'setPhase', phase: 'Battle', by: actor, seed: actSeed.n++ });
-          else
-            E.applyAction(st, { type: 'endTurn', by: actor, seed: actSeed.n++ });
-        }
-      } else denies = 0;
-    }
-    const winner = (st.over && st.over.winner) || (st.over === true ? null : st.over) || null;
-    return { st, winner, steps, turns: st.turn, over: !!st.over };
+  /** สลับมุมมองเมื่อบอทสองฝั่งเล่นในแมตช์เดียว (บอทฝั่งเดียวไม่เปลี่ยนอะไร) */
+  function useSide(side) {
+    if (side === botSide) return;
+    strategyBySide[botSide] = lastStrategy;
+    botSide = side;
+    lastStrategy = strategyBySide[side];
   }
 
   return {
-    TAGS,
     analyzeCard,
     analyzeDeck,
     analyzeState,
     modelOpponent,
-    buildStrategy,
     chooseAction,
     mainPriority,
-    beamPick,
-    pruneCandidates,
-    evaluateCandidate,
     mulliganKeepScore,
     mulliganIds,
     positionBonus,
@@ -1395,24 +1140,16 @@
     deckOf,
     cardsFromState,
     beginMatch,
-    bindDeckCards,
+    useSide,
     recordResult,
     debugEnabled,
     setDebug,
     formatExplain,
     lastExplain: () => lastExplain,
     lastStrategy: () => lastStrategy,
-    lastState: () => lastStateSnap,
-    nextSelfPlayAction,
-    playGame,
-    collectLegalMains,
-    collectAttacks,
     fingerprintCards,
-    loadPlaybook,
-    savePlaybook,
     getPlaybookForDeck,
     recordTeacherGame,
-    clearPlaybook,
     detectGuaranteedLethal,
     isSuicideAttack,
   };
