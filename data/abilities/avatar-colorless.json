@@ -62,73 +62,6 @@
       "note": "อัตโนมัติ เมื่อโจมตี Avatar Symbol ต่างชาติ : ทำลายเป้าหมาย"
     },
     {
-      "name": "โซน่า โพลีกอน",
-      "codes": [
-        "BT09-022"
-      ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "scoutAndSummon",
-              "count": 3,
-              "filter": {
-                "type": "Avatar",
-                "costMax": 5,
-                "anyOf": [
-                  {
-                    "symbol": "ไซเบอร์"
-                  },
-                  {
-                    "symbol": "ปลา"
-                  }
-                ]
-              },
-              "restTo": "deck",
-              "thenIfNameIncludes": {
-                "name": "โฮคุ",
-                "actions": [
-                  {
-                    "op": "draw",
-                    "count": 1
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "keyword": "สั่งใช้",
-          "trigger": {
-            "on": "activated"
-          },
-          "oncePerTurn": true,
-          "cost": [
-            {
-              "op": "tapSelf"
-            }
-          ],
-          "actions": [
-            {
-              "op": "draw",
-              "count": 1
-            }
-          ],
-          "requireLinked": true
-        }
-      ],
-      "extraSymbols": [
-        "ปลา"
-      ],
-      "parseStatus": "auto",
-      "note": "[Link โฮคุ โพลีกอน] จุติ : สอดแนม 3 เรียก ไซเบอร์/ปลา Cost<=5 ถ้าเป็นโฮคุจั่ว 1 · สั่งใช้ นอนตัวเอง : จั่ว 1 · นับเป็นปลาด้วย"
-    },
-    {
       "name": "โดมรัททาทุย",
       "codes": [
         "SD08-003"
@@ -315,33 +248,6 @@
       "parseStatus": "verified"
     },
     {
-      "name": "เพนกวินหิมะ เหลียง",
-      "codes": [
-        "BT09-015"
-      ],
-      "abilities": [
-        {
-          "keyword": "จุติ",
-          "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
-          },
-          "actions": [
-            {
-              "op": "hellPick",
-              "filter": {
-                "type": "Avatar",
-                "costMax": 2
-              },
-              "dest": "avatar"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
-    },
-    {
       "name": "มิสเตอร์โบโบ้",
       "codes": [
         "BT09-027"
@@ -498,39 +404,6 @@
       ],
       "abilities": [],
       "parseStatus": "verified"
-    },
-    {
-      "name": "วินดิโก้",
-      "codes": [
-        "BT09-032"
-      ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "enemySummonCountMinThisTurn",
-            "min": 3
-          },
-          "actions": [
-            {
-              "op": "handSummonSelf",
-              "paidCost": false
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "summoned"
-          },
-          "actions": [
-            {
-              "op": "enemyChoosesOneAvatarWipeRestToHell"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
     },
     {
       "name": "สกินวอคเกอร์",

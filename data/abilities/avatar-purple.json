@@ -3514,6 +3514,39 @@
       "parseStatus": "auto"
     },
     {
+      "name": "วินดิโก้",
+      "codes": [
+        "BT09-032"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemySummonCountMinThisTurn",
+            "min": 3
+          },
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": false
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "enemyChoosesOneAvatarWipeRestToHell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อศัตรูอัญเชิญใบที่ 3 อัญเชิญลงสนาม / เมื่ออัญเชิญ ศัตรูเลือกอวตาร 1 ใบ แล้วกวาดที่เหลือลงนรก"
+    },
+    {
       "name": "วิไลวรรณ แม่แบงค์",
       "codes": [
         "BT04-023",

@@ -866,6 +866,73 @@
       "note": "จุติ: เลือกการ์ดจากเด็คขึ้นมือได้ 2 ใบ แล้วสับ"
     },
     {
+      "name": "โซน่า โพลีกอน",
+      "codes": [
+        "BT09-022"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutAndSummon",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "costMax": 5,
+                "anyOf": [
+                  {
+                    "symbol": "ไซเบอร์"
+                  },
+                  {
+                    "symbol": "ปลา"
+                  }
+                ]
+              },
+              "restTo": "deck",
+              "thenIfNameIncludes": {
+                "name": "โฮคุ",
+                "actions": [
+                  {
+                    "op": "draw",
+                    "count": 1
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "requireLinked": true
+        }
+      ],
+      "extraSymbols": [
+        "ปลา"
+      ],
+      "parseStatus": "auto",
+      "note": "[Link โฮคุ โพลีกอน] จุติ : สอดแนม 3 เรียก ไซเบอร์/ปลา Cost<=5 ถ้าเป็นโฮคุจั่ว 1 · สั่งใช้ นอนตัวเอง : จั่ว 1 · นับเป็นปลาด้วย"
+    },
+    {
       "name": "เด็กไม่ชอบแมลงสาบ",
       "codes": [
         "CC01-037",
@@ -2402,6 +2469,33 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "เพนกวินหิมะ เหลียง",
+      "codes": [
+        "BT09-015"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 2
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : อัญเชิญ Avatar Cost <= 2 จากนรก 1 ใบ"
     },
     {
       "name": "เพนกวิ้น ฮัท",
