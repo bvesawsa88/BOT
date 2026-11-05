@@ -664,7 +664,8 @@
               },
               "dest": "hand",
               "pickCount": 1,
-              "restTo": "hell"
+              "restTo": "hell",
+              "destIfOwnTurn": "avatar"
             }
           ]
         }
@@ -705,7 +706,7 @@
           },
           "actions": [
             {
-              "op": "transformEnemyAvatarToPoop",
+              "op": "transformEnemyAvatar",
               "newSymbol": "สัตว์วิเศษ",
               "newName": "สิ่งปฏิกูล",
               "newPower": 1
@@ -715,14 +716,16 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "summonedByCardName",
-            "names": [
-              "สิ่งปฏิกูล"
-            ]
+            "on": "summoned",
+            "if": "summonedByNameIncludes,ownHellNameCountMin:สิ่งปฏิกูล:5",
+            "nameIncludes": "สิ่งปฏิกูล"
           },
           "actions": [
             {
-              "op": "triggerPodiJutiSelf"
+              "op": "transformEnemyAvatar",
+              "newSymbol": "สัตว์วิเศษ",
+              "newName": "สิ่งปฏิกูล",
+              "newPower": 1
             }
           ]
         },

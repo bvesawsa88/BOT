@@ -597,22 +597,31 @@
       "code": "BT07-022",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 3
+              "op": "allowAttackThisTurn"
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "ชาช่าจัง ไอดอลคนเก่ง",
-      "note": "จุติ : ธรณีสูบ 3 ใบ"
+      "note": "โจมตีไม่ได้ / สวมได้เฉพาะ โอตะ / สั่งใช้ ทำลาย โอตะ ที่สวมให้ ไอดอล : เทิร์นนี้โจมตีได้",
+      "attackIf": "allowedThisTurn",
+      "hostAttachNameIncludes": "โอตะ"
     },
     {
       "code": "BT07-023",
@@ -925,7 +934,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "oncePerTurnCard": true
         }
       ],
       "parseStatus": "auto",
@@ -1242,27 +1252,11 @@
     },
     {
       "code": "BT07-042",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "checkAttackCondition",
-              "requireOtherOwnAvatarNameIncludes": [
-                "วานร"
-              ]
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "name": "บัวนิด วานรแห่งสวนสัตว์",
       "note": "โจมตีได้เมื่อคุม วานร ใบอื่น",
-      "cannotAttackIfNoOtherOwnAvatarNameIncludes": "วานร"
+      "attackIf": "otherAllyNameIncludes:วานร"
     },
     {
       "code": "BT07-043",

@@ -74,7 +74,8 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "lifeAttackIf": "ownConstructNameIncludes:ค่ายบางระจัน"
     },
     {
       "code": "SD06-004",

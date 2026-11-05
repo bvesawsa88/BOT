@@ -83,7 +83,8 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "lifeAttackIf": "ownConstructNameIncludes:ค่ายบางระจัน"
     },
     {
       "code": "PRMO-037",
@@ -1810,21 +1811,30 @@
       "name": "ชาช่าจัง ไอดอลคนเก่ง",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 3
+              "op": "allowAttackThisTurn"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 3 ใบ"
+      "note": "โจมตีไม่ได้ / สวมได้เฉพาะ โอตะ / สั่งใช้ ทำลาย โอตะ ที่สวมให้ ไอดอล : เทิร์นนี้โจมตีได้",
+      "attackIf": "allowedThisTurn",
+      "hostAttachNameIncludes": "โอตะ"
     },
     {
       "code": "PRMO-053",
@@ -3454,7 +3464,8 @@
       "abilities": [],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
-      "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
+      "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้",
+      "attackIf": "attachedAvatarMin:1"
     },
     {
       "code": "PRMO-013",

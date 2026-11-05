@@ -1007,32 +1007,49 @@
       "code": "BT06-034",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
+              "op": "handSummon",
+              "filter": {
                 "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone",
                 "nameIncludes": [
                   "ผู้เจริญ"
                 ]
-              }
+              },
+              "paidCost": false,
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "summoned"
+                  }
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "src": "summoned",
+                  "actions": [
+                    {
+                      "op": "sendSelfToHellIfOnField"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "name": "เสามงคล ทรงญี่ปุ่น"
+      "name": "เสามงคล ทรงญี่ปุ่น",
+      "cannotAttack": true,
+      "note": "โจมตีไม่ได้ / สั่งใช้ อัญเชิญ ผู้เจริญ จากมือ POWER +1 แล้ว End Phase ส่งลงนรก"
     },
     {
       "code": "BT06-035",
@@ -1900,23 +1917,11 @@
     },
     {
       "code": "BT06-068",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==constructZone"
-          },
-          "actions": [
-            {
-              "op": "blockDirectLifeAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "name": "ป้อมยาม",
-      "note": "ตราบเท่าที่อยู่ใน Construct Zone ฝ่ายตรงข้ามไม่สามารถโจมตี LIFE Card ได้"
+      "note": "ตราบเท่าที่อยู่ใน Construct Zone ฝ่ายตรงข้ามไม่สามารถโจมตี LIFE Card ได้",
+      "blockEnemyLifeAttack": true
     },
     {
       "code": "BT06-069",

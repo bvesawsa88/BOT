@@ -1831,22 +1831,10 @@
     {
       "code": "BT02-029",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "cannotAttackWithoutHost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
-      "hostCannotAttack": true,
+      "attackIf": "attachedAvatarMin:1",
       "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ"
     },
     {
@@ -8445,31 +8433,48 @@
       "name": "เสามงคล ทรงญี่ปุ่น",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
+              "op": "handSummon",
+              "filter": {
                 "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone",
                 "nameIncludes": [
                   "ผู้เจริญ"
                 ]
-              }
+              },
+              "paidCost": false,
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "summoned"
+                  }
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "src": "summoned",
+                  "actions": [
+                    {
+                      "op": "sendSelfToHellIfOnField"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "cannotAttack": true,
+      "note": "โจมตีไม่ได้ / สั่งใช้ อัญเชิญ ผู้เจริญ จากมือ POWER +1 แล้ว End Phase ส่งลงนรก"
     },
     {
       "code": "BT06-035",
@@ -9331,21 +9336,9 @@
     {
       "code": "BT06-068",
       "name": "ป้อมยาม",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==constructZone"
-          },
-          "actions": [
-            {
-              "op": "blockDirectLifeAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
+      "blockEnemyLifeAttack": true,
       "note": "ตราบเท่าที่อยู่ใน Construct Zone ฝ่ายตรงข้ามไม่สามารถโจมตี LIFE Card ได้"
     },
     {
@@ -9996,21 +9989,30 @@
       "name": "ชาช่าจัง ไอดอลคนเก่ง",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 3
+              "op": "allowAttackThisTurn"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 3 ใบ"
+      "hostAttachNameIncludes": "โอตะ",
+      "attackIf": "allowedThisTurn",
+      "note": "โจมตีไม่ได้ / สวมได้เฉพาะ โอตะ / สั่งใช้ ทำลาย โอตะ ที่สวมให้ ไอดอล : เทิร์นนี้โจมตีได้"
     },
     {
       "code": "BT07-023",
@@ -10320,7 +10322,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "oncePerTurnCard": true
         }
       ],
       "parseStatus": "auto",
@@ -10637,24 +10640,9 @@
     {
       "code": "BT07-042",
       "name": "บัวนิด วานรแห่งสวนสัตว์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "checkAttackCondition",
-              "requireOtherOwnAvatarNameIncludes": [
-                "วานร"
-              ]
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
+      "attackIf": "otherAllyNameIncludes:วานร",
       "note": "โจมตีได้เมื่อคุม วานร ใบอื่น"
     },
     {
@@ -12169,21 +12157,42 @@
       "name": "โอตะท๊อปโดเนท",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "chooseMode"
           },
-          "actions": [
+          "oncePerTurn": true,
+          "options": [
             {
-              "op": "millSelf",
-              "count": 5
+              "label": "สวมใส่ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 5 ใบ"
+      "costWeightFor": {
+        "nameIncludes": "เนียจัง",
+        "weight": 2
+      },
+      "note": "เลือกสวมใส่ไอดอล / อัญเชิญจากสภาพสวมใส่ · นับเป็น 2 ใบเมื่อเป็น Cost ของ เนียจัง"
     },
     {
       "code": "BT08-022",
@@ -12356,7 +12365,7 @@
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
-            "if": "paidCost,isFirstTurnOfGame"
+            "if": "paidCost,ownFirstTurn"
           },
           "oncePerGame": true,
           "cost": [
@@ -12377,7 +12386,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ (เทิร์นแรกสุดของเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
+      "note": "จุติ (เทิร์นแรกสุดของผู้ใช้ 1 ครั้งต่อเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
     },
     {
       "code": "BT08-029",
@@ -12387,7 +12396,7 @@
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
-            "if": "paidCost,ownRevealedLifeMin:3,ownAvatarNameIncludes:มยุราซัง"
+            "if": "paidCost"
           },
           "actions": [
             {
@@ -12402,7 +12411,11 @@
               "podi": true,
               "shuffleAfter": true
             }
-          ]
+          ],
+          "requireAny": {
+            "ownRevealedLifeMin": 3,
+            "ownAvatarNameIncludes": "มยุราซัง"
+          }
         },
         {
           "keyword": "สั่งใช้",
@@ -12416,19 +12429,23 @@
           },
           "cost": [
             {
-              "op": "destroyAttachedOta",
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
               "count": 2
             }
           ],
           "actions": [
             {
-              "op": "stealEnemyAvatarAsOtaAttachment"
+              "op": "renameAttachEnemy",
+              "renameTo": "โอตะ",
+              "attachToSelf": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : อัญเชิญ ทัตดนัยซัง / สั่งใช้ : ขโมยศัตรูมาเป็น โอตะ สวมใส่"
+      "note": "จุติ : LIFE หงาย 3+ หรือมี มยุราซัง อัญเชิญ ทัตดนัยซัง แบบพอดี / สั่งใช้ : ทำลาย โอตะ 2 ใบ เปลี่ยนชื่อศัตรูเป็น โอตะ แล้วสวมใบนี้"
     },
     {
       "code": "BT08-030",
@@ -12865,20 +12882,7 @@
     {
       "code": "BT08-043",
       "name": "รถถังเฟืองเหล็ก",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "attachedCount<2"
-          },
-          "actions": [
-            {
-              "op": "cannotAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "attachOnly": {
         "nameIncludes": [
@@ -12886,6 +12890,7 @@
         ]
       },
       "hostAttachNameIncludes": "Tank Ranger",
+      "attackIf": "attachedAvatarMin:2",
       "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้"
     },
     {
@@ -14766,8 +14771,16 @@
           },
           "actions": [
             {
-              "op": "scoutAndSummonGodOrMill",
-              "count": 1
+              "op": "scoutAndSummon",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              },
+              "dest": "avatar",
+              "restTo": "hell",
+              "paidCost": true,
+              "mustPick": true
             }
           ]
         }
@@ -16877,7 +16890,8 @@
               },
               "dest": "hand",
               "pickCount": 1,
-              "restTo": "hell"
+              "restTo": "hell",
+              "destIfOwnTurn": "avatar"
             }
           ]
         }
@@ -16918,7 +16932,7 @@
           },
           "actions": [
             {
-              "op": "transformEnemyAvatarToPoop",
+              "op": "transformEnemyAvatar",
               "newSymbol": "สัตว์วิเศษ",
               "newName": "สิ่งปฏิกูล",
               "newPower": 1
@@ -16928,14 +16942,16 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "summonedByCardName",
-            "names": [
-              "สิ่งปฏิกูล"
-            ]
+            "on": "summoned",
+            "if": "summonedByNameIncludes,ownHellNameCountMin:สิ่งปฏิกูล:5",
+            "nameIncludes": "สิ่งปฏิกูล"
           },
           "actions": [
             {
-              "op": "triggerPodiJutiSelf"
+              "op": "transformEnemyAvatar",
+              "newSymbol": "สัตว์วิเศษ",
+              "newName": "สิ่งปฏิกูล",
+              "newPower": 1
             }
           ]
         },
@@ -24794,22 +24810,10 @@
     {
       "code": "CC02-037",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "cannotAttackWithoutHost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
-      "hostCannotAttack": true,
+      "attackIf": "attachedAvatarMin:1",
       "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ"
     },
     {
@@ -31453,6 +31457,7 @@
       "abilities": [],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
+      "attackIf": "attachedAvatarMin:1",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
     },
     {
@@ -32428,21 +32433,30 @@
       "name": "ชาช่าจัง ไอดอลคนเก่ง",
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 3
+              "op": "allowAttackThisTurn"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 3 ใบ"
+      "hostAttachNameIncludes": "โอตะ",
+      "attackIf": "allowedThisTurn",
+      "note": "โจมตีไม่ได้ / สวมได้เฉพาะ โอตะ / สั่งใช้ ทำลาย โอตะ ที่สวมให้ ไอดอล : เทิร์นนี้โจมตีได้"
     },
     {
       "code": "PRMO-077",
@@ -33190,7 +33204,8 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "lifeAttackIf": "ownConstructNameIncludes:ค่ายบางระจัน"
     },
     {
       "code": "PRMO-106",
@@ -35552,7 +35567,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "oncePerTurnCard": true
         }
       ],
       "parseStatus": "auto",
@@ -37925,6 +37941,7 @@
       "abilities": [],
       "parseStatus": "auto",
       "uniqueAttachedNames": true,
+      "attackIf": "attachedAvatarMin:1",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
     },
     {
@@ -38870,7 +38887,8 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "parseStatus": "auto",
+      "lifeAttackIf": "ownConstructNameIncludes:ค่ายบางระจัน"
     },
     {
       "code": "SD06-004",

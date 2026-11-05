@@ -667,22 +667,43 @@
       "code": "BT08-021",
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "chooseMode"
           },
-          "actions": [
+          "oncePerTurn": true,
+          "options": [
             {
-              "op": "millSelf",
-              "count": 5
+              "label": "สวมใส่ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "โอตะท๊อปโดเนท",
-      "note": "จุติ : ธรณีสูบ 5 ใบ"
+      "note": "เลือกสวมใส่ไอดอล / อัญเชิญจากสภาพสวมใส่ · นับเป็น 2 ใบเมื่อเป็น Cost ของ เนียจัง",
+      "costWeightFor": {
+        "nameIncludes": "เนียจัง",
+        "weight": 2
+      }
     },
     {
       "code": "BT08-022",
@@ -854,7 +875,7 @@
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
-            "if": "paidCost,isFirstTurnOfGame"
+            "if": "paidCost,ownFirstTurn"
           },
           "oncePerGame": true,
           "cost": [
@@ -876,7 +897,7 @@
       ],
       "parseStatus": "auto",
       "name": "พี่ไท่ น้องเฟิง นักดาบวายุ",
-      "note": "จุติ (เทิร์นแรกสุดของเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
+      "note": "จุติ (เทิร์นแรกสุดของผู้ใช้ 1 ครั้งต่อเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
     },
     {
       "code": "BT08-029",
@@ -885,7 +906,7 @@
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
-            "if": "paidCost,ownRevealedLifeMin:3,ownAvatarNameIncludes:มยุราซัง"
+            "if": "paidCost"
           },
           "actions": [
             {
@@ -900,7 +921,11 @@
               "podi": true,
               "shuffleAfter": true
             }
-          ]
+          ],
+          "requireAny": {
+            "ownRevealedLifeMin": 3,
+            "ownAvatarNameIncludes": "มยุราซัง"
+          }
         },
         {
           "keyword": "สั่งใช้",
@@ -914,20 +939,24 @@
           },
           "cost": [
             {
-              "op": "destroyAttachedOta",
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
               "count": 2
             }
           ],
           "actions": [
             {
-              "op": "stealEnemyAvatarAsOtaAttachment"
+              "op": "renameAttachEnemy",
+              "renameTo": "โอตะ",
+              "attachToSelf": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "เนียจัง ไอดอลอินฟลูเอนเซอร์",
-      "note": "จุติ : อัญเชิญ ทัตดนัยซัง / สั่งใช้ : ขโมยศัตรูมาเป็น โอตะ สวมใส่"
+      "note": "จุติ : LIFE หงาย 3+ หรือมี มยุราซัง อัญเชิญ ทัตดนัยซัง แบบพอดี / สั่งใช้ : ทำลาย โอตะ 2 ใบ เปลี่ยนชื่อศัตรูเป็น โอตะ แล้วสวมใบนี้"
     },
     {
       "code": "BT08-030",
@@ -1368,30 +1397,17 @@
     },
     {
       "code": "BT08-043",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "attachedCount<2"
-          },
-          "actions": [
-            {
-              "op": "cannotAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "name": "รถถังเฟืองเหล็ก",
       "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้",
-      "cannotAttackIfAttachedCountMax": 1,
       "attachOnly": {
         "nameIncludes": [
           "Tank Ranger"
         ]
       },
-      "hostAttachNameIncludes": "Tank Ranger"
+      "hostAttachNameIncludes": "Tank Ranger",
+      "attackIf": "attachedAvatarMin:2"
     },
     {
       "code": "BT08-044",

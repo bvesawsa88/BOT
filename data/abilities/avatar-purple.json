@@ -545,7 +545,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "oncePerTurnCard": true
         }
       ],
       "oncePerTurnCard": true,
@@ -1920,7 +1921,7 @@
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
-            "if": "paidCost,ownRevealedLifeMin:3,ownAvatarNameIncludes:มยุราซัง"
+            "if": "paidCost"
           },
           "actions": [
             {
@@ -1935,7 +1936,11 @@
               "podi": true,
               "shuffleAfter": true
             }
-          ]
+          ],
+          "requireAny": {
+            "ownRevealedLifeMin": 3,
+            "ownAvatarNameIncludes": "มยุราซัง"
+          }
         },
         {
           "keyword": "สั่งใช้",
@@ -1949,19 +1954,23 @@
           },
           "cost": [
             {
-              "op": "destroyAttachedOta",
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
               "count": 2
             }
           ],
           "actions": [
             {
-              "op": "stealEnemyAvatarAsOtaAttachment"
+              "op": "renameAttachEnemy",
+              "renameTo": "โอตะ",
+              "attachToSelf": true
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ : อัญเชิญ ทัตดนัยซัง / สั่งใช้ : ขโมยศัตรูมาเป็น โอตะ สวมใส่"
+      "note": "จุติ : LIFE หงาย 3+ หรือมี มยุราซัง อัญเชิญ ทัตดนัยซัง แบบพอดี / สั่งใช้ : ทำลาย โอตะ 2 ใบ เปลี่ยนชื่อศัตรูเป็น โอตะ แล้วสวมใบนี้"
     },
     {
       "name": "บรุนฮิลด์  เทพธิดาแห่งวัลฮัลลา",
@@ -2426,7 +2435,7 @@
           "keyword": "จุติ",
           "trigger": {
             "on": "summoned",
-            "if": "paidCost,isFirstTurnOfGame"
+            "if": "paidCost,ownFirstTurn"
           },
           "oncePerGame": true,
           "cost": [
@@ -2447,7 +2456,7 @@
         }
       ],
       "parseStatus": "auto",
-      "note": "จุติ (เทิร์นแรกสุดของเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
+      "note": "จุติ (เทิร์นแรกสุดของผู้ใช้ 1 ครั้งต่อเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
     },
     {
       "name": "พี่วัฒน์ BGN",

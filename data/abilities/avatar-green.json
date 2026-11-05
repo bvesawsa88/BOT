@@ -1925,23 +1925,8 @@
       "codes": [
         "BT07-042"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "actions": [
-            {
-              "op": "checkAttackCondition",
-              "requireOtherOwnAvatarNameIncludes": [
-                "วานร"
-              ]
-            }
-          ]
-        }
-      ],
+      "abilities": [],
+      "attackIf": "otherAllyNameIncludes:วานร",
       "parseStatus": "auto",
       "note": "โจมตีได้เมื่อคุม วานร ใบอื่น"
     },
@@ -3536,26 +3521,14 @@
       "codes": [
         "BT08-043"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "attachedCount<2"
-          },
-          "actions": [
-            {
-              "op": "cannotAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "attachOnly": {
         "nameIncludes": [
           "Tank Ranger"
         ]
       },
       "hostAttachNameIncludes": "Tank Ranger",
+      "attackIf": "attachedAvatarMin:2",
       "parseStatus": "auto",
       "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้"
     },
@@ -3575,21 +3548,9 @@
         "BT02-029",
         "CC02-037"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "cannotAttackWithoutHost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "uniqueAttachedNames": true,
-      "hostCannotAttack": true,
+      "attackIf": "attachedAvatarMin:1",
       "parseStatus": "auto",
       "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ"
     },
@@ -3601,6 +3562,7 @@
       ],
       "abilities": [],
       "uniqueAttachedNames": true,
+      "attackIf": "attachedAvatarMin:1",
       "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้"
     },
@@ -4394,31 +4356,48 @@
       ],
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
+            "on": "activated"
           },
+          "oncePerTurn": true,
           "actions": [
             {
-              "op": "modifyPower",
-              "amount": 1,
-              "duration": "whileOnField",
-              "layer": 3,
-              "target": {
-                "select": "all",
+              "op": "handSummon",
+              "filter": {
                 "type": "Avatar",
-                "side": "own",
-                "zone": "avatarZone",
                 "nameIncludes": [
                   "ผู้เจริญ"
                 ]
-              }
+              },
+              "paidCost": false,
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "summoned"
+                  }
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "src": "summoned",
+                  "actions": [
+                    {
+                      "op": "sendSelfToHellIfOnField"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "cannotAttack": true,
+      "parseStatus": "auto",
+      "note": "โจมตีไม่ได้ / สั่งใช้ อัญเชิญ ผู้เจริญ จากมือ POWER +1 แล้ว End Phase ส่งลงนรก"
     },
     {
       "name": "เสามงคล ทรงโรมัน",

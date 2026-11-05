@@ -725,21 +725,30 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
+          "keyword": "สั่งใช้",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "activated"
           },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "destroyAttached",
+              "nameIncludes": "โอตะ",
+              "hostNameIncludes": "ไอดอล",
+              "count": 1
+            }
+          ],
           "actions": [
             {
-              "op": "millSelf",
-              "count": 3
+              "op": "allowAttackThisTurn"
             }
           ]
         }
       ],
+      "hostAttachNameIncludes": "โอตะ",
+      "attackIf": "allowedThisTurn",
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 3 ใบ"
+      "note": "โจมตีไม่ได้ / สวมได้เฉพาะ โอตะ / สั่งใช้ ทำลาย โอตะ ที่สวมให้ ไอดอล : เทิร์นนี้โจมตีได้"
     },
     {
       "name": "ชาช่า อัศวินตลิ่งชันคนเก่ง",
@@ -3340,7 +3349,7 @@
           },
           "actions": [
             {
-              "op": "transformEnemyAvatarToPoop",
+              "op": "transformEnemyAvatar",
               "newSymbol": "สัตว์วิเศษ",
               "newName": "สิ่งปฏิกูล",
               "newPower": 1
@@ -3350,14 +3359,16 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "summonedByCardName",
-            "names": [
-              "สิ่งปฏิกูล"
-            ]
+            "on": "summoned",
+            "if": "summonedByNameIncludes,ownHellNameCountMin:สิ่งปฏิกูล:5",
+            "nameIncludes": "สิ่งปฏิกูล"
           },
           "actions": [
             {
-              "op": "triggerPodiJutiSelf"
+              "op": "transformEnemyAvatar",
+              "newSymbol": "สัตว์วิเศษ",
+              "newName": "สิ่งปฏิกูล",
+              "newPower": 1
             }
           ]
         },
@@ -4265,7 +4276,8 @@
               },
               "dest": "hand",
               "pickCount": 1,
-              "restTo": "hell"
+              "restTo": "hell",
+              "destIfOwnTurn": "avatar"
             }
           ]
         }
@@ -4744,21 +4756,42 @@
       ],
       "abilities": [
         {
-          "keyword": "จุติ",
           "trigger": {
-            "on": "summoned",
-            "if": "paidCost"
+            "on": "chooseMode"
           },
-          "actions": [
+          "oncePerTurn": true,
+          "options": [
             {
-              "op": "millSelf",
-              "count": 5
+              "label": "สวมใส่ให้ไอดอล",
+              "actions": [
+                {
+                  "op": "attach",
+                  "from": "self",
+                  "targetFilter": {
+                    "nameIncludes": [
+                      "ไอดอล"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "label": "อัญเชิญจากสภาพสวมใส่",
+              "actions": [
+                {
+                  "op": "detachSummonSelf"
+                }
+              ]
             }
           ]
         }
       ],
+      "costWeightFor": {
+        "nameIncludes": "เนียจัง",
+        "weight": 2
+      },
       "parseStatus": "auto",
-      "note": "จุติ : ธรณีสูบ 5 ใบ"
+      "note": "เลือกสวมใส่ไอดอล / อัญเชิญจากสภาพสวมใส่ · นับเป็น 2 ใบเมื่อเป็น Cost ของ เนียจัง"
     },
     {
       "name": "โอตะปุส",

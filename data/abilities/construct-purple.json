@@ -128,20 +128,8 @@
       "codes": [
         "BT06-068"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==constructZone"
-          },
-          "actions": [
-            {
-              "op": "blockDirectLifeAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
+      "blockEnemyLifeAttack": true,
       "parseStatus": "auto",
       "note": "ตราบเท่าที่อยู่ใน Construct Zone ฝ่ายตรงข้ามไม่สามารถโจมตี LIFE Card ได้"
     },

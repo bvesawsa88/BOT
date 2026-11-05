@@ -38,7 +38,7 @@ const META_KEYS = [
   'stackPowerOnReattach', 'reattachEnemyIfNoOwn',
   'protectAllyNameIncludes', 'attackLimitPerTurn', 'hostCannotAttack', 'hostMustAttack', 'instantWinIf',
     'noHellSummon', 'only', 'replaceFirstDrawWithSelf', 'bounceHostOnLeave', 'returnControlOnLeave', 'untilSourceLeavesZone', 'changeSrcSubtype',
-    'combatImmuneVsLowerCost', 'attackIf', 'enemyCostAura', 'setPowerIfAllyNameIncludes', 'setPowerTo',
+    'combatImmuneVsLowerCost', 'attackIf', 'lifeAttackIf', 'blockEnemyLifeAttack', 'costWeightFor', 'enemyCostAura', 'setPowerIfAllyNameIncludes', 'setPowerTo',
     'controlImmuneExcept', 'scoutBonusOwnKapom', 'scoutBonusConstruct', 'hostCostDelta',
     'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
     'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',

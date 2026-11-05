@@ -1946,23 +1946,11 @@
     {
       "code": "CC02-037",
       "name": "รถถัง B66 - เอ็กซ์เซลเซอร์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "cannotAttackWithoutHost"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "note": "ถ้าไม่มี Avatar สวมใส่จะโจมตีไม่ได้ และห้ามสวมใส่ชื่อซ้ำ",
       "uniqueAttachedNames": true,
-      "hostCannotAttack": true
+      "attackIf": "attachedAvatarMin:1"
     },
     {
       "code": "CC02-019",

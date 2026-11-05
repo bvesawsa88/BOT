@@ -154,7 +154,7 @@
       "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้าไม่มี Avatar สวมใส่ Avatar ใบนี้ จะไม่สามารถโจมตีได้ และไม่สามารถใช้ Avatar ชื่อซ้ำกันในการสวมใส่การ์ดใบนี้",
       "uniqueAttachedNames": true,
-      "cannotAttackUnlessAttached": true
+      "attackIf": "attachedAvatarMin:1"
     },
     {
       "code": "SD04-005",

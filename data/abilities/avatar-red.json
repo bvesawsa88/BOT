@@ -1501,7 +1501,8 @@
           ]
         }
       ],
-      "parseStatus": "partial"
+      "lifeAttackIf": "ownConstructNameIncludes:ค่ายบางระจัน",
+      "parseStatus": "auto"
     },
     {
       "name": "ทาโกะซัง สูตรสวรรค์",
