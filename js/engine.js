@@ -3191,6 +3191,13 @@
       const fd = fieldSummonDeny(st, owner, opt, k);
       if (fd) return fd;
     }
+    {
+      // เทคที่ต้องเลือกการ์ดบน Magic Zone เป็นเป้า — ไม่มีเป้าก็เลือกเทคนี้ไม่ได้
+      const pick = (opt.actions || [])[0];
+      if (pick && (pick.op === 'magicPick' || pick.op === 'summonFromMagicZone')
+        && !promptCandidates(st, { kind: 'pick', from: 'ownMagic', src: k, chooser: owner, filter: pick.filter || {}, excludeIds: pick.excludeSelf === false ? [] : [k] }).length)
+        return 'ใช้ไม่ได้ — ไม่มีการ์ดตรงเงื่อนไขบน Magic Zone';
+    }
     return null;
   }
   function claimChooseModeOption(st, k, opt) {
@@ -4076,17 +4083,16 @@
       }));
       return out;
     }
-    if (p.kind === 'chooseDiscard')
-      return (st.zones[p.chooser + '.hand'] || []).filter(k => {
+    if (p.kind === 'chooseDiscard') {
+      const legal = (st.zones[p.chooser + '.hand'] || []).filter(k => {
         if (p.excludeIds && p.excludeIds.includes(k)) return false;
-        if (!matchFilterEx(st, k, p.filter)) return false;
-        // GEM พอดี: ห้ามเลือกใบที่ทำให้เกินเป้าหมาย
-        if (p.gemSumExact && p.gemSumMin != null) {
-          const g = +(st.inst[k] && st.inst[k].gem) || 0;
-          if ((p.gemGot || 0) + g > p.gemSumMin) return false;
-        }
-        return true;
+        return matchFilterEx(st, k, p.filter);
       });
+      if (!(p.gemSumExact && p.gemSumMin != null)) return legal;
+      // GEM พอดี: เลือกได้เฉพาะใบที่ทิ้งแล้วยังรวมครบพอดีได้ — ไม่ให้เสียการ์ดฟรีกลางทาง
+      const left = p.gemSumMin - (p.gemGot || 0);
+      return legal.filter(k => gemSumReachable(st, legal.filter(x => x !== k), left - (+(st.inst[k] && st.inst[k].gem) || 0)));
+    }
     if (p.kind === 'chooseDestroy') {
       const out = [];
       const filt = Object.assign({}, p.filter || {}, p.src ? { _srcK: p.src } : {});
@@ -4263,9 +4269,28 @@
   }
 
   /** ห้ามเล่น/สั่งใช้ถ้าฮีลไม่มีไลฟ์หงาย หรือเด้งศัตรูโดยอีกฝ่ายไม่มีมอน หรือ chooseMode ไม่มีตัวเลือก (สำหรับการสั่งใช้) */
+  /* ids มีชุดย่อยที่ GEM รวมเท่ากับ target พอดีไหม */
+  function gemSumReachable(st, ids, target) {
+    if (target < 0) return false;
+    const sums = new Set([0]);
+    ids.forEach(id => {
+      const g = +(st.inst[id] && st.inst[id].gem) || 0;
+      Array.from(sums).forEach(s => { if (s + g <= target) sums.add(s + g); });
+    });
+    return sums.has(target);
+  }
   function activatedTargetDeny(st, owner, ab, srcK, isPlayMagic) {
     if (ab && ab.cond && !condOk(st, owner, srcK, ab.cond)) return ab.condLabel || 'เงื่อนไขของการ์ดยังไม่ครบ';
     if (!ab || !owner) return null;
+    {
+      /* จ่าย GEM รวมพอดีไม่ได้ — ปฏิเสธก่อนเริ่ม ไม่ให้ทิ้งการ์ดแล้วเอฟเฟกต์ล่ม */
+      const gemCost = (normalizeAbilityCost(ab.cost) || []).find(x => x && x.op === 'discardGemSum' && x.exact);
+      if (gemCost) {
+        const need = gemCost.min || 3;
+        const hand = (st.zones[owner + '.hand'] || []).filter(id => id !== srcK && matchFilterEx(st, id, { gemMin: 1 }));
+        if (!gemSumReachable(st, hand, need)) return `ทิ้งมือให้ GEM รวมพอดี ${need} ไม่ได้`;
+      }
+    }
     if (ab.trigger && ab.trigger.if) {
       const cond = ab.trigger.if;
       if (cond.startsWith('opponentControlsOriginalStolen:')) {
@@ -7231,7 +7256,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (qd) addLog(st, 'S', `ลงสนามไม่ได้ (${qd})`);
           else {
             doMove(st, ctx.src, ctx.owner + '.avatar', null, fx);
-            addLog(st, ctx.owner, `อัญเชิญ ${c.name} จากมือ (ความสามารถพิเศษ)`);
+            if (ac.basePower != null) c.baseOverride = ac.basePower;
+            addLog(st, ctx.owner, `อัญเชิญ ${c.name} จากมือ (ความสามารถพิเศษ)${ac.basePower != null ? ` POWER ตั้งต้น ${ac.basePower}` : ''}`);
             if (!ac.noJuti) triggerSummon(st, fx, ctx.src, ctx.owner, { paidCost: !!ac.paidCost, bySelfAbility: !!ac.bySelfAbility });
             fx.snd = 'place';
           }

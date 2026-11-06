@@ -2320,14 +2320,16 @@
           },
           "cost": [
             {
-              "op": "discardCardsWithGemTotal",
-              "targetGem": 3
+              "op": "discardGemSum",
+              "min": 3,
+              "exact": true
             }
           ],
           "actions": [
             {
-              "op": "summonSelfFromHand",
-              "setBasePower": 3
+              "op": "summonSelfFromHandFree",
+              "basePower": 3,
+              "bySelfAbility": true
             }
           ]
         }
