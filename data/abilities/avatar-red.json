@@ -4,6 +4,208 @@
   "color": "แดง",
   "entries": [
     {
+      "name": "กองทัพปีศาจ กริมฟรีค",
+      "codes": [
+        "BT12-002"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "คน",
+            "ต่างชาติ"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "exile",
+              "target": "self"
+            },
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "cond": {
+            "anyOf": [
+              {
+                "ownAvatar": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              },
+              {
+                "ownDark": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กองทัพปีศาจ ฟรีซเซอร์",
+      "codes": [
+        "BT12-003"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cond": {
+            "anyOf": [
+              {
+                "ownAvatar": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              },
+              {
+                "ownDark": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "condLabel": "ต้องมี \"ไอม์ อางส์ กูล\" บน Avatar Zone หรือมิติมืด",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 4,
+              "filter": {
+                "nameIncludes": [
+                  "กองทัพปีศาจ"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กองทัพปีศาจ อูเบล",
+      "codes": [
+        "BT12-004"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "กองทัพปีศาจ",
+                  "จอมมาร"
+                ],
+                "symbol": "นรก",
+                "excludeSelf": true
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "exile",
+              "target": "self"
+            }
+          ],
+          "cond": {
+            "anyOf": [
+              {
+                "ownAvatar": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              },
+              {
+                "ownDark": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์",
+        "side": "own",
+        "nameIncludes": [
+          "กองทัพปีศาจ",
+          "จอมมาร"
+        ],
+        "symbols": [
+          "นรก"
+        ],
+        "excludeSelf": true
+      },
+      "parseStatus": "auto"
+    },
+    {
       "name": "กัญญา แม่บุญลือ",
       "codes": [
         "BT02-003",
@@ -110,6 +312,72 @@
               }
             }
           ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "กำเหลง ขุนพลโจรสลัดแห่งง่อก๊ก",
+      "codes": [
+        "BT12-011"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "requireOwnConstructNameIncludes": "เรือรบโบราณ"
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "zone": "constructZone",
+                "side": "own",
+                "nameIncludes": [
+                  "เรือรบโบราณ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "costDeltaIf": [
+        {
+          "cond": {
+            "ownAvatarAll": {
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "แดง",
+                "symbol": "ต่างชาติ"
+              }
+            }
+          },
+          "amount": -1
         }
       ],
       "parseStatus": "auto"
@@ -405,6 +673,72 @@
       ],
       "abilities": [],
       "parseStatus": "verified"
+    },
+    {
+      "name": "จอมมาร ไอม์ อางส์ กูล",
+      "codes": [
+        "BT12-001"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cond": {
+            "firstOwnMain": true
+          },
+          "condLabel": "ใช้ได้ใน Main Phase แรกสุดของเราเท่านั้น",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromDarkDimension"
+          },
+          "actions": [
+            {
+              "op": "aimReturnArmySummon",
+              "nameIncludes": "กองทัพปีศาจ",
+              "perSend": 5
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "กองทัพปีศาจ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "deckActivateFirstMain": true,
+      "parseStatus": "auto",
+      "note": "จากมือ/Deck เนรเทศใน Main Phase แรก · จากมิติมืดคืนกองทัพปีศาจเข้าใต้ Deck แล้วอัญเชิญ POWER ตั้งต้น = จำนวน ทุก 5 ใบส่งการ์ดบนสนามลงนรก 1 ใบ · กองทัพปีศาจ +1"
     },
     {
       "name": "จอมหักกระดูก",
@@ -915,6 +1249,66 @@
       "uniqueOnField": true,
       "parseStatus": "auto",
       "note": "จุติ : ทำลาย Avatar ศัตรู 1 ใบที่อยู่ในสภาพนอน"
+    },
+    {
+      "name": "ซาร์อึก ผู้ฝึกมังกร",
+      "codes": [
+        "BT12-009"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cond": {
+            "ownHand": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar มังกรบนมือ",
+          "actions": [
+            {
+              "op": "discardSelfFromHand"
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "paidCost": true,
+              "costReduce": 6,
+              "mustPayRemain": true
+            },
+            {
+              "op": "summonLockGame",
+              "anyOf": [
+                {
+                  "nameIncludes": [
+                    "ผู้ฝึกมังกร"
+                  ]
+                },
+                {
+                  "symbol": "มังกร"
+                }
+              ],
+              "label": "\"ผู้ฝึกมังกร\" หรือ Avatar มังกร"
+            }
+          ]
+        }
+      ],
+      "ownHandCostAura": {
+        "filter": {
+          "type": "Avatar",
+          "symbol": "มังกร"
+        },
+        "amount": -1
+      },
+      "parseStatus": "auto"
     },
     {
       "name": "ซุนกวน ผู้นำพยัคฆ์แห่งง่อก๊ก",
@@ -1992,6 +2386,96 @@
       ],
       "nameAliases": [
         "พระนารายณ์"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "นานาโฮชิ นานะ เทพธิดากาชาและที่จอดรถ",
+      "codes": [
+        "BT12-006"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "powerLteSrc": true
+              }
+            }
+          ],
+          "whenAttacking": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownDistinctSymbols",
+              "per": 1,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "เทพ"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "นาย นักเวทย์",
+      "codes": [
+        "BT12-007"
+      ],
+      "abilities": [],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "costDeltaIf": [
+        {
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย"
+                ]
+              }
+            }
+          },
+          "amount": -1
+        },
+        {
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ฮอล"
+                ]
+              }
+            }
+          },
+          "amount": -1
+        }
       ],
       "parseStatus": "auto"
     },
@@ -3244,6 +3728,33 @@
       "note": "สั่งใช้ จากบนมือ : เลือก Avatar \"นินจา\" 1 ใบ ที่ไม่ได้ชื่อ ฟูมะ นินจาแห่งสายลม บน Avatar Zone เรา นำกลับขึ้นมือ และ อัญเ"
     },
     {
+      "name": "ภาคีสะพานเหล็ก",
+      "codes": [
+        "BT12-005"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonType:Avatar"
+          },
+          "actions": [
+            {
+              "op": "grantSummonedKeywordBySymbol",
+              "map": {
+                "หุ่นยนต์": "โล่มนุษย์",
+                "กะปอม": "สามัคคี",
+                "เอเลี่ยน": "แทงหลัง",
+                "ต่างชาติ": "ลูกฮึด"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "มหาราชาสีนิล",
       "codes": [
         "CC02-001"
@@ -3531,6 +4042,97 @@
       ],
       "parseStatus": "auto",
       "note": "จากมือเมื่อเพมมุ/สไปรท์ต่อสู้ และมิติมืดยังไม่มีเมย์: เนรเทศใบนี้ POWER +4 จนจบเทิร์นให้ Avatar ที่ต่อสู้ · มีเจ้าหญิงรวงข้าวแล้ว POWER ตั้งต้น 5 · กันเจ้าหญิงเป็นเป้าโจมตีและความสามารถ · [Link เจ้าหญิงรวงข้าว]"
+    },
+    {
+      "name": "เมอลิน พ่อมดแห่งอวาลอน",
+      "codes": [
+        "BT12-010"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัศวินโต๊ะกลมจากนรกกลับ Deck สับ แล้วจั่ว 1",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อัศวินโต๊ะกลม"
+                        ]
+                      },
+                      "dest": "deck",
+                      "shuffleAfter": true,
+                      "optional": false,
+                      "then": [
+                        {
+                          "op": "draw",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "อัศวินโต๊ะกลม Cost 5 หรือต่ำกว่า จากนรกไว้บนสุด Deck",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อัศวินโต๊ะกลม"
+                        ],
+                        "costMax": 5
+                      },
+                      "dest": "topDeck",
+                      "optional": false
+                    }
+                  ]
+                },
+                {
+                  "label": "ดาบศักดิ์สิทธิ์ (ไม่ใช่ Only) จากนรกสวมให้อัศวินโต๊ะกลม",
+                  "actions": [
+                    {
+                      "op": "attach",
+                      "from": "hell",
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "ดาบศักดิ์สิทธิ์"
+                        ],
+                        "excludeOnly": true
+                      },
+                      "targetFilter": {
+                        "nameIncludes": [
+                          "อัศวินโต๊ะกลม"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto"
     },
     {
       "name": "เมียพระอิศวร",
@@ -3882,6 +4484,62 @@
       "note": "สั่งใช้ จากบนมือ หลังจากจบการต่อสู้ ที่ Avatar \"พระนารายณ์\" ฝ่ายเรา ทำลาย Avatar อีกฝ่ายจากการต่อสู้ : อัญเชิญการ์ดใบนี้"
     },
     {
+      "name": "ร่างอวตารพระนารายณ์-พระราม",
+      "codes": [
+        "BT12-008"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์-พระราม",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "all",
+                    "type": "Avatar",
+                    "side": "own",
+                    "nameIncludes": [
+                      "พระนารายณ์"
+                    ]
+                  }
+                },
+                {
+                  "op": "grantKeywordAllOwn",
+                  "keyword": "โล่มนุษย์",
+                  "filter": {
+                    "nameIncludes": [
+                      "พระนารายณ์"
+                    ]
+                  }
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto"
+    },
+    {
       "name": "ราชันย์หุ่นนักรบผู้กล้า : คริติคอล ไมเกรน",
       "codes": [
         "KD04-001"
@@ -4071,6 +4729,52 @@
       ],
       "keywords": [
         "สามัคคี"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ลกซุน ขุนพลวัยเยาว์แห่งง่อก๊ก",
+      "codes": [
+        "BT12-012"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "แดง",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "deckBottom",
+              "optional": false,
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "แทงหลัง"
       ],
       "parseStatus": "auto"
     },
@@ -4966,6 +5670,63 @@
       "uniqueOnField": true,
       "parseStatus": "auto",
       "note": "จุติ : ส่ง ดาบศักดิ์สิทธิ์ 2 ใบจาก Deck ลงนรก แล้วเรียก อัศวินโต๊ะกลม 1 ใบจาก Deck (ห้ามโจมตี/ใช้ผลตัวชื่อซ้ำจนจบเทิร์น)"
+    },
+    {
+      "name": "อิกนิส มังกรไฟโซลฮอต",
+      "codes": [
+        "BT12-013"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "symbol": "มังกร",
+                "excludeSelf": true
+              }
+            }
+          ],
+          "cond": {
+            "ownHell": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "min": 4
+            }
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "นรก"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "อินทรีย์แมน",

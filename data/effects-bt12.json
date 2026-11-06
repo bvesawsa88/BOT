@@ -1,0 +1,3305 @@
+{
+  "cards": [
+    {
+      "code": "BT12-001",
+      "name": "จอมมาร ไอม์ อางส์ กูล",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cond": {
+            "firstOwnMain": true
+          },
+          "condLabel": "ใช้ได้ใน Main Phase แรกสุดของเราเท่านั้น",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromDarkDimension"
+          },
+          "actions": [
+            {
+              "op": "aimReturnArmySummon",
+              "nameIncludes": "กองทัพปีศาจ",
+              "perSend": 5
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "กองทัพปีศาจ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "deckActivateFirstMain": true,
+      "note": "จากมือ/Deck เนรเทศใน Main Phase แรก · จากมิติมืดคืนกองทัพปีศาจเข้าใต้ Deck แล้วอัญเชิญ POWER ตั้งต้น = จำนวน ทุก 5 ใบส่งการ์ดบนสนามลงนรก 1 ใบ · กองทัพปีศาจ +1",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-002",
+      "name": "กองทัพปีศาจ กริมฟรีค",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "คน",
+            "ต่างชาติ"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 3,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "exile",
+              "target": "self"
+            },
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "cond": {
+            "anyOf": [
+              {
+                "ownAvatar": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              },
+              {
+                "ownDark": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-003",
+      "name": "กองทัพปีศาจ ฟรีซเซอร์",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cond": {
+            "anyOf": [
+              {
+                "ownAvatar": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              },
+              {
+                "ownDark": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "condLabel": "ต้องมี \"ไอม์ อางส์ กูล\" บน Avatar Zone หรือมิติมืด",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "scout",
+              "count": 4,
+              "filter": {
+                "nameIncludes": [
+                  "กองทัพปีศาจ"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-004",
+      "name": "กองทัพปีศาจ อูเบล",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "กองทัพปีศาจ",
+                  "จอมมาร"
+                ],
+                "symbol": "นรก",
+                "excludeSelf": true
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "exile",
+              "target": "self"
+            }
+          ],
+          "cond": {
+            "anyOf": [
+              {
+                "ownAvatar": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              },
+              {
+                "ownDark": {
+                  "filter": {
+                    "nameIncludes": [
+                      "ไอม์ อางส์ กูล"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "grantKeywordAura": {
+        "keyword": "โล่มนุษย์",
+        "side": "own",
+        "nameIncludes": [
+          "กองทัพปีศาจ",
+          "จอมมาร"
+        ],
+        "symbols": [
+          "นรก"
+        ],
+        "excludeSelf": true
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-005",
+      "name": "ภาคีสะพานเหล็ก",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonType:Avatar"
+          },
+          "actions": [
+            {
+              "op": "grantSummonedKeywordBySymbol",
+              "map": {
+                "หุ่นยนต์": "โล่มนุษย์",
+                "กะปอม": "สามัคคี",
+                "เอเลี่ยน": "แทงหลัง",
+                "ต่างชาติ": "ลูกฮึด"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-006",
+      "name": "นานาโฮชิ นานะ เทพธิดากาชาและที่จอดรถ",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "destroy",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "powerLteSrc": true
+              }
+            }
+          ],
+          "whenAttacking": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownDistinctSymbols",
+              "per": 1,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "เทพ"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-007",
+      "name": "นาย นักเวทย์",
+      "abilities": [],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "costDeltaIf": [
+        {
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย"
+                ]
+              }
+            }
+          },
+          "amount": -1
+        },
+        {
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ฮอล"
+                ]
+              }
+            }
+          },
+          "amount": -1
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-008",
+      "name": "ร่างอวตารพระนารายณ์-พระราม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "handAfterBattleDestroy",
+            "if": "killerNameIncludes:พระนารายณ์"
+          },
+          "oncePerTurnByName": "ร่างอวตารพระนารายณ์-พระราม",
+          "actions": [
+            {
+              "op": "naraiFormSummon",
+              "sacrificeNameIncludes": "พระนารายณ์",
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "all",
+                    "type": "Avatar",
+                    "side": "own",
+                    "nameIncludes": [
+                      "พระนารายณ์"
+                    ]
+                  }
+                },
+                {
+                  "op": "grantKeywordAllOwn",
+                  "keyword": "โล่มนุษย์",
+                  "filter": {
+                    "nameIncludes": [
+                      "พระนารายณ์"
+                    ]
+                  }
+                },
+                {
+                  "op": "schedule",
+                  "when": "ownEndPhase",
+                  "actions": [
+                    {
+                      "op": "replaceSelfWithHellNarai"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-009",
+      "name": "ซาร์อึก ผู้ฝึกมังกร",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cond": {
+            "ownHand": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar มังกรบนมือ",
+          "actions": [
+            {
+              "op": "discardSelfFromHand"
+            },
+            {
+              "op": "handSummon",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "paidCost": true,
+              "costReduce": 6,
+              "mustPayRemain": true
+            },
+            {
+              "op": "summonLockGame",
+              "anyOf": [
+                {
+                  "nameIncludes": [
+                    "ผู้ฝึกมังกร"
+                  ]
+                },
+                {
+                  "symbol": "มังกร"
+                }
+              ],
+              "label": "\"ผู้ฝึกมังกร\" หรือ Avatar มังกร"
+            }
+          ]
+        }
+      ],
+      "ownHandCostAura": {
+        "filter": {
+          "type": "Avatar",
+          "symbol": "มังกร"
+        },
+        "amount": -1
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-010",
+      "name": "เมอลิน พ่อมดแห่งอวาลอน",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัศวินโต๊ะกลมจากนรกกลับ Deck สับ แล้วจั่ว 1",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อัศวินโต๊ะกลม"
+                        ]
+                      },
+                      "dest": "deck",
+                      "shuffleAfter": true,
+                      "optional": false,
+                      "then": [
+                        {
+                          "op": "draw",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "อัศวินโต๊ะกลม Cost 5 หรือต่ำกว่า จากนรกไว้บนสุด Deck",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อัศวินโต๊ะกลม"
+                        ],
+                        "costMax": 5
+                      },
+                      "dest": "topDeck",
+                      "optional": false
+                    }
+                  ]
+                },
+                {
+                  "label": "ดาบศักดิ์สิทธิ์ (ไม่ใช่ Only) จากนรกสวมให้อัศวินโต๊ะกลม",
+                  "actions": [
+                    {
+                      "op": "attach",
+                      "from": "hell",
+                      "filter": {
+                        "subtype": "Modification",
+                        "nameIncludes": [
+                          "ดาบศักดิ์สิทธิ์"
+                        ],
+                        "excludeOnly": true
+                      },
+                      "targetFilter": {
+                        "nameIncludes": [
+                          "อัศวินโต๊ะกลม"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-011",
+      "name": "กำเหลง ขุนพลโจรสลัดแห่งง่อก๊ก",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "requireOwnConstructNameIncludes": "เรือรบโบราณ"
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "zone": "constructZone",
+                "side": "own",
+                "nameIncludes": [
+                  "เรือรบโบราณ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "costDeltaIf": [
+        {
+          "cond": {
+            "ownAvatarAll": {
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "แดง",
+                "symbol": "ต่างชาติ"
+              }
+            }
+          },
+          "amount": -1
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-012",
+      "name": "ลกซุน ขุนพลวัยเยาว์แห่งง่อก๊ก",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "แดง",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "deckBottom",
+              "optional": false,
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "แทงหลัง"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-013",
+      "name": "อิกนิส มังกรไฟโซลฮอต",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "symbol": "มังกร",
+                "excludeSelf": true
+              }
+            }
+          ],
+          "cond": {
+            "ownHell": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "min": 4
+            }
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "นรก"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-014",
+      "name": "ฮิมไลน์ ผู้กล้าแห่งปาร์ตี้ผู้กล้า",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "value": 7
+            }
+          ],
+          "cond": {
+            "selfAttached": "สมบัติศักดิ์สิทธิ์"
+          }
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "destroyReplaceAttachFromHell": {
+        "filter": {
+          "subtype": "Modification",
+          "nameIncludes": [
+            "สมบัติศักดิ์สิทธิ์"
+          ]
+        }
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-015",
+      "name": "ฟรีแลนซ์ นักเวทย์แห่งปาร์ตี้ผู้กล้า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "debuffPerScouted": {
+                "anyOf": [
+                  {
+                    "type": "Magic"
+                  },
+                  {
+                    "nameIncludes": [
+                      "ปาร์ตี้ผู้กล้า"
+                    ]
+                  }
+                ]
+              },
+              "filter": {
+                "nameIncludes": [
+                  "ปาร์ตี้ผู้กล้า",
+                  "สมบัติศักดิ์สิทธิ์"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ],
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "type": "Magic"
+              },
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-016",
+      "name": "ฮิตเตอร์ นักบวชแห่งปาร์ตี้ผู้กล้า",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "exile",
+              "target": "self"
+            },
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ฮิมไลน์"
+                ]
+              },
+              "dest": "avatar",
+              "optional": false,
+              "then": [
+                {
+                  "op": "attachDeckToSummoned",
+                  "filter": {
+                    "subtype": "Modification",
+                    "nameIncludes": [
+                      "สมบัติศักดิ์สิทธิ์"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ฮิมไลน์"
+                ]
+              },
+              "min": 0,
+              "max": 0
+            },
+            "ownDark": {
+              "filter": {
+                "exactName": "ฮิตเตอร์ นักบวชแห่งปาร์ตี้ผู้กล้า"
+              },
+              "min": 0,
+              "max": 0
+            },
+            "ownHell": {
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ฮิมไลน์"
+                ]
+              }
+            }
+          },
+          "condLabel": "ต้องไม่มีฮิมไลน์บน Avatar Zone ไม่มีใบนี้ในมิติมืด และมีฮิมไลน์ในนรก"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-017",
+      "name": "โกลัส นักธนูแห่งปาร์ตี้ผู้กล้า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "rollDieBranch",
+              "even": [
+                {
+                  "op": "discard",
+                  "who": "opp",
+                  "count": 1,
+                  "ifCond": {
+                    "oppHandMin": 1
+                  }
+                },
+                {
+                  "op": "draw",
+                  "count": 1,
+                  "ifCond": {
+                    "oppHandMax": 0
+                  }
+                }
+              ],
+              "odd": [
+                {
+                  "op": "modifyPower",
+                  "amount": -1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "choose",
+                    "side": "enemy",
+                    "type": "Avatar"
+                  },
+                  "ifCond": {
+                    "oppAvatar": {}
+                  }
+                },
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "choose",
+                    "side": "own",
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ปาร์ตี้ผู้กล้า"
+                    ]
+                  },
+                  "ifCond": {
+                    "oppAvatar": {
+                      "min": 0,
+                      "max": 0
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ปาร์ตี้ผู้กล้า"
+                ]
+              },
+              "excludeSelf": true
+            }
+          }
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-018",
+      "name": "มารินะ หน่วยรบ XVI",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "discardedByScout"
+          },
+          "requireSrcNameAny": [
+            "หน่วยรบ XVI",
+            "โอเปอเรชั่น"
+          ],
+          "oncePerTurnByName": "มารินะ หน่วยรบ XVI",
+          "actions": [
+            {
+              "op": "returnToHand",
+              "target": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-019",
+      "name": "มามิ สิ่งมีชีวิตปริศนาระดับถั่วๆ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "discardedByAvatarAbility"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==magicZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "minSymbols": 2
+              }
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "ต้นไม้"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-020",
+      "name": "ฮอล นักบวช",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย",
+                  "นาย"
+                ]
+              },
+              "excludeSelf": true
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย",
+                  "นาย"
+                ]
+              },
+              "excludeSelf": true
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-021",
+      "name": "รัททาทุยต่างโลก",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "symbol": "รัททาทุย"
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar รัททาทุยบน Avatar Zone",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-022",
+      "name": "มาร์โกต์ มนุษย์ดาว R18",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "servantFromEnemyHell",
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "มนุษย์ดาว R18"
+                ],
+                "excludeSelf": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-023",
+      "name": "บึงทมิฬ People - คุณบ๊วบ",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "dest": "topDeck",
+              "optional": false
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "ownHell": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              }
+            }
+          },
+          "condLabel": "นรกไม่มี Avatar ปลา"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-024",
+      "name": "ดอกเตอร์เต้ นักวิจัยไดโนเสาร์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญ (ไม่จุติ)",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "symbol": "กะปอม",
+                        "costMax": 5
+                      },
+                      "dest": "avatar",
+                      "optional": false,
+                      "grantSummoned": [
+                        {
+                          "keyword": "คำสั่งเสีย",
+                          "trigger": {
+                            "on": "destroyed"
+                          },
+                          "actions": [
+                            {
+                              "op": "exile",
+                              "target": "self"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "ทิ้งมือ 1 ใบ เพื่ออัญเชิญ จุติ",
+                  "actions": [
+                    {
+                      "op": "discard",
+                      "count": 1,
+                      "then": [
+                        {
+                          "op": "hellPick",
+                          "filter": {
+                            "type": "Avatar",
+                            "symbol": "กะปอม",
+                            "costMax": 5
+                          },
+                          "dest": "avatar",
+                          "paidCost": true,
+                          "optional": false,
+                          "grantSummoned": [
+                            {
+                              "keyword": "คำสั่งเสีย",
+                              "trigger": {
+                                "on": "destroyed"
+                              },
+                              "actions": [
+                                {
+                                  "op": "exile",
+                                  "target": "self"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "cost": [
+            {
+              "op": "exileHell",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "กะปอม"
+              },
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-025",
+      "name": "ไดโนกาฬสินธุ์ - สยามแรปเตอร์",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "onlyOwnTurn": true
+        }
+      ],
+      "summonWhenScoutedBySymbol": "กะปอม",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-026",
+      "name": "โจผี ขุนพลผู้สืบทอดแห่งวุยก๊ก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วุยก๊ก"
+                ]
+              },
+              "dest": "avatar",
+              "restTo": "deck"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyBattlePhaseStart"
+          },
+          "actions": [
+            {
+              "op": "forceAttackPick"
+            }
+          ]
+        }
+      ],
+      "scoutBonusForNames": {
+        "filter": {
+          "nameIncludes": [
+            "โจโฉ"
+          ],
+          "symbol": "ต่างชาติ"
+        },
+        "amount": 2
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-027",
+      "name": "ซุนฮก กุนซือพรสวรรค์แห่งวุยก๊ก",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonType:Avatar&summonNameIncludes:ขุนพล&summonColor:ฟ้า&summonSymbol:ต่างชาติ"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "ฟ้า",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-028",
+      "name": "อาดัส มังกรแห่งห้วงเหวน้ำลึก",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "magic"
+              ],
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "excludeSelf": true
+            }
+          },
+          "condLabel": "ต้องมี Avatar มังกรใบอื่น",
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyMagicAvatarDestroyed"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "สัตว์"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-029",
+      "name": "อีสานสลิงเกอร์ ปัณณ์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "returnFromHellToDeck",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "อีสานสลิงเกอร์"
+                ]
+              },
+              "max": 1,
+              "shuffle": true
+            }
+          ],
+          "cond": {
+            "land": "โคกอีสานนูน"
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAttackRedirected"
+          },
+          "requireLinked": true,
+          "requireAttackerNameIncludes": "อีสานสลิงเกอร์",
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "filter": {}
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-030",
+      "name": "ตะเคียนทอง",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "attach",
+              "from": "hell",
+              "host": "self",
+              "filter": {
+                "subtype": "Modification",
+                "excludeOnly": true
+              },
+              "targetFilter": {},
+              "countsAsModification": true
+            },
+            {
+              "op": "setTempSymbolPick",
+              "symbol": "ผี"
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "symbol": "ผี"
+              },
+              "excludeSelf": true
+            }
+          },
+          "condLabel": "ต้องมี Avatar ผีใบอื่น",
+          "countsAsModification": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-031",
+      "name": "นางตานีด่าง",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "per": 2,
+              "countOwnAvatar": {
+                "symbol": "ผี"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "halveBaseUntilEOT"
+            },
+            {
+              "op": "grantSecondAttackThisTurn"
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "symbol": "ผี"
+              },
+              "min": 3
+            }
+          },
+          "condLabel": "ต้องมี Avatar ผี 3 ใบหรือมากกว่า"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-032",
+      "name": "ผีตายาย",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "ผี"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "setBaseTo": 8,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-033",
+      "name": "เฟริส สาวจิไรเคย์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "ทำความเสียหาย LIFE เรา 1 ครั้ง แล้วจั่ว 1",
+                  "actions": [
+                    {
+                      "op": "revealAndActivateOwnLife",
+                      "count": 1
+                    },
+                    {
+                      "op": "draw",
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "ไม่ใช้",
+                  "actions": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-034",
+      "name": "คาไม แม่มดไอที",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "fromHand": true,
+          "oncePerTurnByName": "คาไม แม่มดไอที",
+          "cond": {
+            "ownDistinctSymbolsMin": 2
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree",
+              "paidCost": true
+            }
+          ]
+        },
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownDistinctSymbols",
+              "per": -1,
+              "target": {
+                "select": "choose",
+                "side": "enemy",
+                "type": "Avatar"
+              }
+            }
+          ],
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownDistinctSymbols",
+              "per": -1,
+              "target": {
+                "select": "choose",
+                "side": "enemy",
+                "type": "Avatar"
+              }
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "notSummonedThisTurn": true
+          },
+          "condLabel": "ใช้ในเทิร์นที่อัญเชิญไม่ได้",
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "คน"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-035",
+      "name": "หัวหน้าชนเผ่าสายตาดี",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 4,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ผู้รู้ความจริง",
+                  "ชนเผ่าสายตาดี"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom",
+              "thenIfFound": [
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "target": {
+                    "select": "choose",
+                    "side": "own",
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-036",
+      "name": "ไอ้หนึ่ง เซลล์แมนกิตติมศักดิ์รุ่นแรก",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "peekOwnTop"
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "nameAliases": [
+        "ผู้รู้ความจริง"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-037",
+      "name": "บัซ อัศวินตลิ่งชันมือหนึ่ง",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "onlyOwnTurn": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "อัศวินตลิ่งชัน"
+                ],
+                "exceptSelfName": true
+              }
+            }
+          }
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "attachSelfFromHell",
+              "targetFilter": {
+                "nameIncludes": [
+                  "เซอร์นัท"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-038",
+      "name": "กุ่ย พาลาดิน",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "requireOwnNameIncludes": "นาย"
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "grantKeywordIfAllyNameIncludes": {
+        "keyword": "โล่มนุษย์",
+        "nameIncludes": "ฮอล"
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-039",
+      "name": "แม่นางลิ บุตรีแห่งขุนพลเทพสงคราม",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "effectIncludes": "ขุนพล"
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "hellGemForSummon": {
+        "summonFilter": {
+          "nameIncludes": [
+            "ลิโป้"
+          ],
+          "symbol": "ต่างชาติ"
+        },
+        "exileFilter": {
+          "effectIncludes": "ขุนพล"
+        }
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-040",
+      "name": "เซ็กเธาว์ ยอดอาชาแห่งขุนพล",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กวนอู",
+                  "ลิโป้"
+                ]
+              }
+            },
+            "ownMagic": {
+              "filter": {
+                "exactName": "เซ็กเธาว์ ยอดอาชาแห่งขุนพล"
+              },
+              "min": 0,
+              "max": 0
+            }
+          },
+          "condLabel": "ต้องมีกวนอูหรือลิโป้ และควบคุมใบนี้ในสนามได้ 1 ใบ",
+          "actions": [
+            {
+              "op": "attachSelfFromHandPick",
+              "targetFilter": {
+                "nameIncludes": [
+                  "กวนอู",
+                  "ลิโป้"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownAvatarNameIncludes",
+              "nameIncludes": [
+                "จ๊กก๊ก"
+              ],
+              "per": 1,
+              "ifHostNameIncludes": "กวนอู",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "ifHostNameIncludes": "ลิโป้",
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "ต่างชาติ"
+      ],
+      "costOnlyForNameIncludes": "ขุนพล",
+      "costOnlyForSymbol": "ต่างชาติ",
+      "noHostPowerText": true,
+      "ignoreNegativePowerIfHostNameIncludes": "ลิโป้",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-041",
+      "name": "ดีรูโอ มังกรแห่งการพังทลาย",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "dest": "hand",
+              "optional": true,
+              "thenIfFound": [
+                {
+                  "op": "modifyPower",
+                  "amount": -1,
+                  "duration": "endOfTurn",
+                  "target": {
+                    "select": "all",
+                    "side": "enemy",
+                    "type": "Avatar"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "เทพ"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-042",
+      "name": "เกดุ ฮีโร่วัยเยาว์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 7,
+              "filter": {
+                "exactName": "หนึ่งเดียวเพื่อทุกอย่าง"
+              },
+              "dest": "attachSelf",
+              "restTo": "deck"
+            },
+            {
+              "op": "markModUsed"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "cond": {
+            "selfAttached": "หนึ่งเดียวเพื่อทุกอย่าง"
+          },
+          "actions": [
+            {
+              "op": "exileAttachedNamed",
+              "nameIncludes": "หนึ่งเดียวเพื่อทุกอย่าง"
+            },
+            {
+              "op": "damageOppLife",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "ignorePowerBuffsExceptAttachedName": "หนึ่งเดียวเพื่อทุกอย่าง",
+      "cannotAttackUnlessAttachedName": "หนึ่งเดียวเพื่อทุกอย่าง",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-043",
+      "name": "Overdose แอมเฟสต้า",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "Overdose"
+                ],
+                "excludeSelf": true
+              }
+            }
+          ],
+          "cond": {
+            "selfOverdose": true
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAvatarTapped"
+          },
+          "oncePerTurn": true,
+          "requireTappedNameIncludes": "Overdose",
+          "requireTappedOtherName": true,
+          "actions": [
+            {
+              "op": "untap",
+              "target": "triggerSource"
+            }
+          ]
+        }
+      ],
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseLockOwnAbilities": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-044",
+      "name": "แบงค์ บาร์ด",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย",
+                  "แบงค์"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "deck"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-045",
+      "name": "บันบัน คุณนายกระต่ายนักดาบเฟอร์รี่",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "name": "สัตว์ในตำนาน",
+              "code": "BT12-076",
+              "power": 2,
+              "cost": 2,
+              "gem": 0,
+              "symbol": "สัตว์วิเศษ",
+              "color": "เขียว"
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "สัตว์"
+      ],
+      "lifeHitsWhenDirectAttack": {
+        "cond": {
+          "ownDistinctSymbolsMin": 5
+        },
+        "hits": 2
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-046",
+      "name": "นักยุทธศาสตร์แห่งภาคีมะม่วง",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ต้นมะม่วง"
+              },
+              "dest": "avatar",
+              "optional": false,
+              "grantSummoned": [
+                {
+                  "keyword": "คำสั่งเสีย",
+                  "trigger": {
+                    "on": "destroyed"
+                  },
+                  "actions": [
+                    {
+                      "op": "moveSelfToMagicZone"
+                    }
+                  ],
+                  "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+                  "requireFromAvatarZone": true
+                }
+              ],
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 2,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "summoned"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ],
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-047",
+      "name": "เจ้าความเร็วแห่งภาคีมะม่วง",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "oncePerTurn": true,
+          "cond": {
+            "ownMagic": {
+              "filter": {
+                "exactName": "ต้นมะม่วง"
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ],
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-048",
+      "name": "ขวัญตา เรื่องราว ตำนานอมตะ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "setInstFlag",
+              "flag": "saveByMill"
+            },
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "afterAttackedSurvived"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "grantNoAttackTargetPick"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-049",
+      "name": "ขวัญตา เรื่องราว ผู้กำหนดชีวิต",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "สั่งใช้",
+                  "trigger": {
+                    "on": "fightChoice"
+                  },
+                  "actions": [
+                    {
+                      "op": "chooseMode",
+                      "options": [
+                        {
+                          "label": "ทำความเสียหาย LIFE เรา 1 ครั้ง ทำให้ศัตรู 1 ใบสูญเสียความสามารถ",
+                          "actions": [
+                            {
+                              "op": "revealAndActivateOwnLife",
+                              "count": 1
+                            },
+                            {
+                              "op": "nullifyEnemyPick"
+                            }
+                          ]
+                        },
+                        {
+                          "label": "ไม่ใช้",
+                          "actions": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "keyword": "ต่อเนื่อง",
+                  "trigger": {
+                    "on": "static",
+                    "if": "self.zone==avatarZone"
+                  },
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amountPer": "srcHellTypePerN",
+                      "hellType": "Magic",
+                      "perN": 2,
+                      "per": -1,
+                      "target": {
+                        "select": "all",
+                        "type": "Avatar",
+                        "noTextBox": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-050",
+      "name": "ฮองตง ขุนพลอาวุโสแห่งจ๊กก๊ก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เล่าปี่"
+                ],
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "avatar",
+              "optional": false
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "value": 5
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "เขียว",
+                "symbol": "ต่างชาติ"
+              },
+              "min": 3
+            }
+          }
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-051",
+      "name": "อุยเอี๋ยน ขุนพลคนเถื่อนแห่งจ๊กก๊ก",
+      "abilities": [],
+      "hellGemWhenPaid": {
+        "summonFilter": {
+          "nameIncludes": [
+            "ขุนพล"
+          ],
+          "symbol": "ต่างชาติ"
+        },
+        "exileFilter": {
+          "type": "Avatar",
+          "nameIncludes": [
+            "ขุนพล"
+          ],
+          "color": "เขียว",
+          "symbol": "ต่างชาติ"
+        },
+        "max": 1
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-052",
+      "name": "เนอมัส มังกรแห่งป่าไร้เงา",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "คน"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "cannotBeAttackTargetIfOwnSymbolOther": "มังกร",
+      "immuneOppMagicIfOwnSymbolOther": "มังกร",
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-053",
+      "name": "มังกรฟ้าตาขาว",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "BT12-054",
+      "name": "หมบ",
+      "abilities": [],
+      "nameAliases": [
+        "หมา",
+        "กบ"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-055",
+      "name": "กุนซือลงสนาม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "revealGeneralSummonAdvisor"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-056",
+      "name": "ไม่สนจั่วอยู่ดี",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothDiscardHandDrawSame"
+            }
+          ],
+          "cond": {
+            "notFirstTurnOfGame": true
+          },
+          "condLabel": "ใช้ในเทิร์นแรกสุดของเกมไม่ได้"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-057",
+      "name": "กองทัพรุกราน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญกองทัพปีศาจจากมิติมืด สูงสุด 2 ใบ",
+                  "actions": [
+                    {
+                      "op": "darkPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "กองทัพปีศาจ"
+                        ]
+                      },
+                      "dest": "avatar",
+                      "multiMax": 2,
+                      "destroyAtEndPhase": true
+                    }
+                  ]
+                },
+                {
+                  "label": "อัญเชิญกองทัพปีศาจจากนรก 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "กองทัพปีศาจ"
+                        ]
+                      },
+                      "dest": "avatar",
+                      "optional": false,
+                      "destroyAtEndPhase": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-058",
+      "name": "ฉันทิ้งชื่อตัวเองไปแล้ว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "declareHellAvatarSymbols"
+            }
+          ],
+          "cond": {
+            "ownHell": {
+              "filter": {
+                "type": "Avatar"
+              }
+            },
+            "ownAvatar": {}
+          },
+          "condLabel": "ต้องมี Avatar ในนรกและบน Avatar Zone"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-059",
+      "name": "คาถาอัดคาบ้าน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "blockOppReactThisTurn"
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "จอมเวทย์"
+                ]
+              },
+              "min": 3
+            }
+          },
+          "condLabel": "ต้องมี Avatar \"จอมเวทย์\" 3 ใบขึ้นไป"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-060",
+      "name": "ความสบายตาที่แท้จริง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "pickBuffFlag",
+              "amount": 2,
+              "flag": "oppChoosesTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-061",
+      "name": "ฉิบหายการช่าง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เครื่องใช้ไฟฟ้าชื่อต่างกัน 2 ใบจาก Deck ไว้ Magic Zone",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เครื่องใช้ไฟฟ้า"
+                        ]
+                      },
+                      "dest": "magic",
+                      "multiMax": 2,
+                      "distinctNames": true,
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "label": "เบเซอร์ Cost 6 ขึ้นไปจาก Deck ขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เบเซอร์"
+                        ],
+                        "costMin": 6
+                      },
+                      "dest": "hand",
+                      "shuffleAfter": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-062",
+      "name": "สายเลือดมังกร",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "nextOwnDraw",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "มังกร"
+              }
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar มังกรบน Avatar Zone"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-063",
+      "name": "ออกอาวุธ ออกอาวุธ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification",
+                "excludeOnly": true
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-064",
+      "name": "Skill : Dacknova",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "requireTapped": true
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar \"เรื่องราว\" ที่นอนอยู่",
+          "actions": [
+            {
+              "op": "pickBuffFlag",
+              "filter": {
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "requireTapped": true
+              },
+              "untap": true,
+              "amountIf": {
+                "cond": {
+                  "ownHell": {
+                    "filter": {
+                      "type": "Magic"
+                    },
+                    "min": 8
+                  }
+                },
+                "amount": 2
+              }
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-065",
+      "name": "ถ้าเป็นฮิมไลน์ก็คงทำแบบนี้",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "requireOwnNameIncludes": "ฮิมไลน์",
+          "actions": [
+            {
+              "op": "returnHostModRedirect",
+              "hostNameIncludes": "ฮิมไลน์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-066",
+      "name": "โอเปอเรชั่น : สกายฟอลล์",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "หน่วยรบ XVI"
+          ],
+          "cond": {
+            "oppTurn": true
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI",
+                  "โอเปอเรชั่น"
+                ]
+              },
+              "dest": "hell",
+              "restTo": "bottom",
+              "then": [
+                {
+                  "op": "destroyAttacker"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-067",
+      "name": "มือเปรี๊ยะ",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDrawFromDeckByEffect"
+          },
+          "actions": [
+            {
+              "op": "exileOppHandRandom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-068",
+      "name": "สมบัติศักดิ์สิทธิ์ แอสคาลอน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostBattleStart"
+          },
+          "foeSymbolAny": [
+            "นรก"
+          ],
+          "requireHostNameIncludes": "ฮิมไลน์",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "host"
+              }
+            }
+          ]
+        }
+      ],
+      "uniqueMagicNameIncludes": "สมบัติศักดิ์สิทธิ์",
+      "uniqueMagicMax": 2,
+      "noHostPowerText": true,
+      "returnToDeckOnHostDestroy": true,
+      "hostImmuneSymbol": {
+        "hostNameIncludes": "ฮิมไลน์",
+        "symbol": "นรก"
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-069",
+      "name": "ชิป Tank Ranger A.I.",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": "รถถัง",
+        "symbol": "หุ่นยนต์"
+      },
+      "countsAsAvatarWhileAttached": true,
+      "costOnlyForNameIncludes": [
+        "รถถัง",
+        "Tank Ranger"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-070",
+      "name": "อาวุธของเพมมุ มาโกะชิลด์",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "fromMagicZone": true,
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "หงาย LIFE ใบบนสุดของเรา 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "revealOwnLife",
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "ส่งการ์ดใบนี้ลงนรก",
+                  "actions": [
+                    {
+                      "op": "sendSelfToHell"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": "เพมมุ"
+      },
+      "uniqueMagicNameIncludes": "อาวุธของเพมมุ",
+      "protectReplace": true,
+      "abilitiesFromMagicZone": true,
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-071",
+      "name": "โลกระหว่างความเป็นและความตาย",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "ผี"
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "คน"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-072",
+      "name": "อารยธรรมที่พังทลาย",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbols": [
+                  "มังกร",
+                  "ต้นไม้",
+                  "สัตว์วิเศษ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-073",
+      "name": "อาณาจักรแห่งเกียรติภูมิ อวาลอน",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 1,
+              "filter": {
+                "anyOf": [
+                  {
+                    "nameIncludes": [
+                      "อัศวินโต๊ะกลม"
+                    ],
+                    "costMax": 5
+                  },
+                  {
+                    "nameIncludes": [
+                      "เมอลิน"
+                    ]
+                  }
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "bottom"
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-074",
+      "name": "เรือรบโบราณฉวน",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "แดง",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "handOrSummon",
+              "summonCostMax": 4,
+              "restTo": "bottom"
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-075",
+      "name": "โต๊ะกลมของเหล่าอัศวิน",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==construct"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม",
+                  "เมอลิน"
+                ]
+              },
+              "min": 4
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
+      "controlImmuneOwnAvatarsIf": {
+        "ownAvatar": {
+          "filter": {
+            "nameIncludes": [
+              "อัศวินโต๊ะกลม",
+              "เมอลิน"
+            ]
+          },
+          "min": 4
+        }
+      },
+      "parseStatus": "auto"
+    },
+    {
+      "code": "BT12-076",
+      "name": "สัตว์ในตำนาน",
+      "abilities": [],
+      "parseStatus": "stub"
+    }
+  ]
+}

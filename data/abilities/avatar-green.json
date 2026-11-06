@@ -157,6 +157,57 @@
       "parseStatus": "auto"
     },
     {
+      "name": "เกดุ ฮีโร่วัยเยาว์",
+      "codes": [
+        "BT12-042"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 7,
+              "filter": {
+                "exactName": "หนึ่งเดียวเพื่อทุกอย่าง"
+              },
+              "dest": "attachSelf",
+              "restTo": "deck"
+            },
+            {
+              "op": "markModUsed"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "cond": {
+            "selfAttached": "หนึ่งเดียวเพื่อทุกอย่าง"
+          },
+          "actions": [
+            {
+              "op": "exileAttachedNamed",
+              "nameIncludes": "หนึ่งเดียวเพื่อทุกอย่าง"
+            },
+            {
+              "op": "damageOppLife",
+              "count": 3
+            }
+          ]
+        }
+      ],
+      "ignorePowerBuffsExceptAttachedName": "หนึ่งเดียวเพื่อทุกอย่าง",
+      "cannotAttackUnlessAttachedName": "หนึ่งเดียวเพื่อทุกอย่าง",
+      "parseStatus": "auto"
+    },
+    {
       "name": "ขงเบ้ง กุนซือซ่อนกายแห่งจ๊กก๊ก",
       "codes": [
         "BT08-036"
@@ -241,6 +292,120 @@
       ],
       "parseStatus": "auto",
       "note": "ถูกอัญเชิญโดยนักท่องเรื่องราว → โจมตีแล้วส่ง Skill จากเด็คลงนรก · ใช้ React Skill ชื่อไม่ซ้ำเพิ่ม 1 ใบ"
+    },
+    {
+      "name": "ขวัญตา เรื่องราว ตำนานอมตะ",
+      "codes": [
+        "BT12-048"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "setInstFlag",
+              "flag": "saveByMill"
+            },
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "อัตโนมัติ",
+                  "trigger": {
+                    "on": "afterAttackedSurvived"
+                  },
+                  "oncePerTurn": true,
+                  "actions": [
+                    {
+                      "op": "grantNoAttackTargetPick"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ขวัญตา เรื่องราว ผู้กำหนดชีวิต",
+      "codes": [
+        "BT12-049"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "นักท่องเรื่องราว"
+          },
+          "actions": [
+            {
+              "op": "grantSelfAbilities",
+              "abilities": [
+                {
+                  "keyword": "สั่งใช้",
+                  "trigger": {
+                    "on": "fightChoice"
+                  },
+                  "actions": [
+                    {
+                      "op": "chooseMode",
+                      "options": [
+                        {
+                          "label": "ทำความเสียหาย LIFE เรา 1 ครั้ง ทำให้ศัตรู 1 ใบสูญเสียความสามารถ",
+                          "actions": [
+                            {
+                              "op": "revealAndActivateOwnLife",
+                              "count": 1
+                            },
+                            {
+                              "op": "nullifyEnemyPick"
+                            }
+                          ]
+                        },
+                        {
+                          "label": "ไม่ใช้",
+                          "actions": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "keyword": "ต่อเนื่อง",
+                  "trigger": {
+                    "on": "static",
+                    "if": "self.zone==avatarZone"
+                  },
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amountPer": "srcHellTypePerN",
+                      "hellType": "Magic",
+                      "perN": 2,
+                      "per": -1,
+                      "target": {
+                        "select": "all",
+                        "type": "Avatar",
+                        "noTextBox": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ขวัญตา เรื่องราว ราชาแห่งนาค",
@@ -880,6 +1045,48 @@
       ],
       "keywords": [
         "โล่มนุษย์"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "เจ้าความเร็วแห่งภาคีมะม่วง",
+      "codes": [
+        "BT12-047"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "oncePerTurn": true,
+          "cond": {
+            "ownMagic": {
+              "filter": {
+                "exactName": "ต้นมะม่วง"
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ],
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": true
+        }
       ],
       "parseStatus": "auto"
     },
@@ -1751,6 +1958,71 @@
       "note": "แสดงเรื่องราว Cost 6 จากมือ → เนรเทศตัวเองแล้วอัญเชิญ · ใบที่อัญเชิญ POWER +1"
     },
     {
+      "name": "นักยุทธศาสตร์แห่งภาคีมะม่วง",
+      "codes": [
+        "BT12-046"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "exactName": "ต้นมะม่วง"
+              },
+              "dest": "avatar",
+              "optional": false,
+              "grantSummoned": [
+                {
+                  "keyword": "คำสั่งเสีย",
+                  "trigger": {
+                    "on": "destroyed"
+                  },
+                  "actions": [
+                    {
+                      "op": "moveSelfToMagicZone"
+                    }
+                  ],
+                  "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+                  "requireFromAvatarZone": true
+                }
+              ],
+              "then": [
+                {
+                  "op": "modifyPower",
+                  "amount": 2,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "summoned"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ],
+          "ifDestroyedByOppOrNameIncludes": "มะม่วง",
+          "requireFromAvatarZone": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "นักรบทองแห่งภาคีมะม่วง",
       "codes": [
         "BT10-041"
@@ -1921,6 +2193,73 @@
       "note": "คุมใบอื่นไม่ได้ / จบการต่อสู้ Power ลดตามศัตรูที่สู้ / Power 0 ทำลาย / คำสั่งเสีย หงาย LIFE 1"
     },
     {
+      "name": "เนอมัส มังกรแห่งป่าไร้เงา",
+      "codes": [
+        "BT12-052"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "คน"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "immuneOppMagicIfOwnSymbolOther": "มังกร",
+      "cannotBeAttackTargetIfOwnSymbolOther": "มังกร",
+      "parseStatus": "auto"
+    },
+    {
+      "name": "บันบัน คุณนายกระต่ายนักดาบเฟอร์รี่",
+      "codes": [
+        "BT12-045"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "summonToken",
+              "name": "สัตว์ในตำนาน",
+              "code": "BT12-076",
+              "power": 2,
+              "cost": 2,
+              "gem": 0,
+              "symbol": "สัตว์วิเศษ",
+              "color": "เขียว"
+            }
+          ]
+        }
+      ],
+      "lifeHitsWhenDirectAttack": {
+        "cond": {
+          "ownDistinctSymbolsMin": 5
+        },
+        "hits": 2
+      },
+      "extraSymbols": [
+        "สัตว์"
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "บัวนิด วานรแห่งสวนสัตว์",
       "codes": [
         "BT07-042"
@@ -2043,6 +2382,39 @@
             {
               "op": "untap",
               "target": "self"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "แบงค์ บาร์ด",
+      "codes": [
+        "BT12-044"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "กุ่ย",
+                  "ฮอล",
+                  "นาย",
+                  "แบงค์"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "deck"
             }
           ]
         }
@@ -2785,7 +3157,8 @@
     {
       "name": "ภูติผลไม้ มะขาม",
       "codes": [
-        "BT09-039"
+        "BT09-039",
+        "PRMO-142"
       ],
       "abilities": [
         {
@@ -3010,7 +3383,8 @@
     {
       "name": "มอร์ฟีน Overdose",
       "codes": [
-        "CC02-017"
+        "CC02-017",
+        "PRMO-148"
       ],
       "abilities": [
         {
@@ -4124,7 +4498,8 @@
     {
       "name": "ศาสตราจารย์วานร",
       "codes": [
-        "BT08-041"
+        "BT08-041",
+        "PRMO-151"
       ],
       "abilities": [
         {
@@ -4219,6 +4594,8 @@
     {
       "name": "สุครีพ วานรปากแซ่บ",
       "codes": [
+        "PRMO-154-A",
+        "PRMO-154-B",
         "SD09-003"
       ],
       "abilities": [
@@ -4492,6 +4869,18 @@
       ],
       "keywords": [
         "โล่มนุษย์"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "หมบ",
+      "codes": [
+        "BT12-054"
+      ],
+      "abilities": [],
+      "nameAliases": [
+        "หมา",
+        "กบ"
       ],
       "parseStatus": "auto"
     },
@@ -4872,6 +5261,31 @@
       "parseStatus": "auto"
     },
     {
+      "name": "อุยเอี๋ยน ขุนพลคนเถื่อนแห่งจ๊กก๊ก",
+      "codes": [
+        "BT12-051"
+      ],
+      "abilities": [],
+      "hellGemWhenPaid": {
+        "summonFilter": {
+          "nameIncludes": [
+            "ขุนพล"
+          ],
+          "symbol": "ต่างชาติ"
+        },
+        "exileFilter": {
+          "type": "Avatar",
+          "nameIncludes": [
+            "ขุนพล"
+          ],
+          "color": "เขียว",
+          "symbol": "ต่างชาติ"
+        },
+        "max": 1
+      },
+      "parseStatus": "auto"
+    },
+    {
       "name": "ไอ้หนุ่มรด.",
       "codes": [
         "CC01-041",
@@ -4880,6 +5294,61 @@
       "abilities": [],
       "parseStatus": "verified",
       "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "ฮองตง ขุนพลอาวุโสแห่งจ๊กก๊ก",
+      "codes": [
+        "BT12-050"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เล่าปี่"
+                ],
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "avatar",
+              "optional": false
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "value": 5
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "เขียว",
+                "symbol": "ต่างชาติ"
+              },
+              "min": 3
+            }
+          }
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ฮากลิ้ง วานรกับหมา",
@@ -4945,6 +5414,57 @@
       ],
       "parseStatus": "auto",
       "note": "จุติ (เมื่อ Avatar ตัวนี้ลงสนามแบบจ่ายCost) : นำ Avatar \"Tank Ranger\" จากใน Deck เรา 1 ใบ มาสวมใส่ให"
+    },
+    {
+      "name": "Overdose แอมเฟสต้า",
+      "codes": [
+        "BT12-043"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "Overdose"
+                ],
+                "excludeSelf": true
+              }
+            }
+          ],
+          "cond": {
+            "selfOverdose": true
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAvatarTapped"
+          },
+          "oncePerTurn": true,
+          "requireTappedNameIncludes": "Overdose",
+          "requireTappedOtherName": true,
+          "actions": [
+            {
+              "op": "untap",
+              "target": "triggerSource"
+            }
+          ]
+        }
+      ],
+      "overdoseIfOwnFaceUpLifeMin": 3,
+      "overdoseLockOwnAbilities": true,
+      "parseStatus": "auto"
     }
   ]
 }

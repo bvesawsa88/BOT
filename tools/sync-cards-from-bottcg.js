@@ -2,6 +2,10 @@
 /**
  * Sync data/cards.json (+ data/sd01.json) from https://bottcg.com/cards
  * Card DB is fetched from bottcg CDN JSON (or Next.js chunk fallback); rarity SCR is stored as SEC (same as site badge).
+ *
+ * node tools/sync-cards-from-bottcg.js                ซิงก์ทั้งฐาน (ทับค่าที่แก้มือจากรูปการ์ด)
+ * node tools/sync-cards-from-bottcg.js --series BT12  เพิ่ม/อัปเดตเฉพาะชุดนั้น ไม่แตะการ์ดชุดอื่น
+ * node tools/sync-cards-from-bottcg.js --new-only     เพิ่มเฉพาะการ์ดที่ยังไม่มี ไม่แตะการ์ดเดิม
  */
 const fs = require('fs');
 const path = require('path');
@@ -106,10 +110,24 @@ function toLocalCard(c, prefixMap = {}) {
   };
 }
 
+/* แทนการ์ดของชุดนี้ด้วยข้อมูลใหม่ · ชุดใหม่แทรกต่อจาก BT ล่าสุด (เรียงแบบเดียวกับเว็บ) */
+function mergeSeries(prev, fresh, series) {
+  const kept = prev.filter(c => c.series !== series);
+  const firstOld = prev.findIndex(c => c.series === series);
+  let at = firstOld;
+  if (at < 0) {
+    at = kept.length;
+    for (let i = kept.length - 1; i >= 0; i--) {
+      if (/^BT[0-9]+$/.test(kept[i].series)) { at = i + 1; break; }
+    }
+  }
+  return kept.slice(0, at).concat(fresh, kept.slice(at));
+}
+
 async function discoverCardDbInfo(html) {
   const scripts = [...new Set([...html.matchAll(/\/_next\/static\/(?:immutable\/)?chunks\/[^"'?]+\.js/g)].map(m => m[0]))];
   let cardDbUrl = null;
-  let prefixMap = { SD09: '123v1k1', RM01: '0aslabe' };
+  let prefixMap = { SD09: '123v1k1', RM01: '0aslabe', BT12: 'thankyoupnes' };
   let fallbackChunkJs = null;
 
   for (const s of scripts) {
@@ -153,7 +171,9 @@ async function main() {
     throw new Error('Could not find bottcg cards data chunk or JSON endpoint');
   }
 
-  const cards = raw.map(c => toLocalCard(c, prefixMap));
+  const argSeries = process.argv.indexOf('--series');
+  const onlySeries = argSeries >= 0 ? String(process.argv[argSeries + 1] || '').toUpperCase() : '';
+  let cards = raw.map(c => toLocalCard(c, prefixMap));
   console.log('Cards fetched:', cards.length);
 
   const rar = {};
@@ -161,6 +181,23 @@ async function main() {
   console.log('Rarities:', rar);
 
   const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : [];
+  if (process.argv.includes('--new-only')) {
+    const have = new Set(prev.map(c => c.uid));
+    const fresh = cards.filter(c => !have.has(c.uid));
+    cards = fresh.reduce((list, c) => {
+      let at = list.length;
+      for (let i = list.length - 1; i >= 0; i--) {
+        if (list[i].series === c.series) { at = i + 1; break; }
+      }
+      return list.slice(0, at).concat([c], list.slice(at));
+    }, prev.slice());
+    console.log('New cards:', fresh.map(c => c.uid).join(', ') || 'none');
+  } else if (onlySeries) {
+    const fresh = cards.filter(c => c.series === onlySeries);
+    if (!fresh.length) throw new Error('ไม่พบการ์ดชุด ' + onlySeries);
+    cards = mergeSeries(prev, fresh, onlySeries);
+    console.log('Merged series', onlySeries, ':', fresh.length);
+  }
   const prevMap = new Map(prev.map(c => [c.uid, c]));
   const prevByName = new Map();
   for (const p of prev) {

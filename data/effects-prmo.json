@@ -3081,9 +3081,43 @@
     {
       "code": "PRMO-093",
       "name": "อีสานสลิงเกอร์ ปิ่น",
-      "abilities": [],
-      "parseStatus": "partial",
-      "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "whenAttackingChoice"
+          },
+          "cond": {
+            "land": "โคกอีสานนูน"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "ธรณีสูบ 3 ใบ แล้วย้ายเป้าหมายไปที่ LIFE",
+                  "actions": [
+                    {
+                      "op": "mill",
+                      "count": 3,
+                      "who": "self"
+                    },
+                    {
+                      "op": "retargetAttackToLife"
+                    }
+                  ]
+                },
+                {
+                  "label": "ไม่ใช้",
+                  "actions": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "โจมตี Avatar และมีโคกอีสานนูน: ธรณีสูบ 3 แล้วย้ายเป้าไป LIFE ฝ่ายตรงข้ามได้"
     },
     {
       "code": "PRMO-091",
@@ -4018,6 +4052,272 @@
       "parseStatus": "auto",
       "abilitiesFromMagicZone": true,
       "only": true
+    },
+    {
+      "code": "PRMO-141",
+      "name": "Skill : Second Energy",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "requireFromOppCard": true,
+          "requireTargetNameIncludes": "เรื่องราว",
+          "actions": [
+            {
+              "op": "preventDestroy"
+            },
+            {
+              "op": "oppExileHellChoose",
+              "ifOwnHellTypeMin": {
+                "type": "Magic",
+                "min": 8
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React เมื่อเรื่องราวเราจะถูกการ์ดศัตรูทำลาย → ไม่ออกจากสนาม · Magic ในนรก ≥8 ศัตรูเนรเทศจากนรก 1"
+    },
+    {
+      "code": "PRMO-156",
+      "name": "1 - 2 - 2",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "isFirstActionOfMainPhase"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 3
+            },
+            {
+              "op": "blockDeckToHandAndNextDrawPhase",
+              "duration": "untilNextOwnTurnEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้เป็นใบแรกของ Main Phase : จั่ว 3 ใบ (ห้ามค้น Deck + Draw Phase ถัดไปไม่ได้จั่ว)"
+    },
+    {
+      "code": "PRMO-155",
+      "name": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": {
+            "op": "discard",
+            "count": 1
+          },
+          "actions": [
+            {
+              "op": "takeControl",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3,
+                "requireTapped": true
+              },
+              "until": "endOfTurn",
+              "keepTapped": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "forceAllAvatarSymbol": "เทพ",
+      "note": "เปลี่ยน Symbol ของ Avatar ทุกใบบน Avatar Zone เป็น {Symbol เทพ} เทิร์นละครั้ง สั่งใช้ ทิ้งการ์ด 1 ใบ แล้วเลือก Avatar 1 "
+    },
+    {
+      "code": "PRMO-143",
+      "name": "ริกกี้ คุณหมอ",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "destroyedInBattleBySelf"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "หนังมนุษย์ ชุดแก้แค้น"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "PRMO-142",
+      "name": "ภูติผลไม้ มะขาม",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ป่าพงไพร เผ่าพงศ์พันธุ์"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfterIfFromDeck": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ: เปิดหน้าต่างเลือกป่าพงไพรจากเด็คหรือนรกขึ้นมือ — จากเด็คแล้วสับ"
+    },
+    {
+      "code": "PRMO-148",
+      "name": "มอร์ฟีน Overdose",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "condition": {
+            "own": {
+              "avatarZone": {
+                "filter": {
+                  "nameIncludes": [
+                    "Overdose"
+                  ]
+                },
+                "distinctNames": {
+                  "min": 4
+                }
+              }
+            }
+          },
+          "actions": [
+            {
+              "op": "blockMagicTypes",
+              "types": [
+                "React",
+                "Normal"
+              ],
+              "player": "opponent"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "revealLife",
+              "count": 1,
+              "player": "owner"
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellSummonAny",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "from": "anyGrave"
+              },
+              "dest": "ownersAvatarZone",
+              "paidCost": false,
+              "ifOpponentAvatar": {
+                "blockAbilities": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ต่อเนื่อง Overdose≥4 ชื่อไม่ซ้ำ→ ฝ่ายตรงข้ามใช้ Magic ไม่ได้; สั่งใช้ หงาย LIFE: อัญเชิญจากนรกใดก็ได้"
+    },
+    {
+      "code": "PRMO-151",
+      "name": "ศาสตราจารย์วานร",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownEndPhase",
+            "if": "ownAvatarCountNameIncludes:วานร>=3"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "note": "End Phase (มี วานร >= 3) : จั่ว 2 ใบ"
+    },
+    {
+      "code": "PRMO-154-A",
+      "name": "สุครีพ วานรปากแซ่บ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "setChosenEnemyCostsToLowest",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
+    },
+    {
+      "code": "PRMO-154-B",
+      "name": "สุครีพ วานรปากแซ่บ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "setChosenEnemyCostsToLowest",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
     }
   ]
 }

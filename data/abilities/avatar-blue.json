@@ -225,6 +225,88 @@
       "note": "คำสั่งเสีย : ธรณีสูบ 3 ใบ"
     },
     {
+      "name": "โกลัส นักธนูแห่งปาร์ตี้ผู้กล้า",
+      "codes": [
+        "BT12-017"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "rollDieBranch",
+              "even": [
+                {
+                  "op": "discard",
+                  "who": "opp",
+                  "count": 1,
+                  "ifCond": {
+                    "oppHandMin": 1
+                  }
+                },
+                {
+                  "op": "draw",
+                  "count": 1,
+                  "ifCond": {
+                    "oppHandMax": 0
+                  }
+                }
+              ],
+              "odd": [
+                {
+                  "op": "modifyPower",
+                  "amount": -1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "choose",
+                    "side": "enemy",
+                    "type": "Avatar"
+                  },
+                  "ifCond": {
+                    "oppAvatar": {}
+                  }
+                },
+                {
+                  "op": "modifyPower",
+                  "amount": 1,
+                  "duration": "permanent",
+                  "target": {
+                    "select": "choose",
+                    "side": "own",
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "ปาร์ตี้ผู้กล้า"
+                    ]
+                  },
+                  "ifCond": {
+                    "oppAvatar": {
+                      "min": 0,
+                      "max": 0
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ปาร์ตี้ผู้กล้า"
+                ]
+              },
+              "excludeSelf": true
+            }
+          }
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ของขวัญที่เมียทิ้งไว้ให้",
       "codes": [
         "BT05-018",
@@ -718,6 +800,56 @@
       "note": "จุติ : ยิง LIFE ศัตรู 1 ใบ"
     },
     {
+      "name": "โจผี ขุนพลผู้สืบทอดแห่งวุยก๊ก",
+      "codes": [
+        "BT12-026"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "วุยก๊ก"
+                ]
+              },
+              "dest": "avatar",
+              "restTo": "deck"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyBattlePhaseStart"
+          },
+          "actions": [
+            {
+              "op": "forceAttackPick"
+            }
+          ]
+        }
+      ],
+      "scoutBonusForNames": {
+        "filter": {
+          "nameIncludes": [
+            "โจโฉ"
+          ],
+          "symbol": "ต่างชาติ"
+        },
+        "amount": 2
+      },
+      "parseStatus": "auto"
+    },
+    {
       "name": "ชาช่าจัง ไอดอลคนเก่ง",
       "codes": [
         "BT07-022",
@@ -866,6 +998,37 @@
       "note": "จากนรก: ถ้ามีพระถังซัมจั๋ง/ซุนหงอคง/ตือโป๊ยก่าย รวม ≥2 ใบ ทิ้งมือ 1 → อัญเชิญตัวเอง"
     },
     {
+      "name": "ซุนฮก กุนซือพรสวรรค์แห่งวุยก๊ก",
+      "codes": [
+        "BT12-027"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "paidAsCost",
+            "if": "summonType:Avatar&summonNameIncludes:ขุนพล&summonColor:ฟ้า&summonSymbol:ต่างชาติ"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "ฟ้า",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ซุส เทพเจ้าสูงสุดแห่งโอลิมปัส",
       "codes": [
         "CC02-006"
@@ -956,6 +1119,105 @@
       ],
       "parseStatus": "auto",
       "note": "[Link โฮคุ โพลีกอน] จุติ : สอดแนม 3 เรียก ไซเบอร์/ปลา Cost<=5 ถ้าเป็นโฮคุจั่ว 1 · สั่งใช้ นอนตัวเอง : จั่ว 1 · นับเป็นปลาด้วย"
+    },
+    {
+      "name": "ดอกเตอร์เต้ นักวิจัยไดโนเสาร์",
+      "codes": [
+        "BT12-024"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญ (ไม่จุติ)",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "symbol": "กะปอม",
+                        "costMax": 5
+                      },
+                      "dest": "avatar",
+                      "optional": false,
+                      "grantSummoned": [
+                        {
+                          "keyword": "คำสั่งเสีย",
+                          "trigger": {
+                            "on": "destroyed"
+                          },
+                          "actions": [
+                            {
+                              "op": "exile",
+                              "target": "self"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "ทิ้งมือ 1 ใบ เพื่ออัญเชิญ จุติ",
+                  "actions": [
+                    {
+                      "op": "discard",
+                      "count": 1,
+                      "then": [
+                        {
+                          "op": "hellPick",
+                          "filter": {
+                            "type": "Avatar",
+                            "symbol": "กะปอม",
+                            "costMax": 5
+                          },
+                          "dest": "avatar",
+                          "paidCost": true,
+                          "optional": false,
+                          "grantSummoned": [
+                            {
+                              "keyword": "คำสั่งเสีย",
+                              "trigger": {
+                                "on": "destroyed"
+                              },
+                              "actions": [
+                                {
+                                  "op": "exile",
+                                  "target": "self"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "cost": [
+            {
+              "op": "exileHell",
+              "count": 1,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "กะปอม"
+              },
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "เด็กไม่ชอบแมลงสาบ",
@@ -1107,6 +1369,33 @@
           ]
         }
       ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ไดโนกาฬสินธุ์ - สยามแรปเตอร์",
+      "codes": [
+        "BT12-025"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "self"
+              }
+            }
+          ],
+          "onlyOwnTurn": true
+        }
+      ],
+      "summonWhenScoutedBySymbol": "กะปอม",
       "parseStatus": "auto"
     },
     {
@@ -1926,6 +2215,42 @@
       "note": "จุติ : เลือก Avatar ทหาร หรือ รด. 1 ใบ จากนรกขึ้นมือ"
     },
     {
+      "name": "บึงทมิฬ People - คุณบ๊วบ",
+      "codes": [
+        "BT12-023"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              },
+              "dest": "topDeck",
+              "optional": false
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "ownHell": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ปลา"
+              }
+            }
+          },
+          "condLabel": "นรกไม่มี Avatar ปลา"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "บึงทมิฬ People - คุณบึกบึน",
       "codes": [
         "SD05-007"
@@ -2598,6 +2923,58 @@
       "note": "อัตโนมัติเทิร์นละครั้ง: จะออกจากสนาม → เนรเทศรัททาทุยในนรก 5 ใบ (เลือกเอง) เพื่อไม่ออกสนาม · รวมลาก/ทำลาย/ย้าย"
     },
     {
+      "name": "ฟรีแลนซ์ นักเวทย์แห่งปาร์ตี้ผู้กล้า",
+      "codes": [
+        "BT12-015"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "debuffPerScouted": {
+                "anyOf": [
+                  {
+                    "type": "Magic"
+                  },
+                  {
+                    "nameIncludes": [
+                      "ปาร์ตี้ผู้กล้า"
+                    ]
+                  }
+                ]
+              },
+              "filter": {
+                "nameIncludes": [
+                  "ปาร์ตี้ผู้กล้า",
+                  "สมบัติศักดิ์สิทธิ์"
+                ]
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ],
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1,
+              "filter": {
+                "type": "Magic"
+              },
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "มนุษย์รัททาทุย",
       "codes": [
         "BT03-017",
@@ -2672,6 +3049,140 @@
       ],
       "parseStatus": "auto",
       "note": "เมื่อถูกสวม ดาบศักดิ์สิทธิ์ : เซ่นไหว้ 1 ใบ อัญเชิญ อัศวินโต๊ะกลม สีฟ้า จากนรก"
+    },
+    {
+      "name": "มังกรฟ้าตาขาว",
+      "codes": [
+        "BT12-053"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "name": "มามิ สิ่งมีชีวิตปริศนาระดับถั่วๆ",
+      "codes": [
+        "BT12-019"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "discardedByAvatarAbility"
+          },
+          "actions": [
+            {
+              "op": "moveSelfToMagicZone"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==magicZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "minSymbols": 2
+              }
+            }
+          ]
+        }
+      ],
+      "extraSymbols": [
+        "ต้นไม้"
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "มาร์โกต์ มนุษย์ดาว R18",
+      "codes": [
+        "BT12-022"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "servantFromEnemyHell",
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own",
+                "nameIncludes": [
+                  "มนุษย์ดาว R18"
+                ],
+                "excludeSelf": true
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "มารินะ หน่วยรบ XVI",
+      "codes": [
+        "BT12-018"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "discardedByScout"
+          },
+          "requireSrcNameAny": [
+            "หน่วยรบ XVI",
+            "โอเปอเรชั่น"
+          ],
+          "oncePerTurnByName": "มารินะ หน่วยรบ XVI",
+          "actions": [
+            {
+              "op": "returnToHand",
+              "target": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "หน่วยรบ XVI"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "มาวิน เซียนเบ็ด",
@@ -3177,6 +3688,46 @@
       "note": "โล่มนุษย์ / ลด POWER 1 แทนถูกทำลายจากต่อสู้"
     },
     {
+      "name": "รัททาทุยต่างโลก",
+      "codes": [
+        "BT12-021"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHell"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "symbol": "รัททาทุย"
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar รัททาทุยบน Avatar Zone",
+          "cost": [
+            {
+              "op": "exileSelf"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "รัททาทุย"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "รัททาทุย นางพญา",
       "codes": [
         "BT01-008",
@@ -3506,7 +4057,8 @@
     {
       "name": "ริกกี้ คุณหมอ",
       "codes": [
-        "BT08-016"
+        "BT08-016",
+        "PRMO-143"
       ],
       "abilities": [
         {
@@ -3959,7 +4511,8 @@
     {
       "name": "วีรบุรุษปากซอย",
       "codes": [
-        "SD02-005"
+        "SD02-005",
+        "STOR-001"
       ],
       "abilities": [
         {
@@ -4553,6 +5106,81 @@
       "note": "สั่งใช้จากมือ : ทิ้งการ์ดที่มี GEM รวมกันเท่ากับ 3 อัญเชิญลงสนาม POWER ตั้งต้น 3"
     },
     {
+      "name": "อาดัส มังกรแห่งห้วงเหวน้ำลึก",
+      "codes": [
+        "BT12-028"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "side": "enemy",
+              "zones": [
+                "magic"
+              ],
+              "filter": {
+                "type": "Avatar"
+              }
+            }
+          ],
+          "oncePerTurn": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              },
+              "excludeSelf": true
+            }
+          },
+          "condLabel": "ต้องมี Avatar มังกรใบอื่น",
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyMagicAvatarDestroyed"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "onFight"
+          },
+          "foeSymbolAny": [
+            "สัตว์"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": -2,
+              "duration": "combat",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "อามัส มนุษย์ดาว R18",
       "codes": [
         "BT06-015",
@@ -4971,6 +5599,72 @@
       "note": "สามัคคี (เปลี่ยนการ์ดนี้ที่อยู่บน Avatar Zone ในสภาพตื่นเป็นสภาพนอนบน และนำ POWER การ์ดนี้ไปเพิ่มให้"
     },
     {
+      "name": "ฮอล นักบวช",
+      "codes": [
+        "BT12-020"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย",
+                  "นาย"
+                ]
+              },
+              "excludeSelf": true
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "unityActivated"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "กุ่ย",
+                  "นาย"
+                ]
+              },
+              "excludeSelf": true
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ฮอล หน้าตาดี",
       "codes": [
         "BT09-013"
@@ -4997,6 +5691,76 @@
         "นาย"
       ],
       "gemAsCostColor": "colorless",
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ฮิตเตอร์ นักบวชแห่งปาร์ตี้ผู้กล้า",
+      "codes": [
+        "BT12-016"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "exile",
+              "target": "self"
+            },
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ฮิมไลน์"
+                ]
+              },
+              "dest": "avatar",
+              "optional": false,
+              "then": [
+                {
+                  "op": "attachDeckToSummoned",
+                  "filter": {
+                    "subtype": "Modification",
+                    "nameIncludes": [
+                      "สมบัติศักดิ์สิทธิ์"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "ฮิมไลน์"
+                ]
+              },
+              "min": 0,
+              "max": 0
+            },
+            "ownDark": {
+              "filter": {
+                "exactName": "ฮิตเตอร์ นักบวชแห่งปาร์ตี้ผู้กล้า"
+              },
+              "min": 0,
+              "max": 0
+            },
+            "ownHell": {
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "ฮิมไลน์"
+                ]
+              }
+            }
+          },
+          "condLabel": "ต้องไม่มีฮิมไลน์บน Avatar Zone ไม่มีใบนี้ในมิติมืด และมีฮิมไลน์ในนรก"
+        }
+      ],
       "parseStatus": "auto"
     },
     {
@@ -5071,6 +5835,42 @@
       ],
       "parseStatus": "auto",
       "note": "เมื่อใช้เป็น Cost สร้าง Construct ถือว่ามี GEM 5"
+    },
+    {
+      "name": "ฮิมไลน์ ผู้กล้าแห่งปาร์ตี้ผู้กล้า",
+      "codes": [
+        "BT12-014"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "value": 7
+            }
+          ],
+          "cond": {
+            "selfAttached": "สมบัติศักดิ์สิทธิ์"
+          }
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "destroyReplaceAttachFromHell": {
+        "filter": {
+          "subtype": "Modification",
+          "nameIncludes": [
+            "สมบัติศักดิ์สิทธิ์"
+          ]
+        }
+      },
+      "parseStatus": "auto"
     },
     {
       "name": "แฮหัวตุ้น ขุนพลตาเดียวแห่งวุยก๊ก",

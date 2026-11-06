@@ -772,10 +772,44 @@
     },
     {
       "code": "BT08-025",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "whenAttackingChoice"
+          },
+          "cond": {
+            "land": "โคกอีสานนูน"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "ธรณีสูบ 3 ใบ แล้วย้ายเป้าหมายไปที่ LIFE",
+                  "actions": [
+                    {
+                      "op": "mill",
+                      "count": 3,
+                      "who": "self"
+                    },
+                    {
+                      "op": "retargetAttackToLife"
+                    }
+                  ]
+                },
+                {
+                  "label": "ไม่ใช้",
+                  "actions": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
       "name": "อีสานสลิงเกอร์ ปิ่น",
-      "note": "ต่อเนื่อง Avatar หิมะ ทุกใบ POWER +1"
+      "note": "โจมตี Avatar และมีโคกอีสานนูน: ธรณีสูบ 3 แล้วย้ายเป้าไป LIFE ฝ่ายตรงข้ามได้"
     },
     {
       "code": "BT08-026",

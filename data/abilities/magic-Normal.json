@@ -6,7 +6,8 @@
     {
       "name": "1 - 2 - 2",
       "codes": [
-        "BT10-057"
+        "BT10-057",
+        "PRMO-156"
       ],
       "abilities": [
         {
@@ -94,6 +95,61 @@
       ],
       "parseStatus": "auto",
       "note": "ทำลาย Avatar ทุกใบที่ถูกอัญเชิญมาจากนรก"
+    },
+    {
+      "name": "กองทัพรุกราน",
+      "codes": [
+        "BT12-057"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "อัญเชิญกองทัพปีศาจจากมิติมืด สูงสุด 2 ใบ",
+                  "actions": [
+                    {
+                      "op": "darkPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "กองทัพปีศาจ"
+                        ]
+                      },
+                      "dest": "avatar",
+                      "multiMax": 2,
+                      "destroyAtEndPhase": true
+                    }
+                  ]
+                },
+                {
+                  "label": "อัญเชิญกองทัพปีศาจจากนรก 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "กองทัพปีศาจ"
+                        ]
+                      },
+                      "dest": "avatar",
+                      "optional": false,
+                      "destroyAtEndPhase": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "การเลือกสรรของ พระพิฆเนศ",
@@ -203,6 +259,25 @@
       ],
       "parseStatus": "auto",
       "note": "เลือก Avatar {symbol ปลา}ในนรกเรา 1 ใบ : อัญเชิญลงบน Avatar Zone ฝ่ายเราในสภาพนอน ถ้าบนสนามมี Land Magic \"บึงทมิฬ\" อัญเช"
+    },
+    {
+      "name": "กุนซือลงสนาม",
+      "codes": [
+        "BT12-055"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "revealGeneralSummonAdvisor"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "เก็บค่าคุ้มครอง",
@@ -475,6 +550,27 @@
       "parseStatus": "verified"
     },
     {
+      "name": "ความสบายตาที่แท้จริง",
+      "codes": [
+        "BT12-060"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "pickBuffFlag",
+              "amount": 2,
+              "flag": "oppChoosesTarget"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "คาถา ปลดอาวุสสิวะ",
       "codes": [
         "BT07-051",
@@ -590,6 +686,36 @@
       ],
       "parseStatus": "auto",
       "note": "ใช้ได้เมื่อมี จอมเวทย์ : ทำลาย Avatar ศัตรูกี่ใบก็ได้ที่ Power รวม <= 4"
+    },
+    {
+      "name": "คาถาอัดคาบ้าน",
+      "codes": [
+        "BT12-059"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "blockOppReactThisTurn"
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "จอมเวทย์"
+                ]
+              },
+              "min": 3
+            }
+          },
+          "condLabel": "ต้องมี Avatar \"จอมเวทย์\" 3 ใบขึ้นไป"
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "คำสั่งของพระอิศวร",
@@ -843,6 +969,90 @@
       "parseStatus": "auto"
     },
     {
+      "name": "ฉันทิ้งชื่อตัวเองไปแล้ว",
+      "codes": [
+        "BT12-058"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "declareHellAvatarSymbols"
+            }
+          ],
+          "cond": {
+            "ownHell": {
+              "filter": {
+                "type": "Avatar"
+              }
+            },
+            "ownAvatar": {}
+          },
+          "condLabel": "ต้องมี Avatar ในนรกและบน Avatar Zone"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "ฉิบหายการช่าง",
+      "codes": [
+        "BT12-061"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "เครื่องใช้ไฟฟ้าชื่อต่างกัน 2 ใบจาก Deck ไว้ Magic Zone",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เครื่องใช้ไฟฟ้า"
+                        ]
+                      },
+                      "dest": "magic",
+                      "multiMax": 2,
+                      "distinctNames": true,
+                      "shuffleAfter": true
+                    }
+                  ]
+                },
+                {
+                  "label": "เบเซอร์ Cost 6 ขึ้นไปจาก Deck ขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "deckPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "เบเซอร์"
+                        ],
+                        "costMin": 6
+                      },
+                      "dest": "hand",
+                      "shuffleAfter": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ฉุบสั่งตาย",
       "codes": [
         "BT02-043",
@@ -925,6 +1135,35 @@
       ],
       "parseStatus": "auto",
       "note": "ใช้ได้เฉพาะตอนสาหัส : เรียก ตั๊กแตนหยิน/หยาง จากนรก"
+    },
+    {
+      "name": "ชายจากอนาคต",
+      "codes": [
+        "APFD-002",
+        "BT01-041",
+        "CC02-061",
+        "KD02-018",
+        "KD04-019",
+        "ODY1-069",
+        "PRMO-056",
+        "SD05-020",
+        "SL01-006"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyPlayMagic"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "แมปจาก BT01-041"
     },
     {
       "name": "ชีวิตที่พอดี",
@@ -2409,6 +2648,29 @@
       "note": "ทำลาย Magic ศัตรูที่หงายอยู่ทั้งหมด / ทุกๆ 2 ใบ จั่ว 1"
     },
     {
+      "name": "ไม่สนจั่วอยู่ดี",
+      "codes": [
+        "BT12-056"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "bothDiscardHandDrawSame"
+            }
+          ],
+          "cond": {
+            "notFirstTurnOfGame": true
+          },
+          "condLabel": "ใช้ในเทิร์นแรกสุดของเกมไม่ได้"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ยืมมือสังหาร",
       "codes": [
         "SD07-014"
@@ -2946,6 +3208,42 @@
       "note": "ธรณีสูบ 3 ใบ หลังจากนั้น จั่วการ์ด 1 ใบ ถ้าในนรกของเรามี Avatar {symbol นรก} ที่ชื่อไม่ซ้ำกันตั้งแต่ 5 ใบขึ้นไป จั่วการ์"
     },
     {
+      "name": "สายเลือดมังกร",
+      "codes": [
+        "BT12-062"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "nextOwnDraw",
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "symbol": "มังกร"
+              }
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "type": "Avatar",
+                "symbol": "มังกร"
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar มังกรบน Avatar Zone"
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "สิงสู่เพื่อสู่สม",
       "codes": [
         "CC02-045"
@@ -3348,6 +3646,37 @@
       ],
       "parseStatus": "auto",
       "note": "ถ้า Deck เหลือ <= 15 ใบ : นำการ์ดในนรกสูงสุด 5 ใบกลับเข้า Deck"
+    },
+    {
+      "name": "ออกอาวุธ ออกอาวุธ",
+      "codes": [
+        "BT12-063"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "subtype": "Modification",
+                "excludeOnly": true
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "cost": [
+            {
+              "op": "discard",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "อินสตอล บึ้มทั้งไดรฟ์",

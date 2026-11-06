@@ -18,6 +18,7 @@ const COLOR_SLUG = {
 const COLOR_TH = { red: 'แดง', blue: 'ฟ้า', purple: 'ม่วง', green: 'เขียว', colorless: 'ไร้สี' };
 
 const META_KEYS = [
+  'deckActivateFirstMain', 'costDeltaIf', 'ownHandCostAura', 'destroyReplaceAttachFromHell', 'summonWhenScoutedBySymbol', 'scoutBonusForNames', 'hellGemForSummon', 'hellGemWhenPaid', 'ignoreNegativePowerIfHostNameIncludes', 'ignorePowerBuffsExceptAttachedName', 'cannotAttackUnlessAttachedName', 'immuneOppMagicIfOwnSymbolOther', 'noHostPowerText', 'uniqueMagicMax', 'returnToDeckOnHostDestroy', 'countsAsAvatarWhileAttached', 'controlImmuneOwnAvatarsIf', 'lifeHitsWhenDirectAttack', 'hostImmuneSymbol',
   'noPaidSummon', 'noHandSummon', 'milledOptional', 'millBonusExtra', 'millBonusExceptSelf',
   'halvePrintedInsteadDestroy', 'forceAllAvatarSymbol', 'nameAliases', 'sacrificeSummon',
   'freeSummonIf', 'uniqueOnField', 'exactGemPay', 'allColors', 'blockLifeUnreveal',

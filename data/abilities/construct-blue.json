@@ -35,6 +35,55 @@
       "note": "Avatar Cost <= 2 ทุกใบฝ่ายเราได้รับ สามัคคี"
     },
     {
+      "name": "โต๊ะกลมของเหล่าอัศวิน",
+      "codes": [
+        "BT12-075"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==construct"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "อัศวินโต๊ะกลม",
+                  "เมอลิน"
+                ]
+              },
+              "min": 4
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "own"
+              }
+            }
+          ]
+        }
+      ],
+      "controlImmuneOwnAvatarsIf": {
+        "ownAvatar": {
+          "filter": {
+            "nameIncludes": [
+              "อัศวินโต๊ะกลม",
+              "เมอลิน"
+            ]
+          },
+          "min": 4
+        }
+      },
+      "parseStatus": "auto"
+    },
+    {
       "name": "ยานสำรวจ R18",
       "codes": [
         "BT06-066",

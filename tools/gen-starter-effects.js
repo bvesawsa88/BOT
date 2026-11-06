@@ -324,7 +324,7 @@ for (const ser of TARGETS) {
 // rebuild effects-all
 const sets = ['sd01', 'sd02', 'sd03', 'sd04', 'sd05', 'sd06', 'sd07', 'sd08', 'sd09',
   'kd01', 'kd02', 'kd03', 'kd04',
-  'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11', 'cc01'];
+  'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11', 'bt12', 'cc01'];
 const merged = [];
 const seen = new Set();
 for (const s of sets) {

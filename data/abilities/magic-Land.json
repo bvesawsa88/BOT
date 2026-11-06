@@ -1237,6 +1237,42 @@
       "note": "เมื่อใช้ คาถา วาง Magic จากนรกแบบคว่ำ / สั่งใช้ : อัญเชิญ จอมเวทย์ โดยใช้ Magic คว่ำเป็น Gem"
     },
     {
+      "name": "โลกระหว่างความเป็นและความตาย",
+      "codes": [
+        "BT12-071"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "ผี"
+              }
+            },
+            {
+              "op": "modifyPower",
+              "amount": -1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbol": "คน"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "วิหารเจ้าสมุทร",
       "codes": [
         "CC02-050"
@@ -1668,10 +1704,82 @@
       "parseStatus": "auto"
     },
     {
+      "name": "อาณาจักรแห่งเกียรติภูมิ อวาลอน",
+      "codes": [
+        "BT12-073"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 1,
+              "filter": {
+                "anyOf": [
+                  {
+                    "nameIncludes": [
+                      "อัศวินโต๊ะกลม"
+                    ],
+                    "costMax": 5
+                  },
+                  {
+                    "nameIncludes": [
+                      "เมอลิน"
+                    ]
+                  }
+                ]
+              },
+              "dest": "avatar",
+              "paidCost": true,
+              "restTo": "bottom"
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "name": "อารยธรรมที่พังทลาย",
+      "codes": [
+        "BT12-072"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "symbols": [
+                  "มังกร",
+                  "ต้นไม้",
+                  "สัตว์วิเศษ"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "แอสการ์ดคือสถานที่ไม่ใช่ผู้คน",
       "codes": [
         "BT02-060",
-        "KD01-020"
+        "KD01-020",
+        "PRMO-155"
       ],
       "abilities": [
         {

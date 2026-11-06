@@ -271,6 +271,38 @@
       "note": "เลือก สอดแนม 5 เอา พลเดินทัพ/ขุนพล ต่างชาติ Power <= 2 ขึ้นมือ/ลงสนาม หรือ นำ พลเดินทัพ จากนรกเข้า Deck"
     },
     {
+      "name": "เรือรบโบราณฉวน",
+      "codes": [
+        "BT12-074"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 5,
+              "filter": {
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "color": "แดง",
+                "symbol": "ต่างชาติ"
+              },
+              "dest": "handOrSummon",
+              "summonCostMax": 4,
+              "restTo": "bottom"
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "วัดคู่บ้านคู่เมือง",
       "codes": [
         "SD06-019"

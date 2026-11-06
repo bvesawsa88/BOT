@@ -31,7 +31,7 @@
           // fallback: ไฟล์แยกรายชุด (กรณียังไม่ build effects-all)
           const urls = ['sd01', 'sd02', 'sd03', 'sd04', 'sd05', 'sd06', 'sd07', 'sd08',
             'kd01', 'kd02', 'kd03', 'kd04',
-            'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11', 'cc01']
+            'bt01', 'bt02', 'bt03', 'bt04', 'bt05', 'bt06', 'bt07', 'bt08', 'bt09', 'bt10', 'bt11', 'bt12', 'cc01']
             .map(s => 'data/effects-' + s + '.json');
           return Promise.all(urls.map(u => fetch(asset(u)).then(r => r.json()).catch(() => null)))
             .then(list => {
@@ -5055,11 +5055,12 @@
             const info = BoTEngine.payGemInfo(st.inst[k], c0);
             if (BoTEngine.gemPaysFor ? BoTEngine.gemPaysFor(info.gc, avColor) : (!avColor || info.gc === 'ขาว' || info.gc === avColor)) usable += info.g;
           });
-          if (cost > 0 && usable < cost) {
+          const hellGem = (usable < cost && BoTEngine.hellGemAvailable) ? BoTEngine.hellGemAvailable(st, owner, d.k, payIds) : 0;
+          if (cost > 0 && usable + hellGem < cost) {
             toast(`GEM ไม่พอ: "${c0.name}" ต้องการ ${cost} (ใช้ได้ ${usable}) — แตะการ์ดในมือให้ GEM พอ แล้วลากลงสนาม`, 4500);
             return;
           }
-          if (cost > 0 && BoTEngine.gemPayDenyMsg) {
+          if (cost > 0 && !hellGem && BoTEngine.gemPayDenyMsg) {
             const payDeny = BoTEngine.gemPayDenyMsg(st, payIds, d.k, cost);
             if (payDeny) { toast(payDeny, 4500); return; }
           }

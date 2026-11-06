@@ -367,6 +367,39 @@
       "note": "เมื่อ Avatar ที่สวมใส่ทำลาย Avatar ด้วยการต่อสู้สำเร็จ : หงาย LIFE ใบบนสุดของอีกฝ่าย"
     },
     {
+      "name": "ชิป Tank Ranger A.I.",
+      "codes": [
+        "BT12-069"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "countsAsAvatarWhileAttached": true,
+      "attachOnly": {
+        "nameIncludes": "รถถัง",
+        "symbol": "หุ่นยนต์"
+      },
+      "costOnlyForNameIncludes": [
+        "รถถัง",
+        "Tank Ranger"
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ดาบใบข้าว X",
       "codes": [
         "SD06-017"
@@ -1472,6 +1505,41 @@
       "note": "สวม เทพธิดาแห่งวัลฮัลลา / เมื่อจะถูกทำลาย ทำลายการ์ดนี้แทน / ถูกธรณีสูบ ใช้งานจากนรกได้"
     },
     {
+      "name": "สมบัติศักดิ์สิทธิ์ แอสคาลอน",
+      "codes": [
+        "BT12-068"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "hostBattleStart"
+          },
+          "foeSymbolAny": [
+            "นรก"
+          ],
+          "requireHostNameIncludes": "ฮิมไลน์",
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "target": {
+                "select": "host"
+              }
+            }
+          ]
+        }
+      ],
+      "noHostPowerText": true,
+      "uniqueMagicMax": 2,
+      "returnToDeckOnHostDestroy": true,
+      "hostImmuneSymbol": {
+        "hostNameIncludes": "ฮิมไลน์",
+        "symbol": "นรก"
+      },
+      "uniqueMagicNameIncludes": "สมบัติศักดิ์สิทธิ์",
+      "parseStatus": "auto"
+    },
+    {
       "name": "สายฟ้า วัชระ",
       "codes": [
         "BT03-056"
@@ -1774,6 +1842,52 @@
       },
       "parseStatus": "auto",
       "note": "สวมได้เฉพาะเพมมุ · ฆ่าแล้วถ้าเหยื่อ POWER น้อยกว่าโฮสต์ตั้งแต่ 2 ขึ้นไป หงาย LIFE บนสุดศัตรู · Magic Zone มีอาวุธของเพมมุได้ 1 ใบ"
+    },
+    {
+      "name": "อาวุธของเพมมุ มาโกะชิลด์",
+      "codes": [
+        "BT12-070"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "fromMagicZone": true,
+          "actions": [
+            {
+              "op": "chooseMode",
+              "options": [
+                {
+                  "label": "หงาย LIFE ใบบนสุดของเรา 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "revealOwnLife",
+                      "count": 1
+                    }
+                  ]
+                },
+                {
+                  "label": "ส่งการ์ดใบนี้ลงนรก",
+                  "actions": [
+                    {
+                      "op": "sendSelfToHell"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "abilitiesFromMagicZone": true,
+      "protectReplace": true,
+      "uniqueMagicNameIncludes": "อาวุธของเพมมุ",
+      "attachOnly": {
+        "nameIncludes": "เพมมุ"
+      },
+      "parseStatus": "auto"
     },
     {
       "name": "อาวุธนคร ดินสอ 5H",

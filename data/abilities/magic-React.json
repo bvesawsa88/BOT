@@ -534,34 +534,6 @@
       "note": "เมื่อ Construct จะถูกทำลาย : Construct ใบนั้นจะไม่ถูกทำลาย"
     },
     {
-      "name": "ชายจากอนาคต",
-      "codes": [
-        "BT01-041",
-        "CC02-061",
-        "KD02-018",
-        "KD04-019",
-        "ODY1-069",
-        "PRMO-056",
-        "SD05-020",
-        "SL01-006"
-      ],
-      "abilities": [
-        {
-          "trigger": {
-            "on": "enemyPlayMagic"
-          },
-          "react": true,
-          "actions": [
-            {
-              "op": "negate"
-            }
-          ]
-        }
-      ],
-      "parseStatus": "auto",
-      "note": "แมปจาก BT01-041"
-    },
-    {
       "name": "ชีวิตเหนือหน้าที่",
       "codes": [
         "SD09-016"
@@ -663,6 +635,28 @@
       ],
       "parseStatus": "auto",
       "note": "เมื่อ Avatar จะถูกทำลาย ทิ้งการ์ดทั้งหมดบนมือ : Avatar ใบนั้นจะไม่ถูกทำลาย"
+    },
+    {
+      "name": "ถ้าเป็นฮิมไลน์ก็คงทำแบบนี้",
+      "codes": [
+        "BT12-065"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "requireOwnNameIncludes": "ฮิมไลน์",
+          "actions": [
+            {
+              "op": "returnHostModRedirect",
+              "hostNameIncludes": "ฮิมไลน์"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ทะลุบ้านทะลุโกศ",
@@ -1087,6 +1081,26 @@
       ],
       "parseStatus": "auto",
       "note": "เมื่ออีกฝ่ายโจมตี : เลือก Avatar ใบอื่นที่ไม่ใช่เป้าหมาย นำ POWER มาบวกให้เป้าหมาย"
+    },
+    {
+      "name": "มือเปรี๊ยะ",
+      "codes": [
+        "BT12-067"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDrawFromDeckByEffect"
+          },
+          "actions": [
+            {
+              "op": "exileOppHandRandom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
     },
     {
       "name": "ไม่เจ้ายังไม่พร้อม",
@@ -1948,6 +1962,46 @@
       "parseStatus": "auto"
     },
     {
+      "name": "โอเปอเรชั่น : สกายฟอลล์",
+      "codes": [
+        "BT12-066"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "ownAvatarFights"
+          },
+          "requireFighterNameAny": [
+            "หน่วยรบ XVI"
+          ],
+          "cond": {
+            "oppTurn": true
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "หน่วยรบ XVI",
+                  "โอเปอเรชั่น"
+                ]
+              },
+              "dest": "hell",
+              "restTo": "bottom",
+              "then": [
+                {
+                  "op": "destroyAttacker"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
       "name": "ฮึบบบบบบบบบบบบ",
       "codes": [
         "BT05-062"
@@ -2013,6 +2067,57 @@
       "note": "เมื่อศัตรูโจมตี เนรเทศ ไวรัส จากนรก 1 ใบ : ปรับ POWER ตั้งต้นศัตรูที่โจมตีเป็น 0"
     },
     {
+      "name": "Skill : Dacknova",
+      "codes": [
+        "BT12-064"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "requireTapped": true
+              }
+            }
+          },
+          "condLabel": "ต้องมี Avatar \"เรื่องราว\" ที่นอนอยู่",
+          "actions": [
+            {
+              "op": "pickBuffFlag",
+              "filter": {
+                "nameIncludes": [
+                  "เรื่องราว"
+                ],
+                "requireTapped": true
+              },
+              "untap": true,
+              "amountIf": {
+                "cond": {
+                  "ownHell": {
+                    "filter": {
+                      "type": "Magic"
+                    },
+                    "min": 8
+                  }
+                },
+                "amount": 2
+              }
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "auto"
+    },
+    {
       "name": "Skill : Hypersense",
       "codes": [
         "BT09-059"
@@ -2048,7 +2153,8 @@
     {
       "name": "Skill : Second Energy",
       "codes": [
-        "BT09-060"
+        "BT09-060",
+        "PRMO-141"
       ],
       "abilities": [
         {
