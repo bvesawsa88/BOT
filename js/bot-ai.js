@@ -396,48 +396,6 @@
       return false;
     });
   }
-  function hellPickFilterHits(st, owner, filter) {
-    filter = filter || {};
-    return zoneIds(st, owner + '.hell').some(k => {
-      const c = st.inst[k];
-      if (!c) return false;
-      if (filter.type && c.type !== filter.type) return false;
-      if (filter.subtype === 'Normal' && !isNormalMagicCard(c)) return false;
-      else if (filter.subtype && filter.subtype !== 'Normal' && (c.subtype || '') !== filter.subtype) return false;
-      if (filter.gemMin != null && (+c.gem || 0) < filter.gemMin) return false;
-      return true;
-    });
-  }
-  function actionsHandGain(st, owner, actions) {
-    let n = 0;
-    (actions || []).forEach(ac => {
-      if (!ac) return;
-      if (ac.op === 'draw') n += ac.count || 1;
-      else if (ac.op === 'hellPick') n += hellPickFilterHits(st, owner, ac.filter) ? 1 : 0;
-      else if (ac.op === 'schedule') n += actionsHandGain(st, owner, ac.actions);
-    });
-    return n;
-  }
-  function scheduledOppHandGain(st, opp) {
-    let n = 0;
-    (st.scheduled || []).forEach(s => {
-      if (!s || s.player !== opp) return;
-      if (s.when && s.when !== 'nextOwnMainPhase') return;
-      if (s.op === 'draw') n += s.count || 1;
-      else if (s.op === 'runActions') n += actionsHandGain(st, opp, s.actions);
-    });
-    return n;
-  }
-  function nextTurnNaturalHand(handN) {
-    const afterDraw = handN + 1;
-    return afterDraw < 3 ? 3 : afterDraw;
-  }
-  /** มือเทิร์นหน้าถ้าตี LIFE อีก 1 ครั้ง — สมมติใบคว่ำให้อีก 1 ใบ (จั่ว/หยิบ) */
-  function projectedHandIfHitLife(st, side) {
-    const opp = otherSide(side);
-    const cur = zoneIds(st, opp + '.hand').length;
-    return nextTurnNaturalHand(cur) + scheduledOppHandGain(st, opp) + 1;
-  }
   function avatarCanKickEgg(st, k) {
     const c = st.inst[k];
     if (!c) return false;
@@ -462,7 +420,7 @@
       const c = st.inst[k];
       if (!c || c.type !== 'Avatar' || c.tapped || c.faceUp === false) return false;
       if (pwr(k) <= 0) return false;
-      if (isBodyguardCard(c)) return false;
+      if (bodyguardStaysHome(st, side, k)) return false;
       if (enemyAv && !avatarCanKickEgg(st, k)) return false;
       return true;
     }).length;
@@ -507,15 +465,27 @@
     if (n >= need && zoneIds(st, opp + '.hand').length === 0) return true;
     return false;
   }
+  /** ใบที่ 4-5 ถ้าอีกฝ่ายตอบโต้ เรามีทางสวนไหม: มี React ในมือ หรือตีไปแล้วยังเหลือตัวตื่นอยู่ */
+  function canSwingBack(st, side) {
+    if (hasWinningCounterReact(st, side)) return true;
+    if (zoneIds(st, side + '.hand').some(k => st.inst[k] && st.inst[k].subtype === 'React')) return true;
+    const E = eng();
+    return zoneIds(st, side + '.avatar').filter(k => {
+      const c = st.inst[k];
+      return c && c.type === 'Avatar' && !c.tapped && c.faceUp !== false && E.effPower(st, k) > 0;
+    }).length >= 2;
+  }
+  const LOW_OPP_HAND = 2;
+  const FORCE_PLAY_OPP_HAND = 6;
   /**
-   * นโยบายตี LIFE
-   * - คำนวณมือเทิร์นหน้าก่อนทุกครั้ง (จั่ว 1 + เติมถึง 3 + ผล LIFE) ไม่ให้เกิน 5
-   * - มือ 0 → เทิร์นหน้าจั่วเติม 3 จึงตีได้แค่ 2 ใบที่ให้อีกฝ่ายได้ใบ
-   * - มือ > 5 แล้วเขาไม่เล่น → ตีทีละ 1
-   * - โดม/อู๊ดใช้ไม่ได้หรือยิงไปแล้ว → ตีย้ำได้ แต่ยังคุมมือไม่เกิน 5
-   * - ไม่หงายเกิน 3 / ไม่ให้หงายมากกว่าเราที่ ≥4 ถ้าเขายังใช้ไลฟ์ได้ (กันเลือกมัน)
+   * นโยบายตี LIFE ตามแนวเด็ค
+   * - จบเกมได้ → บุกปิดเลย
+   * - มือศัตรูเกิน 6 → ตีเพื่อบังคับให้เล่น
+   * - เด็คปูบอร์ดไว → ตีรวดเดียว
+   * - เด็คเราตั้งรับเน้นมือ → ไม่ตี
    * - สู้บอร์ดไม่ได้ → เตะไข่ทีละ 1
-   * - จบเกมได้ในตานี้ → บุกปิดเลย
+   * - เปิดใบที่ 1-3 → ตีปกติ
+   * - ใบที่ 4-5 → ไม่ตีถ้ามือศัตรูน้อย นอกนั้นตีเมื่อสวนได้ หรือ LIFE ที่หงายอยู่ใช้ไม่ได้แล้ว
    */
   function shouldLifeAttack(st, side, opts) {
     opts = opts || {};
@@ -523,24 +493,15 @@
     const oppDown = zoneIds(st, opp + '.life').filter(k => st.inst[k] && !st.inst[k].faceUp).length;
     if (opts.lethal || oppDown === 0) return true;
     if (canForceLifeWin(st, side, opts)) return true;
-    const hits = opts.lifeHitsThisTurn || 0;
     const oppHand = zoneIds(st, opp + '.hand').length;
-    const proj = projectedHandIfHitLife(st, side);
-    if (oppHand > 5) {
-      if (hits >= 1) return false;
-    } else if (proj > 5) {
-      return false;
-    }
-    const myUp = lifeUpCount(st, side);
-    const oppUp = lifeUpCount(st, opp);
-    const dud = revealedUnusableOrSpentLife(st, opp);
-    const newUp = oppUp + 1;
-    if (!dud) {
-      if (newUp > 3) return false;
-      if (newUp >= 4 && newUp > myUp) return false;
-    }
-    if (opts.losing && hits >= 1) return false;
-    return true;
+    if (oppHand > FORCE_PLAY_OPP_HAND) return true;
+    const deck = uni().deckOf(st, side) || {};
+    if (deck.pace === 'fast') return true;
+    if (deck.primary === 'control') return false;
+    if (opts.losing && (opts.lifeHitsThisTurn || 0) >= 1) return false;
+    if (lifeUpCount(st, opp) + 1 <= 3) return true;
+    if (oppHand <= LOW_OPP_HAND) return false;
+    return revealedUnusableOrSpentLife(st, opp) || canSwingBack(st, side);
   }
 
   function boardLosing(st, side) {
@@ -579,7 +540,7 @@
         const c = st.inst[k];
         return c && /ไม้เกาหลัง/.test(nameOf(c)) && !c.attachedTo;
       }) || null,
-      greenHand: hand.find(k => isGreenBeater(st.inst[k])) || null,
+      greenHand: hand.find(k => isGreenBeater(st.inst[k]) && !uni().summonLockNeedle(st.inst[k])) || null,
       greenField: field.find(k => isGreenBeater(st.inst[k])) || null,
       starfruitHand: hand.find(k => /มะเฟือง/.test(nameOf(st.inst[k]))) || null,
     };
@@ -954,6 +915,21 @@
     const n = nameOf(c);
     return /ยักษ์หินแผ่นดินใหญ่/.test(n) || /ภูติผลไม้ มะม่วง/.test(n);
   }
+  /** โล่ไม่บุก: มะม่วง / ยักษ์หิน เฝ้าเสมอ · ใบอื่นที่มีโล่มนุษย์ให้ใบที่อ่อนสุดเฝ้าใบเดียว
+      และเฝ้าเมื่อมีตัวที่แรงกว่าให้คุ้มกันเท่านั้น */
+  function bodyguardStaysHome(st, side, k) {
+    const c = st.inst[k];
+    if (!isBodyguardCard(c)) return false;
+    const fixedGuard = x => /ยักษ์หินแผ่นดินใหญ่|ภูติผลไม้ มะม่วง/.test(nameOf(x));
+    if (fixedGuard(c)) return true;
+    const E = eng();
+    const pwr = id => E.effPower(st, id);
+    const field = zoneIds(st, side + '.avatar').filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
+    const guards = field.filter(id => !st.inst[id].tapped && isBodyguardCard(st.inst[id]));
+    if (guards.some(id => fixedGuard(st.inst[id]))) return false;
+    const home = guards.slice().sort((a, b) => pwr(a) - pwr(b))[0];
+    return home === k && field.some(id => id !== k && pwr(id) > pwr(k));
+  }
   function hellYakCount(st, side) {
     return zoneIds(st, side + '.hell').filter(id => {
       const x = st.inst[id];
@@ -1287,5 +1263,6 @@
     finishComboParts,
     isDeckKeyCard,
     isBodyguardCard,
+    bodyguardStaysHome,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

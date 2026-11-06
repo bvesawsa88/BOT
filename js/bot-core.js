@@ -27,8 +27,10 @@
     let st = null;
 
     const eff = k => E.effPower(st, k);
+    const ACTIVATE_REPEAT_LIMIT = 6;
     let botFailKeys = new Set();
     let botFailTurn = -1;
+    let botActivateCounts = new Map();
     let botLifeHitTurn = -1;
     let botLifeHits = 0;
     function botCloneSt(s) {
@@ -38,6 +40,11 @@
       const prev = st;
       st = next;
       try { return fn(); } finally { st = prev; }
+    }
+    /** ตัวเลือกของพรอมป์ต์ ไม่รวมชื่อที่เลือกไปแล้ว (เลือกซ้ำแล้วพรอมป์ต์ไม่จบ) */
+    function botPromptCands(s, pr) {
+      const seen = pr.seenNames || {};
+      return (E.promptCandidates(s, pr) || []).filter(k => !(s.inst[k] && seen[s.inst[k].name]));
     }
     function botSimPromptAct(sim, pr) {
       const chooser = pr.chooser;
@@ -67,7 +74,7 @@
         if (pr.kind === 'peekTop') return { type: 'peekTopPlace', where: 'top', by: me };
         if (pr.kind === 'handOrSummon') {
           const c = pr.card && sim.inst[pr.card];
-          const where = (c && c.type === 'Avatar' && (+c.power || 0) >= 3) ? 'avatar' : 'hand';
+          const where = (c && c.type === 'Avatar' && (+c.power || 0) >= 3 && !U.summonLockNeedle(c)) ? 'avatar' : 'hand';
           return { type: 'handOrSummonPick', where, by: me };
         }
         if (pr.kind === 'guessReveal') return { type: 'guessRevealContinue', by: me };
@@ -80,7 +87,7 @@
           const symbol = (typeof opts[0] === 'string' ? opts[0] : (opts[0] && (opts[0].symbol || opts[0].label))) || 'สัตว์';
           return { type: 'pickSymbol', symbol, by: me };
         }
-        const cands = (E.promptCandidates(sim, pr)) || [];
+        const cands = botPromptCands(sim, pr);
         const pick = botPickTarget(pr, cands);
         if (pick) return { type: 'chooseTarget', k: pick, by: me };
         if (pr.optional !== false) return { type: 'skipPrompt', by: me };
@@ -214,9 +221,15 @@
     }
     function botSend(a) {
       if (!a) return false;
-      if (botFailTurn !== st.turn) { botFailKeys = new Set(); botFailTurn = st.turn; }
+      if (botFailTurn !== st.turn) { botFailKeys = new Set(); botActivateCounts = new Map(); botFailTurn = st.turn; }
       const key = botKey(a);
       if (botFailKeys.has(key)) return false;
+      // สั่งใช้ซ้ำได้โดยกระดานไม่เปลี่ยน — หยุดไว้ก่อนบอทวนลูปจนค้าง
+      if (a.type === 'activateAbility') {
+        const n = (botActivateCounts.get(key) || 0) + 1;
+        if (n > ACTIVATE_REPEAT_LIMIT) return false;
+        botActivateCounts.set(key, n);
+      }
       const fx = host.send(a);
       if (fx && fx.deny) {
         // ปฏิเสธตอนยังไม่เปิดศึก อย่าจำเป็น fail-key ทั้งเทิร์น 1 — บอทเริ่มก่อนจะตัน
@@ -230,11 +243,14 @@
     function botModeOptionDeny(k, opt) {
       return E.chooseModeOptionDeny(st, k, me, opt);
     }
-    function botCardVal(k) {
+    function botBaseCardVal(k) {
       const c = st.inst[k]; if (!c) return 0;
       let v = U.cardValue(st, me, c) + AI.comboHoldScore(st, me, c);
       if (AI.isWantedLandCard(c, botArch())) v += 8;
       return v;
+    }
+    function botCardVal(k) {
+      return botBaseCardVal(k) + (U.evolvePlan(st, me).keep.has(k) ? 200 : 0);
     }
     function botMagicTypeFree(mtype) {
       return !(st.magicUsed && st.magicUsed[me] && st.magicUsed[me][mtype]);
@@ -245,13 +261,15 @@
       const eAll = E.effectOf(c0.code, c0.name);
       const avColor = E.avatarCostColors(c0, eAll);
       const hand = (st.zones[me + '.hand'] || []).filter(x => x !== summonK);
+      const evolveKeep = U.evolvePlan(st, me, summonK).keep;
       const usable = [];
       for (const o of hand) {
         const info = E.payGemInfo(st.inst[o], c0);
         const ok = E.gemPaysFor(info.gc, avColor);
         if (E.costOnlyDeny(st.inst[o], c0)) continue;
         // เก็บแลนด์/เอนเอเบลอร์เด็คไว้จ่ายทีหลัง
-        let keep = botCardVal(o);
+        let keep = botBaseCardVal(o);
+        if (evolveKeep.has(o)) keep += 300;
         const arch = botArch();
         if (AI.isWantedLandCard(st.inst[o], arch)) keep += 80;
         if (AI.cardIsKeyEnabler(st.inst[o], arch)) keep += 50;
@@ -309,6 +327,7 @@
       if (c.type === 'Avatar') s += 20;
       if (c.type === 'Construct') s += 8;
       if (c.type === 'Avatar' && p <= 0 && (+c.gem || 0) >= 3) s -= 140;
+      if (U.isEvolver(c) && U.evolvePlan(st, me, k).targets.length) s += 45;
       const enemies = (st.zones[foe + '.avatar'] || []).filter(id => st.inst[id] && st.inst[id].type === 'Avatar');
       if (enemies.length && enemies.every(e => eff(e) < p)) s += 15;
       s += AI.summonSynergyBonus(st, me, k, botArch());
@@ -331,6 +350,8 @@
       const cap = (E.avatarCap(st, me)) || 4;
       const avLimit = lv === 'easy' ? 2 : isHard() ? Math.min(4, cap) : Math.min(3, cap);
       const candidates = [];
+      const locked = [];
+      const plan = U.evolvePlan(st, me);
       for (const k of hand) {
         const c = st.inst[k]; if (!c) continue;
         if (c.type !== 'Avatar' && c.type !== 'Construct') continue;
@@ -351,10 +372,23 @@
         const pay = free ? [] : botBuildPay(k, cost);
         if (pay == null) continue;
         const score = botSummonScore(k);
+        const spendsCombo = pay.some(o => plan.keep.has(o)) && !(U.isEvolver(c) && !plan.fieldEv.length);
         const a = { type: 'summon', k, to: c.type === 'Construct' ? me + '.construct' : me + '.avatar', payIds: pay, by: me };
         if (free) a.free = true;
-        candidates.push({ a, heur: score });
+        if (U.summonLockNeedle(c)) locked.push({ a, heur: score, free, power: +c.power || 0 });
+        else candidates.push({ a, heur: spendsCombo ? score - 60 : score, spendsCombo });
       }
+      // จ่ายชิ้นคอมโบได้เฉพาะตอนบอร์ดว่างและไม่มีตัวอื่นให้ลง
+      if (!zone.length && !candidates.some(x => !x.spendsCombo && x.a.to === me + '.avatar')) {
+        candidates.forEach(x => { if (x.spendsCombo) x.heur += 60; });
+      }
+      // ตัวที่ต้องรอแปลงร่าง: ลงเองเป็นตัวเปล่า — ลงเมื่อฟรี หรือบอร์ดว่างโดนกดและไม่มีทางแปลงร่าง
+      const noEvolver = !plan.fieldEv.length && !plan.handEv.length;
+      const pressed = !zone.length && (st.zones[foe + '.avatar'] || []).length > 0
+        && !candidates.some(x => x.a.to === me + '.avatar');
+      locked.forEach(x => {
+        if (x.power > 0 && noEvolver && (x.free || pressed)) candidates.push(x);
+      });
       candidates.sort((x, y) => y.heur - x.heur);
       return candidates;
     }
@@ -433,8 +467,25 @@
       }
       return false;
     }
+    function botMatches(zone, filter) {
+      const ids = st.zones[zone] || [];
+      return E.promptCandidates(st, { kind: 'pick', from: 'ids', ids, filter: filter || {}, chooser: me, allowAnyZone: true });
+    }
+    /** เสียของแล้วไม่ได้อะไร: จ่าย cost ค้นการ์ดที่เด็คไม่มี · ทำลายตัวเองทั้งที่ไม่มีตัวให้อัญเชิญ */
+    function botPaysForNothing(ab) {
+      const acts = ab.actions || [];
+      const first = acts[0];
+      if (!first) return false;
+      if (ab.cost && first.op === 'deckPick') return !botMatches(me + '.deck', first.filter).length;
+      const summon = acts.find(x => x.op === 'handSummon');
+      if (!summon || first.op !== 'destroy' || (first.target || {}).select !== 'self') return false;
+      return !botMatches(me + '.hand', summon.filter).some(h =>
+        botBuildPay(h, Math.max(0, E.effCost(st, h) - (summon.costReduce || 0))) != null);
+    }
     function botCollectActivateCands() {
       const arch = botArch();
+      const evolveKeep = U.evolvePlan(st, me).keep;
+      const handCards = st.zones[me + '.hand'] || [];
       const pools = [
         ...(st.zones[me + '.avatar'] || []),
         ...(st.zones[me + '.construct'] || []),
@@ -450,11 +501,18 @@
         // สั่งใช้จากมิติมืด (ถ้าการ์ดรองรับ เช่น ไวรัส)
         ...(st.zones[me + '.dark'] || []).filter(k => hasActivated(k)),
       ];
-      return pools.slice().map(k => {
+      // แปลงร่างรอ Battle Phase: ตีด้วยร่างเดิมก่อน แล้วร่างใหม่ตื่นมาตีได้อีกครั้ง
+      const holdEvolve = k => level() !== 'easy' && st.phase === 'Main' && U.isEvolver(st.inst[k]);
+      return pools.filter(k => !holdEvolve(k)).map(k => {
         const c = st.inst[k];
         const e = E.effectOf(c.code, c.name);
         const actAb = (e && e.abilities || []).find(ab => ab.trigger && (ab.trigger.on === 'activated' || ab.trigger.on === 'activatedFromField' || ab.trigger.on === 'activatedAnyTurn' || ab.trigger.on === 'activatedFromHand' || ab.trigger.on === 'activatedFromHell' || ab.trigger.on === 'activatedFromDarkDimension' || ab.fromHell));
-        const isDenied = actAb && E.activatedTargetDeny(st, me, actAb, k);
+        const discardsCombo = actAb && [].concat(actAb.cost || []).some(x => x && x.op === 'discard')
+          && handCards.every(h => h === k || evolveKeep.has(h));
+        const zoneAb = c.type === 'Magic' && E.zoneOf(st, k) === me + '.magic'
+          && ((e && e.abilities) || []).find(ab => ab.fromMagicZone);
+        const isDenied = discardsCombo || botPaysForNothing(zoneAb || actAb || {})
+          || (actAb && E.activatedTargetDeny(st, me, actAb, k));
         return {
           a: { type: 'activateAbility', k, by: me },
           heur: isDenied ? -999 : (AI.activateScore(st, me, k, arch)),
@@ -465,6 +523,19 @@
     function botTryActivate() {
       for (const it of botCollectActivateCands()) {
         if (botSend(it.a)) return true;
+      }
+      return false;
+    }
+    /** แปลงร่างหลังโจมตีครบ — ตัวที่นอนแล้วก่อน ร่างใหม่จะได้ตื่นมาตีต่อ */
+    function botTryEvolve() {
+      if (level() === 'easy') return false;
+      const plan = U.evolvePlan(st, me);
+      if (!plan.fieldEv.length || !plan.targets.length) return false;
+      const best = U.pickEvolveTarget(st, me, plan.targets);
+      if (U.evolvedPower(st, me, st.inst[best]) < 2) return false;
+      const order = plan.fieldEv.slice().sort((a, b) => (st.inst[b].tapped ? 1 : 0) - (st.inst[a].tapped ? 1 : 0));
+      for (const k of order) {
+        if (hasActivated(k) && botSend({ type: 'activateAbility', k, by: me })) return true;
       }
       return false;
     }
@@ -679,7 +750,7 @@
         lethal, losing, lifeHitsThisTurn: botLifeHits,
       });
       // มะม่วง / ยักษ์หิน = โล่มนุษย์ กันคีย์ (ทศกัณฑ์ แตงกวา) — ห้ามบุก
-      const strikers = lv === 'easy' ? mine : mine.filter(k => !(AI.isBodyguardCard(st.inst[k])));
+      const strikers = lv === 'easy' ? mine : mine.filter(k => !AI.bodyguardStaysHome(st, me, k));
       const atkMine = (lethal && !strikers.length) ? mine : strikers;
       if (!atkMine.length) return false;
 
@@ -804,10 +875,20 @@
       const ownSide = k => E.ownerOf(st, k) === me;
       const arch = botArch();
 
+      if (dest === 'storyEvolve') return U.pickEvolveTarget(st, me, cands);
+      if (dest === 'hand') {
+        const piece = U.evolveSearchPick(st, me, cands);
+        if (piece) return piece;
+      }
       if (dest === 'retargetAttack' || pr.kind === 'chooseDestroy' || dest === 'destroy' || (dest === 'hell' && from === 'enemyAvatars')
         || from === 'enemyAvatars' || (pr.side === 'enemy' && pr.kind !== 'chooseBuff')) {
         const enemies = cands.filter(enemySide).sort((a, b) => botThreatScore(b) - botThreatScore(a) || eff(b) - eff(a));
         if (enemies[0]) return enemies[0];
+        // ไม่มีเป้าฝั่งศัตรู — ข้าม อย่าทำลายของตัวเอง ถ้าบังคับเลือกก็เสียใบถูกสุด
+        if (pr.kind === 'chooseDestroy' && pr.side !== 'own') {
+          if (pr.optional !== false) return null;
+          return cands.slice().sort((a, b) => botCardVal(a) - botCardVal(b))[0];
+        }
       }
       if (pr.kind === 'chooseDiscard' || dest === 'discard' || dest === 'giveHandNegate' || dest === 'giveToOpp' || from === 'ownHand') {
         return cands.slice().sort((a, b) => botCardVal(a) - botCardVal(b))[0];
@@ -872,7 +953,7 @@
       return cands.slice().sort((a, b) => botCardVal(b) - botCardVal(a))[0];
     }
     function botHandlePrompt(pr) {
-      const cands = E.promptCandidates(st, pr);
+      const cands = botPromptCands(st, pr);
       if (pr.kind === 'chooseMode' && pr.options && pr.options.length) {
         const denyFn = opt => botModeOptionDeny(pr.src, opt);
         const opt = AI.pickChooseModeIndex(st, me, pr, denyFn);
@@ -976,6 +1057,7 @@
         const c = cid && st.inst[cid];
         let where = (c && c.type === 'Avatar' && (+c.power || 0) >= 3) ? 'avatar' : 'hand';
         if (c && AI.cardIsKeyEnabler(c, botArch()) && c.type === 'Avatar') where = 'avatar';
+        if (c && U.summonLockNeedle(c)) where = 'hand';
         botSend({ type: 'handOrSummonPick', where, by: me });
         return;
       }
@@ -1198,6 +1280,7 @@
         // สามัคคีก่อน แล้วค่อยโจมตี (รวมตี LIFE ด้วยเตะไข่จากไม้เกาหลัง ฯลฯ)
         if (botTryUnity()) return;
         if (botTryAttack()) return;
+        if (botTryEvolve()) return;
         const bh = st.zones[me + '.hand'] || [];
         if (bh.length > 7) {
           const drop = bh.slice().sort((a, b) => botCardVal(a) - botCardVal(b))[0];

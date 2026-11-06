@@ -794,6 +794,71 @@
     return { a: scored[0].a, explain: lastExplain };
   }
 
+  /* ═══════════════ 8.5 แปลงร่าง (นักท่องเรื่องราว ฯลฯ) ═══════════════ */
+  /** ความสามารถทั้งหมดของใบนี้ได้มาเมื่อถูกการ์ดอื่นอัญเชิญเท่านั้น — ลงเองจะเป็นตัวเปล่า
+      คืนคำในชื่อของการ์ดที่ต้องมาอัญเชิญ หรือ null ถ้าลงเองได้ตามปกติ */
+  function summonLockNeedle(c) {
+    const abs = (effectOf(c) || {}).abilities || [];
+    if (!abs.length) return null;
+    let needle = null;
+    for (const ab of abs) {
+      const t = ab.trigger || {};
+      if (t.on !== 'summoned' || String(t.if || '').split(',').indexOf('summonedByNameIncludes') < 0) return null;
+      needle = t.nameIncludes || needle;
+    }
+    return needle;
+  }
+
+  function isEvolver(c) {
+    return ((effectOf(c) || {}).abilities || []).some(ab => (ab.actions || []).some(ac => ac.op === 'storyEvolve'));
+  }
+
+  /** POWER ที่จะได้หลังแปลงร่าง รวมโบนัสจากความสามารถที่ได้รับ (เช่น +1 ต่อ Magic ในนรกทุก 2 ใบ) */
+  function evolvedPower(st, side, c) {
+    let p = +(c && c.power) || 0;
+    ((effectOf(c) || {}).abilities || []).forEach(ab => (ab.actions || []).forEach(ac => {
+      (ac.abilities || []).forEach(g => (g.actions || []).forEach(m => {
+        if (m.op !== 'modifyPower' || m.amountPer !== 'ownHellTypePerN') return;
+        const n = zoneIds(st, side + '.hell').filter(k => st.inst[k] && st.inst[k].type === m.hellType).length;
+        p += Math.floor(n / (m.perN || 1));
+      }));
+    }));
+    return p;
+  }
+
+  function pickEvolveTarget(st, side, ids) {
+    return (ids || []).slice().sort((a, b) => evolvedPower(st, side, st.inst[b]) - evolvedPower(st, side, st.inst[a]))[0] || null;
+  }
+
+  /** สถานะคอมโบแปลงร่างฝั่งนี้ · keep = ใบในมือที่ต้องเก็บไว้ทำคอมโบ
+      assumeOnField = การ์ดในมือที่กำลังจะลง ให้คิดเสมือนอยู่บนสนามแล้ว */
+  function evolvePlan(st, side, assumeOnField) {
+    const fieldEv = zoneIds(st, side + '.avatar').filter(k => {
+      const c = st.inst[k];
+      return c && c.faceUp !== false && isEvolver(c);
+    });
+    const hand = zoneIds(st, side + '.hand').filter(k => st.inst[k] && k !== assumeOnField);
+    const handEv = hand.filter(k => isEvolver(st.inst[k]));
+    const targets = hand.filter(k => summonLockNeedle(st.inst[k]));
+    const onField = fieldEv.length + (assumeOnField && isEvolver(st.inst[assumeOnField]) ? 1 : 0);
+    const keep = new Set();
+    if (targets.length && (onField || handEv.length)) {
+      targets.slice().sort((a, b) => evolvedPower(st, side, st.inst[b]) - evolvedPower(st, side, st.inst[a]))
+        .slice(0, Math.max(1, onField)).forEach(k => keep.add(k));
+      if (!onField) keep.add(handEv[0]);
+    }
+    return { fieldEv, handEv, targets, keep };
+  }
+
+  /** เลือกจากการค้นหาให้คอมโบครบ: ขาดตัวแปลงก็เอาตัวแปลง ขาดร่างก็เอาร่าง */
+  function evolveSearchPick(st, side, cands) {
+    const plan = evolvePlan(st, side);
+    const hasEv = plan.fieldEv.length || plan.handEv.length;
+    if (hasEv && !plan.targets.length) return pickEvolveTarget(st, side, cands.filter(k => summonLockNeedle(st.inst[k])));
+    if (!hasEv && plan.targets.length) return cands.find(k => isEvolver(st.inst[k])) || null;
+    return null;
+  }
+
   /* ═══════════════ 9. Mulligan ═══════════════ */
   function mulliganKeepScore(st, side, k, canPlay) {
     const c = st.inst[k]; if (!c) return 0;
@@ -811,6 +876,9 @@
     if (deck && deck.primary === 'aggro' && p.cost <= 3 && p.power >= 2) s += 14;
     if (deck && deck.primary === 'combo' && ((p.tags.search || 0) > 0 || p.isLand)) s += 16;
     if (deck && deck.pace === 'fast' && p.cost >= 7) s -= 12;
+    const plan = evolvePlan(st, side);
+    if (summonLockNeedle(c)) s += plan.handEv.length ? 20 : -40;
+    if (isEvolver(c) && plan.targets.length) s += 30;
     const deckFp = fingerprintCards(cardsFromState(st, side));
     const pb = getPlaybookForDeck(deckFp);
     if (pb && c.name) {
@@ -1152,5 +1220,11 @@
     recordTeacherGame,
     detectGuaranteedLethal,
     isSuicideAttack,
+    summonLockNeedle,
+    isEvolver,
+    evolvedPower,
+    pickEvolveTarget,
+    evolvePlan,
+    evolveSearchPick,
   };
 });
