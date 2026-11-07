@@ -250,7 +250,8 @@
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "POWER 7+ ตอนเริ่ม Battle Phase → โจมตีแล้วทำลายสำเร็จ อัญเชิญนาค Cost 3 จาก Deck + เปิดใช้อัตโนมัติของใบนั้นทันที"
     },
     {
       "name": "กัปตัน Nuke",
@@ -4944,20 +4945,21 @@
       ],
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "lifeRevealedByAttack"
+            "on": "battlePhaseStart",
+            "if": "self.power>=7"
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "grantSuppressLifeAbilitiesOnAttack",
+              "duration": "endOfTurn"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "POWER 7+ ตอนเริ่ม Battle Phase → LIFE ที่หงายจากการโจมตีของใบนี้ ความสามารถไม่ทำงาน จนจบเทิร์น"
     },
     {
       "name": "วีรชน แบงค์",
@@ -5482,11 +5484,12 @@
             {
               "op": "revealOppLifeTop"
             }
-          ]
+          ],
+          "requireAttacker": true
         }
       ],
       "parseStatus": "auto",
-      "note": "คำสั่งเสีย : สอดแนม 5 ใบ เลือก Avatar {symbol เทพ} 1 ใบ ขึ้นมือ ที่เหลือใต้ Deck"
+      "note": "สั่งใช้ เทิร์นละครั้ง: นาคสัตว์วิเศษใบอื่นฝ่ายเรา POWER = ใบนี้ จนจบเทิร์น · โจมตีแล้วทำลายสำเร็จ → หงาย LIFE ฝ่ายตรงข้าม 1 ใบ"
     },
     {
       "name": "อนันตวดี ราชินีแห่งนาค",

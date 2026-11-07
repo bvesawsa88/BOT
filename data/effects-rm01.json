@@ -260,20 +260,21 @@
       "name": "วิรูฬ นาคเกล็ดทอง",
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "lifeRevealedByAttack"
+            "on": "battlePhaseStart",
+            "if": "self.power>=7"
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "grantSuppressLifeAbilitiesOnAttack",
+              "duration": "endOfTurn"
             }
           ]
         }
       ],
-      "parseStatus": "auto"
+      "parseStatus": "auto",
+      "note": "POWER 7+ ตอนเริ่ม Battle Phase → LIFE ที่หงายจากการโจมตีของใบนี้ ความสามารถไม่ทำงาน จนจบเทิร์น"
     },
     {
       "code": "RM01-011",

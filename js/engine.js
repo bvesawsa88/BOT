@@ -5822,13 +5822,57 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     st.prompts.unshift({ kind: 'pick', from: 'ids', ids, src: ids[0], chooser: side, filter: {}, dest: 'handReactSummon', optional: true, allowAnyZone: true });
     addLog(st, side, `ฝ่ายตรงข้ามใช้ ${magName} — อัญเชิญจากมือได้ (หรือข้าม)`);
   }
-  /* บันบัน: โจมตี LIFE แล้วทำความเสียหายเพิ่ม */
+  /* เงื่อนไข trigger.if ของ battlePhaseStart — "self.power>=N" (นาค: POWER 7+ ตอนเริ่ม Battle Phase) */
+  function battlePhaseStartCondOk(st, k, ab) {
+    const cond = (ab && ab.trigger && ab.trigger.if) || '';
+    const m = cond.match(/^self\.power>=(\d+)$/);
+    if (m && effPower(st, k) < +m[1]) {
+      addLog(st, 'S', `${nameOf(st, k)}: POWER ${effPower(st, k)} < ${m[1]} ตอนเริ่ม Battle Phase — ไม่ได้รับความสามารถ`);
+      return false;
+    }
+    return true;
+  }
+  /* กัณหา นาคเกล็ดดำ: โจมตีและทำลายสำเร็จ → อัญเชิญ "นาค" Cost 3 สัตว์วิเศษ จาก Deck แล้วเปิดใช้ อัตโนมัติ ของใบนั้นโดยไม่ตรวจเงื่อนไข */
+  const NAGA_DECK_SUMMON_FILTER = { type: 'Avatar', nameIncludes: ['นาค'], symbol: 'สัตว์วิเศษ', costMin: 3, costMax: 3 };
+  function offerNagaDeckSummon(st, fx, owner, atkK) {
+    const c = st.inst[atkK];
+    if (!c || !c.summonNagaOnBattleDestroyUntilEOT || c.summonNagaSeq !== (st.turnSeq || 0)) return;
+    const p = {
+      kind: 'pick', from: 'deckAll', src: atkK, chooser: owner, filter: NAGA_DECK_SUMMON_FILTER,
+      dest: 'avatar', shuffleAfter: true, optional: false, fireAutoNoCond: true
+    };
+    // สนามเต็ม → อัญเชิญไม่ได้ (อย่าเปิดให้เลือก ไม่งั้นใบที่เลือกจะเด้งขึ้นมือแทน)
+    const cands = promptCandidates(st, p);
+    if (cands.length && cands.every(k => quotaDeny(st, owner + '.avatar', st.inst[k]))) {
+      addLog(st, 'S', `เอฟเฟกต์ ${c.name}: ${quotaDeny(st, owner + '.avatar', st.inst[cands[0]])} — อัญเชิญ "นาค" จาก Deck ไม่ได้`);
+      return;
+    }
+    if (cands.length) {
+      st.prompts.push(p);
+      addLog(st, owner, `เอฟเฟกต์ ${c.name}: เลือก Avatar "นาค" Cost 3 จาก Deck อัญเชิญลงสนาม`);
+    } else addLog(st, 'S', `เอฟเฟกต์ ${c.name}: ไม่มี "นาค" Cost 3 ใน Deck ให้อัญเชิญ`);
+  }
+  /* บันบัน / ฉัพพยา: โจมตี LIFE แล้วทำความเสียหายเพิ่ม */
   function extraLifeHits(st, atkK, lifeOwner) {
-    const spec = (fxId(st, atkK) || {}).lifeHitsWhenDirectAttack;
-    if (!spec || !condOk(st, ownerOf(st, atkK), atkK, spec.cond)) return;
+    const c0 = st.inst[atkK];
+    const eotHits = c0 && c0.extraLifeHitsSeq === (st.turnSeq || 0) ? (c0.extraLifeHitsUntilEOT || 0) : 0;
+    const spec0 = (fxId(st, atkK) || {}).lifeHitsWhenDirectAttack;
+    const specOk = spec0 && condOk(st, ownerOf(st, atkK), atkK, spec0.cond);
+    const hits = Math.max(specOk ? (spec0.hits || 2) : 0, eotHits);
+    if (hits < 2) return;
+    const spec = { hits };
     for (let i = 1; i < (spec.hits || 2); i++) {
       const next = (st.zones[lifeOwner + '.life'] || []).find(id => st.inst[id] && !st.inst[id].faceUp);
-      if (!next) return;
+      if (!next) {
+        // ฉัพพยา: ความเสียหาย LIFE ที่เหลือลงตอนอีกฝ่ายสาหัสแล้ว = โดนลง LIFE อีกครั้ง → แพ้
+        if (eotHits >= 2 && i < eotHits) {
+          const win = ownerOf(st, atkK);
+          st.over = { winner: win };
+          addLog(st, 'S', `💀 เอฟเฟกต์ ${nameOf(st, atkK)}: ทำความเสียหาย LIFE เพิ่มขณะฝ่าย ${lifeOwner} อยู่ในสถานะสาหัส — ${win} ชนะ! จบเกม`);
+          return win;
+        }
+        return;
+      }
       st.inst[next].faceUp = true;
       addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, atkK)}: ทำความเสียหาย LIFE เพิ่ม — หงาย "${nameOf(st, next)}"`);
     }
@@ -6033,6 +6077,30 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
 
   /* op ที่เพิ่มใหม่ — คืน true เมื่อเปิด prompt (เวทต้นทางจะลงนรกหลังเลือกเสร็จ) */
   const CARD_OPS = {
+    /* ฉัพพยา นาคเกล็ดรุ้ง: โจมตี LIFE สำเร็จ → ทำความเสียหาย LIFE N ใบ จนจบเทิร์น */
+    'grantExtraLifeDamageOnDirectHit'(st, fx, ac, ctx) {
+      const c = st.inst[ctx.src];
+      if (!c) return;
+      c.extraLifeHitsUntilEOT = Math.max(+ac.amount || 2, c.extraLifeHitsSeq === (st.turnSeq || 0) ? (c.extraLifeHitsUntilEOT || 0) : 0);
+      c.extraLifeHitsSeq = st.turnSeq || 0;
+      addLog(st, ctx.owner, `${c.name}: โจมตี LIFE สำเร็จ ทำความเสียหาย LIFE ${c.extraLifeHitsUntilEOT} ใบ จนจบเทิร์น`);
+    },
+    /* วิรูฬ นาคเกล็ดทอง: LIFE ที่หงายจากการโจมตีของใบนี้ ความสามารถไม่ทำงาน จนจบเทิร์น */
+    'grantSuppressLifeAbilitiesOnAttack'(st, fx, ac, ctx) {
+      const c = st.inst[ctx.src];
+      if (!c) return;
+      c.suppressLifeAbilitiesUntilEOT = true;
+      c.suppressLifeSeq = st.turnSeq || 0;
+      addLog(st, ctx.owner, `${c.name}: LIFE ที่หงายจากการโจมตีของใบนี้ ความสามารถไม่ทำงาน จนจบเทิร์น`);
+    },
+    /* กัณหา นาคเกล็ดดำ: โจมตีและทำลายสำเร็จ → อัญเชิญนาค Cost 3 จาก Deck (ดู offerNagaDeckSummon) */
+    'grantSummonNagaOnBattleDestroy'(st, fx, ac, ctx) {
+      const c = st.inst[ctx.src];
+      if (!c) return;
+      c.summonNagaOnBattleDestroyUntilEOT = true;
+      c.summonNagaSeq = st.turnSeq || 0;
+      addLog(st, ctx.owner, `${c.name}: โจมตีและทำลาย Avatar สำเร็จ → อัญเชิญ "นาค" Cost 3 จาก Deck จนจบเทิร์น`);
+    },
     'aimReturnArmySummon'(st, fx, ac, ctx) {
       const p = { kind: 'pick', from: 'dark', src: ctx.src, chooser: ctx.owner, filter: { nameIncludes: [ac.nameIncludes] }, dest: 'aimArmyReturn', optional: true, perSend: ac.perSend || 5, returned: 0 };
       if (promptCandidates(st, p).length) {
@@ -9535,13 +9603,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       const remain = arr.filter(k => !st.inst[k].faceUp).length;
       addLog(st, 'S', `⚔️ ${A.name} โจมตี LIFE ${lifeOwner} → หงายใบที่ ${idx + 1} "${L.name}" (เหลือคว่ำ ${remain} ใบ)`);
       fx.snd = 'flip'; fx.flip = target;
-      extraLifeHits(st, atkId, lifeOwner);
+      const extraWin = extraLifeHits(st, atkId, lifeOwner);
+      if (extraWin) { fx.over = extraWin; fx.snd = 'clash'; return; }
       armSecondAttack(st, atkId);
       // โกเอมอน ฯลฯ: ความสามารถของผู้โจมตีเมื่อหงาย LIFE
       abil(st, atkId, 'lifeRevealedByAttack').forEach(ab => {
         runActions(st, fx, ab.actions || [], { src: atkId, owner: oa, rng: fx._rng || Math.random, lifeCard: target });
       });
-      abilitiesOf(L.code, 'lifeRevealedByAttack', L.name).forEach(ab => {
+      // วิรูฬ นาคเกล็ดทอง: LIFE ที่ถูกหงายจากการโจมตีของใบนี้ ความสามารถไม่ทำงาน
+      const lifeSuppressed = !!(A.suppressLifeAbilitiesUntilEOT && A.suppressLifeSeq === (st.turnSeq || 0));
+      if (lifeSuppressed && abilitiesOf(L.code, 'lifeRevealedByAttack', L.name).length)
+        addLog(st, 'S', `เอฟเฟกต์ ${A.name}: ความสามารถของ LIFE "${L.name}" ไม่ทำงาน`);
+      (lifeSuppressed ? [] : abilitiesOf(L.code, 'lifeRevealedByAttack', L.name)).forEach(ab => {
         if (ab.requireOwnHellMonkeyMin != null) {
           const monkeyCount = (st.zones[lifeOwner + '.hell'] || []).filter(id => st.inst[id] && nameMatches(st.inst[id], 'วานร')).length;
           if (monkeyCount < ab.requireOwnHellMonkeyMin) {
@@ -9640,6 +9713,8 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       const winnerPower = (winnerId === atkId ? pa : pd);
       const runBattle = (srcK) => {
         abil(st, srcK, 'battleDestroy').forEach(ab => {
+          // "เมื่อ Avatar ใบนี้ โจมตี และทำลาย..." — ไม่ทำงานตอนเป็นฝ่ายถูกโจมตี
+          if (ab.requireAttacker && winnerId !== atkId) return;
           if (ab.oncePerTurn && !claimOncePerTurn(st, srcK, ab.oncePerTurnTag || 'battleDestroy')) return;
           if (ab.requireLinked && !inLinkStatus(st, srcK)) return;
           if (ab.requireLandNameIncludes) {
@@ -9666,6 +9741,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       for (const id in st.inst) {
         if (st.inst[id] && st.inst[id].attachedTo === winnerId) runBattle(id);
       }
+      if (winnerId === atkId) offerNagaDeckSummon(st, fx, wOwn, atkId);
       if (extra) extra();
     };
     const diedFlag = (winnerId) => st.inst[winnerId] && (zoneOf(st, winnerId) || '').endsWith('.avatar');
@@ -9872,7 +9948,10 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           runActions(st, fx, s.actions || [], { src: s.src, owner: st.active, rng });
         });
         (st.zones[st.active + '.avatar'] || []).slice().forEach(k => {
-          abil(st, k, 'battlePhaseStart').forEach(ab => runActions(st, fx, ab.actions, { src: k, owner: st.active, rng }));
+          abil(st, k, 'battlePhaseStart').forEach(ab => {
+            if (!battlePhaseStartCondOk(st, k, ab)) return;
+            runActions(st, fx, ab.actions, { src: k, owner: st.active, rng });
+          });
         });
         const oppBp = other(st.active);
         (st.zones[oppBp + '.avatar'] || []).slice().forEach(k => {
@@ -11223,6 +11302,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
                 addLog(st, p.chooser, `${nameOf(st, a.k)} ได้รับความสามารถจาก ${nameOf(st, p.src)}`);
               }
               triggerSummon(st, fx, a.k, p.chooser, { paidCost: !!p.paidCost, summonedByAvatar: p.summonedByAvatar || null });
+              if (p.fireAutoNoCond && st.inst[a.k]) {
+                // กัณหา: เปิดใช้ความสามารถ อัตโนมัติ ของใบที่อัญเชิญทันที โดยไม่ตรวจเงื่อนไข
+                const autos = abil(st, a.k, 'battlePhaseStart').filter(ab => ab.keyword === 'อัตโนมัติ');
+                if (autos.length) addLog(st, p.chooser, `${nameOf(st, a.k)}: เปิดใช้ความสามารถ อัตโนมัติ ทันที (ไม่ตรวจเงื่อนไข)`);
+                autos.forEach(ab => runActions(st, fx, ab.actions || [], { src: a.k, owner: p.chooser, rng }));
+              }
               if (p.thenAttachSrc && st.inst[p.src]) {
                 if (equipOnto(st, p.src, a.k))
                   addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: สวมใส่ตัวเองให้ ${nameOf(st, a.k)}`);
@@ -14723,6 +14808,9 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (!c) continue;
           if (c.attackAllEnemyUntilEOT) delete c.attackAllEnemyUntilEOT;
           if (c.battleDestroyLifeHitUntilEOT) delete c.battleDestroyLifeHitUntilEOT;
+          if (c.extraLifeHitsUntilEOT) { delete c.extraLifeHitsUntilEOT; delete c.extraLifeHitsSeq; }
+          if (c.suppressLifeAbilitiesUntilEOT) { delete c.suppressLifeAbilitiesUntilEOT; delete c.suppressLifeSeq; }
+          if (c.summonNagaOnBattleDestroyUntilEOT) { delete c.summonNagaOnBattleDestroyUntilEOT; delete c.summonNagaSeq; }
           if (c._allowLifeDespiteAvatars) delete c._allowLifeDespiteAvatars;
           if (c.milledThisTurn) delete c.milledThisTurn;
           if (c.cannotChangeStateUntilEOT) delete c.cannotChangeStateUntilEOT;

@@ -4,21 +4,22 @@
       "code": "BT06-001",
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "lifeRevealedByAttack"
+            "on": "battlePhaseStart",
+            "if": "self.power>=7"
           },
           "actions": [
             {
-              "op": "draw",
-              "count": 1,
-              "player": "owner",
-              "schedule": "nextOwnMainPhase"
+              "op": "grantSuppressLifeAbilitiesOnAttack",
+              "duration": "endOfTurn"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "name": "วิรูฬ นาคเกล็ดทอง"
+      "name": "วิรูฬ นาคเกล็ดทอง",
+      "note": "POWER 7+ ตอนเริ่ม Battle Phase → LIFE ที่หงายจากการโจมตีของใบนี้ ความสามารถไม่ทำงาน จนจบเทิร์น"
     },
     {
       "code": "BT06-002",
@@ -103,12 +104,13 @@
             {
               "op": "revealOppLifeTop"
             }
-          ]
+          ],
+          "requireAttacker": true
         }
       ],
       "parseStatus": "auto",
       "name": "อนันต์ ราชาแห่งนาค",
-      "note": "คำสั่งเสีย : สอดแนม 5 ใบ เลือก Avatar {symbol เทพ} 1 ใบ ขึ้นมือ ที่เหลือใต้ Deck"
+      "note": "สั่งใช้ เทิร์นละครั้ง: นาคสัตว์วิเศษใบอื่นฝ่ายเรา POWER = ใบนี้ จนจบเทิร์น · โจมตีแล้วทำลายสำเร็จ → หงาย LIFE ฝ่ายตรงข้าม 1 ใบ"
     },
     {
       "code": "BT06-005",
