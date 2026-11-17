@@ -215,7 +215,7 @@
     reactInfoKey = '';
   }
   function reactCardImg(c) {
-    return (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : '')) || '';
+    return (c.img || c.imageUrl || (c.code ? `https://cdn.bottcg.com/cards/${c.code}.png` : '')) || '';
   }
   /* การ์ดต้นเหตุของหน้าต่าง: เวทที่ถูกใช้ / ตัวที่ประกาศโจมตี / ตัวที่ถูกอัญเชิญ ฯลฯ */
   function reactCauseHtml(pr) {
@@ -2924,7 +2924,7 @@
     if (k === lastFlip) classes.push('flipping');
     if (selMap[k]) classes.push('sel');
     let inner;
-    const cardImg = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : ''))) || '';
+    const cardImg = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bottcg.com/cards/${c.code}.png` : ''))) || '';
     const fb = `<div class="fb"><div class="fb-name">${esc(c.name)}</div>${(c.power !== '' && c.power != null) ? `<div class="fb-pow">P${c.power}</div>` : ''}</div>`;
     if (c.faceUp || opts.forceUp) inner = `<div class="face">${fb}<div class="img" style="background-image:url('${esc(cardImg)}')"></div></div>`;
     else inner = `<div class="back"></div>`;
@@ -3074,7 +3074,7 @@
     if (!a.length) return '';
     const topId = a[a.length - 1];
     const c = st.inst[topId];
-    const imgUrl = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : ''))) || '';
+    const imgUrl = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bottcg.com/cards/${c.code}.png` : ''))) || '';
     return `<div class="pile-top" data-cid="${topId}" style="background-image:url('${esc(imgUrl)}')"></div>`;
   };
 
@@ -4797,7 +4797,7 @@
     const c = st.inst[k];
     const g = document.createElement('div');
     g.className = 'drag-ghost';
-    const cardImg = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : ''))) || '';
+    const cardImg = (c && (c.img || c.imageUrl || (c.code ? `https://cdn.bottcg.com/cards/${c.code}.png` : ''))) || '';
     g.innerHTML = c && (c.faceUp || mode === 'solo')
       ? `<div class="face"><div class="fb"><div class="fb-name">${esc(c.name)}</div></div><div class="img" style="background-image:url('${esc(cardImg)}')"></div></div>`
       : `<div class="back"></div>`;
@@ -6362,7 +6362,7 @@
   }
   function cpCardImg(code) {
     const c = cpDB && cpDB.lookup(code);
-    return (c && (c.imageUrl || (c.image ? 'https://cdn.bangbon.app/cards/' + c.image : ''))) || '';
+    return (c && (c.imageUrl || (c.image ? 'https://cdn.bottcg.com/cards/' + c.image : ''))) || '';
   }
   function cpDeckProfile(spec) { // สี + การ์ดเด่น ของเด็คใดๆ
     const col = {};

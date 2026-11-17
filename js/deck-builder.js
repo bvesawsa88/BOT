@@ -410,7 +410,7 @@
             ${c.power !== '' && c.power != null ? `<span>P${c.power}</span>` : ''}
           </div>
         </div>
-        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
+        <img src="${esc(c.imageUrl)}" loading="lazy" alt="${esc(c.name || '')}" onerror="this.onerror=null;this.classList.add('img-err')">
         ${c.rarity ? `<div class="db-rar">${esc(c.rarity)}</div>` : ''}
         ${n ? `<div class="db-badge">×${n}</div>` : ''}
         <div class="db-qty">
@@ -506,7 +506,7 @@
         <div class="db-card-fb mini">
           <div class="db-fb-name">${esc(c.name || k)}</div>
         </div>
-        <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="" onerror="if(this.src.includes('bangbon.app')) this.src=this.src.replace('https://cdn.bangbon.app/cards/', 'https://cdn.bottcg.com/cards/123v1k1/'); else if(this.src.includes('bottcg.com')) this.src=this.src.replace('https://cdn.bottcg.com/cards/123v1k1/', 'https://cdn.bangbon.app/cards/'); else this.classList.add('img-err')">
+        <img src="${esc(c.imageUrl || '')}" loading="lazy" alt="" onerror="this.onerror=null;this.classList.add('img-err')">
         ${n > 1 ? `<span class="db-deck-n">×${n}</span>` : ''}
         <div class="db-qty">
           <button type="button" class="db-pm db-pm-sub" data-act="sub" title="ลด 1 ใบ">−</button>

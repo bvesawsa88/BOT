@@ -3,7 +3,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const BASE_URL = 'https://bottcg.com';
-const CDN_URL = 'https://cdn.bangbon.app/assets/bottcg';
+const CDN_URL = 'https://cdn.bottcg.com/assets/bottcg';
 
 // Keyword icons จากเว็บทางการ
 const keywords = [

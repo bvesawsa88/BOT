@@ -38,6 +38,359 @@
       "note": "แมปจาก BT01-041"
     },
     {
+      "code": "B2SA-001",
+      "name": "น้อง Passion",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SA-002",
+      "name": "เจ้าของร้านหนังสือที่มีการ์ดขาย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SA-003",
+      "name": "ระเบิดความรู้",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SA-004",
+      "name": "ปิ๊งไอเดีย",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SA-005",
+      "name": "คทารูปไฟฟ้า",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SA-006",
+      "name": "จอมเวทย์ กาลู",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "magicActivated",
+            "if": "magicNameIncludes:คาถา"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "note": "ทิ้ง 1 เอา คาถา ขึ้นมือ / เมื่อใช้ คาถา จั่ว 1"
+    },
+    {
+      "code": "B2SA-007",
+      "name": "จูล่ง ขุนพลสุภาพบุรุษแห่งจ๊กก๊ก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost,noOtherOwnAvatarOnField"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "color": "green",
+                "symbol": "ต่างชาติ",
+                "nameIncludes": [
+                  "ขุนพล"
+                ],
+                "exceptSelfName": true
+              },
+              "dest": "avatar"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "allyDestroyedInZone",
+            "filter": {
+              "nameIncludes": [
+                "จ๊กก๊ก"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "handSummonSelf",
+              "paidCost": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ (ไม่มีตัวอื่น) เรียก ขุนพล จากนรก / จ๊กก๊ก ถูกทำลาย อัญเชิญจากมือ"
+    },
+    {
+      "code": "B2SA-008",
+      "name": "ความเจริญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "B2SA-009",
+      "name": "เชาว์ปัญญาลิง - ชิงปัญญาเรา",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyActivateAbility"
+          },
+          "actions": [
+            {
+              "op": "nullifyTriggerAvatarUntilEOT"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "React ตอนสั่งใช้/จุติ/อัตโนมัติ → ยกเลิกความสามารถนั้น + nullify จนจบเทิร์น"
+    },
+    {
+      "code": "B2SA-010",
+      "name": "ดินแดนแห่งความหลากหลาย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==landZone"
+          },
+          "requireOwnAvatarsDistinctSymbolsMin": 2,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 3,
+              "target": {
+                "select": "all",
+                "type": "Avatar",
+                "side": "any",
+                "zone": "avatarZone"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "Land ต่อเนื่อง: ถ้า AZ ฝ่ายเรามี Avatar 2+ ใบ Symbol ไม่ซ้ำ → Avatar ทุกใบ POWER+1"
+    },
+    {
+      "code": "B2SB-001",
+      "name": "อิศวร ประทานพร",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SB-002",
+      "name": "พระอินทร์ เทพขยัน",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "จุติ : สอดแนม 3 ใบ เลือก การ์ด {Symbol เทพ} 1 ใบ จากที่สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำไปไว้ใต้ D"
+    },
+    {
+      "code": "B2SB-003",
+      "name": "พระนารายณ์",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "อัตโนมัติ"
+      ]
+    },
+    {
+      "code": "B2SB-004",
+      "name": "ทศกัณฐ์",
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
+      "code": "B2SB-005",
+      "name": "สุครีพ วานรปากแซ่บ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "setChosenEnemyCostsToLowest",
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "อัตโนมัติ เมื่อเริ่มต้น Main Phase เรา : เลือก Avatar ของฝ่ายตรงข้าม 2 ใบ ปรับค่า Cost ของ Avatar ทั้ง 2 ใบ ให้กลายเป็น "
+    },
+    {
+      "code": "B2SB-006",
+      "name": "นางมณโฑ",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์",
+                "powerMax": 3
+              },
+              "dest": "avatar"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "B2SB-007",
+      "name": "มณโฑ ราชินีเหล่ายักษ์",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "sacrifice",
+              "includeSelf": true,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "ยักษ์"
+              },
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "symbol": "ยักษ์",
+                    "samePowerAs": "sacrificed",
+                    "nameNot": "sacrificed"
+                  },
+                  "dest": "avatar",
+                  "paidCost": false,
+                  "optional": false,
+                  "then": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "target": {
+                        "select": "summoned"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "extraSymbols": [
+        "ยักษ์"
+      ],
+      "note": "นับเป็นยักษ์ · เทิร์นละครั้ง เซ่นยักษ์ 1 → ชุบยักษ์จากนรก P เท่ากัน คนละชื่อ แล้ว +2 จนจบเทิร์น"
+    },
+    {
       "code": "BT01-001",
       "name": "นนทก นิ้วเพชร",
       "abilities": [
@@ -28923,6 +29276,159 @@
       ],
       "parseStatus": "auto",
       "note": "แมปจาก BT01-041"
+    },
+    {
+      "code": "CC03-TBD",
+      "name": "อีสานสลิงเกอร์ ดิว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "ธรณีสูบ 3 ใบ → POWER +1",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 3,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 1,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 6 ใบ → POWER +2",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 6,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 9 ใบ → POWER +3",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 9,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 3,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 12 ใบ → POWER +4",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 12,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 4,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 15 ใบ → POWER +5",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 15,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 5,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ มีโคกอีสานนูน: ธรณีสูบ 3/6/9/12/15 → อีสานสลิงเกอร์ 1 ใบ POWER +1 ต่อทุก 3 ใบจนจบเทิร์น (เศษไม่ครบ 3 ไม่ได้โบนัส จึงไม่มีให้เลือก)"
     },
     {
       "code": "FPRO-001",

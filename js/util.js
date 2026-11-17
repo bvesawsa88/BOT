@@ -53,7 +53,7 @@
   }
 
   /* เทค / ซิมโบล — รูปทางการจาก bottcg (สีเดียวกับที่พิมพ์บนการ์ด) */
-  const CDN_ASSETS = 'https://cdn.bangbon.app/assets/bottcg';
+  const CDN_ASSETS = 'https://cdn.bottcg.com/assets/bottcg';
   const KW_FILE = {
     'จุติ': 'rebirth', 'คำสั่งเสีย': 'lastwill', 'เซ่นไหว้': 'worship',
     'สอดแนม': 'spy', 'ธรณีสูบ': 'earthquake', 'เลือกปฏิบัติ': 'discrimination',

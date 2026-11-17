@@ -3188,6 +3188,10 @@
         return 'เทิร์นนี้ใช้ Modification Magic ไปแล้ว';
     }
     {
+      const md = chooseModeMillCostDeny(st, owner, opt);
+      if (md) return md;
+    }
+    {
       const fd = fieldSummonDeny(st, owner, opt, k);
       if (fd) return fd;
     }
@@ -3199,6 +3203,14 @@
         return 'ใช้ไม่ได้ — ไม่มีการ์ดตรงเงื่อนไขบน Magic Zone';
     }
     return null;
+  }
+  /* ตัวเลือกที่จ่ายค่าด้วยธรณีสูบ (อีสานสลิงเกอร์ ดิว ฯลฯ) — เด็คไม่พอก็เลือกไม่ได้ (ให้เลือกข้ออื่นแทน ไม่เสียสิทธิ์) */
+  function chooseModeMillCostDeny(st, owner, opt) {
+    const millCost = (normalizeAbilityCost(opt && opt.cost) || []).find(c => c && c.op === 'mill');
+    if (!millCost) return null;
+    const who = millCost.who === 'opp' ? other(owner) : owner;
+    const n = millCost.count || 1;
+    return (st.zones[who + '.deck'] || []).length < n ? `ใช้ไม่ได้ — เด็คไม่พอธรณีสูบ ${n} ใบ` : null;
   }
   function claimChooseModeOption(st, k, opt) {
     if (!opt || !opt.oncePerTurn) return true;
@@ -9860,7 +9872,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     let n = 0; const inst = {}, zones = { land: [] };
     const mk = (c, faceUp, owner) => {
       const k = 'i' + (++n);
-      inst[k] = { id: k, code: c.code, name: c.name, type: c.type, subtype: magicSubtype(c) || c.subtype || '', symbol: c.symbol || '', color: c.color || '', gemColor: c.gemColor || '', cost: c.cost, gem: c.gem, power: c.power, ex: c.ex || '', effect: c.effect || '—', img: c.imageUrl || (c.image ? `https://cdn.bangbon.app/cards/${c.image}` : (c.code ? `https://cdn.bangbon.app/cards/${c.code}.png` : '')), faceUp: faceUp !== false, tapped: false, counters: 0, attachedTo: null };
+      inst[k] = { id: k, code: c.code, name: c.name, type: c.type, subtype: magicSubtype(c) || c.subtype || '', symbol: c.symbol || '', color: c.color || '', gemColor: c.gemColor || '', cost: c.cost, gem: c.gem, power: c.power, ex: c.ex || '', effect: c.effect || '—', img: c.imageUrl || (c.image ? `https://cdn.bottcg.com/cards/${c.image}` : (c.code ? `https://cdn.bottcg.com/cards/${c.code}.png` : '')), faceUp: faceUp !== false, tapped: false, counters: 0, attachedTo: null };
       if (owner === 'A' || owner === 'B') inst[k].cardOwner = owner;
       return k;
     };
@@ -13755,7 +13767,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const ownP = pr0.chooser;
           const optDeny = chooseModeOptionDeny(st, a.k, ownP, optP);
           if (optDeny) {
-            if (chooseModeOptionAlreadyUsed(st, a.k, optP)) return deny(optDeny);
+            if (chooseModeOptionAlreadyUsed(st, a.k, optP) || chooseModeMillCostDeny(st, ownP, optP)) return deny(optDeny);
             st.prompts.shift();
             consumeChooseModeOption(st, ownP, a.k, optP);
             addLog(st, ownP, `🎯 ${c.name} · ${optP && optP.label ? optP.label : 'ตัวเลือก'} ใช้ไม่ได้ (${optDeny}) — นับว่าใช้ไปแล้วในเทิร์นนี้`);

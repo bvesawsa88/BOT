@@ -117,7 +117,7 @@ async function run() {
   let finished = 0;
 
   async function processItem(item) {
-    const url = 'https://cdn.bangbon.app/cards/' + encodeURIComponent(item.image);
+    const url = 'https://cdn.bottcg.com/cards/' + encodeURIComponent(item.image);
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error('HTTP ' + res.status);

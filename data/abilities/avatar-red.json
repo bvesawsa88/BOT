@@ -935,6 +935,14 @@
       "note": "สั่งใช้ : ย้าย เสามงคล จาก Magic Zone ไป Avatar Zone"
     },
     {
+      "name": "เจ้าของร้านหนังสือที่มีการ์ดขาย",
+      "codes": [
+        "B2SA-002"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
       "name": "เจ้าแม่กาลี",
       "codes": [
         "BT07-003",
@@ -2182,6 +2190,14 @@
       "note": "จุติ : สอดแนม 5 ใบ เอา เสามงคล 1 ใบขึ้นมือ"
     },
     {
+      "name": "น้อง Passion",
+      "codes": [
+        "B2SA-001"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
+    },
+    {
       "name": "นักฆ่าแม่เหล็ก มอนซี",
       "codes": [
         "BT11-009"
@@ -2873,6 +2889,40 @@
       "note": "ไม่มีข้อความเอฟเฟกต์"
     },
     {
+      "name": "พระนารายณ์",
+      "codes": [
+        "B2SB-003",
+        "KD01-006",
+        "PRMO-027",
+        "SD01-002",
+        "SL01-004"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "อัตโนมัติ"
+      ],
+      "parseStatus": "verified"
+    },
+    {
       "name": "พระนารายณ์ เทพผดุงธรรม",
       "codes": [
         "KD01-001"
@@ -3174,6 +3224,7 @@
     {
       "name": "พระอินทร์ เทพขยัน",
       "codes": [
+        "B2SB-002",
         "CC01-004",
         "KD01-007"
       ],
@@ -5802,6 +5853,14 @@
         }
       ],
       "parseStatus": "partial"
+    },
+    {
+      "name": "อิศวร ประทานพร",
+      "codes": [
+        "B2SB-001"
+      ],
+      "abilities": [],
+      "parseStatus": "stub"
     },
     {
       "name": "อีช่า - สาวน้อยคนเก่ง",

@@ -14,7 +14,8 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'data', 'cards.json');
 const SD01 = path.join(ROOT, 'data', 'sd01.json');
 const BASE = 'https://bottcg.com';
-const CDN = 'https://cdn.bangbon.app/cards';
+const CDN = 'https://cdn.bottcg.com/cards';
+const RARITY_IMG_SERIES = ['B2SA', 'B2SB'];
 
 function extractCardsFromChunk(js) {
   const marker = 'let r=[{name:';
@@ -54,10 +55,11 @@ function toLocalCard(c, prefixMap = {}) {
   const rare = c.rare || '';
   const rarity = rare === 'SCR' ? 'SEC' : rare;
   const code = c.print;
-  const isAltImg = ['SCR', 'PR', 'CBR'].includes(rare);
-  const image = isAltImg ? `${code}-${rare}.png` : `${code}.png`;
-  const uid = `${code}__${rare || 'X'}`;
   const series = (code || '').split('-')[0] || '';
+  const isAltImg = ['SCR', 'PR', 'CBR'].includes(rare);
+  // ชุดที่ทุกระดับความหายากมีรูปแยก (B2SA-001-C.png, B2SA-001-SR.png …)
+  const image = (RARITY_IMG_SERIES.includes(series) && rare) || isAltImg ? `${code}-${rare}.png` : `${code}.png`;
+  const uid = `${code}__${rare || 'X'}`;
 
   let cost = emptyToBlank(c.cost);
   let gem = emptyToBlank(c.gem);
@@ -138,7 +140,10 @@ async function discoverCardDbInfo(html) {
       if (dbMatch) {
         cardDbUrl = dbMatch[1];
       }
-      const mapMatch = js.match(/n\s*=\s*(\{([A-Z0-9]+:\s*"[^"]+",?)+\})/);
+      // เว็บใหม่ (turbopack): URL ฐานการ์ดฝังตรง ๆ เช่น https://cdn.bottcg.com/data/cards.<hash>.json
+      const dbDirect = js.match(/https:\/\/cdn\.bottcg\.com\/data\/cards\.[A-Za-z0-9]+\.json/);
+      if (!cardDbUrl && dbDirect) cardDbUrl = dbDirect[0];
+      const mapMatch = js.match(/n\s*=\s*(\{([A-Z0-9]+:\s*"[^"]+",?)+\})/) || js.match(/(\{(?:[A-Z0-9]+:"[^"]+",?)*SD09:"[^"]+"(?:,[A-Z0-9]+:"[^"]+")*\})/);
       if (mapMatch) {
         try {
           const parsed = Function('"use strict"; return (' + mapMatch[1] + ')')();
@@ -197,6 +202,12 @@ async function main() {
     if (!fresh.length) throw new Error('ไม่พบการ์ดชุด ' + onlySeries);
     cards = mergeSeries(prev, fresh, onlySeries);
     console.log('Merged series', onlySeries, ':', fresh.length);
+  } else {
+    // การ์ดพิเศษที่ bottcg ไม่มี (เช่น CC03 ที่เพิ่มเอง) — เก็บไว้ ไม่ลบทิ้ง
+    const siteSeries = new Set(cards.map(c => c.series));
+    const custom = prev.filter(c => !siteSeries.has(c.series));
+    if (custom.length) console.log('Kept custom cards:', custom.map(c => c.uid).join(', '));
+    cards = cards.concat(custom);
   }
   const prevMap = new Map(prev.map(c => [c.uid, c]));
   const prevByName = new Map();

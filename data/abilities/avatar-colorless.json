@@ -199,39 +199,6 @@
       "note": "จุติ (เมื่อ Avatar ตัวนี้ถูกอัญเชิญลงสนามแบบจ่าย Cost) : เลือก Avatar \"นายนิรยบาล\" ในนรกเรา 1 ใบ อัญ"
     },
     {
-      "name": "พระนารายณ์",
-      "codes": [
-        "KD01-006",
-        "PRMO-027",
-        "SD01-002",
-        "SL01-004"
-      ],
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
-          },
-          "actions": [
-            {
-              "op": "modifyPower",
-              "amount": 2,
-              "duration": "endOfTurn",
-              "layer": 4,
-              "target": {
-                "select": "self"
-              }
-            }
-          ]
-        }
-      ],
-      "keywords": [
-        "อัตโนมัติ"
-      ],
-      "parseStatus": "verified"
-    },
-    {
       "name": "พอง พอง",
       "codes": [
         "BT09-045"

@@ -1,0 +1,157 @@
+{
+  "cards": [
+    {
+      "code": "CC03-TBD",
+      "name": "อีสานสลิงเกอร์ ดิว",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "ธรณีสูบ 3 ใบ → POWER +1",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 3,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 1,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 6 ใบ → POWER +2",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 6,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 2,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 9 ใบ → POWER +3",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 9,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 3,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 12 ใบ → POWER +4",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 12,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 4,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ธรณีสูบ 15 ใบ → POWER +5",
+                  "cost": [
+                    {
+                      "op": "mill",
+                      "count": 15,
+                      "who": "self"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "op": "modifyPower",
+                      "amount": 5,
+                      "duration": "endOfTurn",
+                      "layer": 4,
+                      "target": {
+                        "select": "choose",
+                        "side": "own",
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "อีสานสลิงเกอร์"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ มีโคกอีสานนูน: ธรณีสูบ 3/6/9/12/15 → อีสานสลิงเกอร์ 1 ใบ POWER +1 ต่อทุก 3 ใบจนจบเทิร์น (เศษไม่ครบ 3 ไม่ได้โบนัส จึงไม่มีให้เลือก)"
+    }
+  ]
+}
