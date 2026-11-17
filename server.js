@@ -1795,9 +1795,11 @@ function encodeFrame(payload) {
   return Buffer.concat([header, data]);
 }
 
+const MAX_WS_MESSAGE = 4 * 1024 * 1024;
 function attachWs(socket) {
   let buf = Buffer.alloc(0);
   let closed = false;
+  let frag = null, fragLen = 0;
   const api = {
     send(obj) {
       if (closed || socket.destroyed) return false;
@@ -1862,7 +1864,21 @@ function attachWs(socket) {
         } catch (e) { }
         continue;
       }
-      if (opcode === 0x1 || opcode === 0x2) {
+      // เฟรมแบ่งท่อน (FIN=0 + continuation) — proxy อย่าง Render แบ่งข้อความใหญ่ → ประกอบให้ครบก่อน
+      const fin = (b0 & 0x80) !== 0;
+      if (opcode === 0x0) {
+        if (!frag) continue;
+        frag.push(payload);
+        fragLen += payload.length;
+        if (fragLen > MAX_WS_MESSAGE) { frag = null; fragLen = 0; continue; }
+        if (!fin) continue;
+        payload = Buffer.concat(frag);
+        frag = null; fragLen = 0;
+      } else if ((opcode === 0x1 || opcode === 0x2) && !fin) {
+        frag = [payload]; fragLen = payload.length;
+        continue;
+      }
+      if (opcode === 0x0 || opcode === 0x1 || opcode === 0x2) {
         if (!api.onMessage) continue;
         try {
           const text = payload.toString('utf8');

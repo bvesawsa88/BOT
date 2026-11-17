@@ -35,11 +35,29 @@ function encodeClient(obj) {
   return Buffer.concat([header, mask, out]);
 }
 
+/* เฟรมเดียวแบบมีมาสก์ — fin=false = ยังไม่จบข้อความ · opcode 0 = continuation */
+function maskedFrame(data, opcode, fin) {
+  const len = data.length;
+  if (len >= 126) throw new Error('fragment too big for this helper');
+  const mask = maskKey();
+  const header = Buffer.from([(fin ? 0x80 : 0) | opcode, 0x80 | len]);
+  const out = Buffer.alloc(len);
+  for (let i = 0; i < len; i++) out[i] = data[i] ^ mask[i % 4];
+  return Buffer.concat([header, mask, out]);
+}
+
 function attachClient(socket) {
   let buf = Buffer.alloc(0);
   const listeners = [];
   const api = {
     send(obj) { socket.write(encodeClient(obj)); },
+    /* ส่งข้อความเดียวแบ่งเป็นหลายเฟรม (เหมือน proxy แบ่ง) */
+    sendFragmented(obj, size) {
+      const data = Buffer.from(JSON.stringify(obj));
+      const parts = [];
+      for (let i = 0; i < data.length; i += size) parts.push(data.slice(i, i + size));
+      parts.forEach((p, i) => socket.write(maskedFrame(p, i === 0 ? 0x1 : 0x0, i === parts.length - 1)));
+    },
     close() { try { socket.end(); } catch (e) { } },
     addListener(fn) { listeners.push(fn); return () => { const idx = listeners.indexOf(fn); if (idx >= 0) listeners.splice(idx, 1); }; },
   };
@@ -141,6 +159,13 @@ async function testOnlineFlow() {
   const roomMsg = await guestReceiveRoom;
   assert.strictEqual(roomMsg.msg.d.phase, 'wait');
   console.log('  ✓ Relay ข้อความ room state (Host -> Guest) สำเร็จ');
+
+  // ข้อความแบ่งหลายเฟรม (proxy แบ่ง) ต้องประกอบครบแล้ว relay ได้
+  const guestReceiveFrag = waitMsg(guest, (m) => m.t === 'relay' && m.msg && m.msg.d && m.msg.d.t === 'start');
+  host.sendFragmented({ t: 'relay', msg: { k: 'data', d: { t: 'start', seq: 0, pad: 'ทดสอบ'.repeat(20) } } }, 50);
+  const fragMsg = await guestReceiveFrag;
+  assert.strictEqual(fragMsg.msg.d.pad, 'ทดสอบ'.repeat(20));
+  console.log('  ✓ ข้อความแบ่งหลายเฟรมประกอบครบแล้ว relay สำเร็จ');
 
   const thirdPlayer = await connectWs('/signal');
   const gotFull = waitMsg(thirdPlayer, (m) => m.t === 'full');

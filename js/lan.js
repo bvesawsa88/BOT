@@ -59,6 +59,9 @@
     try { ws.send(JSON.stringify(obj)); return true; } catch (e) { return false; }
   }
 
+  /* ตัวอักษรต่อท่อน — ไทย 3 ไบต์/ตัว → ไม่เกิน ~24KB ต่อเฟรม */
+  const PART_CHARS = 8000;
+
   function parseEv(ev) {
     let m = ev.data;
     if (typeof m === 'string') {
@@ -107,6 +110,8 @@
 
   function attachRoom(ws, code, handlers, isHost) {
     let peerOn = !isHost;
+    const parts = {};
+    let partSeq = 0;
     function onMsg(ev) {
       const m = parseEv(ev);
       if (!m || m.t === 'pong' || m.t === 'ok' || m.t === 'busy' || m.t === 'nohost' || m.t === 'full' || m.t === 'error') return;
@@ -119,6 +124,19 @@
         peerOn = false;
         if (isHost && handlers.onPeerClose) handlers.onPeerClose();
         else if (!isHost && handlers.onClose) handlers.onClose();
+        return;
+      }
+      // ข้อความใหญ่ (เช่น state เริ่มเกม) ถูกหั่นเป็นท่อน — ประกอบคืนก่อนส่งต่อ
+      if (m.t === 'relay' && m.msg && m.msg.k === 'part') {
+        const p = m.msg;
+        const buf = parts[p.id] || (parts[p.id] = { n: p.n, got: 0, s: new Array(p.n) });
+        if (buf.s[p.i] == null) { buf.s[p.i] = p.s; buf.got++; }
+        if (buf.got === buf.n) {
+          delete parts[p.id];
+          let d;
+          try { d = JSON.parse(buf.s.join('')); } catch (e) { return; }
+          if (handlers.onMessage) handlers.onMessage(d);
+        }
         return;
       }
       if (m.t === 'relay' && m.msg && m.msg.k === 'data') {
@@ -139,7 +157,18 @@
     return {
       code,
       peerId: peerId(code),
-      send(msg) { return sendWs(ws, { t: 'relay', msg: { k: 'data', d: msg } }); },
+      send(msg) {
+        // proxy ของโฮสต์ (Render) ส่งเฟรม WebSocket ใหญ่ไม่ถึง — หั่นเองเป็นท่อนละไม่เกิน PART_CHARS ตัวอักษร
+        const raw = JSON.stringify(msg);
+        if (raw.length <= PART_CHARS) return sendWs(ws, { t: 'relay', msg: { k: 'data', d: msg } });
+        const id = (++partSeq) + '-' + Date.now().toString(36);
+        const n = Math.ceil(raw.length / PART_CHARS);
+        let ok = true;
+        for (let i = 0; i < n; i++) {
+          ok = sendWs(ws, { t: 'relay', msg: { k: 'part', id, i, n, s: raw.slice(i * PART_CHARS, (i + 1) * PART_CHARS) } }) && ok;
+        }
+        return ok;
+      },
       connected() { return ws.readyState === 1 && peerOn; },
       destroy() {
         if (ws._keep) clearInterval(ws._keep);
