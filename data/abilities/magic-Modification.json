@@ -290,8 +290,26 @@
       "codes": [
         "B2SA-005"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ผู้สวม +1 · ถ้าสวมน้อง Passion ทำลายได้ Cost +1 (อยู่ในความสามารถของน้อง Passion: costMaxPlusIfSrcEquipped)"
     },
     {
       "name": "ค้อนโยเนียร์",

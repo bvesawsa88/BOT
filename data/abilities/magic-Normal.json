@@ -1915,8 +1915,54 @@
       "codes": [
         "B2SA-004"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "นำ ระเบิดความรู้ จากเด็ค/นรก ขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "deckOrHellPick",
+                      "filter": {
+                        "nameIncludes": [
+                          "ระเบิดความรู้"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfterIfFromDeck": true
+                    }
+                  ]
+                },
+                {
+                  "label": "นำ น้อง Passion จากเด็ค/นรก ขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "deckOrHellPick",
+                      "filter": {
+                        "nameIncludes": [
+                          "น้อง Passion"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfterIfFromDeck": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เลือก: ระเบิดความรู้ หรือ น้อง Passion จากเด็ค/นรกขึ้นมือ"
     },
     {
       "name": "เปลี่ยนเมน",
@@ -2866,8 +2912,48 @@
       "codes": [
         "B2SA-003"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "requireOwnNameIncludes": "น้อง Passion",
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "discardedByAvatarAbility"
+          },
+          "requireSrcNameAny": [
+            "น้อง Passion"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "น้อง Passion"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ใช้ได้เมื่อมีน้อง Passion: จั่ว 1 · ถูกทิ้งด้วยความสามารถน้อง Passion: น้อง Passion +1 จนจบเทิร์น"
     },
     {
       "name": "รับซื้อของโจร",

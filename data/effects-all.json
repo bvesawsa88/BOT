@@ -40,32 +40,245 @@
     {
       "code": "B2SA-001",
       "name": "น้อง Passion",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "activated"
+          },
+          "whenAttacking": true,
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "upTo": true,
+              "min": 1,
+              "filter": {
+                "nameIncludes": [
+                  "ระเบิดความรู้"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy",
+              "costMaxPlusIfSrcEquipped": {
+                "nameIncludes": "คทารูปไฟฟ้า",
+                "plus": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ปิ๊งไอเดีย"
+                ]
+              },
+              "dest": "dark",
+              "optional": true,
+              "thenOnlyIfPicked": true,
+              "thenAfterExile": true,
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "nameIncludes": [
+                      "ระเบิดความรู้"
+                    ]
+                  },
+                  "dest": "hand",
+                  "optional": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "เทิร์นละครั้ง",
+        "อัตโนมัติ"
+      ],
+      "note": "เทิร์นละครั้ง ตอนโจมตี: ทิ้งระเบิดความรู้กี่ใบก็ได้ (≥1) → ทำลาย Avatar ศัตรู Cost ≤3 (+1 ถ้าสวมคทารูปไฟฟ้า) · End Phase เรา: เนรเทศปิ๊งไอเดียจากนรก → ระเบิดความรู้จากนรกขึ้นมือ"
     },
     {
       "code": "B2SA-002",
       "name": "เจ้าของร้านหนังสือที่มีการ์ดขาย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "darkPick",
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": true,
+              "thenOnlyIfPicked": true,
+              "filter": {
+                "nameIncludes": [
+                  "ปิ๊งไอเดีย"
+                ]
+              },
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1,
+                  "player": "owner"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "จุติ"
+      ],
+      "note": "จุติ: ปิ๊งไอเดียจากมิติมืดกลับเด็คแล้วสับ → จั่ว 1"
     },
     {
       "code": "B2SA-003",
       "name": "ระเบิดความรู้",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "requireOwnNameIncludes": "น้อง Passion",
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1,
+              "player": "owner"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "discardedByAvatarAbility"
+          },
+          "requireSrcNameAny": [
+            "น้อง Passion"
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar",
+                "nameIncludes": [
+                  "น้อง Passion"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ใช้ได้เมื่อมีน้อง Passion: จั่ว 1 · ถูกทิ้งด้วยความสามารถน้อง Passion: น้อง Passion +1 จนจบเทิร์น"
     },
     {
       "code": "B2SA-004",
       "name": "ปิ๊งไอเดีย",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "นำ ระเบิดความรู้ จากเด็ค/นรก ขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "deckOrHellPick",
+                      "filter": {
+                        "nameIncludes": [
+                          "ระเบิดความรู้"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfterIfFromDeck": true
+                    }
+                  ]
+                },
+                {
+                  "label": "นำ น้อง Passion จากเด็ค/นรก ขึ้นมือ",
+                  "actions": [
+                    {
+                      "op": "deckOrHellPick",
+                      "filter": {
+                        "nameIncludes": [
+                          "น้อง Passion"
+                        ]
+                      },
+                      "dest": "hand",
+                      "shuffleAfterIfFromDeck": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เลือก: ระเบิดความรู้ หรือ น้อง Passion จากเด็ค/นรกขึ้นมือ"
     },
     {
       "code": "B2SA-005",
       "name": "คทารูปไฟฟ้า",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ผู้สวม +1 · ถ้าสวมน้อง Passion ทำลายได้ Cost +1 (อยู่ในความสามารถของน้อง Passion: costMaxPlusIfSrcEquipped)"
     },
     {
       "code": "B2SA-006",
@@ -231,8 +444,33 @@
     {
       "code": "B2SB-001",
       "name": "อิศวร ประทานพร",
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "keywords": [
+        "จุติ"
+      ],
+      "note": "จุติ: Avatar เรา 1 ใบ +1 จนจบเทิร์น"
     },
     {
       "code": "B2SB-002",

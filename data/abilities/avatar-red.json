@@ -939,8 +939,41 @@
       "codes": [
         "B2SA-002"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "darkPick",
+              "dest": "deck",
+              "shuffleAfter": true,
+              "optional": true,
+              "thenOnlyIfPicked": true,
+              "filter": {
+                "nameIncludes": [
+                  "ปิ๊งไอเดีย"
+                ]
+              },
+              "then": [
+                {
+                  "op": "draw",
+                  "count": 1,
+                  "player": "owner"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "จุติ"
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ: ปิ๊งไอเดียจากมิติมืดกลับเด็คแล้วสับ → จั่ว 1"
     },
     {
       "name": "เจ้าแม่กาลี",
@@ -2194,8 +2227,84 @@
       "codes": [
         "B2SA-001"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "activated"
+          },
+          "whenAttacking": true,
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "upTo": true,
+              "min": 1,
+              "filter": {
+                "nameIncludes": [
+                  "ระเบิดความรู้"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "zones": [
+                "avatar"
+              ],
+              "side": "enemy",
+              "costMaxPlusIfSrcEquipped": {
+                "nameIncludes": "คทารูปไฟฟ้า",
+                "plus": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "nameIncludes": [
+                  "ปิ๊งไอเดีย"
+                ]
+              },
+              "dest": "dark",
+              "optional": true,
+              "thenOnlyIfPicked": true,
+              "thenAfterExile": true,
+              "then": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "nameIncludes": [
+                      "ระเบิดความรู้"
+                    ]
+                  },
+                  "dest": "hand",
+                  "optional": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "เทิร์นละครั้ง",
+        "อัตโนมัติ"
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง ตอนโจมตี: ทิ้งระเบิดความรู้กี่ใบก็ได้ (≥1) → ทำลาย Avatar ศัตรู Cost ≤3 (+1 ถ้าสวมคทารูปไฟฟ้า) · End Phase เรา: เนรเทศปิ๊งไอเดียจากนรก → ระเบิดความรู้จากนรกขึ้นมือ"
     },
     {
       "name": "นักฆ่าแม่เหล็ก มอนซี",
@@ -5859,8 +5968,33 @@
       "codes": [
         "B2SB-001"
       ],
-      "abilities": [],
-      "parseStatus": "stub"
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "จุติ"
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ: Avatar เรา 1 ใบ +1 จนจบเทิร์น"
     },
     {
       "name": "อีช่า - สาวน้อยคนเก่ง",

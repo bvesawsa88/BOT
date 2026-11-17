@@ -1587,6 +1587,18 @@
     if (cont && !cont.kind) cont.kind = paidCostKind(st, cont.src);
     continueAfterPaidCost(st, fx, cont, rng);
   }
+  /* จบการทิ้งแบบกี่ใบก็ได้ — ไม่ถึงขั้นต่ำก็ไม่ทำงาน */
+  function finishDiscardUpTo(st, fx, p, rng) {
+    const got = p.discardGot || 0;
+    if (got < (p.discardMin || 1)) {
+      addLog(st, 'S', `ทิ้งได้ ${got}/${p.discardMin || 1} — ไม่ครบ ข้ามเอฟเฟกต์`);
+      return;
+    }
+    if (p.whenAttackingOnce) claimOncePerTurn(st, p.src, 'whenAttacking');
+    addLog(st, p.chooser, `ทิ้งจ่ายค่า ${got} ใบ — ทำงานเอฟเฟกต์`);
+    if (finishPaidDiscard(st, fx, p, rng)) return;
+    if (p.actions && p.actions.length) runActions(st, fx, p.actions, { src: p.src, owner: p.chooser, rng, discardedCount: got });
+  }
   function finishPaidDiscard(st, fx, p, rng) {
     if (!(p && (p.afterCostKind || p.magicCostDiscard))) return false;
     continueAfterPaidCost(st, fx, {
@@ -5738,7 +5750,11 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     const s = st.inst[srcK];
     if (!st.inst[k] || !s || s.type !== 'Avatar') return;
     const own = ownerOf(st, k);
-    abil(st, k, 'discardedByAvatarAbility').forEach(ab => runActions(st, fx, ab.actions || [], { src: k, owner: own, rng }));
+    abil(st, k, 'discardedByAvatarAbility').forEach(ab => {
+      // ระเบิดความรู้: นับเฉพาะถูกทิ้งด้วยความสามารถของการ์ดที่กำหนด
+      if (ab.requireSrcNameAny && !ab.requireSrcNameAny.some(n => nameMatches(s, n))) return;
+      runActions(st, fx, ab.actions || [], { src: k, owner: own, rng });
+    });
   }
   /* แอมเฟสต้า: Avatar ฝ่ายเราเปลี่ยนเป็นสภาพนอน */
   function fireOwnAvatarTapped(st, fx, tappedK, owner, rng) {
@@ -6763,7 +6779,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         } else {
           addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีการ์ดตรงเงื่อนไขในมิติมืด — นับว่าใช้ไปแล้ว`);
           if (ac.countsAsModification || p.countsAsModification) consumeCountsAsModification(st, ctx.owner);
-          if (ac.then && ac.then.length) runActions(st, fx, ac.then, { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
+          if (ac.then && ac.then.length && !ac.thenOnlyIfPicked) runActions(st, fx, ac.then, { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
         }
       } else if (ac.op === 'exileAttachedThenAttachFromDark') {
         const host = ctx.src;
@@ -8029,6 +8045,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           const n = countOwnMagicNameIncludes(st, ctx.owner, spec.nameIncludes || spec.name);
           filter.costMax = (spec.base != null ? spec.base : (filter.costMax != null ? filter.costMax : 0)) + n * (spec.per || 1);
         }
+        // น้อง Passion สวมคทารูปไฟฟ้า → ทำลายได้ Cost สูงขึ้น
+        if (ac.costMaxPlusIfSrcEquipped && filter.costMax != null) {
+          const spec = ac.costMaxPlusIfSrcEquipped;
+          const equipped = Object.keys(st.inst).some(id => st.inst[id] && st.inst[id].attachedTo === ctx.src
+            && (zoneOf(st, id) || '').endsWith('.magic') && nameMatches(st.inst[id], spec.nameIncludes));
+          if (equipped) filter.costMax += spec.plus || 1;
+        }
         const p = {
           kind: 'chooseDestroy', src: ctx.src, chooser: ctx.owner, filter, zones: ac.zones, side: ac.side || null, bounceToHand: !!ac.bounceToHand,
           srcToHell: !!ctx.toHellAfter, optional: !!ac.optional,
@@ -8469,7 +8492,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           summonTapped: !!ac.summonTapped, summonUntappedIfLandNameIncludes: ac.summonUntappedIfLandNameIncludes || null,
           scheduleDestroyAfterOppTurn: !!ac.scheduleDestroyAfterOppTurn, multiMax: ac.multiMax || null, multiMin: ac.multiMin || null, multiGot: 0,
           distinctNames: !!ac.distinctNames, pickedNames: [],
-          showAllHell: !!ac.showAll, grantSummoned: ac.grantSummoned || null, then: ac.then || null,
+          showAllHell: !!ac.showAll, grantSummoned: ac.grantSummoned || null, then: ac.then || null, thenAfterExile: !!ac.thenAfterExile,
           shuffleAfter: !!ac.shuffleAfter, onceTag: ctx.onceTag || null,
           lockSummonAndAbility: !!ac.lockSummonAndAbility,
           thenAttachSrc: !!ac.thenAttachSrc, thenIfFound: ac.thenIfFound || null, destroyAtEndPhase: !!ac.destroyAtEndPhase,
@@ -8492,7 +8515,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           if (ac.optional === false) {
             ctx._abortActions = true;
             if (ctx.onceTag) unclaimOncePerTurn(st, ctx.src, ctx.onceTag);
-          } else if (ac.then && ac.then.length) {
+          } else if (ac.then && ac.then.length && !ac.thenOnlyIfPicked) {
             runActions(st, fx, ac.then, { src: ctx.src, owner: ctx.owner, rng: ctx.rng });
           }
         }
@@ -9525,15 +9548,20 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     const costList = normalizeAbilityCost(ab.cost) || (Array.isArray(ab.cost) ? ab.cost : (ab.cost ? [ab.cost] : []));
     if (!costList.length) return false;
     const costOp = costList[0];
+    // เทิร์นละครั้ง (น้อง Passion ฯลฯ) — ใช้ไปแล้วไม่ถามซ้ำ
+    if (ab.oncePerTurn && isOncePerTurnUsed(st, atkId, 'whenAttacking')) return false;
     if (costOp.op === 'discard') {
-      const need = costOp.count || 1;
+      const need = costOp.upTo ? (costOp.min || 1) : (costOp.count || 1);
       const filt = Object.assign({}, costOp.filter || {});
       if ((st.zones[owner + '.hand'] || []).filter(id => matchFilterEx(st, id, filt)).length < need) return false;
       st.prompts.unshift({
         kind: 'chooseDiscard', src: atkId, chooser: owner, filter: filt, actions: ab.actions || [], effectDiscard: true,
-        discardNeed: need > 1 ? need : undefined, discardGot: 0, optional: true, keepSrc: true, whenAttacking: true
+        discardNeed: !costOp.upTo && need > 1 ? need : undefined, discardGot: 0, optional: true, keepSrc: true, whenAttacking: true,
+        discardUpTo: !!costOp.upTo, discardMin: need, whenAttackingOnce: !!ab.oncePerTurn
       });
-      addLog(st, owner, `⚡ ${c.name}: เมื่อโจมตี — ทิ้งมือ ${need} ใบเพื่อใช้ความสามารถ? (หรือข้าม)`);
+      addLog(st, owner, costOp.upTo
+        ? `⚡ ${c.name}: เมื่อโจมตี — ทิ้งมือกี่ใบก็ได้ (อย่างน้อย ${need} ใบ) เพื่อใช้ความสามารถ? (หรือข้าม)`
+        : `⚡ ${c.name}: เมื่อโจมตี — ทิ้งมือ ${need} ใบเพื่อใช้ความสามารถ? (หรือข้าม)`);
       return true;
     }
     if (costOp.op === 'sacrifice') {
@@ -11106,6 +11134,24 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               fx.snd = 'tap';
               break;
             }
+            // ทิ้งกี่ใบก็ได้ (น้อง Passion) — ครบขั้นต่ำแล้วเลือกทิ้งต่อหรือกดข้ามเพื่อหยุด
+            if (p.discardUpTo) {
+              p.discardGot = (p.discardGot || 0) + 1;
+              st.prompts.shift();
+              const minNeed = p.discardMin || 1;
+              if (promptCandidates(st, p).length) {
+                p.optional = true;
+                st.prompts.unshift(p);
+                addLog(st, p.chooser, p.discardGot < minNeed
+                  ? `ทิ้งแล้ว ${p.discardGot}/${minNeed} — เลือกใบถัดไป`
+                  : `ทิ้งแล้ว ${p.discardGot} ใบ — ทิ้งต่อ หรือกดข้ามเพื่อใช้ความสามารถ`);
+                fx.snd = 'tap';
+                break;
+              }
+              finishDiscardUpTo(st, fx, p, rng);
+              fx.snd = 'tap';
+              break;
+            }
             // จ่ายค่าเวทแบบทิ้ง N ใบ (รวม N=1) — นับทีละใบจนครบ แล้วค่อยรันผล
             if (p.discardNeed != null) {
               p.discardGot = (p.discardGot || 0) + 1;
@@ -12025,6 +12071,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             doMove(st, a.k, darkSide + '.dark', null, fx);
             if (st.inst[a.k]) st.inst[a.k].attachedTo = null;
             addLog(st, p.chooser, `เอฟเฟกต์ ${nameOf(st, p.src)}: เนรเทศ ${nameOf(st, a.k)} ลงมิติมืดฝ่าย ${darkSide}`);
+            if (p.thenAfterExile && p.then && p.then.length) runActions(st, fx, p.then, { src: p.src, owner: p.chooser, rng });
             if (p.from === 'ids' && p.restTo === 'bottom') {
               const rest = (p.ids || []).filter(x => x !== a.k && (st.zones[p.chooser + '.deck'] || []).includes(x));
               unlockScoutIds(st, p.ids || []);
@@ -12659,6 +12706,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       case 'skipPrompt': {
         const p = st.prompts[0]; if (!p) break;
         if (p.kind === 'rps') return deny('ต้องเลือกเป่ายิ้งฉุบ (หรือรอหมดเวลา)');
+        if (p.kind === 'chooseDiscard' && p.discardUpTo && (p.discardGot || 0) > 0) {
+          if (isPlayer && by !== p.chooser) return deny('ไม่ใช่ prompt ของคุณ');
+          st.prompts.shift();
+          finishDiscardUpTo(st, fx, p, rng);
+          fx.snd = fx.snd || 'tap';
+          break;
+        }
         if (CARD_PICK_SKIPS[p.dest]) {
           if (isPlayer && by !== p.chooser) return deny('ไม่ใช่ prompt ของคุณ');
           st.prompts.shift();

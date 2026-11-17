@@ -1,0 +1,35 @@
+{
+  "cards": [
+    {
+      "code": "B2SB-001",
+      "name": "อิศวร ประทานพร",
+      "keywords": [
+        "จุติ"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "side": "own",
+                "type": "Avatar"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ: Avatar เรา 1 ใบ +1 จนจบเทิร์น"
+    }
+  ]
+}
