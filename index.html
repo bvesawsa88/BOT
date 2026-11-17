@@ -65,9 +65,7 @@
   <div id="menuPlay" class="menu-btns menu-play hidden">
     <div id="menuPlayModes">
       <div class="menu-group-label">เลือกโหมดเล่น</div>
-      <!-- เล่นออนไลน์ — ซ่อนไว้ก่อน (อย่าลบ)
-      <button id="mnuOnline" class="btn-primary big">เล่นออนไลน์</button>
-      -->
+      <button id="mnuOnline" class="btn-primary big">🌐 เล่นออนไลน์ (สแกน / ใส่รหัส)</button>
       <button id="mnuCampaign2" class="btn-campaign">⚔️ ผจญภัยไต่ด่าน</button>
       <button id="mnuBot" class="btn-dark big">🤖 เล่นกับบอท</button>
       <button id="mnuSolo" class="btn-dark big">ซ้อมมือคนเดียว (คุมสองฝั่ง)</button>
@@ -248,6 +246,16 @@
         <button type="button" id="btnInviteRoom" class="btn-mini">คัดลอกลิงก์เชิญ</button>
       </div>
       <img id="roomQr" class="room-qr hidden" alt="QR เข้าห้อง" width="140" height="140">
+    </div>
+    <!-- จับคู่ทันที: ไม่ต้องรอ — พิมพ์รหัสหรือสแกน QR ของเพื่อนเพื่อเข้าห้องเพื่อนแทน -->
+    <div id="roomJoinOther" class="room-join-other hidden">
+      <div class="room-join-title">หรือเข้าห้องของเพื่อน</div>
+      <div class="room-join-row">
+        <input id="inpFriendCode" class="code-input" maxlength="6" placeholder="รหัสเพื่อน 6 ตัว" autocomplete="off" inputmode="latin">
+        <button type="button" id="btnJoinFriend" class="btn-primary">เข้าห้อง</button>
+      </div>
+      <button type="button" id="btnScanFriend" class="btn-dark hidden">📷 สแกน QR ของเพื่อน</button>
+      <div id="roomJoinMsg" class="lobby-msg"></div>
     </div>
     <div class="room-cards">
       <div class="panel me-panel">
@@ -1229,6 +1237,18 @@
     <div class="lan-challenge-actions">
       <button type="button" id="lanChallengeDecline" class="btn-dark">ปฏิเสธ</button>
       <button type="button" id="lanChallengeAccept" class="btn-primary">รับคำท้า</button>
+    </div>
+  </div>
+</div>
+
+<!-- สแกน QR ห้องของเพื่อน -->
+<div id="qrScanModal" class="hidden">
+  <div class="lan-challenge-card">
+    <div class="lan-challenge-title">สแกน QR ของเพื่อน</div>
+    <video id="qrScanVideo" class="qr-scan-video" playsinline muted></video>
+    <div class="lan-challenge-sub" id="qrScanMsg">หันกล้องไปที่ QR บนจอเพื่อน</div>
+    <div class="lan-challenge-actions">
+      <button type="button" id="qrScanClose" class="btn-dark">ปิด</button>
     </div>
   </div>
 </div>

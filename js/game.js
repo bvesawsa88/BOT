@@ -1254,7 +1254,7 @@
     const hint = byId('roomShareHint');
     const qr = byId('roomQr');
     if (hint) {
-      hint.textContent = 'ส่งรหัสหรือ QR ให้เพื่อน — อยู่คนละที่ก็เล่นด้วยกันได้';
+      hint.textContent = 'ให้เพื่อนสแกน QR หรือพิมพ์รหัสนี้ — อยู่คนละที่ก็เล่นด้วยกันได้';
     }
     if (qr) {
       if (netKind === 'lan' && room && typeof BotLAN !== 'undefined') {
@@ -2405,6 +2405,14 @@
   function renderRoom() {
     if (!roomSt) return;
     byId('roomCode').textContent = room || '——————';
+    {
+      // ยังไม่มีใครเข้าห้องเรา → ให้เข้าห้องเพื่อนแทนได้ (พิมพ์รหัส / สแกน QR)
+      const joinBox = byId('roomJoinOther');
+      const waitingAlone = netKind === 'lan' && lanIsHost && !(roomSt.B && (roomSt.B.online || roomSt.B.nick));
+      if (joinBox) joinBox.classList.toggle('hidden', !waitingAlone);
+      const scanBtn = byId('btnScanFriend');
+      if (scanBtn) scanBtn.classList.toggle('hidden', !qrScanSupported());
+    }
     const meP = seat === 'S' ? null : roomSt[seat];
     byId('rmMyName').innerHTML = seat === 'S'
       ? `ผู้ชม <span class="you">(คุณ)</span>`
@@ -6160,7 +6168,11 @@
   byId('btnHome').onclick = goHomeNotebook;
   byId('btnBack').onclick = goBackNotebook;
   const mnuOnline = byId('mnuOnline');
-  if (mnuOnline) mnuOnline.onclick = () => { ensurePlayReady().catch(() => { }); showScreen('lobby'); };
+  // จับคู่ทันที: เปิดห้องของเราพร้อมรหัส/QR เลย และในหน้าเดียวกันพิมพ์รหัสหรือสแกน QR ของเพื่อนได้
+  if (mnuOnline) mnuOnline.onclick = () => {
+    toast('กำลังเปิดห้องออนไลน์…', 2000);
+    ensurePlayReady().catch(() => { }).then(() => startLanHost()).catch(() => { });
+  };
   const btnLanHallBack = byId('btnLanHallBack');
   if (btnLanHallBack) btnLanHallBack.onclick = () => {
     stopPresence();
@@ -6988,6 +7000,59 @@
     } else wsSend({ t: 'start' });
   };
   byId('btnLeaveRoom').onclick = leaveOnline;
+
+  /* ── เข้าห้องเพื่อนจากหน้าห้องของเรา (พิมพ์รหัส / สแกน QR) ── */
+  function joinFriendFromRoom(raw) {
+    const msg = byId('roomJoinMsg');
+    const code = typeof BotLAN !== 'undefined' ? BotLAN.parseCode(raw) : String(raw || '').trim().toUpperCase();
+    if (code.length !== 6) { if (msg) msg.textContent = 'รหัสห้องต้องมี 6 ตัวอักษร'; return; }
+    if (code === String(room || '').toUpperCase()) { if (msg) msg.textContent = 'นี่คือรหัสห้องของคุณเอง — ใส่รหัสของเพื่อน'; return; }
+    if (msg) msg.textContent = '';
+    // ปิดห้องของเราก่อน แล้วเข้าห้องเพื่อน
+    leaveOnline();
+    joinLanRoom(code);
+  }
+  byId('btnJoinFriend').onclick = () => joinFriendFromRoom(byId('inpFriendCode').value);
+  byId('inpFriendCode').onkeydown = (e) => { if (e.key === 'Enter') joinFriendFromRoom(byId('inpFriendCode').value); };
+
+  let qrScanStream = null, qrScanTimer = null;
+  function qrScanSupported() {
+    return typeof window.BarcodeDetector === 'function' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  }
+  function stopQrScan() {
+    clearTimeout(qrScanTimer); qrScanTimer = null;
+    if (qrScanStream) { try { qrScanStream.getTracks().forEach(t => t.stop()); } catch (e) { } qrScanStream = null; }
+    const v = byId('qrScanVideo'); if (v) v.srcObject = null;
+    byId('qrScanModal').classList.add('hidden');
+  }
+  function startQrScan() {
+    if (!qrScanSupported()) { toast('เบราว์เซอร์นี้สแกนในแอปไม่ได้ — ใช้กล้องมือถือสแกน QR ของเพื่อนแทน', 4000); return; }
+    const modal = byId('qrScanModal'), video = byId('qrScanVideo'), msg = byId('qrScanMsg');
+    modal.classList.remove('hidden');
+    msg.textContent = 'กำลังเปิดกล้อง…';
+    let detector;
+    try { detector = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { msg.textContent = 'สแกน QR ไม่ได้ในเบราว์เซอร์นี้'; return; }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then(stream => {
+      qrScanStream = stream;
+      video.srcObject = stream;
+      return video.play();
+    }).then(() => {
+      msg.textContent = 'หันกล้องไปที่ QR บนจอเพื่อน';
+      const tick = () => {
+        if (!qrScanStream) return;
+        detector.detect(video).then(codes => {
+          const hit = (codes || []).map(c => c.rawValue).find(v => typeof BotLAN !== 'undefined' && BotLAN.parseCode(v).length === 6);
+          if (hit) { stopQrScan(); joinFriendFromRoom(hit); return; }
+          qrScanTimer = setTimeout(tick, 250);
+        }).catch(() => { qrScanTimer = setTimeout(tick, 400); });
+      };
+      tick();
+    }).catch(() => {
+      msg.textContent = 'เปิดกล้องไม่ได้ — อนุญาตการใช้กล้อง หรือพิมพ์รหัสแทน';
+    });
+  }
+  byId('btnScanFriend').onclick = startQrScan;
+  byId('qrScanClose').onclick = stopQrScan;
 
   const lanDropLeaveBtn = byId('lanDropLeave');
   const lanDropActionBtn = byId('lanDropAction');

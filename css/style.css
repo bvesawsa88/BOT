@@ -297,9 +297,20 @@ body.has-back .screen::after{top:50px}
 .lan-peer-meta .busy{color:#c4a35a;font-weight:600}
 .lan-peer .btn-primary,.lan-peer .btn-dark{flex:none;padding:7px 12px;font-size:12px;white-space:nowrap}
 .lan-peer .btn-primary:disabled,.lan-peer .btn-dark:disabled{opacity:.45;cursor:default}
-#lanChallengeModal{position:fixed;inset:0;z-index:530;background:rgba(8,8,10,.88);
+#lanChallengeModal,#qrScanModal{position:fixed;inset:0;z-index:530;background:rgba(8,8,10,.88);
   display:flex;align-items:center;justify-content:center;padding:16px}
-#lanChallengeModal.hidden{display:none!important}
+#lanChallengeModal.hidden,#qrScanModal.hidden{display:none!important}
+/* สแกน QR เข้าห้องเพื่อน */
+.qr-scan-video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius:10px}
+/* หน้าห้อง: เข้าห้องเพื่อนแทน (จับคู่ทันที) */
+.room-join-other{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 14px;
+  background:#fffaf2;border:2px dashed var(--ink);border-radius:14px}
+.room-join-other.hidden{display:none}
+.room-join-title{font-size:13px;font-weight:700;color:#5c5347}
+.room-join-row{display:flex;gap:8px;width:100%;max-width:340px}
+.room-join-row input{flex:1 1 auto;min-width:0}
+.room-join-row button{flex:none}
+.room-join-other #btnScanFriend{width:100%;max-width:340px}
 .lan-challenge-card{width:100%;max-width:360px;background:var(--card-ui);border:2px solid var(--border);border-radius:14px;
   padding:20px;display:flex;flex-direction:column;gap:10px}
 .lan-challenge-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:19px;font-weight:700;color:var(--cream)}

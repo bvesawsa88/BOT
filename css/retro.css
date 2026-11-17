@@ -190,7 +190,9 @@ body.has-back .screen::after{top:0}
 .lobby-title{color:var(--px-accent)!important;text-shadow:3px 3px 0 #000}
 .lobby-or::before,.lobby-or::after{background:var(--px-mid)!important;height:2px}
 .lobby-or span{background:var(--px-field)!important;border:3px solid var(--px-line)!important;border-radius:0!important;box-shadow:none!important}
-#lobby .panel,#room .panel,.room-invite,.panel.opp-panel{background:var(--px-win2)!important;border-radius:0!important}
+#lobby .panel,#room .panel,.room-invite,.panel.opp-panel,.room-join-other{background:var(--px-win2)!important;border-radius:0!important}
+.room-join-other{border:3px dashed var(--px-line)!important}
+.room-join-title{color:var(--px-accent)!important}
 .room-code{color:var(--px-accent)!important;background:var(--px-field)!important;border-radius:0!important}
 .room-qr{border-radius:0!important;border:3px solid var(--px-line)!important}
 .lan-peer{background:var(--px-field)!important;border:3px solid var(--px-mid)!important;border-radius:0!important}
