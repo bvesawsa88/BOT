@@ -261,11 +261,15 @@ body.has-back .screen::after{top:50px}
     margin-left:12px;
     gap:10px
   }
+  /* ไม่ตรึงด้านบนแล้ว — กล่องมี QR + ปุ่มจนสูง ตรึงไว้จะบังเด็ค/ปุ่มพร้อมตอนเลื่อน */
   .room-invite{
-    position:sticky;top:0;z-index:5;
+    position:static;
     padding:10px 10px 12px;gap:6px;
     background:#fff8ea
   }
+  .room-invite-actions{flex-wrap:nowrap}
+  .room-invite-actions .btn-mini{flex:1 1 0;min-width:0;padding:10px 6px;white-space:nowrap}
+  .room-join-other{padding:10px}
   .room-share{font-size:12px;line-height:1.35}
   .room-code{
     font-size:clamp(26px, 9vw, 32px);
@@ -276,7 +280,7 @@ body.has-back .screen::after{top:50px}
   .room-qr{width:72px;height:72px;padding:4px}
   .panel.opp-panel{min-height:96px}
   .opp-waiting::before{display:none}
-  #room .btn-mini{padding:10px 12px;font-size:13px;min-height:44px}
+  #room .btn-mini{padding:10px 6px;font-size:13px;min-height:44px}
 }
 
 /* ล็อบบี้ LAN ท้าสู้ */
@@ -309,6 +313,8 @@ body.has-back .screen::after{top:50px}
 .room-join-title{font-size:13px;font-weight:700;color:#5c5347}
 .room-join-row{display:flex;gap:8px;width:100%;max-width:340px}
 .room-join-row input{flex:1 1 auto;min-width:0}
+.room-join-row input::placeholder{letter-spacing:.5px;font-size:14px;font-weight:600}
+.room-join-other .lobby-msg:empty{display:none}
 .room-join-row button{flex:none}
 .room-join-other #btnScanFriend{width:100%;max-width:340px}
 .lan-challenge-card{width:100%;max-width:360px;background:var(--card-ui);border:2px solid var(--border);border-radius:14px;
@@ -1527,7 +1533,7 @@ body.stream-win #roomInfo{opacity:.8}
 .skin-pack-btn.locked:hover{filter:none}
 .skin-soon{font-size:9.5px;font-weight:600;color:var(--dim);line-height:1.2;text-align:center}
 .skin-pack-btn img,.skin-pack-thumb{width:40px;height:56px;object-fit:cover;border-radius:4px;border:1.5px solid #000;background:#141414}
-.skin-pack-btn.skin-pack-mat img{width:96px;height:30px}
+.skin-pack-btn.skin-pack-mat img{width:96px;max-width:100%;height:30px}
 .skin-pack-btn.skin-pack-more{justify-content:center;min-height:78px}
 .skin-setup .skin-note{font-size:11.5px;color:var(--dim);line-height:1.4;margin:0}
 #skinModal{position:fixed;inset:0;z-index:540;background:rgba(8,8,10,.88);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -1649,8 +1655,12 @@ body.stream-win #roomInfo{opacity:.8}
   font-family:'IBM Plex Sans Thai',sans-serif;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   animation:botSlideDown .35s ease;
+  /* left:50% ทำให้กว้างได้แค่ครึ่งจอ → จอแคบตัวหนังสือถูกบีบ — กว้างตามเนื้อหาแต่ไม่เกินจอ */
+  width:max-content;max-width:calc(100vw - 24px);box-sizing:border-box;
 }
+.bot-update-banner span{min-width:0}
 .bot-update-banner button{
+  flex:none;white-space:nowrap;
   background:var(--gold);color:#1a1612;border:none;
   padding:5px 14px;border-radius:6px;font-weight:700;
   font-size:12px;cursor:pointer;
