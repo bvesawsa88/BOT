@@ -23,8 +23,7 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "declareAttack",
-            "if": "source==self"
+            "on": "onFight"
           },
           "actions": [
             {
@@ -38,6 +37,24 @@
             }
           ],
           "requireLinked": true
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "customDeny": "sacrificeSummonSelf",
+          "actions": [
+            {
+              "op": "sacrificeSummonSelf",
+              "count": 2,
+              "filter": {
+                "nameIncludes": [
+                  "วานร"
+                ]
+              }
+            }
+          ]
         }
       ],
       "parseStatus": "auto",
@@ -97,6 +114,24 @@
             }
           ],
           "requireLinked": true
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "customDeny": "sacrificeSummonSelf",
+          "actions": [
+            {
+              "op": "sacrificeSummonSelf",
+              "count": 2,
+              "filter": {
+                "nameIncludes": [
+                  "วานร"
+                ]
+              }
+            }
+          ]
         }
       ],
       "parseStatus": "auto",

@@ -4266,7 +4266,7 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "ownEndPhase",
+            "on": "anyEndPhase",
             "if": "ownAvatarCountNameIncludes:วานร>=3"
           },
           "actions": [

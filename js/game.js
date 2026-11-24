@@ -237,8 +237,14 @@
     try { ids = (BoTEngine.promptCandidates(st, pr) || []).slice(); } catch (e) { ids = (pr.options || []).slice(); }
     if (st.pending && pr.reactTrigger === 'enemyDeclareAttack' && BoTEngine.attackReactOptions) {
       (BoTEngine.attackReactOptions(st, st.pending.target) || []).forEach(k => { if (!ids.includes(k)) ids.push(k); });
+      attackShieldIds(pr).forEach(k => { if (!ids.includes(k)) ids.push(k); });
     }
     return ids.filter(k => st.inst[k]);
+  }
+  /* โล่มนุษย์ที่ใช้ได้ในหน้าต่างถูกประกาศโจมตี */
+  function attackShieldIds(pr) {
+    if (!st || !st.pending || !pr || pr.reactTrigger !== 'enemyDeclareAttack' || !BoTEngine.humanShieldOptions) return [];
+    return BoTEngine.humanShieldOptions(st, st.pending.target) || [];
   }
   function syncReactWin(pr, mine, txt) {
     let win = byId('reactWin');
@@ -274,6 +280,8 @@
         const k = cEl.dataset.rk;
         if (cur && BoTEngine.promptTargetOk(st, k)) {
           sendAction({ type: 'chooseTarget', k, by: mode === 'solo' ? cur.chooser : undefined });
+        } else if (attackShieldIds(cur).includes(k)) {
+          sendAction({ type: 'humanShield', k, by: mode === 'solo' ? st.pending.target : undefined });
         } else if (st.pending) {
           const defSide = st.pending.target;
           sendAction({ type: 'playMagic', k, by: mode === 'solo' ? defSide : undefined });
@@ -312,11 +320,12 @@
     const key = `${pr.mode || ''}|${pr.reactTrigger || ''}|${pr.target || ''}|${pr.src || ''}|${ids.join(',')}`;
     if (key !== reactWinKey) { reactWinKey = key; reactWinMin = false; }
     const noLbl = pr.reactTrigger === 'avatarWouldBeDestroyed' ? 'ไม่ใช้ — ถูกทำลาย' : 'ไม่ใช้';
+    const shieldIds = attackShieldIds(pr);
     const cards = ids.map(k => {
       const c = st.inst[k];
       const img = reactCardImg(c);
       const z = BoTEngine.zoneOf(st, k) || '';
-      const zl = z.endsWith('.hand') ? 'มือ' : z.endsWith('.magic') ? 'Magic Zone' : z.endsWith('.avatar') ? 'สนาม' : z.endsWith('.hell') ? 'นรก' : z.endsWith('.construct') ? 'Construct' : '';
+      const zl = shieldIds.includes(k) ? 'โล่มนุษย์' : z.endsWith('.hand') ? 'มือ' : z.endsWith('.magic') ? 'Magic Zone' : z.endsWith('.avatar') ? 'สนาม' : z.endsWith('.hell') ? 'นรก' : z.endsWith('.construct') ? 'Construct' : '';
       return `<button class="rw-card" data-rk="${esc(k)}" title="${esc(c.name)}">
         <div class="rw-img" style="background-image:url('${esc(img)}')"></div>
         <div class="rw-name">${esc(c.name)}</div>${zl ? `<div class="rw-zone">${zl}</div>` : ''}</button>`;
@@ -2663,7 +2672,7 @@
           } else if (pr0.reactTrigger === 'enemyDeclareAttack') {
             toast(n
               ? `💚 จะใช้ React ไหม? (${why}) — มี ${n} ใบ · กดไม่ใช้หรือรอ ${pr0.seconds || 10} วิ`
-              : `⏳ จะตอบโต้ไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
+              : `⏳ จะใช้โล่มนุษย์ไหม? (${why}) — กด「ไม่ใช้」หรือรอ ${pr0.seconds || 10} วิ`, 4500);
           } else if (pr0.reactTrigger === 'avatarWouldBeDestroyed') {
             toast(n
               ? `💚 ${why} — มีหมอมาแล้วววว ${n} ใบ · แตะใบเขียวเพื่อกันทำลาย หรือกดไม่ใช้`
