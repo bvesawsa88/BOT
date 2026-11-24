@@ -1048,6 +1048,59 @@
       "parseStatus": "auto"
     },
     {
+      "name": "น้ำชูกำลังสูตรฤๅษี",
+      "codes": [
+        "CC03-046"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfAttached"
+          },
+          "actions": [
+            {
+              "op": "powerHost",
+              "amount": 3
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "returnSelfUnderDeck"
+            },
+            {
+              "op": "pickPower",
+              "amount": 1,
+              "filter": {
+                "symbol": "ฤษี"
+              },
+              "includeSelf": true,
+              "optional": false
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "symbol": "ฤษี"
+              }
+            }
+          }
+        }
+      ],
+      "noHostPowerText": true,
+      "attachOnly": {
+        "symbol": "ฤษี"
+      },
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar {Symbol ฤษี} อัตโนมัติ เมื่อสวมใส่การ์ดใบนี้ : Avatar ที่สวมใส่ได้รับ POWER +3 จนจบเทิร์นเรา สั่งใช้ นำการ์ดใบนี้กลับใต้ Deck เรา : เลือก "
+    },
+    {
       "name": "น้ำซุปชาบู",
       "codes": [
         "CC01-048",
@@ -1165,6 +1218,32 @@
       "protectReplace": true,
       "parseStatus": "auto",
       "note": "กันถูกทำลายจากการต่อสู้ 1 ครั้ง แล้วส่งลงนรก"
+    },
+    {
+      "name": "ประกันชั้นผู้น้อย",
+      "codes": [
+        "CC03-048"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "destroySelfMod"
+            }
+          ]
+        }
+      ],
+      "protectReplaceCombatOnly": true,
+      "protectReplace": true,
+      "attachOnly": {
+        "noOtherAttached": true
+      },
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar ที่ไม่มีการ์ดสวมใส่อยู่ ยกเว้นการ์ดใบนี้ อัตโนมัติ เมื่อ Avatar ที่สวมใส่การ์ดนี้จะถูกทำลายจากการต่อสู้ : ทำลายการ์ดใบนี้แทน อัตโนมัติ เมื"
     },
     {
       "name": "ปลอกคอซื่อสัตย์",
@@ -1336,6 +1415,7 @@
       "name": "มนุษย์ดัดแปลง",
       "codes": [
         "BT05-066",
+        "CC03-059",
         "RM01-053"
       ],
       "abilities": [
@@ -1447,6 +1527,46 @@
       "ignoreNegativePower": true,
       "parseStatus": "auto",
       "note": "ไม่รับผลการลด POWER และเพิ่มคืนเท่าที่โดนลด"
+    },
+    {
+      "name": "รองเท้ากินขา",
+      "codes": [
+        "CC03-047"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "sendHostAndSelf"
+            }
+          ]
+        }
+      ],
+      "attachOnly": {
+        "ownOnly": true
+      },
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar ฝ่ายเรา Avatar ที่สวมใส่ POWER+2 อัตโนมัติ ในช่วง End Phase : ส่งการ์ดใบนี้และ Avatar ที่สวมใส่ลงนรก"
     },
     {
       "name": "รั้วของชาติ",
@@ -2019,6 +2139,49 @@
         "symbol": "หุ่นยนต์"
       },
       "parseStatus": "auto"
+    },
+    {
+      "name": "อาวุธหุ่นนักรบผู้กล้า \"แคนเซอร์บลาสเตอร์\"",
+      "codes": [
+        "CC03-049"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfAttached"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "magic"
+              ],
+              "side": "enemy",
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostAttackDiscard"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ],
+          "discard": 2
+        }
+      ],
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
+      },
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar \"ผู้กล้า\" ที่เป็น {Symbol หุ่นยนต์}เท่านั้น อัตโนมัติ เมื่อสวมใส่การ์ดใบนี้ : สามารถทำลายการ์ดบน Magic Zone ฝ่ายตรงข้าม 1 ใบ เทิร์นละครั้ง"
     },
     {
       "name": "อาวุธหุ่นนักรบผู้กล้า \" ไบโพล่า ชิลด์ \"",

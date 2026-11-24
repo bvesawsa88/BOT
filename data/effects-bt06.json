@@ -420,10 +420,36 @@
     },
     {
       "code": "BT06-014",
-      "abilities": [],
-      "parseStatus": "partial",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "servantFromVictim",
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "oppReturnsServant",
+              "nameIncludes": "ข้ารับใช้ของ มนุษย์ดาว R18"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
       "name": "สวีนนีย์ มนุษย์ดาว R18",
-      "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
+      "note": "ฆ่าจากการต่อสู้ → มาเป็นข้ารับใช้ที่ Magic Zone · คำสั่งเสีย: ฝ่ายตรงข้ามเลือกข้ารับใช้ 1 ใบลงนรกเจ้าของเดิม"
     },
     {
       "code": "BT06-015",

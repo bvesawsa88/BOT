@@ -1266,9 +1266,35 @@
     {
       "code": "RM01-018",
       "name": "สวีนนีย์ มนุษย์ดาว R18",
-      "abilities": [],
-      "parseStatus": "partial",
-      "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "servantFromVictim",
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "oppReturnsServant",
+              "nameIncludes": "ข้ารับใช้ของ มนุษย์ดาว R18"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ฆ่าจากการต่อสู้ → มาเป็นข้ารับใช้ที่ Magic Zone · คำสั่งเสีย: ฝ่ายตรงข้ามเลือกข้ารับใช้ 1 ใบลงนรกเจ้าของเดิม"
     },
     {
       "code": "RM01-019",

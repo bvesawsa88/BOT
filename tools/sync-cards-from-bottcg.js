@@ -129,7 +129,7 @@ function mergeSeries(prev, fresh, series) {
 async function discoverCardDbInfo(html) {
   const scripts = [...new Set([...html.matchAll(/\/_next\/static\/(?:immutable\/)?chunks\/[^"'?]+\.js/g)].map(m => m[0]))];
   let cardDbUrl = null;
-  let prefixMap = { SD09: '123v1k1', RM01: '0aslabe', BT12: 'thankyoupnes' };
+  let prefixMap = { SD09: '123v1k1', RM01: '0aslabe', BT12: 'thankyoupnes', CC03: '234b2o' };
   let fallbackChunkJs = null;
 
   for (const s of scripts) {

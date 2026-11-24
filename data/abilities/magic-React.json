@@ -82,6 +82,38 @@
       "parseStatus": "auto"
     },
     {
+      "name": "กรุงเทพ - ดวงจันทร์",
+      "codes": [
+        "CC03-044"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "moonShot"
+            }
+          ]
+        }
+      ],
+      "reactAnyWindow": true,
+      "parseStatus": "verified",
+      "note": "ทำลาย \"เครื่องบิน Super Air\" บน Avatar Zone เรา 1 ใบ : เลือก Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบไปวางไว้บนสุดของ Deck ฝ่ายตรงข้ามและ สามารถอัญเชิญ Avatar \"Su"
+    },
+    {
       "name": "กลับหลังหัน !!!",
       "codes": [
         "BT04-052"
@@ -134,6 +166,27 @@
       ],
       "parseStatus": "auto",
       "note": "React: เลือก Avatar เราในต่อสู้ → ถ้า Avatar คู่ต่อสู้ตื่น: ทำลาย Avatar คู่ต่อสู้"
+    },
+    {
+      "name": "การ์ดร่วงก็เอาไปทิ้งงงง!!!!",
+      "codes": [
+        "CC03-045"
+      ],
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyMill"
+          },
+          "actions": [
+            {
+              "op": "exileOppHellThenLock"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เมื่อฝ่ายตรงข้ามทำการ ธรณีสูบ : เลือกการ์ด ในนรก ฝ่ายตรงข้าม 1 ใบ เนรเทศ การ์ดที่เลือก หลังจากนั้น การ์ดทุกใบที่ถูกส่งจาก Deck ลง นรก ในเทิร์นนี้ จะถูกเนรเทศแทน"
     },
     {
       "name": "ขอจบรายการแต่เพียงเท่านี้",
@@ -1559,6 +1612,7 @@
       "name": "เสียงเรียกแห่งวัลฮัลลา",
       "codes": [
         "BT06-052",
+        "CC03-057",
         "RM01-046"
       ],
       "abilities": [
@@ -1793,6 +1847,7 @@
       "name": "อย่าให้มีครั้งที่ 2",
       "codes": [
         "BT05-058",
+        "CC03-058",
         "KD02-017",
         "PRMO-100",
         "RM01-045",

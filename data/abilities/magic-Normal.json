@@ -4,6 +4,85 @@
   "subtype": "Normal",
   "entries": [
     {
+      "name": "～รักสุดแสนแค้นสุดใจ～",
+      "codes": [
+        "CC03-041"
+      ],
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "ส่ง \"มีมมิ\" จากเด็คลงนรก แล้วนำดาบแห่งแสงอรุณ & นัทคาลิเบอร์ มาสวมใส่ \"ไอ้นัท\" (นับเป็น Modification)",
+                  "requireNoModUsedCc": true,
+                  "cond": {
+                    "ownAvatar": {
+                      "filter": {
+                        "nameIncludes": [
+                          "ไอ้นัท"
+                        ]
+                      }
+                    }
+                  },
+                  "condLabel": "ต้องมี \"ไอ้นัท\" บน Avatar Zone เรา",
+                  "actions": [
+                    {
+                      "op": "loveSword"
+                    }
+                  ]
+                },
+                {
+                  "label": "มี \"ชาช่า\": นำ \"ไอ้นัท\" หรือ \"เซอร์นัท\" จากนรกขึ้นมือ",
+                  "cond": {
+                    "ownAvatar": {
+                      "filter": {
+                        "nameIncludes": [
+                          "ชาช่า"
+                        ]
+                      }
+                    },
+                    "ownHell": {
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "ไอ้นัท",
+                          "เซอร์นัท"
+                        ]
+                      }
+                    }
+                  },
+                  "condLabel": "ต้องมี \"ชาช่า\" บนสนาม และ \"ไอ้นัท\"/\"เซอร์นัท\" ในนรก",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "nameIncludes": [
+                          "ไอ้นัท",
+                          "เซอร์นัท"
+                        ]
+                      },
+                      "dest": "hand",
+                      "optional": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เลือกปฏิบัติ : 1) เลือก \"ไอ้นัท\" 1 ใบ บน Avatar Zone เรา และ ส่ง \"มีมมิ\" 1 ใบ จาก Deck เรา ลงนรก นำ \"ดาบแห่งแสงอรุณ & นัทคาลิเบอร์\" จากใน Deck เรา มาสวมใส่ให้ \""
+    },
+    {
       "name": "1 - 2 - 2",
       "codes": [
         "BT10-057",
@@ -29,6 +108,35 @@
       ],
       "parseStatus": "auto",
       "note": "ใช้เป็นใบแรกของ Main Phase : จั่ว 3 ใบ (ห้ามค้น Deck + Draw Phase ถัดไปไม่ได้จั่ว)"
+    },
+    {
+      "name": "กฎการแลกเปลี่ยนที่เท่าเทียม",
+      "codes": [
+        "CC03-042"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "cond": {
+            "ownHand": {
+              "filter": {
+                "type": "Avatar"
+              },
+              "min": 2
+            }
+          },
+          "condLabel": "ต้องมี Avatar บนมือ 2 ใบ",
+          "actions": [
+            {
+              "op": "equalTrade"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "แสดงการ์ด Avatar จากบนมือ 2 ใบ นำการ์ดที่แสดง กลับเข้า Deck จากนั้นสับ Deck จั่วการ์ด 3 ใบ"
     },
     {
       "name": "กระแสอัปมงคล",
@@ -442,6 +550,7 @@
       "name": "ความกล้าหาญ",
       "codes": [
         "BT02-045",
+        "CC03-052",
         "KD01-014",
         "ODY1-086"
       ],
@@ -575,6 +684,7 @@
       "name": "คาถา ปลดอาวุสสิวะ",
       "codes": [
         "BT07-051",
+        "CC03-055",
         "PRMO-090"
       ],
       "abilities": [
@@ -828,6 +938,7 @@
       "name": "เครื่องบิน Super Air",
       "codes": [
         "BT05-054",
+        "CC03-054",
         "RM01-042"
       ],
       "abilities": [
@@ -1422,7 +1533,8 @@
     {
       "name": "ไต้ฝุ่น",
       "codes": [
-        "BT09-057"
+        "BT09-057",
+        "CC03-053"
       ],
       "abilities": [
         {
@@ -3038,6 +3150,27 @@
       "note": "นำ Avatar ที่ถูก changeControl ทั้งหมดกลับเจ้าของเดิม"
     },
     {
+      "name": "ลบประวัติ",
+      "codes": [
+        "CC03-043"
+      ],
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "customDeny": "hellNonOnly5",
+          "actions": [
+            {
+              "op": "exileFive"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เลือกการ์ดในนรกที่ไม่ใช่ {only} จากนรกเรา และ/หรือ ฝ่ายตรงข้าม รวมกัน 5 ใบ จากนั้น เนรเทศการ์ดใบที่เลือกทั้งหมด"
+    },
+    {
       "name": "ล้มโต๊ะ",
       "codes": [
         "BT04-041",
@@ -3127,6 +3260,7 @@
       "name": "เลือกมันสำหรับพวก จน !!!",
       "codes": [
         "BT04-046",
+        "CC03-051",
         "KD01-015",
         "KD02-016",
         "PRMO-101",
@@ -4011,7 +4145,8 @@
     {
       "name": "เฮือกสุดท้าย",
       "codes": [
-        "BT06-048"
+        "BT06-048",
+        "CC03-056"
       ],
       "abilities": [
         {

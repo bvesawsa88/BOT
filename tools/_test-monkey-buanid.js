@@ -1,0 +1,76 @@
+/* บัวนิด วานรแห่งสวนสัตว์ (BT07-042): โจมตีได้เมื่อมี วานร ใบอื่นบน Avatar Zone เรา */
+const fs = require('fs');
+const path = require('path');
+const BoT = require('../js/engine.js');
+const cards = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/cards.json'), 'utf8'));
+BoT.loadEffects(JSON.parse(fs.readFileSync(path.join(__dirname, '../data/effects-all.json'), 'utf8')));
+
+const byCode = code => cards.find(c => c.code === code && c.image === code + '.png') || cards.find(c => c.code === code);
+const byName = n => cards.find(c => c.name.includes(n));
+let passed = 0;
+const failures = [];
+function ok(cond, msg) { if (cond) passed++; else { failures.push(msg); console.error('FAIL', msg); } }
+function fresh(extra) {
+  const zones = { land: [] };
+  ['A', 'B'].forEach(p => ['deck', 'hand', 'avatar', 'magic', 'construct', 'hell', 'dark', 'life'].forEach(z => { zones[p + '.' + z] = []; }));
+  return Object.assign({
+    inst: {}, zones, phase: 'Main', active: 'A', turn: 3, turnSeq: 3, strict: true, firstPlayer: 'A', fpDrawn: true,
+    buffs: [], pending: null, prompts: [], scheduled: [], chain: [], magicUsed: { A: {}, B: {} }, log: [],
+    mulliganDone: { A: true, B: true }, awaitBattleStart: false, _tokSeq: 0, _mainPhaseSeq: 3, mainCount: { A: 2, B: 2 }
+  }, extra || {});
+}
+function put(st, zone, key, extra) {
+  const c = /^[A-Z0-9]+-\d/.test(key) ? byCode(key) : byName(key);
+  if (!c) throw new Error('missing ' + key);
+  const k = 't' + (Object.keys(st.inst).length + 1);
+  st.inst[k] = {
+    id: k, code: c.code, name: c.name, type: c.type, subtype: c.subtype || '', symbol: c.symbol || '', color: c.color || '',
+    gemColor: c.gemColor || '', cost: c.cost, gem: c.gem, power: c.power, effect: c.effect || '', ex: c.ex || '',
+    img: '', faceUp: true, tapped: false, counters: 0, attachedTo: null
+  };
+  if (extra) Object.assign(st.inst[k], extra);
+  st.zones[zone].push(k);
+  return k;
+}
+const vanilla = (st, zone, over) => {
+  const k = put(st, zone, 'BT12-053', Object.assign({ name: 'ทดสอบ', code: 'TEST', symbol: 'สัตว์', color: 'แดง', power: 3, cost: 3, gem: 1, effect: '' }, over));
+  return k;
+};
+const act = (st, a) => BoT.applyAction(st, Object.assign({ seed: 7 }, a));
+const use = (st, k, by) => act(st, { type: 'activateAbility', k, by: by || 'A' });
+const choose = (st, k, by) => act(st, { type: 'chooseTarget', k, by: by || (st.prompts[0] && st.prompts[0].chooser) });
+const skip = (st, by) => act(st, { type: 'skipPrompt', by: by || (st.prompts[0] && st.prompts[0].chooser) });
+/* ปล่อยหน้าต่างขัดเวทของอีกฝ่าย */
+function drain(st) {
+  let n = 0;
+  while (st.prompts[0] && st.prompts[0].kind === 'react' && st.prompts[0].magicNegate && n++ < 4) act(st, { type: 'reactNo', by: st.prompts[0].chooser });
+}
+function playM(st, k, by) {
+  const fx = act(st, { type: 'playMagic', k, by });
+  if (!fx.deny) drain(st);
+  return fx;
+}
+const mode = (st, opt) => act(st, { type: 'chooseMode', k: st.prompts[0] && st.prompts[0].src, opt, by: st.prompts[0] && st.prompts[0].chooser });
+const P = (st, k) => BoT.effPower(st, k);
+const has = (st, z, k) => (st.zones[z] || []).includes(k);
+function fill(st, side, n) { for (let i = 0; i < n; i++) vanilla(st, side + '.deck', { name: 'เด็ค' + i }); }
+function run(title, fn) { try { fn(); } catch (e) { failures.push(title + ': ' + e.message); console.error('ERROR', title, e.stack.split('\n').slice(0, 3).join(' | ')); } }
+
+const go = (setup) => {
+  const st = fresh({ phase: "Battle" }); fill(st, "A", 5); fill(st, "B", 5);
+  const k = put(st, "A.avatar", "BT07-042");
+  const d = vanilla(st, "B.avatar", { power: 1 });
+  if (setup) setup(st);
+  return act(st, { type: "declareAttack", atk: k, def: d, by: "A" });
+};
+ok(!!go().deny, "อยู่คนเดียวโจมตีไม่ได้");
+ok(!!go(st => vanilla(st, "A.avatar")).deny, "มีเพื่อนที่ไม่ใช่วานร โจมตีไม่ได้");
+ok(!!go(st => vanilla(st, "B.avatar", { name: "วานร ก" })).deny, "วานรฝ่ายตรงข้ามไม่นับ");
+ok(!!go(st => vanilla(st, "A.magic", { name: "วานร ก" })).deny, "วานรนอก Avatar Zone ไม่นับ");
+ok(!go(st => vanilla(st, "A.avatar", { name: "วานร ก" })).deny, "มีวานรใบอื่น โจมตีได้");
+ok(!go(st => put(st, "A.avatar", "BT07-042")).deny, "บัวนิดสองใบ โจมตีได้");
+const L = fresh({ phase: "Battle" }); fill(L, "A", 5); fill(L, "B", 5);
+const lk = put(L, "A.avatar", "BT07-042"); const life = vanilla(L, "B.life", { faceUp: false });
+ok(!!act(L, { type: "declareAttack", atk: lk, life, by: "A" }).deny, "โจมตี LIFE คนเดียวไม่ได้");
+console.log(passed + " passed, " + failures.length + " failed");
+if (failures.length) process.exit(1);

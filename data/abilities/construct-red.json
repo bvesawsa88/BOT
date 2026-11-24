@@ -111,6 +111,33 @@
       "parseStatus": "partial"
     },
     {
+      "name": "ตู้เก็บอาหารฉุกเฉิน M.R.E",
+      "codes": [
+        "CC03-060"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "unrevealBottomLife"
+            }
+          ],
+          "customDeny": "mre",
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สั่งใช้ หากเทิร์นที่แล้ว LIFE Card เราถูกหงายจากความสามารถการ์ด ทำลาย Construct นี้ : คว่ำ Life Card ใบล่างสุดของเรา 1 ใบ"
+    },
+    {
       "name": "นครทิเนนทอล",
       "codes": [
         "BT11-072"

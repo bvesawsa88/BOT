@@ -500,7 +500,8 @@
     {
       "name": "คาบู ช่วยด้วย",
       "codes": [
-        "BT07-041"
+        "BT07-041",
+        "CC03-038"
       ],
       "abilities": [
         {
@@ -586,6 +587,99 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "คุณโทนี่ เด็กช่าง Super Air",
+      "codes": [
+        "CC03-020"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "darkPick",
+              "dest": "hand",
+              "optional": false,
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "สามัคคี"
+      ],
+      "extraNormalMagicName": "เครื่องบิน Super Air",
+      "parseStatus": "verified",
+      "note": "สามัคคี จุติ : นำ Magic Card \"เครื่องบิน Super Air\" จากในมิติมืดเรา 1 ใบขึ้นมือ ต่อเนื่อง เราสามารถใช้ {magic} \"เครื่องบิน Super Air\" เพิ่มได้อีก 1 ใบนอกเหนือจา"
+    },
+    {
+      "name": "คุณแมมมอธ นักบิน Super Air",
+      "codes": [
+        "CC03-019"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1,
+              "optional": true,
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "darkToBottomPick",
+              "filter": {
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ เนรเทศ Magic \"เครื่องบิน Super Air\" จากในนรกเรา 1 ใบ : นำ Magic \"เครื่องบิน Super Air\" จากใน Deck 1 ใบขึ้นมือจากนั้นสับ Deck คำสั่งเสีย : สามารถนำ \"เครื่อง"
     },
     {
       "name": "เครื่องใช้ไฟฟ้า ฟรีซเซอร์",
@@ -721,6 +815,57 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "จักรพรรดิมังกรแห่งภาคีมะม่วง",
+      "codes": [
+        "CC03-021"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "actions": [
+            {
+              "op": "pickSelfSummon"
+            }
+          ],
+          "customDeny": "selfSummon",
+          "cost": [
+            {
+              "op": "sendMagicToHell",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              }
+            }
+          ]
+        }
+      ],
+      "sendSelfToHellIf": {
+        "not": {
+          "ownMagic": {
+            "filter": {
+              "type": "Avatar",
+              "nameIncludes": [
+                "มะม่วง"
+              ],
+              "symbol": "ต้นไม้"
+            }
+          }
+        }
+      },
+      "extraSymbols": [
+        "มังกร"
+      ],
+      "parseStatus": "verified",
+      "note": "สั่งใช้ จากบนมือ ส่ง Avatar \"มะม่วง\" ที่เป็น {Symbol ต้นไม้} 2 ใบ จาก Magic Zone เราลงนรก : อัญเชิญ การ์ดใบนี้ลง Avatar Zone เรา ต่อเนื่อง ถ้า Magic Zone เรา ไม"
     },
     {
       "name": "จ่าแดงเดือด Tank Ranger",
@@ -2233,6 +2378,47 @@
       "parseStatus": "auto"
     },
     {
+      "name": "บักเจด",
+      "codes": [
+        "CC03-023"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "เขียว"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "magicShieldPick"
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีเขียว ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้"
+    },
+    {
       "name": "บันบัน คุณนายกระต่ายนักดาบเฟอร์รี่",
       "codes": [
         "BT12-045"
@@ -2291,6 +2477,7 @@
           ]
         }
       ],
+      "attackIf": "otherOwnNameIncludes:วานร",
       "parseStatus": "auto",
       "note": "โจมตีได้เมื่อคุม วานร ใบอื่น"
     },
@@ -3919,7 +4106,8 @@
     {
       "name": "รถถังเฟืองเหล็ก",
       "codes": [
-        "BT08-043"
+        "BT08-043",
+        "CC03-040"
       ],
       "abilities": [
         {
@@ -4091,7 +4279,8 @@
     {
       "name": "ราชา รด.",
       "codes": [
-        "BT08-039"
+        "BT08-039",
+        "CC03-039"
       ],
       "abilities": [
         {
@@ -4592,6 +4781,33 @@
       "controlImmune": true,
       "parseStatus": "auto",
       "note": "ไม่ถูกทำลายจากการต่อสู้กับ Power < 10 / ไม่ถูกทำลายจากเวท / กันเปลี่ยนการควบคุม"
+    },
+    {
+      "name": "สว. นาโนแมชชีน",
+      "codes": [
+        "CC03-037"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "battleImmuneVsLowerPower",
+              "powerMax": 9
+            },
+            {
+              "op": "immuneMagicDestroy"
+            }
+          ]
+        }
+      ],
+      "controlImmune": true,
+      "parseStatus": "verified",
+      "note": "ต่อเนื่อง Avatar ใบนี้ไม่ถูกทำลายจากการต่อสู้จาก Avatar ที่ POWER น้อยกว่า 10 และ ไม่ถูกทำลายจากความสามารถของ Magic Card ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่"
     },
     {
       "name": "สห ไล่จับเด็ก",
@@ -5139,6 +5355,86 @@
       ],
       "parseStatus": "auto",
       "note": "อัตโนมัติ เมื่อโจมตี POWER +1 / ย้ายเป้าโจมตีมาที่ตัวเอง"
+    },
+    {
+      "name": "อามาเทราสึและสึคุโยมิ",
+      "codes": [
+        "CC03-022"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "นำไปที่ Magic Zone",
+                  "cond": {
+                    "selfZone": "avatar"
+                  },
+                  "actions": [
+                    {
+                      "op": "moveSelfToMagicZone"
+                    }
+                  ]
+                },
+                {
+                  "label": "นำไปที่ Avatar Zone",
+                  "cond": {
+                    "selfZone": "magic"
+                  },
+                  "actions": [
+                    {
+                      "op": "moveSelfToAvatarZone"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "powerAllOwn",
+              "amount": 1
+            }
+          ],
+          "cond": {
+            "selfZone": "avatar",
+            "ownUntappedThisTurn": true
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "cond": {
+            "selfZone": "magic",
+            "ownTappedThisTurn": true
+          }
+        }
+      ],
+      "abilitiesFromMagicZone": true,
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ เลือกปฏิบัติ : 1) นำ Avatar ใบนี้ไปที่ Magic Zone 2) นำ Avatar ใบนี้ไปที่ Avatar Zone อัตโนมัติ ในช่วงเริ่มต้น Main Phase เรา ถ้าในเทิร์นน"
     },
     {
       "name": "อาเมอร์ ทศกัณท์",

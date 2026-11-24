@@ -1264,7 +1264,8 @@
       "parseStatus": "auto",
       "name": "บัวนิด วานรแห่งสวนสัตว์",
       "note": "โจมตีได้เมื่อคุม วานร ใบอื่น",
-      "cannotAttackIfNoOtherOwnAvatarNameIncludes": "วานร"
+      "cannotAttackIfNoOtherOwnAvatarNameIncludes": "วานร",
+      "attackIf": "otherOwnNameIncludes:วานร"
     },
     {
       "code": "BT07-043",

@@ -189,6 +189,28 @@
       "parseStatus": "auto"
     },
     {
+      "name": "ครูแกง Big Brain",
+      "codes": [
+        "CC03-016"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "bigBrain"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : ผู้เล่นทุกคนสับ Deck ตนเอง และสอดแนม 1 ใบ ถ้าการ์ดใบนั้นเป็น Avatar หลังจากนั้น ให้นำข้อมูลของการ์ดมาเข้าสูตรตามนี้ ผลลัพธ์ = (GEM x POW) + Cost ถ้าไม่ใช"
+    },
+    {
       "name": "คาไม แม่มดไอที",
       "codes": [
         "BT12-034"
@@ -466,6 +488,7 @@
       "codes": [
         "B2SA-006",
         "BT07-029",
+        "CC03-034",
         "PRMO-130"
       ],
       "abilities": [
@@ -673,7 +696,8 @@
     {
       "name": "จอมเวทย์ อะปัด",
       "codes": [
-        "BT07-030"
+        "BT07-030",
+        "CC03-035"
       ],
       "abilities": [
         {
@@ -872,6 +896,7 @@
       "name": "ซีกรุน เทพธิดาแห่งวัลฮัลลา",
       "codes": [
         "BT06-029",
+        "CC03-033",
         "PRMO-131",
         "RM01-029"
       ],
@@ -2496,6 +2521,55 @@
       "note": "จุติ : สอดแนม 3 ใบ เรียงลำดับตามใจชอบ"
     },
     {
+      "name": "แบงค์รางดาว",
+      "codes": [
+        "CC03-017"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "enemy",
+              "dest": "dark",
+              "filter": {},
+              "optional": false
+            }
+          ],
+          "cond": {
+            "ownHellDistinctNames": {
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "แบงค์"
+                ]
+              },
+              "min": 8
+            }
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "bankMillOffer"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ ถ้าในนรกเรามี Avatar \"แบงค์\" ชื่อแตกต่างกัน 8 ใบขึ้นไป : เลือก เนรเทศ Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ อัตโนมัติ เมื่อโจมตี ธรณีสูบ 1 ใบ : ถ้าการ์ดที"
+    },
+    {
       "name": "แบมบูจัง ไอดอลสองขั้ว",
       "codes": [
         "BT03-026",
@@ -2880,6 +2954,44 @@
       "note": "จุติ (เทิร์นแรกสุดของเกม) ทิ้ง 2 : อัญเชิญ Cost <= 1 Symbol ไม่ซ้ำกัน 3 ใบ จาก Deck"
     },
     {
+      "name": "พีแมน อัศวินตลิ่งชันแห่งแดนปลาดิบ",
+      "codes": [
+        "CC03-014"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "anyOf": [
+                  {
+                    "effectIncludes": "ไอ้นัท"
+                  },
+                  {
+                    "effectIncludes": "เซอร์นัท"
+                  }
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "parseStatus": "verified",
+      "note": "ลูกฮึด จุติ : นำ การ์ด Magic 1 ใบ ที่มี \"ไอ้นัท\" หรือ \"เซอร์นัท\" ใน Text Box จาก Deck เราขึ้นมือ จากนั้น สับ Deck"
+    },
+    {
       "name": "พี่วัฒน์ BGN",
       "codes": [
         "BT07-027"
@@ -2913,7 +3025,8 @@
     {
       "name": "พี่หน่วง",
       "codes": [
-        "BT06-024"
+        "BT06-024",
+        "CC03-032"
       ],
       "abilities": [
         {
@@ -4463,6 +4576,80 @@
       "parseStatus": "auto"
     },
     {
+      "name": "หัวหน้านายนิรยบาล พญายม",
+      "codes": [
+        "CC03-013"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "deckGemForSelf": {
+        "type": "Avatar",
+        "nameIncludes": [
+          "นายนิรยบาล"
+        ]
+      },
+      "parseStatus": "verified",
+      "note": "ในการอัญเชิญการ์ดใบนี้จากบนมือเราสามารถส่ง Avatar \"นายนิรยบาล\" 1 ใบจาก Deck ลงนรกเพื่อถือว่าใช้ GEM ของ Avatar ใบนั้นในการอัญเชิญการ์ดใบนี้จากนั้นสับ Deck จุติ "
+    },
+    {
+      "name": "อเมทิสโต้",
+      "codes": [
+        "CC03-018"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "ม่วง"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scoutArrangeTop",
+              "count": 3
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีม่วง ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้ว"
+    },
+    {
       "name": "อาม่อน No.7",
       "codes": [
         "BT06-030",
@@ -4564,157 +4751,30 @@
     {
       "name": "อีสานสลิงเกอร์ ดิว",
       "codes": [
-        "CC03-TBD"
+        "CC03-015"
       ],
       "abilities": [
         {
+          "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
           },
-          "oncePerTurn": true,
-          "requireLandNameIncludes": "โคกอีสานนูน",
           "actions": [
             {
-              "op": "chooseMode",
-              "optional": false,
-              "options": [
-                {
-                  "label": "ธรณีสูบ 3 ใบ → POWER +1",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 3,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 1,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 6 ใบ → POWER +2",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 6,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 2,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 9 ใบ → POWER +3",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 9,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 3,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 12 ใบ → POWER +4",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 12,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 4,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 15 ใบ → POWER +5",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 15,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 5,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ]
+              "op": "millAnyCount",
+              "filter": {
+                "nameIncludes": [
+                  "อีสานสลิงเกอร์"
+                ]
+              }
             }
-          ]
+          ],
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน"
         }
       ],
       "parseStatus": "verified",
-      "note": "เทิร์นละครั้ง สั่งใช้ มีโคกอีสานนูน: ธรณีสูบ 3/6/9/12/15 → อีสานสลิงเกอร์ 1 ใบ POWER +1 ต่อทุก 3 ใบจนจบเทิร์น (เศษไม่ครบ 3 ไม่ได้โบนัส จึงไม่มีให้เลือก)"
+      "note": "ธรณีสูบกี่ใบก็ได้ → อีสานสลิงเกอร์ 1 ใบ +1 ต่อทุก 3 ใบ จนจบเทิร์น (ไม่ให้เลือกจนเด็คหมด)"
     },
     {
       "name": "อีสานสลิงเกอร์ ปัณณ์",
@@ -4859,7 +4919,8 @@
     {
       "name": "อีสานสลิงเกอร์ เปอร์",
       "codes": [
-        "BT08-026"
+        "BT08-026",
+        "CC03-036"
       ],
       "abilities": [
         {

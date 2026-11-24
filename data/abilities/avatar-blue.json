@@ -712,6 +712,7 @@
       "name": "จ่ามะนาวแขนเหล็ก",
       "codes": [
         "BT06-018",
+        "CC03-030",
         "RM01-021"
       ],
       "abilities": [
@@ -1907,7 +1908,8 @@
     {
       "name": "นายพลทหารหิมะ หลินอัน",
       "codes": [
-        "BT08-022"
+        "BT08-022",
+        "CC03-031"
       ],
       "abilities": [
         {
@@ -2110,6 +2112,31 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "บึงทมิฬ People - คุณชาร์คว้าว",
+      "codes": [
+        "CC03-011"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "tapThenWipe"
+            }
+          ],
+          "cond": {
+            "land": "บึงทมิฬ"
+          }
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ ถ้าใน Land Magic Zone มีการ์ด \"บึงทมิฬ\" : เลือก Avatar บน Avatar Zone 1 ใบ เปลี่ยนเป็นสภาพนอน จากนั้น ทำลาย Avatar ทุกใบ บน Avatar Zone ที่อยู่ในสภาพนอน"
     },
     {
       "name": "บึงทมิฬ  People - คุณดีไมส์",
@@ -2535,6 +2562,39 @@
       },
       "parseStatus": "auto",
       "note": " Avatar คน และ ต้นไม้ ฝ่ายเราได้รับ สามัคคี"
+    },
+    {
+      "name": "ผู้เจริญนาย",
+      "codes": [
+        "CC03-029"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
+      "grantKeywordAura": {
+        "symbols": [
+          "คน",
+          "ต้นไม้"
+        ],
+        "keyword": "สามัคคี"
+      },
+      "parseStatus": "verified",
+      "note": "ต่อเนื่อง Avatar {Symbol คน} และ Avatar {Symbol ต้นไม้} ฝ่ายเราทุกใบ ได้รับ สามัคคี"
     },
     {
       "name": "ผู้เจริญระดับ 3",
@@ -3057,6 +3117,59 @@
       ],
       "abilities": [],
       "parseStatus": "stub"
+    },
+    {
+      "name": "มังกรราชาหิมะ เสวี่ย หลง",
+      "codes": [
+        "CC03-009"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "actions": [
+            {
+              "op": "snowDragonSummon"
+            }
+          ],
+          "customDeny": "snowDragon"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "side": "any"
+            }
+          ]
+        }
+      ],
+      "summonOnlyByNameIncludes": "หิมะ",
+      "immuneOppAbilityDestroy": true,
+      "controlImmuneIf": {
+        "ownAvatar": {
+          "filter": {
+            "nameIncludes": [
+              "ราชินีหิมะ"
+            ]
+          }
+        }
+      },
+      "noPaidSummon": true,
+      "parseStatus": "verified",
+      "note": "สั่งใช้ จากมือ แสดงการ์ดใบนี้ และ Avatar \"หิมะ\" 3 ใบ ที่ชื่อไม่ซ้ำกัน จากมือ โดยที่การ์ดเหล่านั้นจะต้องมี \"ราชินีหิมะ\" อย่างน้อย 1 ใบ : อัญเชิญการ์ดใบนี้ลง Avat"
     },
     {
       "name": "มามิ สิ่งมีชีวิตปริศนาระดับถั่วๆ",
@@ -4269,6 +4382,43 @@
       "note": "ต่อเนื่อง ถ้ามี Avatar หิมะ ใบอื่น ใบนี้ POWER +2"
     },
     {
+      "name": "ลอร์ดแซฟไฟร์",
+      "codes": [
+        "CC03-012"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "ฟ้า"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyAvatarDestroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีฟ้า ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้วย"
+    },
+    {
       "name": "ลานเซลอต อัศวินโต๊ะกลมแห่งการปฏิวัติ",
       "codes": [
         "BT05-014",
@@ -4619,6 +4769,46 @@
       "note": "จุติ: แนบ กุ่ย/ฮอล/นาย จากนรก; หลังโจมตีสำเร็จมีทั้ง 3 → ส่งตัวเองนรก อัญเชิญวีรบุรุษปากซอย"
     },
     {
+      "name": "วีรบุรุษหน้าตาดี",
+      "codes": [
+        "CC03-006"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "actions": [
+            {
+              "op": "heroSummon"
+            }
+          ],
+          "customDeny": "hero"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "summonOnlyByNameIncludes": "วีรบุรุษหน้าตาดี",
+      "noPaidSummon": true,
+      "noHellSummon": true,
+      "parseStatus": "verified",
+      "note": "โล่มนุษย์ สั่งใช้ จากบนมือ โดยการเนรเทศ \"กุ่ย\", \"ฮอล\" และ \"นาย\" จากบนสนามหรือนรกเรา อย่างละ 1 ใบ : อัญเชิญ Avatar ใบนี้ ลงบน Avatar Zone เรา อัตโนมัติ ในช่วง En"
+    },
+    {
       "name": "ไวรัสแห่งการช่วงชิง โทรจัน",
       "codes": [
         "BT11-021"
@@ -4789,11 +4979,38 @@
       "name": "สวีนนีย์ มนุษย์ดาว R18",
       "codes": [
         "BT06-014",
+        "CC03-028",
         "RM01-018"
       ],
-      "abilities": [],
-      "parseStatus": "partial",
-      "note": "จุติ : อัญเชิญ Avatar ทหาร หรือ รด. Cost ไม่เกิน 3 จากนรก 1 ใบ"
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "servantFromVictim",
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "oppReturnsServant",
+              "nameIncludes": "ข้ารับใช้ของ มนุษย์ดาว R18"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ฆ่าจากการต่อสู้ → มาเป็นข้ารับใช้ที่ Magic Zone · คำสั่งเสีย: ฝ่ายตรงข้ามเลือกข้ารับใช้ 1 ใบลงนรกเจ้าของเดิม"
     },
     {
       "name": "สิ่งปฏิกูลมีชีวิต",
@@ -4848,6 +5065,59 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "สิ่งปฏิกูลสีชมพู",
+      "codes": [
+        "CC03-010"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "สิ่งปฏิกูล"
+                ]
+              },
+              "dest": "avatar",
+              "restTo": "hell"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "สิ่งปฏิกูล"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "สิ่งปฏิกูล"
+                ]
+              },
+              "dest": "avatar",
+              "restTo": "hell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 3 ใบ อัญเชิญ Avatar \"สิ่งปฏิกูล\" 1 ใบ จากที่ สอดแนม ลง Avatar Zone เรา การ์ดที่เหลือ ส่งลงนรก อัตโนมัติ ถ้า Avatar ใบนี้ถูกอัญเชิญมาด้วยความสามารถ"
     },
     {
       "name": "สุมาอี้ กุนซือเจ้าเล่ห์แห่งวุยก๊ก",
@@ -5022,6 +5292,100 @@
       "abilities": [],
       "parseStatus": "verified",
       "note": "ไม่มีข้อความเอฟเฟกต์"
+    },
+    {
+      "name": "อธีน่า เทพีปัญญาแห่งโอลิมปัส",
+      "codes": [
+        "CC03-007"
+      ],
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "Avatar เทพ หรือ Cost ≤2 ฝ่ายเรา 1 ใบ ได้รับ สามัคคี",
+                  "actions": [
+                    {
+                      "op": "pickGrantKw",
+                      "keyword": "สามัคคี",
+                      "filter": {
+                        "anyOf": [
+                          {
+                            "symbol": "เทพ"
+                          },
+                          {
+                            "costMax": 2
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ทิ้งมือ 1: อัญเชิญ Avatar Cost ≤2 (ไม่ใช่สีม่วง) จากนรกเรา",
+                  "cost": [
+                    {
+                      "op": "discard",
+                      "from": "hand",
+                      "count": 1
+                    }
+                  ],
+                  "cond": {
+                    "ownHand": {
+                      "filter": {},
+                      "min": 1
+                    },
+                    "anyOf": [
+                      {
+                        "ownHell": {
+                          "filter": {
+                            "type": "Avatar",
+                            "colorNot": "ม่วง",
+                            "costMax": 2
+                          }
+                        }
+                      },
+                      {
+                        "ownHand": {
+                          "filter": {
+                            "type": "Avatar",
+                            "colorNot": "ม่วง",
+                            "costMax": 2
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "condLabel": "ต้องมีการ์ดบนมือให้ทิ้ง และเป้าหมายในนรก",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "colorNot": "ม่วง",
+                        "costMax": 2
+                      },
+                      "dest": "avatar",
+                      "optional": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "oncePerTurnCard": true,
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) เลือก Avatar {Symbol เทพ} หรือ Avatar Cost ไม่เกิน 2 จำนวน 1 ใบ บน Avatar Zone เรา Avatar ที่เลือก ได้รับ สามัคคี 2) ทิ้งการ์ดบน"
     },
     {
       "name": "อ้วนเสี้ยว ผู้นำขุนพล 18 หัวเมือง",
@@ -5321,6 +5685,32 @@
         }
       ],
       "parseStatus": "auto"
+    },
+    {
+      "name": "เอาไมส์ ฮีโร่แห่งความหวั่นไหว",
+      "codes": [
+        "CC03-008"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "selfPower",
+              "amount": -1
+            }
+          ]
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "uniqueOnField": true,
+      "parseStatus": "verified",
+      "note": "โล่มนุษย์ อัตโนมัติ ในช่วง End Phase เรา : POWER ของ Avatar นี้ -1 #เราสามารถควบคุม เอาไมส์ ฮีโร่แห่งความหวั่นไหว ใน Avatar Zone ได้เพียง 1 ใบเท่านั้น"
     },
     {
       "name": "โอตะตัวกะปอม",

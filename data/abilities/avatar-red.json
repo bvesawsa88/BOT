@@ -820,7 +820,8 @@
     {
       "name": "จิวยี่ กุนซือสำอางแห่งง่อก๊ก",
       "codes": [
-        "BT08-006"
+        "BT08-006",
+        "CC03-027"
       ],
       "abilities": [
         {
@@ -1869,7 +1870,8 @@
     {
       "name": "ทริสทัน อัศวินโต๊ะกลมแห่งความแม่นยำ",
       "codes": [
-        "BT05-004"
+        "BT05-004",
+        "CC03-025"
       ],
       "abilities": [
         {
@@ -3077,6 +3079,29 @@
       "note": "โล่มนุษย์ เตะไข่ อัตโนมัติ เมื่อ Avatar ใบนี้จะถูกทำลาย : ปรับ POWER ตั้งต้นของ Avatar ใบนี้ลดลงครึ่งหนึ่งแทนการถูกทำลาย"
     },
     {
+      "name": "พระนารายณ์ ผู้คุ้มครอง",
+      "codes": [
+        "CC03-002"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireLinked": true,
+          "immuneAbilityDestroy": true,
+          "actions": []
+        }
+      ],
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "parseStatus": "verified",
+      "note": "โล่มนุษย์ [Link พระอิศวร ผู้เมตตา] ต่อเนื่อง Avatar ใบนี้ไม่ถูกทำลายจากความสามารถการ์ด"
+    },
+    {
       "name": "พระพรหม",
       "codes": [
         "BT02-008",
@@ -3361,6 +3386,57 @@
       "note": "จุติ : สอดแนม 3 ใบ เลือก การ์ด {Symbol เทพ} 1 ใบ จากที่สอดแนม และนำขึ้นมือ การ์ดที่เหลือนำไปไว้ใต้ D"
     },
     {
+      "name": "พระอินทร์ ผู้ช่วยเหลือ",
+      "codes": [
+        "CC03-003"
+      ],
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1,
+              "filter": {
+                "symbol": "เทพ"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hellOwnEndPhase"
+          },
+          "actions": [
+            {
+              "op": "indraEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ เนรเทศ การ์ด {Symbol เทพ} ในนรกเรา 1 ใบ : สอดแนม 3 ใบ นำ Avatar {Symbol เทพ} จากที่สอดแนม 1 ใบ ขึ้นมือ จากนั้นสับ Deck สั่งใช้ ในนรก ในช่ว"
+    },
+    {
       "name": "พระอิศวร",
       "codes": [
         "ODY1-006",
@@ -3524,6 +3600,59 @@
       ],
       "parseStatus": "verified",
       "note": "จุติ : นำ Avatar แม่ศรีนวล จาก Deck ขึ้นมือ แล้วสับ Deck"
+    },
+    {
+      "name": "พระอิศวร ผู้เมตตา",
+      "codes": [
+        "CC03-001"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "pickSummon",
+              "from": "deckOrHand",
+              "filter": {
+                "exactName": "พระนารายณ์ ผู้คุ้มครอง"
+              },
+              "abilityProtect": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "side": "any"
+            },
+            {
+              "op": "pickPower",
+              "amount": 2,
+              "until": "endOfTurn"
+            }
+          ],
+          "oncePerTurn": true,
+          "requireLinked": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ: อัญเชิญ พระนารายณ์ ผู้คุ้มครอง จากมือ หรือ Deck ถ้าอัญเชิญจาก Deck ให้สับ Deck Avatar ที่อัญเชิญจากความสามารถนี้จะไม่ถูกทำลายจากความสามารถการ์ดจนจบเทิร์น "
     },
     {
       "name": "พระอิศวร วีลแชร์",
@@ -4817,6 +4946,49 @@
       "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อถูกเลือกเป็นเป้าหมายการโจมตี : ยกเลิกการโจมตี"
     },
     {
+      "name": "รูบิน่า",
+      "codes": [
+        "CC03-005"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "แดง"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {},
+              "min": 4
+            }
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีแดง ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้วย"
+    },
+    {
       "name": "ฤๅษีพระเจ้าตา",
       "codes": [
         "BT07-005"
@@ -5030,6 +5202,7 @@
       "name": "วันชัยเปรตรุ่นพ่อ",
       "codes": [
         "BT07-001",
+        "CC03-024",
         "RM01-008"
       ],
       "abilities": [
@@ -5506,6 +5679,41 @@
       ],
       "parseStatus": "auto",
       "note": "สั่งใช้ เมื่อ Avatar ใบนี้ ทำลาย Avatar ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ : ส่ง Avatar ใบนี้ลงนรก และ อั"
+    },
+    {
+      "name": "หุ่นนักรบผู้กล้า : โพสโดรมไมเกรน",
+      "codes": [
+        "CC03-004"
+      ],
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAvatarSentToHell"
+          },
+          "actions": [
+            {
+              "op": "postdromeSummon"
+            }
+          ],
+          "requireSentNameIncludes": "ไมเกรน"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battlePhaseStart",
+            "if": "self.power>=6"
+          },
+          "actions": [
+            {
+              "op": "postdromeEvolve"
+            }
+          ]
+        }
+      ],
+      "uniqueOnField": true,
+      "parseStatus": "verified",
+      "note": "สั่งใช้ จากบนมือ เมื่อ Avatar \"ไมเกรน\" บน Avatar Zone เราที่มีชื่อต่างจากการ์ดใบนี้ถูกส่งลงนรกในเทิร์นฝ่ายตรงข้าม : อัญเชิญ Avatar ใบนี้ และ เลือก {mod} \"อาวุธห"
     },
     {
       "name": "หุ่นนักรบผู้กล้า : ไมเกรน",
@@ -6059,7 +6267,8 @@
     {
       "name": "เอเจ้นท์สมูท",
       "codes": [
-        "BT08-009"
+        "BT08-009",
+        "CC03-026"
       ],
       "abilities": [
         {

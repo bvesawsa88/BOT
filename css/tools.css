@@ -177,7 +177,8 @@
 .auth-tab.on{background:var(--border);color:var(--cream)}
 .auth-input{width:100%;padding:10px 12px;margin-bottom:8px;background:var(--panel);border:1.5px solid var(--border);border-radius:8px;color:var(--cream);font-size:14px;font-family:'Sarabun',sans-serif}
 .auth-input:focus{outline:none;border-color:var(--gold)}
-.choice-opts{display:flex;flex-direction:column;gap:9px}
+.choice-opts{display:flex;flex-direction:column;gap:9px;max-height:55vh;overflow-y:auto}
+.choice-opts>*{flex:none}
 .choice-opt{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:.15s;background:transparent}
 .choice-opt:hover{border-color:var(--gold)}
 .choice-opt.sel{border-color:var(--gold);background:rgba(240,240,243,.07);box-shadow:0 0 0 1px var(--gold) inset}

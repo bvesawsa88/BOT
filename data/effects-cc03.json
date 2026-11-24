@@ -1,8 +1,1383 @@
 {
   "cards": [
     {
-      "code": "CC03-TBD",
+      "code": "CC03-001",
+      "name": "พระอิศวร ผู้เมตตา",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "pickSummon",
+              "from": "deckOrHand",
+              "filter": {
+                "exactName": "พระนารายณ์ ผู้คุ้มครอง"
+              },
+              "abilityProtect": true
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "side": "any"
+            },
+            {
+              "op": "pickPower",
+              "amount": 2,
+              "until": "endOfTurn"
+            }
+          ],
+          "oncePerTurn": true,
+          "requireLinked": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ: อัญเชิญ พระนารายณ์ ผู้คุ้มครอง จากมือ หรือ Deck ถ้าอัญเชิญจาก Deck ให้สับ Deck Avatar ที่อัญเชิญจากความสามารถนี้จะไม่ถูกทำลายจากความสามารถการ์ดจนจบเทิร์น "
+    },
+    {
+      "code": "CC03-002",
+      "name": "พระนารายณ์ ผู้คุ้มครอง",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "requireLinked": true,
+          "immuneAbilityDestroy": true,
+          "actions": []
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "โล่มนุษย์ [Link พระอิศวร ผู้เมตตา] ต่อเนื่อง Avatar ใบนี้ไม่ถูกทำลายจากความสามารถการ์ด"
+    },
+    {
+      "code": "CC03-003",
+      "name": "พระอินทร์ ผู้ช่วยเหลือ",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "เทพ"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom",
+              "shuffleAfter": true
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1,
+              "filter": {
+                "symbol": "เทพ"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hellOwnEndPhase"
+          },
+          "actions": [
+            {
+              "op": "indraEnd"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ เนรเทศ การ์ด {Symbol เทพ} ในนรกเรา 1 ใบ : สอดแนม 3 ใบ นำ Avatar {Symbol เทพ} จากที่สอดแนม 1 ใบ ขึ้นมือ จากนั้นสับ Deck สั่งใช้ ในนรก ในช่ว"
+    },
+    {
+      "code": "CC03-004",
+      "name": "หุ่นนักรบผู้กล้า : โพสโดรมไมเกรน",
+      "uniqueOnField": true,
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownAvatarSentToHell"
+          },
+          "actions": [
+            {
+              "op": "postdromeSummon"
+            }
+          ],
+          "requireSentNameIncludes": "ไมเกรน"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battlePhaseStart",
+            "if": "self.power>=6"
+          },
+          "actions": [
+            {
+              "op": "postdromeEvolve"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สั่งใช้ จากบนมือ เมื่อ Avatar \"ไมเกรน\" บน Avatar Zone เราที่มีชื่อต่างจากการ์ดใบนี้ถูกส่งลงนรกในเทิร์นฝ่ายตรงข้าม : อัญเชิญ Avatar ใบนี้ และ เลือก {mod} \"อาวุธห"
+    },
+    {
+      "code": "CC03-005",
+      "name": "รูบิน่า",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "แดง"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "cond": {
+            "ownAvatar": {
+              "filter": {},
+              "min": 4
+            }
+          },
+          "actions": [
+            {
+              "op": "setBasePowerStatic",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีแดง ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้วย"
+    },
+    {
+      "code": "CC03-006",
+      "name": "วีรบุรุษหน้าตาดี",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "noPaidSummon": true,
+      "noHellSummon": true,
+      "summonOnlyByNameIncludes": "วีรบุรุษหน้าตาดี",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "actions": [
+            {
+              "op": "heroSummon"
+            }
+          ],
+          "customDeny": "hero"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "untap",
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "โล่มนุษย์ สั่งใช้ จากบนมือ โดยการเนรเทศ \"กุ่ย\", \"ฮอล\" และ \"นาย\" จากบนสนามหรือนรกเรา อย่างละ 1 ใบ : อัญเชิญ Avatar ใบนี้ ลงบน Avatar Zone เรา อัตโนมัติ ในช่วง En"
+    },
+    {
+      "code": "CC03-007",
+      "name": "อธีน่า เทพีปัญญาแห่งโอลิมปัส",
+      "oncePerTurnCard": true,
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "Avatar เทพ หรือ Cost ≤2 ฝ่ายเรา 1 ใบ ได้รับ สามัคคี",
+                  "actions": [
+                    {
+                      "op": "pickGrantKw",
+                      "keyword": "สามัคคี",
+                      "filter": {
+                        "anyOf": [
+                          {
+                            "symbol": "เทพ"
+                          },
+                          {
+                            "costMax": 2
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "ทิ้งมือ 1: อัญเชิญ Avatar Cost ≤2 (ไม่ใช่สีม่วง) จากนรกเรา",
+                  "cost": [
+                    {
+                      "op": "discard",
+                      "from": "hand",
+                      "count": 1
+                    }
+                  ],
+                  "cond": {
+                    "ownHand": {
+                      "filter": {},
+                      "min": 1
+                    },
+                    "anyOf": [
+                      {
+                        "ownHell": {
+                          "filter": {
+                            "type": "Avatar",
+                            "colorNot": "ม่วง",
+                            "costMax": 2
+                          }
+                        }
+                      },
+                      {
+                        "ownHand": {
+                          "filter": {
+                            "type": "Avatar",
+                            "colorNot": "ม่วง",
+                            "costMax": 2
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "condLabel": "ต้องมีการ์ดบนมือให้ทิ้ง และเป้าหมายในนรก",
+                  "actions": [
+                    {
+                      "op": "hellPick",
+                      "filter": {
+                        "type": "Avatar",
+                        "colorNot": "ม่วง",
+                        "costMax": 2
+                      },
+                      "dest": "avatar",
+                      "optional": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง เลือกปฏิบัติ : 1) เลือก Avatar {Symbol เทพ} หรือ Avatar Cost ไม่เกิน 2 จำนวน 1 ใบ บน Avatar Zone เรา Avatar ที่เลือก ได้รับ สามัคคี 2) ทิ้งการ์ดบน"
+    },
+    {
+      "code": "CC03-008",
+      "name": "เอาไมส์ ฮีโร่แห่งความหวั่นไหว",
+      "keywords": [
+        "โล่มนุษย์"
+      ],
+      "uniqueOnField": true,
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "selfPower",
+              "amount": -1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "โล่มนุษย์ อัตโนมัติ ในช่วง End Phase เรา : POWER ของ Avatar นี้ -1 #เราสามารถควบคุม เอาไมส์ ฮีโร่แห่งความหวั่นไหว ใน Avatar Zone ได้เพียง 1 ใบเท่านั้น"
+    },
+    {
+      "code": "CC03-009",
+      "name": "มังกรราชาหิมะ เสวี่ย หลง",
+      "noPaidSummon": true,
+      "summonOnlyByNameIncludes": "หิมะ",
+      "immuneOppAbilityDestroy": true,
+      "controlImmuneIf": {
+        "ownAvatar": {
+          "filter": {
+            "nameIncludes": [
+              "ราชินีหิมะ"
+            ]
+          }
+        }
+      },
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "actions": [
+            {
+              "op": "snowDragonSummon"
+            }
+          ],
+          "customDeny": "snowDragon"
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "avatar",
+                "magic",
+                "construct",
+                "land"
+              ],
+              "side": "any"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สั่งใช้ จากมือ แสดงการ์ดใบนี้ และ Avatar \"หิมะ\" 3 ใบ ที่ชื่อไม่ซ้ำกัน จากมือ โดยที่การ์ดเหล่านั้นจะต้องมี \"ราชินีหิมะ\" อย่างน้อย 1 ใบ : อัญเชิญการ์ดใบนี้ลง Avat"
+    },
+    {
+      "code": "CC03-010",
+      "name": "สิ่งปฏิกูลสีชมพู",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "สิ่งปฏิกูล"
+                ]
+              },
+              "dest": "avatar",
+              "restTo": "hell"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "summonedByNameIncludes",
+            "nameIncludes": "สิ่งปฏิกูล"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "สิ่งปฏิกูล"
+                ]
+              },
+              "dest": "avatar",
+              "restTo": "hell"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 3 ใบ อัญเชิญ Avatar \"สิ่งปฏิกูล\" 1 ใบ จากที่ สอดแนม ลง Avatar Zone เรา การ์ดที่เหลือ ส่งลงนรก อัตโนมัติ ถ้า Avatar ใบนี้ถูกอัญเชิญมาด้วยความสามารถ"
+    },
+    {
+      "code": "CC03-011",
+      "name": "บึงทมิฬ People - คุณชาร์คว้าว",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "tapThenWipe"
+            }
+          ],
+          "cond": {
+            "land": "บึงทมิฬ"
+          }
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ ถ้าใน Land Magic Zone มีการ์ด \"บึงทมิฬ\" : เลือก Avatar บน Avatar Zone 1 ใบ เปลี่ยนเป็นสภาพนอน จากนั้น ทำลาย Avatar ทุกใบ บน Avatar Zone ที่อยู่ในสภาพนอน"
+    },
+    {
+      "code": "CC03-012",
+      "name": "ลอร์ดแซฟไฟร์",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "ฟ้า"
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "enemyAvatarDestroyed"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีฟ้า ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้วย"
+    },
+    {
+      "code": "CC03-013",
+      "name": "หัวหน้านายนิรยบาล พญายม",
+      "deckGemForSelf": {
+        "type": "Avatar",
+        "nameIncludes": [
+          "นายนิรยบาล"
+        ]
+      },
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "นายนิรยบาล"
+                ],
+                "costMax": 4
+              },
+              "dest": "avatar",
+              "optional": false
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ในการอัญเชิญการ์ดใบนี้จากบนมือเราสามารถส่ง Avatar \"นายนิรยบาล\" 1 ใบจาก Deck ลงนรกเพื่อถือว่าใช้ GEM ของ Avatar ใบนั้นในการอัญเชิญการ์ดใบนี้จากนั้นสับ Deck จุติ "
+    },
+    {
+      "code": "CC03-014",
+      "name": "พีแมน อัศวินตลิ่งชันแห่งแดนปลาดิบ",
+      "keywords": [
+        "ลูกฮึด"
+      ],
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "anyOf": [
+                  {
+                    "effectIncludes": "ไอ้นัท"
+                  },
+                  {
+                    "effectIncludes": "เซอร์นัท"
+                  }
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ลูกฮึด จุติ : นำ การ์ด Magic 1 ใบ ที่มี \"ไอ้นัท\" หรือ \"เซอร์นัท\" ใน Text Box จาก Deck เราขึ้นมือ จากนั้น สับ Deck"
+    },
+    {
+      "code": "CC03-015",
       "name": "อีสานสลิงเกอร์ ดิว",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "millAnyCount",
+              "filter": {
+                "nameIncludes": [
+                  "อีสานสลิงเกอร์"
+                ]
+              }
+            }
+          ],
+          "oncePerTurn": true,
+          "requireLandNameIncludes": "โคกอีสานนูน"
+        }
+      ],
+      "note": "ธรณีสูบกี่ใบก็ได้ → อีสานสลิงเกอร์ 1 ใบ +1 ต่อทุก 3 ใบ จนจบเทิร์น (ไม่ให้เลือกจนเด็คหมด)",
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC03-016",
+      "name": "ครูแกง Big Brain",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "bigBrain"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : ผู้เล่นทุกคนสับ Deck ตนเอง และสอดแนม 1 ใบ ถ้าการ์ดใบนั้นเป็น Avatar หลังจากนั้น ให้นำข้อมูลของการ์ดมาเข้าสูตรตามนี้ ผลลัพธ์ = (GEM x POW) + Cost ถ้าไม่ใช"
+    },
+    {
+      "code": "CC03-017",
+      "name": "แบงค์รางดาว",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "pick",
+              "from": "enemy",
+              "dest": "dark",
+              "filter": {},
+              "optional": false
+            }
+          ],
+          "cond": {
+            "ownHellDistinctNames": {
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "แบงค์"
+                ]
+              },
+              "min": 8
+            }
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack",
+            "if": "source==self"
+          },
+          "actions": [
+            {
+              "op": "bankMillOffer"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ ถ้าในนรกเรามี Avatar \"แบงค์\" ชื่อแตกต่างกัน 8 ใบขึ้นไป : เลือก เนรเทศ Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบ อัตโนมัติ เมื่อโจมตี ธรณีสูบ 1 ใบ : ถ้าการ์ดที"
+    },
+    {
+      "code": "CC03-018",
+      "name": "อเมทิสโต้",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "ม่วง"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "scoutArrangeTop",
+              "count": 3
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีม่วง ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้ว"
+    },
+    {
+      "code": "CC03-019",
+      "name": "คุณแมมมอธ นักบิน Super Air",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "deckPick",
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ],
+          "cost": [
+            {
+              "op": "banishFromHell",
+              "count": 1,
+              "optional": true,
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "darkToBottomPick",
+              "filter": {
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ เนรเทศ Magic \"เครื่องบิน Super Air\" จากในนรกเรา 1 ใบ : นำ Magic \"เครื่องบิน Super Air\" จากใน Deck 1 ใบขึ้นมือจากนั้นสับ Deck คำสั่งเสีย : สามารถนำ \"เครื่อง"
+    },
+    {
+      "code": "CC03-020",
+      "name": "คุณโทนี่ เด็กช่าง Super Air",
+      "keywords": [
+        "สามัคคี"
+      ],
+      "extraNormalMagicName": "เครื่องบิน Super Air",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "darkPick",
+              "dest": "hand",
+              "optional": false,
+              "filter": {
+                "type": "Magic",
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สามัคคี จุติ : นำ Magic Card \"เครื่องบิน Super Air\" จากในมิติมืดเรา 1 ใบขึ้นมือ ต่อเนื่อง เราสามารถใช้ {magic} \"เครื่องบิน Super Air\" เพิ่มได้อีก 1 ใบนอกเหนือจา"
+    },
+    {
+      "code": "CC03-021",
+      "name": "จักรพรรดิมังกรแห่งภาคีมะม่วง",
+      "extraSymbols": [
+        "มังกร"
+      ],
+      "sendSelfToHellIf": {
+        "not": {
+          "ownMagic": {
+            "filter": {
+              "type": "Avatar",
+              "nameIncludes": [
+                "มะม่วง"
+              ],
+              "symbol": "ต้นไม้"
+            }
+          }
+        }
+      },
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activatedFromHand"
+          },
+          "actions": [
+            {
+              "op": "pickSelfSummon"
+            }
+          ],
+          "customDeny": "selfSummon",
+          "cost": [
+            {
+              "op": "sendMagicToHell",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "มะม่วง"
+                ],
+                "symbol": "ต้นไม้"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สั่งใช้ จากบนมือ ส่ง Avatar \"มะม่วง\" ที่เป็น {Symbol ต้นไม้} 2 ใบ จาก Magic Zone เราลงนรก : อัญเชิญ การ์ดใบนี้ลง Avatar Zone เรา ต่อเนื่อง ถ้า Magic Zone เรา ไม"
+    },
+    {
+      "code": "CC03-022",
+      "name": "อามาเทราสึและสึคุโยมิ",
+      "abilitiesFromMagicZone": true,
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "นำไปที่ Magic Zone",
+                  "cond": {
+                    "selfZone": "avatar"
+                  },
+                  "actions": [
+                    {
+                      "op": "moveSelfToMagicZone"
+                    }
+                  ]
+                },
+                {
+                  "label": "นำไปที่ Avatar Zone",
+                  "cond": {
+                    "selfZone": "magic"
+                  },
+                  "actions": [
+                    {
+                      "op": "moveSelfToAvatarZone"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "oncePerTurn": true
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownMainPhaseStart"
+          },
+          "actions": [
+            {
+              "op": "powerAllOwn",
+              "amount": 1
+            }
+          ],
+          "cond": {
+            "selfZone": "avatar",
+            "ownUntappedThisTurn": true
+          }
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ],
+          "cond": {
+            "selfZone": "magic",
+            "ownTappedThisTurn": true
+          }
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้ เลือกปฏิบัติ : 1) นำ Avatar ใบนี้ไปที่ Magic Zone 2) นำ Avatar ใบนี้ไปที่ Avatar Zone อัตโนมัติ ในช่วงเริ่มต้น Main Phase เรา ถ้าในเทิร์นน"
+    },
+    {
+      "code": "CC03-023",
+      "name": "บักเจด",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scoutThenRetrieve",
+              "count": 2,
+              "color": "เขียว"
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "magicShieldPick"
+            }
+          ],
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "tapSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "จุติ : สอดแนม 2 ใบ จากนั้น นำ Avatar สีเขียว ที่มี Cost X หรือต่ำกว่า และไม่ใช่ {only} 1 ใบจากนรกเรา กลับขึ้นมือ (X เท่ากับจำนวน การ์ด Avatar ที่สอดแนมเจอ คูณด้"
+    },
+    {
+      "code": "CC03-024",
+      "name": "วันชัยเปรตรุ่นพ่อ",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "allRevealedLife",
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "requireFaceDownOwnLife": true,
+          "actions": [
+            {
+              "op": "revealAndActivateOwnLife",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "+1 ต่อ LIFE ที่หงายทั้งสองฝ่าย · เทิร์นละครั้งหงาย LIFE ใบบนสุดแล้วใช้ผลทันที (รวมผล Main ถัดไป)"
+    },
+    {
+      "code": "CC03-025",
+      "name": "ทริสทัน อัศวินโต๊ะกลมแห่งความแม่นยำ",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "summonedByAvatarNameIncludes",
+            "name": "อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "target": {
+                "select": "choose",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "ownFieldHasOtherName:อัศวินโต๊ะกลม"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordToHost",
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "grantKeywordIfAllyNameIncludes": {
+        "name": "อัศวินโต๊ะกลม",
+        "keyword": "สามัคคี"
+      },
+      "destroyEnemyAnyOnSummonedByAvatarNameIncludes": "อัศวินโต๊ะกลม",
+      "note": "ทำลาย 1 ใบเมื่อจุติจากอัศวินโต๊ะกลม / ได้สามัคคีถ้ามีพวก"
+    },
+    {
+      "code": "CC03-026",
+      "name": "เอเจ้นท์สมูท",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "nameIncludes": [
+                  "เอเจ้นท์สมูท"
+                ]
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        },
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "onlyBattlePhase": true,
+          "onlyOwnTurn": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amountPer": "ownHellNameIncludesPerN",
+              "nameIncludes": [
+                "เอเจ้นท์สมูท"
+              ],
+              "perN": 2,
+              "per": 1,
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ต่อเนื่อง ถ้ามี Avatar สัตว์ ใบอื่น ใบนี้ POWER +2"
+    },
+    {
+      "code": "CC03-027",
+      "name": "จิวยี่ กุนซือสำอางแห่งง่อก๊ก",
+      "abilities": [
+        {
+          "keyword": "จุติ",
+          "trigger": {
+            "on": "summoned",
+            "if": "paidCost"
+          },
+          "actions": [
+            {
+              "op": "scout",
+              "count": 3,
+              "filter": {
+                "type": "Magic",
+                "subtype": "Modification"
+              },
+              "dest": "hand",
+              "pickCount": 1,
+              "restTo": "bottom"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "nameAliases": [
+        "ขุนพล"
+      ],
+      "note": "จุติ : สอดแนม 3 ใบ เอา Modification Magic 1 ใบขึ้นมือ"
+    },
+    {
+      "code": "CC03-028",
+      "name": "สวีนนีย์ มนุษย์ดาว R18",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "actions": [
+            {
+              "op": "servantFromVictim",
+              "newName": "ข้ารับใช้ของ มนุษย์ดาว R18",
+              "newSymbol": "เอเลี่ยน"
+            }
+          ]
+        },
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "oppReturnsServant",
+              "nameIncludes": "ข้ารับใช้ของ มนุษย์ดาว R18"
+            }
+          ]
+        }
+      ],
+      "note": "ฆ่าจากการต่อสู้ → มาเป็นข้ารับใช้ที่ Magic Zone · คำสั่งเสีย: ฝ่ายตรงข้ามเลือกข้ารับใช้ 1 ใบลงนรกเจ้าของเดิม",
+      "parseStatus": "verified"
+    },
+    {
+      "code": "CC03-029",
+      "name": "ผู้เจริญนาย",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static"
+          },
+          "actions": [
+            {
+              "op": "grantKeywordAura",
+              "symbols": [
+                "คน",
+                "ต้นไม้"
+              ],
+              "keyword": "สามัคคี"
+            }
+          ]
+        }
+      ],
+      "grantKeywordAura": {
+        "symbols": [
+          "คน",
+          "ต้นไม้"
+        ],
+        "keyword": "สามัคคี"
+      },
+      "parseStatus": "verified",
+      "note": "ต่อเนื่อง Avatar {Symbol คน} และ Avatar {Symbol ต้นไม้} ฝ่ายเราทุกใบ ได้รับ สามัคคี"
+    },
+    {
+      "code": "CC03-030",
+      "name": "จ่ามะนาวแขนเหล็ก",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "allyDestroyed",
+            "if": "nameIncludes:จ่ามะนาว,costMax:3"
+          },
+          "actions": [
+            {
+              "op": "handSummonSelfOnAllyDestroyed",
+              "freeIfSahat": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "keywords": [
+        "โล่มนุษย์",
+        "สามัคคี"
+      ],
+      "note": "โล่มนุษย์ สามัคคี / สั่งใช้ : เมื่อ จ่ามะนาว Cost <= 3 ถูกทำลาย อัญเชิญจากมือ (ฟรีถ้าสาหัส)"
+    },
+    {
+      "code": "CC03-031",
+      "name": "นายพลทหารหิมะ หลินอัน",
+      "abilities": [
+        {
+          "keyword": "คำสั่งเสีย",
+          "trigger": {
+            "on": "destroyed"
+          },
+          "actions": [
+            {
+              "op": "bounce",
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย : เด้ง Avatar ศัตรู 1 ใบกลับขึ้นมือ"
+    },
+    {
+      "code": "CC03-032",
+      "name": "พี่หน่วง",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 2
+            }
+          ],
+          "actions": [
+            {
+              "op": "dragEnemyAndSelfToMagicZoneUntilNextMain"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ทิ้งมือ 2 ใบ : ลากศัตรูและตัวเองเข้า Magic Zone ถึง Main Phase ถัดไป"
+    },
+    {
+      "code": "CC03-033",
+      "name": "ซีกรุน เทพธิดาแห่งวัลฮัลลา",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "permanent",
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เทิร์นละครั้ง สั่งใช้ ธรณีสูบ 3 : POWER +1 จนกว่าออกจากสนาม"
+    },
+    {
+      "code": "CC03-034",
+      "name": "จอมเวทย์ กาลู",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "deckOrHellPick",
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              },
+              "dest": "hand",
+              "shuffleAfter": true
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "magicActivated",
+            "if": "magicNameIncludes:คาถา"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "draw",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "note": "ทิ้ง 1 เอา คาถา ขึ้นมือ / เมื่อใช้ คาถา จั่ว 1"
+    },
+    {
+      "code": "CC03-035",
+      "name": "จอมเวทย์ อะปัด",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "allowExtraNormalMagicFilter",
+              "filter": {
+                "nameIncludes": [
+                  "คาถา"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "note": "สั่งใช้ : ใช้ Normal Magic คาถา เพิ่มได้อีก 1 ใบ"
+    },
+    {
+      "code": "CC03-036",
+      "name": "อีสานสลิงเกอร์ เปอร์",
       "abilities": [
         {
           "trigger": {
@@ -12,136 +1387,240 @@
           "requireLandNameIncludes": "โคกอีสานนูน",
           "actions": [
             {
+              "op": "mill",
+              "count": 3,
+              "who": "self"
+            },
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "on": "battleDestroy"
+          },
+          "requireLandNameIncludes": "โคกอีสานนูน",
+          "requireMainPhase": true,
+          "actions": [
+            {
+              "op": "revealOppLifeTop",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "คำสั่งเสีย : อัญเชิญ อัศวินแห่งความมืด จากนรก 1 ใบ"
+    },
+    {
+      "code": "CC03-037",
+      "name": "สว. นาโนแมชชีน",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "self.zone==avatarZone"
+          },
+          "actions": [
+            {
+              "op": "battleImmuneVsLowerPower",
+              "powerMax": 9
+            },
+            {
+              "op": "immuneMagicDestroy"
+            }
+          ]
+        }
+      ],
+      "controlImmune": true,
+      "parseStatus": "verified",
+      "note": "ต่อเนื่อง Avatar ใบนี้ไม่ถูกทำลายจากการต่อสู้จาก Avatar ที่ POWER น้อยกว่า 10 และ ไม่ถูกทำลายจากความสามารถของ Magic Card ต่อเนื่อง Avatar ใบนี้ไม่สามารถถูกเปลี่"
+    },
+    {
+      "code": "CC03-038",
+      "name": "คาบู ช่วยด้วย",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "avatarWouldBeDestroyed"
+          },
+          "fromHand": true,
+          "requireTargetOwn": true,
+          "requireTargetSymbol": "สัตว์",
+          "cost": {
+            "discardHand": 1
+          },
+          "actions": [
+            {
+              "op": "summonSelfFromHandFree"
+            },
+            {
+              "op": "preventDestroy"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เมื่อสัตว์เราจะถูกทำลาย ทิ้งมือ 1: อัญเชิญใบนี้แล้วยกเลิกการทำลาย"
+    },
+    {
+      "code": "CC03-039",
+      "name": "ราชา รด.",
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "avatarSummonedToField",
+            "filter": {
+              "nameIncludes": [
+                "ทหาร",
+                "รด."
+              ]
+            }
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 1,
+              "duration": "whileOnField",
+              "layer": 3,
+              "target": {
+                "select": "self"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "oncePerTurn": true,
+          "actions": [
+            {
+              "op": "scout",
+              "count": 2,
+              "filter": {
+                "type": "Avatar",
+                "symbol": "คน",
+                "nameIncludes": [
+                  "ทหาร",
+                  "รด."
+                ],
+                "exceptSelfName": true
+              },
+              "dest": "avatar",
+              "pickCount": 1,
+              "restTo": "deck",
+              "shuffle": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ทหาร/รด. เข้ามา POWER +1 / สอดแนม 2 อัญเชิญ ทหาร/รด."
+    },
+    {
+      "code": "CC03-040",
+      "name": "รถถังเฟืองเหล็ก",
+      "abilities": [
+        {
+          "keyword": "ต่อเนื่อง",
+          "trigger": {
+            "on": "static",
+            "if": "attachedCount<2"
+          },
+          "actions": [
+            {
+              "op": "cannotAttack"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "attachOnly": {
+        "nameIncludes": [
+          "Tank Ranger"
+        ]
+      },
+      "hostAttachNameIncludes": "Tank Ranger",
+      "note": "ต้องมีสวมใส่ 2+ ใบจึงจะโจมตีได้"
+    },
+    {
+      "code": "CC03-041",
+      "name": "～รักสุดแสนแค้นสุดใจ～",
+      "abilities": [
+        {
+          "keyword": "เลือกปฏิบัติ",
+          "trigger": {
+            "on": "playMagic"
+          },
+          "actions": [
+            {
               "op": "chooseMode",
               "optional": false,
               "options": [
                 {
-                  "label": "ธรณีสูบ 3 ใบ → POWER +1",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 3,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 1,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
+                  "label": "ส่ง \"มีมมิ\" จากเด็คลงนรก แล้วนำดาบแห่งแสงอรุณ & นัทคาลิเบอร์ มาสวมใส่ \"ไอ้นัท\" (นับเป็น Modification)",
+                  "requireNoModUsedCc": true,
+                  "cond": {
+                    "ownAvatar": {
+                      "filter": {
                         "nameIncludes": [
-                          "อีสานสลิงเกอร์"
+                          "ไอ้นัท"
                         ]
                       }
+                    }
+                  },
+                  "condLabel": "ต้องมี \"ไอ้นัท\" บน Avatar Zone เรา",
+                  "actions": [
+                    {
+                      "op": "loveSword"
                     }
                   ]
                 },
                 {
-                  "label": "ธรณีสูบ 6 ใบ → POWER +2",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 6,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 2,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
+                  "label": "มี \"ชาช่า\": นำ \"ไอ้นัท\" หรือ \"เซอร์นัท\" จากนรกขึ้นมือ",
+                  "cond": {
+                    "ownAvatar": {
+                      "filter": {
+                        "nameIncludes": [
+                          "ชาช่า"
+                        ]
+                      }
+                    },
+                    "ownHell": {
+                      "filter": {
                         "type": "Avatar",
                         "nameIncludes": [
-                          "อีสานสลิงเกอร์"
+                          "ไอ้นัท",
+                          "เซอร์นัท"
                         ]
                       }
                     }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 9 ใบ → POWER +3",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 9,
-                      "who": "self"
-                    }
-                  ],
+                  },
+                  "condLabel": "ต้องมี \"ชาช่า\" บนสนาม และ \"ไอ้นัท\"/\"เซอร์นัท\" ในนรก",
                   "actions": [
                     {
-                      "op": "modifyPower",
-                      "amount": 3,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
+                      "op": "hellPick",
+                      "filter": {
                         "type": "Avatar",
                         "nameIncludes": [
-                          "อีสานสลิงเกอร์"
+                          "ไอ้นัท",
+                          "เซอร์นัท"
                         ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 12 ใบ → POWER +4",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 12,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 4,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
-                    }
-                  ]
-                },
-                {
-                  "label": "ธรณีสูบ 15 ใบ → POWER +5",
-                  "cost": [
-                    {
-                      "op": "mill",
-                      "count": 15,
-                      "who": "self"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "op": "modifyPower",
-                      "amount": 5,
-                      "duration": "endOfTurn",
-                      "layer": 4,
-                      "target": {
-                        "select": "choose",
-                        "side": "own",
-                        "type": "Avatar",
-                        "nameIncludes": [
-                          "อีสานสลิงเกอร์"
-                        ]
-                      }
+                      },
+                      "dest": "hand",
+                      "optional": false
                     }
                   ]
                 }
@@ -151,7 +1630,614 @@
         }
       ],
       "parseStatus": "verified",
-      "note": "เทิร์นละครั้ง สั่งใช้ มีโคกอีสานนูน: ธรณีสูบ 3/6/9/12/15 → อีสานสลิงเกอร์ 1 ใบ POWER +1 ต่อทุก 3 ใบจนจบเทิร์น (เศษไม่ครบ 3 ไม่ได้โบนัส จึงไม่มีให้เลือก)"
+      "note": "เลือกปฏิบัติ : 1) เลือก \"ไอ้นัท\" 1 ใบ บน Avatar Zone เรา และ ส่ง \"มีมมิ\" 1 ใบ จาก Deck เรา ลงนรก นำ \"ดาบแห่งแสงอรุณ & นัทคาลิเบอร์\" จากใน Deck เรา มาสวมใส่ให้ \""
+    },
+    {
+      "code": "CC03-042",
+      "name": "กฎการแลกเปลี่ยนที่เท่าเทียม",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "cond": {
+            "ownHand": {
+              "filter": {
+                "type": "Avatar"
+              },
+              "min": 2
+            }
+          },
+          "condLabel": "ต้องมี Avatar บนมือ 2 ใบ",
+          "actions": [
+            {
+              "op": "equalTrade"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "แสดงการ์ด Avatar จากบนมือ 2 ใบ นำการ์ดที่แสดง กลับเข้า Deck จากนั้นสับ Deck จั่วการ์ด 3 ใบ"
+    },
+    {
+      "code": "CC03-043",
+      "name": "ลบประวัติ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "customDeny": "hellNonOnly5",
+          "actions": [
+            {
+              "op": "exileFive"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เลือกการ์ดในนรกที่ไม่ใช่ {only} จากนรกเรา และ/หรือ ฝ่ายตรงข้าม รวมกัน 5 ใบ จากนั้น เนรเทศการ์ดใบที่เลือกทั้งหมด"
+    },
+    {
+      "code": "CC03-044",
+      "name": "กรุงเทพ - ดวงจันทร์",
+      "reactAnyWindow": true,
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "reactAnyWindow": true,
+          "cost": [
+            {
+              "op": "sacrifice",
+              "filter": {
+                "nameIncludes": [
+                  "เครื่องบิน Super Air"
+                ]
+              }
+            }
+          ],
+          "actions": [
+            {
+              "op": "moonShot"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "ทำลาย \"เครื่องบิน Super Air\" บน Avatar Zone เรา 1 ใบ : เลือก Avatar บน Avatar Zone ฝ่ายตรงข้าม 1 ใบไปวางไว้บนสุดของ Deck ฝ่ายตรงข้ามและ สามารถอัญเชิญ Avatar \"Su"
+    },
+    {
+      "code": "CC03-045",
+      "name": "การ์ดร่วงก็เอาไปทิ้งงงง!!!!",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyMill"
+          },
+          "actions": [
+            {
+              "op": "exileOppHellThenLock"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เมื่อฝ่ายตรงข้ามทำการ ธรณีสูบ : เลือกการ์ด ในนรก ฝ่ายตรงข้าม 1 ใบ เนรเทศ การ์ดที่เลือก หลังจากนั้น การ์ดทุกใบที่ถูกส่งจาก Deck ลง นรก ในเทิร์นนี้ จะถูกเนรเทศแทน"
+    },
+    {
+      "code": "CC03-046",
+      "name": "น้ำชูกำลังสูตรฤๅษี",
+      "attachOnly": {
+        "symbol": "ฤษี"
+      },
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfAttached"
+          },
+          "actions": [
+            {
+              "op": "powerHost",
+              "amount": 3
+            }
+          ]
+        },
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "returnSelfUnderDeck"
+            },
+            {
+              "op": "pickPower",
+              "amount": 1,
+              "filter": {
+                "symbol": "ฤษี"
+              },
+              "includeSelf": true,
+              "optional": false
+            }
+          ],
+          "cond": {
+            "ownAvatar": {
+              "filter": {
+                "symbol": "ฤษี"
+              }
+            }
+          }
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar {Symbol ฤษี} อัตโนมัติ เมื่อสวมใส่การ์ดใบนี้ : Avatar ที่สวมใส่ได้รับ POWER +3 จนจบเทิร์นเรา สั่งใช้ นำการ์ดใบนี้กลับใต้ Deck เรา : เลือก ",
+      "noHostPowerText": true
+    },
+    {
+      "code": "CC03-047",
+      "name": "รองเท้ากินขา",
+      "attachOnly": {
+        "ownOnly": true
+      },
+      "abilities": [
+        {
+          "trigger": {
+            "on": "static",
+            "if": "self.attached"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "layer": 2,
+              "target": {
+                "select": "equippedAvatar"
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "ownTurnEnd"
+          },
+          "actions": [
+            {
+              "op": "sendHostAndSelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar ฝ่ายเรา Avatar ที่สวมใส่ POWER+2 อัตโนมัติ ในช่วง End Phase : ส่งการ์ดใบนี้และ Avatar ที่สวมใส่ลงนรก"
+    },
+    {
+      "code": "CC03-048",
+      "name": "ประกันชั้นผู้น้อย",
+      "attachOnly": {
+        "noOtherAttached": true
+      },
+      "protectReplace": true,
+      "protectReplaceCombatOnly": true,
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "declareAttack"
+          },
+          "actions": [
+            {
+              "op": "destroySelfMod"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar ที่ไม่มีการ์ดสวมใส่อยู่ ยกเว้นการ์ดใบนี้ อัตโนมัติ เมื่อ Avatar ที่สวมใส่การ์ดนี้จะถูกทำลายจากการต่อสู้ : ทำลายการ์ดใบนี้แทน อัตโนมัติ เมื"
+    },
+    {
+      "code": "CC03-049",
+      "name": "อาวุธหุ่นนักรบผู้กล้า \"แคนเซอร์บลาสเตอร์\"",
+      "attachOnly": {
+        "nameIncludes": "ผู้กล้า",
+        "symbol": "หุ่นยนต์"
+      },
+      "abilities": [
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "selfAttached"
+          },
+          "actions": [
+            {
+              "op": "chooseDestroy",
+              "filter": {},
+              "zones": [
+                "magic"
+              ],
+              "side": "enemy",
+              "optional": true
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "hostAttackDiscard"
+          },
+          "actions": [
+            {
+              "op": "untapHost"
+            }
+          ],
+          "discard": 2
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สวมใส่ได้เฉพาะ Avatar \"ผู้กล้า\" ที่เป็น {Symbol หุ่นยนต์}เท่านั้น อัตโนมัติ เมื่อสวมใส่การ์ดใบนี้ : สามารถทำลายการ์ดบน Magic Zone ฝ่ายตรงข้าม 1 ใบ เทิร์นละครั้ง"
+    },
+    {
+      "code": "CC03-050",
+      "name": "งานแฟนมีต",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "fanMeet"
+            }
+          ],
+          "oncePerTurn": true
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "เทิร์นละครั้ง สั่งใช้: ผู้เล่นทุกคน สอดแนม 1 ใบ จากนั้น ผู้ใช้ความสามารถนี้ สามารถเลือกได้ว่าจะให้ ผู้เล่นทุกคน นำการ์ดใบนั้นขึ้นมือ หรือ ส่งลงนรก"
+    },
+    {
+      "code": "CC03-051",
+      "name": "เลือกมันสำหรับพวก จน !!!",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "chooseMode"
+          },
+          "options": [
+            {
+              "label": "จากนรก — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only)",
+              "actions": [
+                {
+                  "op": "hellPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand"
+                }
+              ]
+            },
+            {
+              "label": "จากเด็ค — Avatar Cost≤5 ขึ้นมือ (ยกเว้น Only) แล้วสับ",
+              "actions": [
+                {
+                  "op": "deckPick",
+                  "filter": {
+                    "type": "Avatar",
+                    "costMax": 5,
+                    "excludeOnly": true
+                  },
+                  "dest": "hand",
+                  "shuffleAfter": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "lifeBothModes": true,
+      "note": " · ใช้แล้วลงนรก"
+    },
+    {
+      "code": "CC03-052",
+      "name": "ความกล้าหาญ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 4,
+              "duration": "permanent",
+              "destroyAtEnd": true,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "own",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "เลือก Avatar ฝ่ายเรา 1 ใบ POWER +4 และจะถูกทำลายตอน End Phase (ถ้ากันทำลายได้ POWER ค้างจนออกจากสนาม)"
+    },
+    {
+      "code": "CC03-053",
+      "name": "ไต้ฝุ่น",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "chooseMode",
+              "optional": false,
+              "options": [
+                {
+                  "label": "ทำลาย Magic Zone ศัตรู 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "chooseDestroy",
+                      "zones": [
+                        "magic"
+                      ],
+                      "side": "enemy",
+                      "filter": {},
+                      "optional": false
+                    }
+                  ]
+                },
+                {
+                  "label": "ทำลาย Land Magic 1 ใบ",
+                  "actions": [
+                    {
+                      "op": "chooseDestroy",
+                      "zones": [
+                        "land"
+                      ],
+                      "filter": {},
+                      "optional": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "reactAnyWindow": true,
+      "note": "ลากแล้วต้องกดเลือกปฏิบัติ · ทำลาย Magic ศัตรู หรือ Land · ใช้เป็น React นอกเทิร์น/Battle ได้"
+    },
+    {
+      "code": "CC03-054",
+      "name": "เครื่องบิน Super Air",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated"
+          },
+          "requireSummonedOnlySuperAirOrNone": true,
+          "actions": [
+            {
+              "op": "becomeAvatar",
+              "symbol": "หุ่นยนต์",
+              "cost": 5,
+              "gem": 0,
+              "power": 5,
+              "lockSummonExceptNameIncludes": "Super Air"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto"
+    },
+    {
+      "code": "CC03-055",
+      "name": "คาถา ปลดอาวุสสิวะ",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "ownAvatarNameIncludes:จอมเวท"
+          },
+          "actions": [
+            {
+              "op": "modifyPowerAndDestroyIfZero",
+              "amount": -3,
+              "duration": "endOfTurn",
+              "layer": 4,
+              "target": {
+                "select": "choose",
+                "type": "Avatar",
+                "side": "enemy",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้ได้เมื่อมี จอมเวท : ลด POWER ศัตรู 3 (เหลือ 0 ทำลาย)"
+    },
+    {
+      "code": "CC03-056",
+      "name": "เฮือกสุดท้าย",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "activated",
+            "if": "sahat"
+          },
+          "actions": [
+            {
+              "op": "draw",
+              "count": 4
+            },
+            {
+              "op": "allowExtraNormalMagic"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้ได้เฉพาะตอนสาหัส : จั่ว 4 ใบ + ใช้ Normal Magic ได้อีก 1 ใบ"
+    },
+    {
+      "code": "CC03-057",
+      "name": "เสียงเรียกแห่งวัลฮัลลา",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyDeclareAttack"
+          },
+          "react": true,
+          "requireCritical": true,
+          "cost": [
+            {
+              "op": "mill",
+              "count": 5,
+              "who": "self"
+            }
+          ],
+          "actions": [
+            {
+              "op": "cancelAttack"
+            },
+            {
+              "op": "hellPick",
+              "dest": "avatar",
+              "paidCost": false,
+              "multiMax": 4,
+              "filter": {
+                "type": "Avatar",
+                "nameIncludes": [
+                  "เทพธิดาแห่งวัลฮัลลา"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keyword": "อัตโนมัติ",
+          "trigger": {
+            "on": "milled"
+          },
+          "requireMillSource": {
+            "anyOf": [
+              {
+                "type": "Avatar",
+                "symbol": "เทพ",
+                "color": "ม่วง"
+              },
+              {
+                "type": "Magic"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "op": "returnSelfToHand"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "สาหัสเท่านั้น เมื่อถูกประกาศโจมตี ธรณีสูบ 5 ยกเลิกโจมตี แล้วอัญเชิญเทพธิดาวัลฮัลลาสูงสุด 4 จากนรก · โดนธรณีสูบโดยเทพม่วง/Magic → กลับขึ้นมือ"
+    },
+    {
+      "code": "CC03-058",
+      "name": "อย่าให้มีครั้งที่ 2",
+      "abilities": [
+        {
+          "keyword": "React",
+          "trigger": {
+            "on": "enemyPlayReact"
+          },
+          "actions": [
+            {
+              "op": "negate"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "oncePerTurnCard": true,
+      "ignoreReactOncePerTurnLimit": true
+    },
+    {
+      "code": "CC03-059",
+      "name": "มนุษย์ดัดแปลง",
+      "abilities": [
+        {
+          "trigger": {
+            "on": "playMagic"
+          },
+          "cost": [
+            {
+              "op": "discard",
+              "from": "hand",
+              "count": 1
+            }
+          ],
+          "actions": [
+            {
+              "op": "hellPick",
+              "filter": {
+                "type": "Avatar",
+                "costMax": 3
+              },
+              "dest": "avatar",
+              "paidCost": false,
+              "optional": false,
+              "thenAttachSrc": true
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "hostSymbolReplace": "เครื่องจักร",
+      "destroyHostOnLeave": true,
+      "note": "ทิ้งมือ 1 แล้วอัญเชิญ Avatar Cost≤3 จากนรก แล้วสวมตัวเอง · โฮสต์เป็นเครื่องจักร · ใบนี้หลุดสนามแล้วโฮสต์ลงนรก"
+    },
+    {
+      "code": "CC03-060",
+      "name": "ตู้เก็บอาหารฉุกเฉิน M.R.E",
+      "abilities": [
+        {
+          "keyword": "สั่งใช้",
+          "trigger": {
+            "on": "activated"
+          },
+          "actions": [
+            {
+              "op": "unrevealBottomLife"
+            }
+          ],
+          "customDeny": "mre",
+          "cost": [
+            {
+              "op": "destroySelf"
+            }
+          ]
+        }
+      ],
+      "parseStatus": "verified",
+      "note": "สั่งใช้ หากเทิร์นที่แล้ว LIFE Card เราถูกหงายจากความสามารถการ์ด ทำลาย Construct นี้ : คว่ำ Life Card ใบล่างสุดของเรา 1 ใบ"
     }
   ]
 }
