@@ -1175,13 +1175,20 @@
       armGlobalEndPhaseTimer(st, k);
   }
 
+  /* หน้าการ์ด Token จริง (ชื่อ → รหัส + รูป) — รูปอยู่โฟลเดอร์ย่อยของ CDN เดาจากรหัสไม่ได้ */
+  const TOKEN_PRINTS = {
+    'วานร': { code: 'SD09-026', img: 'https://cdn.bottcg.com/cards/123v1k1/SD09-026.png' },
+    'สัตว์ในตำนาน': { code: 'BT12-076', img: 'https://cdn.bottcg.com/cards/thankyoupnes/BT12-076.png' },
+  };
+
   /* สร้าง Token (ตัวแทน Avatar) — อยู่บน Avatar Zone · ออกจากโซนเมื่อไหร่ = นำออกจากเกม */
   function mkToken(st, owner, spec) {
     const id = 'tk' + (++st._tokSeq);
+    const print = TOKEN_PRINTS[spec.name] || {};
     st.inst[id] = {
-      id, code: spec.code || 'TOKEN', name: spec.name || 'Token', type: 'Avatar', subtype: '',
+      id, code: spec.code || print.code || 'TOKEN', name: spec.name || 'Token', type: 'Avatar', subtype: '',
       symbol: spec.symbol || '', color: spec.color || '', gemColor: '', cost: spec.cost || 0, gem: spec.gem || 0,
-      power: spec.power || 0, effect: spec.effect || 'Token', img: '', faceUp: true, tapped: false,
+      power: spec.power || 0, effect: spec.effect || 'Token', img: print.img || '', faceUp: true, tapped: false,
       counters: 0, attachedTo: null, isToken: true,
       cardOwner: (owner === 'A' || owner === 'B') ? owner : undefined,
     };

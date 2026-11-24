@@ -47410,7 +47410,8 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "sacrificedForMonkeySummon"
+            "on": "paidAsCost",
+            "if": "summonType:Avatar&summonNameIncludes:วานร"
           },
           "actions": [
             {
