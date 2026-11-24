@@ -179,7 +179,6 @@
             "on": "summoned",
             "if": "paidCost"
           },
-          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
               "op": "summonToken",
@@ -188,7 +187,47 @@
               "power": 1,
               "cost": 1,
               "color": "เขียว",
-              "symbol": "สัตว์"
+              "symbol": "สัตว์",
+              "ifCond": {
+                "ownHell": {
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "วานร"
+                    ]
+                  },
+                  "min": 1
+                }
+              }
+            },
+            {
+              "op": "revealOwnHandNameIncludes",
+              "type": "Avatar",
+              "nameIncludes": "วานร",
+              "ifCond": {
+                "not": {
+                  "ownHell": {
+                    "filter": {
+                      "type": "Avatar",
+                      "nameIncludes": [
+                        "วานร"
+                      ]
+                    },
+                    "min": 1
+                  }
+                }
+              },
+              "then": [
+                {
+                  "op": "summonToken",
+                  "count": 1,
+                  "name": "วานร",
+                  "power": 1,
+                  "cost": 1,
+                  "color": "เขียว",
+                  "symbol": "สัตว์"
+                }
+              ]
             }
           ]
         }
@@ -279,9 +318,6 @@
       ],
       "parseStatus": "auto",
       "note": "ต่อเนื่อง Avatar \"วานร\" ทุกใบบน Avatar Zone เรา ได้รับ ลูกฮึด {red (ตราบเท่าที่ Avatar ใบนี้ ต่อสู้กับ Avatar ที่มี POWE",
-      "keywords": [
-        "โล่มนุษย์"
-      ],
       "imageUrl": "https://cdn.bottcg.com/cards/123v1k1/SD09-008.png"
     },
     {
@@ -654,7 +690,6 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
-          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
               "op": "summonToken",
@@ -664,7 +699,18 @@
               "cost": 1,
               "color": "เขียว",
               "symbol": "สัตว์",
-              "schedule": "nextOwnMainPhase"
+              "schedule": "nextOwnMainPhase",
+              "ifCond": {
+                "ownHell": {
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "วานร"
+                    ]
+                  },
+                  "min": 4
+                }
+              }
             }
           ]
         }
@@ -680,7 +726,6 @@
           "trigger": {
             "on": "lifeRevealedByAttack"
           },
-          "requireOwnHellMonkeyMin": 4,
           "actions": [
             {
               "op": "summonToken",
@@ -690,7 +735,18 @@
               "cost": 1,
               "color": "เขียว",
               "symbol": "สัตว์",
-              "schedule": "nextOwnMainPhase"
+              "schedule": "nextOwnMainPhase",
+              "ifCond": {
+                "ownHell": {
+                  "filter": {
+                    "type": "Avatar",
+                    "nameIncludes": [
+                      "วานร"
+                    ]
+                  },
+                  "min": 4
+                }
+              }
             }
           ]
         }

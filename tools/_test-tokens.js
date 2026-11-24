@@ -41,11 +41,37 @@ function same(tok, code) {
     [c.code, c.name, c.color, c.symbol, c.cost, c.gem, c.power, c.imageUrl]);
 }
 const tests = {
-  'SD09-005 คิงคา จุติ': () => {
-    const st = fresh(); for (let i = 0; i < 4; i++) put(st, 'A.hell', 'SD09-011');
+  'SD09-005 มี Avatar วานร ในนรก 1 ใบ': () => {
+    const st = fresh(); put(st, 'A.hell', 'SD09-011');
     const k = put(st, 'A.hand', 'SD09-005', { cost: 0 });
     act(st, { type: 'summon', k, to: 'A.avatar', payIds: [] }); passReacts(st);
-    assert.strictEqual(toks(st).length, 1); same(toks(st)[0], 'SD09-026');
+    assert.strictEqual(toks(st).length, 1); same(toks(st)[0], 'SD09-026'); assert.strictEqual(st.prompts.length, 0);
+  },
+  'SD09-005 นรกไม่มี → แสดง Avatar วานร จากมือ': () => {
+    const st = fresh(); put(st, 'A.hell', 'SD09-017'); // React ชื่อวานร ไม่ใช่ Avatar = ไม่นับ
+    const h = put(st, 'A.hand', 'SD09-011'); const r = put(st, 'A.hand', 'SD09-017');
+    const k = put(st, 'A.hand', 'SD09-005', { cost: 0 });
+    act(st, { type: 'summon', k, to: 'A.avatar', payIds: [] }); passReacts(st);
+    assert.strictEqual(toks(st).length, 0);
+    const c = BoT.promptCandidates(st, st.prompts[0]);
+    assert.ok(c.includes(h) && !c.includes(r));
+    act(st, { type: 'chooseTarget', k: h });
+    assert.strictEqual(toks(st).length, 1); assert.ok(st.zones['A.hand'].includes(h));
+  },
+  'SD09-005 ไม่มีทั้งนรกและมือ = ไม่สร้าง': () => {
+    const st = fresh(); const k = put(st, 'A.hand', 'SD09-005', { cost: 0 });
+    act(st, { type: 'summon', k, to: 'A.avatar', payIds: [] }); passReacts(st);
+    assert.strictEqual(toks(st).length, 0); assert.strictEqual(st.prompts.length, 0);
+  },
+  'SD09-008 ไม่มีโล่มนุษย์': () => {
+    const e = [].concat(effects.effects || effects.cards || effects).find(x => x.code === 'SD09-008') || effects['SD09-008'];
+    assert.ok(!(e.keywords || []).includes('โล่มนุษย์')); assert.ok(e.abilities.length);
+  },
+  'SD09-007 จ่าย Cost ที่เหลือจากเอฟเฟกต์': () => {
+    const st = fresh(); const p = put(st, 'A.hand', 'SD09-007'); const k = put(st, 'A.hand', 'SD09-010');
+    st.prompts.push({ kind: 'pick', from: 'ownHand', src: k, chooser: 'A', dest: 'payRemainSummon', summonK: k, need: 4, got: 0, payIds: [], mustPayRemain: true, excludeIds: [k] });
+    act(st, { type: 'chooseTarget', k: p }); passReacts(st);
+    assert.ok(st.zones['A.avatar'].includes(k)); assert.strictEqual(toks(st).length, 1);
   },
   'SD09-006 คำสั่งเสีย': () => {
     const st = fresh(); for (let i = 0; i < 4; i++) put(st, 'A.hell', 'SD09-011');
@@ -85,10 +111,10 @@ const tests = {
     assert.strictEqual(toks(st).length, 1); same(toks(st)[0], 'BT12-076');
   },
 };
-['SD09-023', 'SD09-024'].forEach(code => {
-  tests[code + ' LIFE'] = () => {
+['SD09-023', 'SD09-024'].forEach(code => [[4, 4, 1], [3, 4, 1], [4, 3, 0]].forEach(([before, after, want]) => {
+  tests[code + ' LIFE นรก ' + before + '→' + after + ' ใบ ได้ Token ' + want] = () => {
     const st = fresh({ active: 'B', phase: 'Battle' });
-    for (let i = 0; i < 4; i++) put(st, 'A.hell', 'SD09-011');
+    for (let i = 0; i < before; i++) put(st, 'A.hell', 'SD09-011');
     ['A', 'B'].forEach(p => { for (let i = 0; i < 5; i++) put(st, p + '.deck', 'SD01-011'); });
     const life = put(st, 'A.life', code, { faceUp: false }); put(st, 'A.life', 'SD09-021', { faceUp: false });
     const atk = put(st, 'B.avatar', 'SD09-011');
@@ -96,11 +122,14 @@ const tests = {
     if (st.pending) act(st, { type: 'resolveAttack', by: 'A' });
     passReacts(st);
     assert.strictEqual(toks(st).length, 0, 'ยังไม่ถึง Main');
+    assert.ok(st.inst[life].faceUp, 'LIFE ต้องหงาย');
+    while (st.zones['A.hell'].length < after) put(st, 'A.hell', 'SD09-011');
+    while (st.zones['A.hell'].length > after) st.zones['A.hell'].pop();
     act(st, { type: 'endTurn', by: 'B' }); passReacts(st);
     if (st.phase !== 'Main') act(st, { type: 'setPhase', phase: 'Main' });
-    assert.strictEqual(toks(st).length, 1); same(toks(st)[0], 'SD09-026');
+    assert.strictEqual(toks(st).length, want); toks(st).forEach(x => same(x, 'SD09-026'));
   };
-});
+}));
 let fail = 0;
 for (const n in tests) {
   try { tests[n](); console.log('ok', n); } catch (e) { fail++; console.error('FAIL', n, e.message); }

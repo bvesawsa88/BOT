@@ -1921,7 +1921,7 @@
         if (ab.requireOwnHellMonkeyMin != null) {
           const monkeyCount = (st.zones[side + '.hell'] || []).filter(id => {
             const m = st.inst[id];
-            return m && nameMatches(m, 'วานร');
+            return m && m.type === 'Avatar' && nameMatches(m, 'วานร');
           }).length;
           if (monkeyCount < ab.requireOwnHellMonkeyMin) {
             addLog(st, 'S', `คำสั่งเสีย ${nameOf(st, k)}: "วานร" ในนรกมี ${monkeyCount}/${ab.requireOwnHellMonkeyMin} ใบ — ข้าม`);
@@ -6937,6 +6937,45 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
     },
   };
 
+  /* เอฟเฟกต์ "ถูกใช้เป็น Cost" ของใบที่จ่าย (เก็บก่อนย้ายลงนรก) · c = ใบที่กำลังอัญเชิญ */
+  function collectPaidAsCost(st, payIds, c) {
+    const out = [];
+    payIds.forEach(pk => {
+      const pc = st.inst[pk];
+      if (!pc) return;
+      abilitiesOf(pc.code, 'paidAsCost').forEach(ab => {
+        const cond = (ab.trigger && ab.trigger.if) || '';
+        if (cond) {
+          // รองรับเงื่อนไขหลายข้อด้วย & เช่น summonType:Avatar&summonSymbol:รัททาทุย
+          const parts = cond.split('&').map(s => s.trim()).filter(Boolean);
+          let ok = true;
+          for (const part of parts) {
+            const mType = part.match(/^summonType:(.+)$/);
+            if (mType) { if ((c.type || '') !== mType[1]) ok = false; continue; }
+            const mSym = part.match(/^summonSymbol:(.+)$/);
+            if (mSym) { if (c.symbol !== mSym[1]) ok = false; continue; }
+            const mName = part.match(/^summonNameIncludes:(.+)$/);
+            if (mName) { if (!nameMatches(c, mName[1])) ok = false; continue; }
+            const mCol = part.match(/^summonColor:(.+)$/);
+            if (mCol) { if ((c.color || '') !== mCol[1]) ok = false; continue; }
+            if (part === 'summonDogOrCatAnimal') {
+              if (c.symbol !== 'สัตว์' || (!nameMatches(c, 'หมา') && !nameMatches(c, 'แมว'))) ok = false;
+              continue;
+            }
+          }
+          if (!ok) return;
+        }
+        out.push({ payK: pk, ab, name: pc.name });
+      });
+    });
+    return out;
+  }
+  function runPaidAsCost(st, fx, list, owner, summonK, rng) {
+    list.forEach(({ payK, ab, name }) => {
+      addLog(st, owner, `เอฟเฟกต์ ${name} (จ่ายเป็น Cost): ทำงาน`);
+      runActions(st, fx, ab.actions, { src: payK || summonK, owner, summoned: summonK, payK, payName: name, toHellAfter: false, rng });
+    });
+  }
   /* รัน action ของเอฟเฟกต์ */
   function runActions(st, fx, actions, ctx) {
     let prompted = false;
@@ -7683,7 +7722,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
       } else if (ac.op === 'revealOwnHandNameIncludes') {
         const need = ac.nameIncludes || '';
-        const hand = (st.zones[ctx.owner + '.hand'] || []).filter(id => nameMatches(st.inst[id], need));
+        const hand = (st.zones[ctx.owner + '.hand'] || []).filter(id => nameMatches(st.inst[id], need) && (!ac.type || st.inst[id].type === ac.type));
         if (!hand.length) {
           addLog(st, 'S', `จุติ ${nameOf(st, ctx.src)}: ไม่มี "${need}" ในมือ`);
           if (ac.required) ctx._skipRest = true;
@@ -9818,16 +9857,6 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         const needle = ab.trigger.nameIncludes || 'นักท่องเรื่องราว';
         if (!opts.summonedByAvatar || !nameMatches(opts.summonedByAvatar, needle)) return;
       }
-      if (ab.requireOwnHellMonkeyMin != null) {
-        const monkeyCount = (st.zones[owner + '.hell'] || []).filter(id => {
-          const m = st.inst[id];
-          return m && nameMatches(m, 'วานร');
-        }).length;
-        if (monkeyCount < ab.requireOwnHellMonkeyMin) {
-          addLog(st, 'S', `จุติ ${nameOf(st, k)}: "วานร" ในนรกมี ${monkeyCount}/${ab.requireOwnHellMonkeyMin} ใบ — ข้าม`);
-          return;
-        }
-      }
       if (ab.requireOwnNameIncludes) {
       const ok = (st.zones[owner + '.avatar'] || []).some(id => id !== k && nameMatches(st.inst[id], ab.requireOwnNameIncludes)
         && (!ab.requireOwnSymbol || st.inst[id].symbol === ab.requireOwnSymbol));
@@ -10285,13 +10314,6 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       if (lifeSuppressed && abilitiesOf(L.code, 'lifeRevealedByAttack', L.name).length)
         addLog(st, 'S', `เอฟเฟกต์ ${A.name}: ความสามารถของ LIFE "${L.name}" ไม่ทำงาน`);
       (lifeSuppressed ? [] : abilitiesOf(L.code, 'lifeRevealedByAttack', L.name)).forEach(ab => {
-        if (ab.requireOwnHellMonkeyMin != null) {
-          const monkeyCount = (st.zones[lifeOwner + '.hell'] || []).filter(id => st.inst[id] && nameMatches(st.inst[id], 'วานร')).length;
-          if (monkeyCount < ab.requireOwnHellMonkeyMin) {
-            addLog(st, 'S', `เอฟเฟกต์ LIFE "${L.name}": "วานร" ในนรกมี ${monkeyCount}/${ab.requireOwnHellMonkeyMin} ใบ — ข้าม`);
-            return;
-          }
-        }
         (ab.actions || []).forEach(ac => {
           // ส่วนใหญ่ทำงานใน Main Phase ถัดไปของเจ้าของ LIFE
           if (ac.op === 'draw' && (ac.schedule === 'nextOwnMainPhase' || !ac.schedule)) {
@@ -10923,34 +10945,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             const costOnlyMsg = costOnlyDeny(pc, c);
             if (costOnlyMsg) return deny(costOnlyMsg);
           }
-          payIds.forEach(pk => {
-            const pc = st.inst[pk];
-            if (!pc) return;
-            abilitiesOf(pc.code, 'paidAsCost').forEach(ab => {
-              const cond = (ab.trigger && ab.trigger.if) || '';
-              if (cond) {
-                // รองรับเงื่อนไขหลายข้อด้วย & เช่น summonType:Avatar&summonSymbol:รัททาทุย
-                const parts = cond.split('&').map(s => s.trim()).filter(Boolean);
-                let ok = true;
-                for (const part of parts) {
-                  const mType = part.match(/^summonType:(.+)$/);
-                  if (mType) { if ((c.type || '') !== mType[1]) ok = false; continue; }
-                  const mSym = part.match(/^summonSymbol:(.+)$/);
-                  if (mSym) { if (c.symbol !== mSym[1]) ok = false; continue; }
-                  const mName = part.match(/^summonNameIncludes:(.+)$/);
-                  if (mName) { if (!nameMatches(c, mName[1])) ok = false; continue; }
-                  const mCol = part.match(/^summonColor:(.+)$/);
-                  if (mCol) { if ((c.color || '') !== mCol[1]) ok = false; continue; }
-                  if (part === 'summonDogOrCatAnimal') {
-                    if (c.symbol !== 'สัตว์' || (!nameMatches(c, 'หมา') && !nameMatches(c, 'แมว'))) ok = false;
-                    continue;
-                  }
-                }
-                if (!ok) return;
-              }
-              paidAsCostEffects.push({ payK: pk, ab, name: pc.name });
-            });
-          });
+          paidAsCostEffects.push(...collectPaidAsCost(st, payIds, c));
           payIds.forEach(k => doMove(st, k, owner + '.hell', null, fx));
         }
         // เครื่องบิน Super Air: ล็อกอัญเชิญในเทิร์น
@@ -10971,10 +10966,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             : `อัญเชิญ ${c.name}${cost > 0 ? ` (COST ${cost})` : ''}`));
         fx.snd = 'place';
         // รันเอฟเฟกต์การ์ดที่ถูกจ่ายเป็น Cost
-        paidAsCostEffects.forEach(({ payK, ab, name }) => {
-          addLog(st, owner, `เอฟเฟกต์ ${name} (จ่ายเป็น Cost): ทำงาน`);
-          runActions(st, fx, ab.actions, { src: payK || a.k, owner, summoned: a.k, payK, payName: name, toHellAfter: false, rng: fx._rng });
-        });
+        runPaidAsCost(st, fx, paidAsCostEffects, owner, a.k, fx._rng);
         triggerSummon(st, fx, a.k, owner, { paidCost, paidExact: paidExactFinal });
         break;
       }
@@ -11927,6 +11919,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               fx.snd = 'tap';
               break;
             }
+            const paidFx = collectPaidAsCost(st, p.payIds || [], st.inst[sk]);
             (p.payIds || []).forEach(id => {
               if (zoneOf(st, id)) doMove(st, id, p.chooser + '.hell', null, fx);
             });
@@ -11947,6 +11940,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               st.inst[sk].granted = (st.inst[sk].granted || []).concat(JSON.parse(JSON.stringify(p.grantSummoned)));
               addLog(st, p.chooser, `${nameOf(st, sk)} ได้รับความสามารถจาก ${nameOf(st, p.src)}`);
             }
+            runPaidAsCost(st, fx, paidFx, p.chooser, sk, rng);
             triggerSummon(st, fx, sk, p.chooser, { paidCost: true, summonedByAvatar: p.summonedByAvatar || null });
             if (p.then && p.then.length) runActions(st, fx, p.then, { src: p.src, owner: p.chooser, summoned: sk, rng: rng });
             fx.snd = 'place';
