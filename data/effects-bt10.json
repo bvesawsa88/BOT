@@ -810,14 +810,13 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "targetedByAttack"
+            "on": "declaredAsAttackTarget"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": -2,
-              "duration": "endOfCombat",
-              "layer": 4,
+              "duration": "combat",
               "target": {
                 "select": "attacker"
               }

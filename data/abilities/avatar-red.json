@@ -4928,22 +4928,10 @@
       "codes": [
         "BT06-005"
       ],
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "targetedByAttack"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "cancelAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
+      "ignoreModAttachConditions": true,
       "parseStatus": "auto",
-      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อถูกเลือกเป็นเป้าหมายการโจมตี : ยกเลิกการโจมตี"
+      "note": "สวมใส่ Modification ได้โดยไม่สนเงื่อนไขการสวมใส่ใน Text Box ของ Mod"
     },
     {
       "name": "รูบิน่า",

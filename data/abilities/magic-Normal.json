@@ -3994,9 +3994,27 @@
       "codes": [
         "ODY1-064"
       ],
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:ทาโกะ"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้ได้เมื่อ Avatar \"ทาโกะ\" ฝ่ายเราตกเป็นเป้าโจมตี (การ์ดสวน) → ใบนั้น POWER +2 จนจบเทิร์น"
     },
     {
       "name": "โอน้อยออกแห่งโชคชะตา",

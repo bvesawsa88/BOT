@@ -8163,22 +8163,10 @@
     {
       "code": "BT06-005",
       "name": "รีวิวแมน",
-      "abilities": [
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "targetedByAttack"
-          },
-          "oncePerTurn": true,
-          "actions": [
-            {
-              "op": "cancelAttack"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
-      "note": "อัตโนมัติ เทิร์นละครั้ง เมื่อถูกเลือกเป็นเป้าหมายการโจมตี : ยกเลิกการโจมตี"
+      "ignoreModAttachConditions": true,
+      "note": "สวมใส่ Modification ได้โดยไม่สนเงื่อนไขการสวมใส่ใน Text Box ของ Mod"
     },
     {
       "code": "BT06-006",
@@ -11688,13 +11676,11 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "targetedByAttack",
-            "targetFilter": {
-              "nameIncludes": [
-                "จอมเวทย์"
-              ]
-            }
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:จอมเวท"
           },
+          "react": true,
+          "requireOwnNameIncludes": "จอมเวท",
           "cost": [
             {
               "op": "returnFromHellToDeck",
@@ -17699,14 +17685,13 @@
         {
           "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "targetedByAttack"
+            "on": "declaredAsAttackTarget"
           },
           "actions": [
             {
               "op": "modifyPower",
               "amount": -2,
-              "duration": "endOfCombat",
-              "layer": 4,
+              "duration": "combat",
               "target": {
                 "select": "attacker"
               }
@@ -35946,9 +35931,27 @@
     {
       "code": "ODY1-064",
       "name": "โอเดนย่า อร่อยมัก",
-      "abilities": [],
-      "parseStatus": "manual",
-      "note": "พิมพ์ Normal แต่เป็นกับดักเมื่อทาโกะถูกโจมตี — ต้องเฝ้าสนามจาก Magic Zone"
+      "abilities": [
+        {
+          "trigger": {
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:ทาโกะ"
+          },
+          "react": true,
+          "actions": [
+            {
+              "op": "modifyPower",
+              "amount": 2,
+              "duration": "endOfTurn",
+              "target": {
+                "select": "combatOwn"
+              }
+            }
+          ]
+        }
+      ],
+      "parseStatus": "auto",
+      "note": "ใช้ได้เมื่อ Avatar \"ทาโกะ\" ฝ่ายเราตกเป็นเป้าโจมตี (การ์ดสวน) → ใบนั้น POWER +2 จนจบเทิร์น"
     },
     {
       "code": "ODY1-065",

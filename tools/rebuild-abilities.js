@@ -43,7 +43,8 @@ const META_KEYS = [
     'controlImmuneExcept', 'scoutBonusOwnKapom', 'scoutBonusConstruct', 'hostCostDelta',
     'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
     'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',
-    'drawOnSummonedByAvatarNameIncludes', 'controlImmuneOwnAvatars', 'linkOnlyKeys', 'costOnlyForNameIncludes', 'costOnlyForColor', 'cannotBeAttached', 'costFourIfOwnModMagicMin2', 'hostBlockHumanShield', 'cannotBeAttackTargetIfLinked', 'linkKeywords'
+    'drawOnSummonedByAvatarNameIncludes', 'controlImmuneOwnAvatars', 'linkOnlyKeys', 'costOnlyForNameIncludes', 'costOnlyForColor', 'cannotBeAttached', 'costFourIfOwnModMagicMin2', 'hostBlockHumanShield', 'cannotBeAttackTargetIfLinked', 'linkKeywords',
+    'ignoreModAttachConditions'
   ];
 
 function loadJson(p) {

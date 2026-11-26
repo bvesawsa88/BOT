@@ -362,13 +362,11 @@
         {
           "keyword": "React",
           "trigger": {
-            "on": "targetedByAttack",
-            "targetFilter": {
-              "nameIncludes": [
-                "จอมเวทย์"
-              ]
-            }
+            "on": "enemyDeclareAttack",
+            "if": "targetNameIncludes:จอมเวท"
           },
+          "react": true,
+          "requireOwnNameIncludes": "จอมเวท",
           "cost": [
             {
               "op": "returnFromHellToDeck",

@@ -87,7 +87,7 @@
     'controlImmuneExcept', 'scoutBonusOwnKapom', 'scoutBonusConstruct', 'hostCostDelta',
     'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
     'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',
-    'drawOnSummonedByAvatarNameIncludes'
+    'drawOnSummonedByAvatarNameIncludes', 'ignoreModAttachConditions'
   ];
   function effectRichness(e) {
     if (!e) return -1;
@@ -2479,7 +2479,9 @@
     { const hostFx = fxCard(host); if (hostFx && hostFx.cannotBeAttached) return `${host.name} สวมใส่การ์ดไม่ได้`; }
     const eAtt = resolveEffect(modCode, modNameHint);
     const ao = eAtt && eAtt.attachOnly;
-    if (ao) {
+    // รีวิวแมน: สวมใส่ Modification ได้โดยไม่สนเงื่อนไขการสวมใส่ใน Text Box ของ Mod
+    const hostIgnoresAo = !!(fxCard(host) && fxCard(host).ignoreModAttachConditions);
+    if (ao && !hostIgnoresAo) {
       if (ao.noOtherAttached && Object.keys(st.inst).some(id => st.inst[id] && st.inst[id].attachedTo === hostK && st.inst[id].code !== modCode))
         return 'สวมใส่ได้เฉพาะ Avatar ที่ไม่มีการ์ดสวมใส่อยู่';
       if (ao.ownOnly && modK && (zoneOf(st, modK) || '')[0] !== (zoneOf(st, hostK) || '')[0])
@@ -4113,6 +4115,24 @@
       }
       if (!sacrificeCostOk(st, owner, ab.cost, null)) {
         return `ใช้ "${cardName}" ไม่ได้ — ไม่มี "${abilitySacrificeNeed(ab.cost)}" ให้เซ่นไหว้`;
+      }
+      {
+        // คาถา สตอปปุ / โอเดนย่า อร่อยมัก ฯลฯ: เป้าโจมตีต้องเป็นชื่อที่ระบุ
+        const mName = String((ab.trigger && ab.trigger.if) || '').match(/^targetNameIncludes:(.+)$/);
+        if (mName) {
+          const def = st.pending && st.pending.def;
+          if (!(def && st.inst[def] && ownerOf(st, def) === owner && nameMatches(st.inst[def], mName[1])))
+            return `ใช้ "${cardName}" ไม่ได้ — ต้องมี Avatar "${mName[1]}" ฝ่ายเราตกเป็นเป้าโจมตี`;
+        }
+      }
+      {
+        const backCost = (normalizeAbilityCost(ab.cost) || []).find(c => c && c.op === 'returnFromHellToDeck');
+        if (backCost) {
+          const need = backCost.count || 1;
+          const p = { kind: 'pick', from: 'hell', chooser: owner, filter: backCost.filter || {} };
+          if (promptCandidates(st, p).length < need)
+            return `ใช้ "${cardName}" ไม่ได้ — นรกไม่มีการ์ดตรงเงื่อนไข ${need} ใบให้นำกลับเข้า Deck`;
+        }
       }
     }
     // ริกกี้ ฯลฯ: React ที่ผลแค่ทำลาย/ลดผู้โจมตี — ใช้ไม่ได้ถ้าผู้โจมตีกัน Magic
@@ -11228,23 +11248,30 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
               addLog(st, owner, `การ์ดสวน "${c.name}": เลือก Avatar เซ่นไหว้`);
               fx.snd = 'place'; break;
             }
-            if (costList && costList[0] && (costList[0].op === 'banishFromHell' || costList[0].op === 'exileHell')) {
+            if (costList && costList[0] && (costList[0].op === 'banishFromHell' || costList[0].op === 'exileHell' || costList[0].op === 'returnFromHellToDeck')) {
+              // คาถา สตอปปุ: returnFromHellToDeck = นำการ์ดจากนรกกลับใต้ Deck แทนการเนรเทศ
+              const toDeck = costList[0].op === 'returnFromHellToDeck';
               const need = costList[0].count || 1;
               const filt = costList[0].filter || {};
               const p = {
                 kind: 'pick', from: 'hell', src: a.k, chooser: owner,
                 filter: filt, dest: 'exileHellCost', need, got: 0,
+                costTo: toDeck ? (costList[0].pos === 'top' ? 'deckTop' : 'deckBottom') : 'dark',
                 actions: acts, optional: false, keepSrc: true,
                 counterAtkCtx: { atk: atkId, def: defId }
               };
               if (promptCandidates(st, p).length < need) {
-                addLog(st, 'S', `ใช้ "${c.name}" ไม่ได้ — นรกมีไม่ครบ ${need} ใบที่ตรงเงื่อนไขเพื่อเนรเทศ`);
+                addLog(st, 'S', toDeck
+                  ? `ใช้ "${c.name}" ไม่ได้ — นรกมีไม่ครบ ${need} ใบที่ตรงเงื่อนไขเพื่อนำกลับเข้า Deck`
+                  : `ใช้ "${c.name}" ไม่ได้ — นรกมีไม่ครบ ${need} ใบที่ตรงเงื่อนไขเพื่อเนรเทศ`);
                 doMove(st, a.k, owner + '.hell', null, fx);
                 fx.snd = 'clash'; break;
               }
               st.prompts.push(p);
               st.reactCleanup = { src: a.k, owner: owner, atk: atkId };
-              addLog(st, owner, `การ์ดสวน "${c.name}": เนรเทศจากนรก ${need} ใบเพื่อจ่ายค่า`);
+              addLog(st, owner, toDeck
+                ? `การ์ดสวน "${c.name}": เลือกการ์ดจากนรก ${need} ใบกลับเข้าใต้ Deck เพื่อจ่ายค่า`
+                : `การ์ดสวน "${c.name}": เนรเทศจากนรก ${need} ใบเพื่อจ่ายค่า`);
               fx.snd = 'place'; break;
             }
             if (offerMagicNegateReact(st, fx, owner, a.k)) {
@@ -12344,9 +12371,16 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             fx.snd = 'clash';
             sweepDestroyPowerZero(st, fx);
           } else if (p.dest === 'exileHellCost') {
-            doMove(st, a.k, p.chooser + '.dark', null, fx);
-            p.got = (p.got || 0) + 1;
-            addLog(st, p.chooser, `เนรเทศ ${nameOf(st, a.k)} (${p.got}/${p.need})`);
+            if (p.costTo === 'deckBottom' || p.costTo === 'deckTop') {
+              const nm = nameOf(st, a.k);
+              doMove(st, a.k, p.chooser + '.deck', p.costTo === 'deckBottom' ? 'bottom' : null, fx);
+              p.got = (p.got || 0) + 1;
+              addLog(st, p.chooser, `นำ ${nm} จากนรกกลับ${p.costTo === 'deckBottom' ? 'ใต้' : 'บน'} Deck (${p.got}/${p.need})`);
+            } else {
+              doMove(st, a.k, p.chooser + '.dark', null, fx);
+              p.got = (p.got || 0) + 1;
+              addLog(st, p.chooser, `เนรเทศ ${nameOf(st, a.k)} (${p.got}/${p.need})`);
+            }
             if (p.got < (p.need || 1) && promptCandidates(st, p).length) {
               st.prompts.unshift(p);
             } else {
@@ -14322,12 +14356,13 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         if (!isLife && a.def && !isConstructAtk && !skipDefAuto) {
           abil(st, a.def, 'declaredAsAttackTarget').forEach(ab => {
-            const heavy = (ab.actions || []).filter(ac => ac.op !== 'modifyPower');
+            // เดออง ฯลฯ: modifyPower ใส่ผู้โจมตี — รันผ่าน runActions พร้อม ctx.attacker
+            const heavy = (ab.actions || []).filter(ac => ac.op !== 'modifyPower' || (ac.target && ac.target.select === 'attacker'));
             const hasSelfBuff = (ab.actions || []).some(ac => ac.op === 'modifyPower' && ac.target && ac.target.select === 'self');
             if (ab.oncePerTurn && (heavy.length || hasSelfBuff)) {
               if (!claimOncePerTurn(st, a.def, ab.oncePerTurnTag || 'declaredAsAttackTarget')) return;
             }
-            if (heavy.length) runActions(st, fx, heavy, { src: a.def, owner: ot, rng });
+            if (heavy.length) runActions(st, fx, heavy, { src: a.def, owner: ot, rng, attacker: a.atk, target: a.def });
             if (ab.oncePerTurn) applySelfPowerBuffsFromAb(st, a.def, ab, 'เป็นเป้าโจมตี');
             else {
               (ab.actions || []).forEach(ac => {
