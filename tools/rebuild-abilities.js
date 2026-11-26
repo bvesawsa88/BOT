@@ -44,7 +44,7 @@ const META_KEYS = [
     'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
     'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',
     'drawOnSummonedByAvatarNameIncludes', 'controlImmuneOwnAvatars', 'linkOnlyKeys', 'costOnlyForNameIncludes', 'costOnlyForColor', 'cannotBeAttached', 'costFourIfOwnModMagicMin2', 'hostBlockHumanShield', 'cannotBeAttackTargetIfLinked', 'linkKeywords',
-    'ignoreModAttachConditions'
+    'ignoreModAttachConditions', 'protectAllyFilterFromOppAbility', 'destroyToDeckBottomInstead'
   ];
 
 function loadJson(p) {

@@ -1381,6 +1381,7 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireLinked": true,
           "actions": [
             {
               "op": "grantAbilityToAllyNameIncludes",
@@ -1388,18 +1389,18 @@
               "grantedAbility": {
                 "keyword": "อัตโนมัติ",
                 "trigger": {
-                  "on": "destroyedInBattleBySelf"
+                  "on": "battleDestroy"
                 },
+                "requireAttacker": true,
                 "actions": [
                   {
-                    "op": "unrevealTopEnemyLife",
+                    "op": "revealOppLifeTop",
                     "count": 1
                   }
                 ]
               }
             }
-          ],
-          "requireLinked": true
+          ]
         }
       ],
       "parseStatus": "auto",

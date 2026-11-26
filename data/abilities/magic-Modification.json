@@ -1252,22 +1252,10 @@
         "PRMO-129",
         "RM01-056"
       ],
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunity"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "controlImmune": true,
       "parseStatus": "auto",
-      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม (controlImmune บนใบสวม)"
     },
     {
       "name": "ปืนจักรวุทธ",

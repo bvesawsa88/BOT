@@ -805,22 +805,10 @@
     {
       "code": "PRMO-129",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunity"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "controlImmune": true,
-      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม (controlImmune บนใบสวม)"
     },
     {
       "code": "PRMO-005",
@@ -2884,18 +2872,19 @@
       "name": "ลิโป้ ขุนพลเทพสงคราม",
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
             "on": "declareAttack",
             "if": "source==self"
           },
-          "actions": [],
-          "note": "บังคับโล่มนุษย์ฝ่ายตรงข้าม — aura ให้โล่มนุษย์ศัตรูแล้ว"
+          "forceEnemyHumanShield": true,
+          "actions": []
         },
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "activated"
+            "on": "ownAttackRedirected"
           },
-          "oncePerTurn": true,
           "actions": [
             {
               "op": "chooseDestroy",
@@ -2905,10 +2894,10 @@
               },
               "zones": [
                 "avatar"
-              ]
+              ],
+              "optional": true
             }
-          ],
-          "note": "เมื่อมีการเปลี่ยนเป้าโจมตี — ผู้เล่นกดสั่งใช้"
+          ]
         }
       ],
       "parseStatus": "auto",
@@ -2916,7 +2905,7 @@
         "keyword": "โล่มนุษย์",
         "side": "enemy"
       },
-      "note": "ต่อเนื่อง ในช่วง Battle Phase Avatar ฝ่ายตรงข้ามทุกใบได้รับ โล่มนุษย์ อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : ฝ่ายตรงข้ามจะต"
+      "note": "Battle Phase: Avatar ศัตรูได้โล่มนุษย์ · โจมตี: ศัตรูต้องใช้โล่มนุษย์ · การโจมตีของเราถูกเปลี่ยนเป้า: ทำลาย Avatar ศัตรูได้ 1 ใบ"
     },
     {
       "code": "PRMO-083",
@@ -3130,7 +3119,14 @@
         "ลูกฮึด"
       ],
       "controlImmune": true,
-      "note": "กันเป้าความสามารถใส่ขุนพลอื่น — เล่นมือบางส่วน"
+      "note": "ไม่ถูกเปลี่ยนการควบคุม · ฝ่ายตรงข้ามเลือกเป้าความสามารถไปที่ขุนพลต่างชาติฝ่ายเราไม่ได้ ยกเว้นกวนอูเอง",
+      "protectAllyFilterFromOppAbility": {
+        "type": "Avatar",
+        "nameIncludes": [
+          "ขุนพล"
+        ],
+        "symbol": "ต่างชาติ"
+      }
     },
     {
       "code": "PRMO-115",

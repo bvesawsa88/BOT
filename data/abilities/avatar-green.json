@@ -64,8 +64,15 @@
         "ลูกฮึด"
       ],
       "controlImmune": true,
+      "protectAllyFilterFromOppAbility": {
+        "type": "Avatar",
+        "nameIncludes": [
+          "ขุนพล"
+        ],
+        "symbol": "ต่างชาติ"
+      },
       "parseStatus": "auto",
-      "note": "กันเป้าความสามารถใส่ขุนพลอื่น — เล่นมือบางส่วน"
+      "note": "ไม่ถูกเปลี่ยนการควบคุม · ฝ่ายตรงข้ามเลือกเป้าความสามารถไปที่ขุนพลต่างชาติฝ่ายเราไม่ได้ ยกเว้นกวนอูเอง"
     },
     {
       "name": "กัปตันแบงค์ Tank Ranger",

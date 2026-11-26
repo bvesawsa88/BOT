@@ -148,7 +148,9 @@
 .gl-box-pack .gl-pack-cards{gap:10px}
 .gl-box-pack .gl-img.big{width:108px}
 .gl-box-pack .gl-pack-name{max-width:108px;font-size:11px}
-#deckCodeModal{position:fixed;inset:0;background:rgba(10,10,12,.82);display:flex;align-items:center;justify-content:center;z-index:480;padding:16px}
+#deckCodeModal,#deckSavedModal{position:fixed;inset:0;background:rgba(10,10,12,.82);display:flex;align-items:center;justify-content:center;z-index:480;padding:16px}
+#deckSavedModal .dc-modal{max-width:380px}
+#deckSavedModal .dc-head{border-bottom:0}
 .dc-modal{width:100%;max-width:520px;max-height:88vh;background:var(--card-ui);border:2px solid var(--border);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,.6)}
 .dc-head{flex:none;display:flex;align-items:flex-start;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid var(--border)}
 .dc-title{font-family:'IBM Plex Sans Thai',sans-serif;font-size:19px;font-weight:700;color:var(--cream)}

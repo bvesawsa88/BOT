@@ -1452,20 +1452,17 @@
           },
           "actions": [
             {
-              "op": "retrieveFromGrave",
+              "op": "hellPick",
+              "dest": "hand",
+              "pickedHandCostDelta": -3,
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "ขุนพล"
                 ],
                 "color": "ม่วง",
                 "symbol": "ต่างชาติ",
-                "nameNotExact": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช"
-              },
-              "count": 1,
-              "dest": "hand",
-              "grantCostReduce": {
-                "amount": 3,
-                "until": "endOfTurn"
+                "nameNotEquals": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช"
               }
             }
           ]
@@ -1554,35 +1551,6 @@
       "name": "เตียวเสียน จันทร์หลบโฉมสุดา",
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "condition": {
-            "own": {
-              "avatarZone": {
-                "filter": {
-                  "nameIncludes": [
-                    "ขุนพล"
-                  ],
-                  "color": "ม่วง",
-                  "symbol": "ต่างชาติ"
-                },
-                "min": 1
-              }
-            }
-          },
-          "actions": [
-            {
-              "op": "setCannotBeAttackTarget",
-              "target": {
-                "select": "self"
-              }
-            }
-          ]
-        },
-        {
           "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
@@ -1590,20 +1558,24 @@
           "oncePerTurn": true,
           "actions": [
             {
-              "op": "changeStatus",
-              "status": "awake",
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "opponent",
-                "zone": "avatarZone"
-              }
+              "op": "untap",
+              "all": "enemy"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ถ้ามีขุนพลม่วง Symbol ต่างชาติ ฝ่ายเรา → โจมตีไม่ได้; สั่งใช้: Avatar ฝ่ายตรงข้ามทั้งหมดตื่น"
+      "note": "ต่อเนื่อง ถ้ามีขุนพลม่วง Symbol ต่างชาติ ฝ่ายเรา → โจมตีไม่ได้; สั่งใช้: Avatar ฝ่ายตรงข้ามทั้งหมดตื่น",
+      "cannotBeAttackTargetIf": {
+        "allyFilter": {
+          "type": "Avatar",
+          "nameIncludes": [
+            "ขุนพล"
+          ],
+          "color": "ม่วง",
+          "symbol": "ต่างชาติ"
+        }
+      }
     },
     {
       "code": "CC02-014",

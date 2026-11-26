@@ -870,26 +870,15 @@
           },
           "actions": [
             {
-              "op": "freeSummonSelf"
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "destroyedFromAvatarZone"
-          },
-          "actions": [
-            {
-              "op": "returnSelfToDeck",
-              "pos": "bottom"
+              "op": "summonSelfFromHell"
             }
           ]
         }
       ],
       "parseStatus": "auto",
       "name": "อาม่อน No.7",
-      "note": "เมื่อถูกธรณีสูบ อัญเชิญลงสนาม / เมื่อถูกทำลายจาก Avatar Zone กลับใต้สุด Deck"
+      "note": "เมื่อถูกธรณีสูบ อัญเชิญลงสนาม / เมื่อถูกทำลายจาก Avatar Zone กลับใต้สุด Deck",
+      "destroyToDeckBottomInstead": true
     },
     {
       "code": "BT06-031",

@@ -87,7 +87,8 @@
     'controlImmuneExcept', 'scoutBonusOwnKapom', 'scoutBonusConstruct', 'hostCostDelta',
     'hostPowerIfEffCostMin', 'destroyAnyOnSummonedByAvatarNameIncludes',
     'destroyAnyOnSummonedByAvatarSymbol', 'destroyEnemyAnyOnSummonedByAvatarNameIncludes',
-    'drawOnSummonedByAvatarNameIncludes', 'ignoreModAttachConditions'
+    'drawOnSummonedByAvatarNameIncludes', 'ignoreModAttachConditions', 'protectAllyFilterFromOppAbility',
+    'destroyToDeckBottomInstead'
   ];
   function effectRichness(e) {
     if (!e) return -1;
@@ -595,10 +596,37 @@
     // ความสามารถที่มีสัญลักษณ์ คู่หู/Link (requireLinked) ทำงานเฉพาะตอนอยู่ในสถานะคู่หู
     const base = on === 'activated' ? base0 : base0.filter(ab => !ab.requireLinked || inLinkStatus(st, k));
     const g = (c.granted || []).filter(ab => ab.trigger && ab.trigger.on === on);
-    const all = g.length ? base.concat(g) : base;
+    const ga = allyGrantedAbilities(st, k, on);
+    let all = g.length ? base.concat(g) : base;
+    if (ga.length) all = all.concat(ga);
     if (!all.some(ab => ab.cond)) return all;
     const condOwn = condOwnerOf(st, k);
     return all.filter(ab => !ab.cond || condOk(st, condOwn, k, ab.cond));
+  }
+
+  /* ตันก๋ง ฯลฯ: Avatar ฝ่ายเดียวกันที่มี static grantAbilityToAllyNameIncludes
+     ให้ความสามารถกับ Avatar ชื่อที่ระบุ (requireLinked = ผู้ให้ต้องอยู่ในสถานะคู่หู) */
+  function allyGrantedAbilities(st, k, on) {
+    const z = zoneOf(st, k) || '';
+    if (!z.endsWith('.avatar')) return [];
+    const out = [];
+    (st.zones[z] || []).forEach(id => {
+      if (id === k || !st.inst[id] || st.inst[id].faceUp === false) return;
+      const e = resolveEffect(st.inst[id].code, st.inst[id].name);
+      const statics = ((e && e.abilities) || []).filter(ab => ab.trigger && ab.trigger.on === 'static'
+        && (ab.actions || []).some(ac => ac.op === 'grantAbilityToAllyNameIncludes'));
+      if (!statics.length || abilitiesNullified(st, id)) return;
+      statics.forEach(ab => {
+        if (ab.requireLinked && !inLinkStatus(st, id)) return;
+        (ab.actions || []).forEach(ac => {
+          if (ac.op !== 'grantAbilityToAllyNameIncludes' || !ac.grantedAbility) return;
+          if (!nameMatches(st.inst[k], ac.name)) return;
+          if (ac.grantedAbility.trigger && ac.grantedAbility.trigger.on === on)
+            out.push(Object.assign({ _grantedBy: id }, ac.grantedAbility));
+        });
+      });
+    });
+    return out;
   }
 
   /* PRNG แบบ seed (mulberry32) — ให้ client/server สุ่มได้ผลเดียวกันจาก a.seed */
@@ -1923,7 +1951,15 @@
     const destroyedName = c.name;
     // เคลียร์คำสาปที่ชี้มาที่ใบนี้
     if (c.curse) delete c.curse;
-    doMove(st, k, side + '.hell', null, fx);
+    {
+      // อาม่อน No.7: ถูกทำลายจาก Avatar Zone → กลับใต้สุดของ Deck เจ้าของแทนการลงนรก
+      const eDeck = wasAvatar && !wasNullified ? fxCard(c) : null;
+      if (eDeck && eDeck.destroyToDeckBottomInstead) {
+        const own = cardOwnerOf(st, k) || side;
+        doMove(st, k, own + '.deck', 'bottom', fx);
+        addLog(st, 'S', `เอฟเฟกต์ ${c.name}: ถูกทำลาย — กลับใต้สุดของ Deck แทนการลงนรก`);
+      } else doMove(st, k, side + '.hell', null, fx);
+    }
     // ถ้าแบ่งแยกดินแดนถูกทำลาย จะทำลายแลนด์ทั้งหมดบนสนาม
     if (wasPartitionLand && !st._destroyingAllLands) {
       st._destroyingAllLands = true;
@@ -2912,7 +2948,23 @@
         if (z === 'land') return zones.includes('land');
         return zones.some(zn => z.endsWith('.' + zn));
       });
-    }) || allyProtectsName(st, k);
+    }) || allyProtectsName(st, k) || allyShieldsFromOppAbility(st, k);
+  }
+  /* กวนอู ขุนพลภักดี: ฝ่ายตรงข้ามเลือกเป้าความสามารถการ์ดไปที่ Avatar ตรง filter ฝ่ายเราไม่ได้
+     (ยกเว้นใบชื่อเดียวกับผู้ป้องกัน) — meta protectAllyFilterFromOppAbility */
+  function allyShieldsFromOppAbility(st, k) {
+    const c = st.inst[k]; if (!c) return false;
+    const z = zoneOf(st, k) || '';
+    if (!z.endsWith('.avatar')) return false;
+    return (st.zones[z] || []).some(id => {
+      const g = st.inst[id];
+      if (!g || g.faceUp === false) return false;
+      const e = fxId(st, id);
+      const f = e && e.protectAllyFilterFromOppAbility;
+      if (!f || abilitiesNullified(st, id)) return false;
+      if ((c.name || '') === (g.name || '')) return false;
+      return matchFilterEx(st, k, f);
+    });
   }
   function countOwnAvatarNamesAny(st, owner, names) {
     const need = Array.isArray(names) ? names : [names];
@@ -2967,7 +3019,9 @@
     if (cond) {
       const hasAttach = !cond.selfAttachedNameIncludes || hasAttachedNameIncludes(st, defId, cond.selfAttachedNameIncludes);
       const hasAlly = !cond.allyNameIncludes || (st.zones[ot + '.avatar'] || []).some(id => id !== defId && nameMatches(st.inst[id], cond.allyNameIncludes));
-      if (hasAttach && hasAlly) return `"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`;
+      // เตียวเสียน: มี Avatar ตรง filter (ขุนพล สีม่วง Symbol ต่างชาติ) ฝ่ายเรา
+      const hasAllyF = !cond.allyFilter || (st.zones[ot + '.avatar'] || []).some(id => id !== defId && matchFilterEx(st, id, cond.allyFilter));
+      if (hasAttach && hasAlly && hasAllyF) return `"${T.name}" ไม่สามารถถูกเลือกเป็นเป้าหมายการโจมตีได้`;
     }
     if (eDef && eDef.cannotBeAttackTargetIfOwnSymbolOther) {
       const sym = eDef.cannotBeAttackTargetIfOwnSymbolOther;
@@ -3090,6 +3144,27 @@
       });
     });
     delete st._atkFlip;
+  }
+  /* ตั๋งโต๊ะ ฯลฯ: "เมื่อ Avatar ฝ่ายตรงข้าม เปลี่ยนสภาพ" (นอน↔ตื่น) — เช็คหลังจบแต่ละ action
+     ใช้ snapshot ต้น action · นับเฉพาะในเทิร์นเดียวกัน (ไม่นับตื่นต้นเทิร์น) */
+  function fireEnemyAvatarChangeStatus(st, fx, snap, rng) {
+    if (!snap || snap.seq !== (st.turnSeq || 0)) return;
+    ['A', 'B'].forEach(owner => {
+      const enemy = other(owner);
+      const changed = (st.zones[enemy + '.avatar'] || []).some(k =>
+        (k in snap.tap) && st.inst[k] && snap.tap[k] !== !!st.inst[k].tapped);
+      if (!changed) return;
+      (st.zones[owner + '.avatar'] || []).slice().forEach(k => {
+        abil(st, k, 'enemyAvatarChangeStatus').forEach(ab => {
+          const cond = (ab.trigger && ab.trigger.if) || '';
+          if (cond === 'ownTurn' && st.active !== owner) return;
+          if (cond === 'oppTurn' && st.active === owner) return;
+          if (ab.oncePerTurn && !claimOncePerTurn(st, k, ab.oncePerTurnTag || 'enemyAvatarChangeStatus')) return;
+          addLog(st, owner, `อัตโนมัติ ${nameOf(st, k)}: Avatar ฝ่ายตรงข้ามเปลี่ยนสภาพ`);
+          runActions(st, fx, ab.actions || [], { src: k, owner, rng });
+        });
+      });
+    });
   }
   function tryUntap(st, hostK, srcK) {
     const c = st.inst[hostK];
@@ -3545,6 +3620,7 @@
     if (z.endsWith('.hand') && (st.handCostMods || []).length) {
       (st.handCostMods || []).forEach(m => {
         if (m.owner !== z[0]) return;
+        if (m.k && m.k !== k) return;
         if (m.nameIncludes && !nameMatches(c, m.nameIncludes)) return;
         cost += m.amount || 0;
       });
@@ -4248,6 +4324,15 @@
     return a;
   }
 
+  /* ลิโป้ ขุนพลเทพสงคราม: "เมื่อ Avatar ใบนี้โจมตี ฝ่ายตรงข้ามจะต้องใช้โล่มนุษย์เสมอ"
+     คืน Avatar ที่จะใช้โล่มนุษย์ (ใบแรกที่ใช้ได้) หรือ null ถ้าไม่บังคับ/ใช้แล้ว/ไม่มีโล่ */
+  function forcedHumanShieldPick(st) {
+    const pnd = st.pending;
+    if (!pnd || pnd.shieldUsed || !pnd.atk || !st.inst[pnd.atk]) return null;
+    const forced = abil(st, pnd.atk, 'declareAttack').some(ab => ab.forceEnemyHumanShield);
+    if (!forced) return null;
+    return humanShieldOptions(st, pnd.target)[0] || null;
+  }
   /* Avatar ที่ใช้โล่มนุษย์ได้ตอนถูกโจมตี — โชว์ในแถบโจมตี / ให้รอตอบก่อนปะทะ */
   function humanShieldOptions(st, owner) {
     if (!st.pending || st.pending.target !== owner) return [];
@@ -9218,6 +9303,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
           lockSummonAndAbility: !!ac.lockSummonAndAbility,
           thenAttachSrc: !!ac.thenAttachSrc, thenIfFound: ac.thenIfFound || null, destroyAtEndPhase: !!ac.destroyAtEndPhase,
           costSumMax: ac.costSumMax != null ? ac.costSumMax : null, costGot: 0,
+          pickedHandCostDelta: ac.pickedHandCostDelta || 0,
           summonedByAvatar: (st.inst[ctx.src] && st.inst[ctx.src].type === 'Avatar') ? st.inst[ctx.src] : null
         };
         const hell = fromZ === 'anyHell'
@@ -9312,6 +9398,21 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if (ac.target === 'self') { if (zoneOf(st, ctx.src)) { doMove(st, ctx.src, ctx.owner + '.dark', null, fx); addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: เนรเทศตัวเองลงมิติมืด`); } }
         else { const p = { kind: 'pick', from: ac.from === 'own' ? 'ownAvatars' : ac.from === 'any' ? 'allAvatars' : 'enemyAvatars', src: ctx.src, chooser: ctx.owner, filter: ac.filter, dest: 'dark', optional: true };
           if (promptCandidates(st, p).length) { st.prompts.push(p); prompted = true; } else addLog(st, 'S', `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ไม่มีเป้าให้เนรเทศ`); }
+      } else if ((ac.op === 'tap' || ac.op === 'untap') && ac.all) {
+        // เตียวเสียน: เปลี่ยนสภาพ Avatar ทั้งหมดของฝ่ายที่ระบุ (ไม่ต้องเลือก)
+        const sides = ac.all === 'enemy' ? [other(ctx.owner)] : ac.all === 'own' ? [ctx.owner] : ['A', 'B'];
+        let n = 0;
+        sides.forEach(s => (st.zones[s + '.avatar'] || []).slice().forEach(id => {
+          const c = st.inst[id];
+          if (!c || (ac.filter && !matchFilterEx(st, id, ac.filter))) return;
+          if (ac.op === 'untap') {
+            if (c.tapped && tryUntap(st, id, ctx.src)) n++;
+          } else if (!c.tapped) {
+            if (cannotChangeState(st, id)) return;
+            c.tapped = true; n++;
+          }
+        }));
+        addLog(st, ctx.owner, `เอฟเฟกต์ ${nameOf(st, ctx.src)}: ${ac.op === 'untap' ? 'ตื่น' : 'นอน'} Avatar ${n} ใบ`);
       } else if (ac.op === 'tap' || ac.op === 'untap') {
         if (ac.target === 'self') {
           if (st.inst[ctx.src]) {
@@ -13422,6 +13523,12 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
             if (pickedFromDeck) offerDeckToHandReact(st, p.chooser);
             if (p.lockSummonAndAbility && st.inst[a.k] && st.inst[a.k].name)
               addLockSummonAndAbility(st, p.chooser, st.inst[a.k].name);
+            if (p.pickedHandCostDelta && st.inst[a.k]) {
+              // ตั๋งโต๊ะ: ใบที่นำขึ้นมือได้รับ "Cost บนมือ -3" จนจบเทิร์น (เฉพาะใบนี้)
+              st.handCostMods = st.handCostMods || [];
+              st.handCostMods.push({ owner: p.chooser, k: a.k, amount: p.pickedHandCostDelta, until: 'endOfTurn' });
+              addLog(st, p.chooser, `${nameOf(st, a.k)}: Cost บนมือ ${p.pickedHandCostDelta > 0 ? '+' : ''}${p.pickedHandCostDelta} จนจบเทิร์น`);
+            }
             if (p.thenIfFound && p.thenIfFound.length && matchFilterEx(st, a.k, p.filter)) {
               runActions(st, fx, p.thenIfFound, { src: p.src, owner: p.chooser, attacker: p.attacker, rng });
             }
@@ -14504,6 +14611,18 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         if ((st.prompts || []).some(p => p.dest === 'retargetAttack'))
           return deny('เสียเตะไข่ — เลือกเป้าหมายโจมตีใหม่ก่อนปะทะ');
         if (!st.pending) break;
+        {
+          // ลิโป้: ฝ่ายตรงข้ามต้องใช้โล่มนุษย์เสมอ — ไม่เลือกเองก็ใช้ใบแรกให้
+          const forcedK = forcedHumanShieldPick(st);
+          if (forcedK) {
+            addLog(st, 'S', `${nameOf(st, st.pending.atk)}: ฝ่ายตรงข้ามต้องใช้โล่มนุษย์ — ${nameOf(st, forcedK)} รับการโจมตีแทน`);
+            const r = applyAction(st, { type: 'humanShield', k: forcedK, by: st.pending.target, _skipAbilityReact: true, seed: a.seed });
+            if (r && !r.deny) mergeFx(fx, r);
+            if (st.pending) st.pending.shieldUsed = true; // กันวนแม้ใช้ไม่สำเร็จ
+            if ((st.prompts || []).length) break; // เช่น ลิโป้ เลือกทำลายจากการเปลี่ยนเป้า — กดปะทะอีกครั้ง
+          }
+        }
+        if (!st.pending) break;
         const pnd = st.pending; st.pending = null;
         armDestroyPreventFromPending(st, pnd);
         // THE END: โจมตี Avatar ศัตรูทุกใบพร้อมกัน
@@ -15338,6 +15457,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
         }
         c.tapped = true;
         st.pending.def = a.k; st.pending.life = null; st.pending.kind = 'battle';
+        st.pending.shieldUsed = true;
         fireAttackRedirected(st, fx, st.pending.atk, rng);
         {
           const e = fxCard(c);
@@ -15885,6 +16005,7 @@ function applySelfPowerBuffsFromAb(st, k, ab, logLabel) {
       sendCardToHell(st, fx, k, { ignoreProtect: true });
     }));
     noteTurnChanges(st, turnSnap);
+    if (!fx.deny) fireEnemyAvatarChangeStatus(st, fx, turnSnap, rng);
     noteDroppedUnityAuras(st);
     if (!fx.deny) syncEnterLink(st, fx);
     offerAttackRetargetIfNeeded(st, fx);

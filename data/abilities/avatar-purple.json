@@ -1295,20 +1295,17 @@
           },
           "actions": [
             {
-              "op": "retrieveFromGrave",
+              "op": "hellPick",
+              "dest": "hand",
+              "pickedHandCostDelta": -3,
               "filter": {
+                "type": "Avatar",
                 "nameIncludes": [
                   "ขุนพล"
                 ],
                 "color": "ม่วง",
                 "symbol": "ต่างชาติ",
-                "nameNotExact": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช"
-              },
-              "count": 1,
-              "dest": "hand",
-              "grantCostReduce": {
-                "amount": 3,
-                "until": "endOfTurn"
+                "nameNotEquals": "ตั๋งโต๊ะ ขุนพลฮ่องเต้ทรราช"
               }
             }
           ]
@@ -1343,6 +1340,7 @@
             "on": "static",
             "if": "self.zone==avatarZone"
           },
+          "requireLinked": true,
           "actions": [
             {
               "op": "grantAbilityToAllyNameIncludes",
@@ -1350,18 +1348,18 @@
               "grantedAbility": {
                 "keyword": "อัตโนมัติ",
                 "trigger": {
-                  "on": "destroyedInBattleBySelf"
+                  "on": "battleDestroy"
                 },
+                "requireAttacker": true,
                 "actions": [
                   {
-                    "op": "unrevealTopEnemyLife",
+                    "op": "revealOppLifeTop",
                     "count": 1
                   }
                 ]
               }
             }
-          ],
-          "requireLinked": true
+          ]
         }
       ],
       "parseStatus": "auto",
@@ -1520,35 +1518,6 @@
       ],
       "abilities": [
         {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static",
-            "if": "self.zone==avatarZone"
-          },
-          "condition": {
-            "own": {
-              "avatarZone": {
-                "filter": {
-                  "nameIncludes": [
-                    "ขุนพล"
-                  ],
-                  "color": "ม่วง",
-                  "symbol": "ต่างชาติ"
-                },
-                "min": 1
-              }
-            }
-          },
-          "actions": [
-            {
-              "op": "setCannotBeAttackTarget",
-              "target": {
-                "select": "self"
-              }
-            }
-          ]
-        },
-        {
           "keyword": "สั่งใช้",
           "trigger": {
             "on": "activated"
@@ -1556,18 +1525,22 @@
           "oncePerTurn": true,
           "actions": [
             {
-              "op": "changeStatus",
-              "status": "awake",
-              "target": {
-                "select": "all",
-                "type": "Avatar",
-                "side": "opponent",
-                "zone": "avatarZone"
-              }
+              "op": "untap",
+              "all": "enemy"
             }
           ]
         }
       ],
+      "cannotBeAttackTargetIf": {
+        "allyFilter": {
+          "type": "Avatar",
+          "nameIncludes": [
+            "ขุนพล"
+          ],
+          "color": "ม่วง",
+          "symbol": "ต่างชาติ"
+        }
+      },
       "parseStatus": "auto",
       "note": "ต่อเนื่อง ถ้ามีขุนพลม่วง Symbol ต่างชาติ ฝ่ายเรา → โจมตีไม่ได้; สั่งใช้: Avatar ฝ่ายตรงข้ามทั้งหมดตื่น"
     },
@@ -3852,18 +3825,19 @@
       ],
       "abilities": [
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
             "on": "declareAttack",
             "if": "source==self"
           },
-          "actions": [],
-          "note": "บังคับโล่มนุษย์ฝ่ายตรงข้าม — aura ให้โล่มนุษย์ศัตรูแล้ว"
+          "forceEnemyHumanShield": true,
+          "actions": []
         },
         {
+          "keyword": "อัตโนมัติ",
           "trigger": {
-            "on": "activated"
+            "on": "ownAttackRedirected"
           },
-          "oncePerTurn": true,
           "actions": [
             {
               "op": "chooseDestroy",
@@ -3873,10 +3847,10 @@
               },
               "zones": [
                 "avatar"
-              ]
+              ],
+              "optional": true
             }
-          ],
-          "note": "เมื่อมีการเปลี่ยนเป้าโจมตี — ผู้เล่นกดสั่งใช้"
+          ]
         }
       ],
       "grantKeywordAura": {
@@ -3884,7 +3858,7 @@
         "side": "enemy"
       },
       "parseStatus": "auto",
-      "note": "ต่อเนื่อง ในช่วง Battle Phase Avatar ฝ่ายตรงข้ามทุกใบได้รับ โล่มนุษย์ อัตโนมัติ เมื่อ Avatar ใบนี้โจมตี : ฝ่ายตรงข้ามจะต"
+      "note": "Battle Phase: Avatar ศัตรูได้โล่มนุษย์ · โจมตี: ศัตรูต้องใช้โล่มนุษย์ · การโจมตีของเราถูกเปลี่ยนเป้า: ทำลาย Avatar ศัตรูได้ 1 ใบ"
     },
     {
       "name": "ลิลิธ ปีศาจสาวตนแรก",
@@ -4663,23 +4637,12 @@
           },
           "actions": [
             {
-              "op": "freeSummonSelf"
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "destroyedFromAvatarZone"
-          },
-          "actions": [
-            {
-              "op": "returnSelfToDeck",
-              "pos": "bottom"
+              "op": "summonSelfFromHell"
             }
           ]
         }
       ],
+      "destroyToDeckBottomInstead": true,
       "parseStatus": "auto",
       "note": "เมื่อถูกธรณีสูบ อัญเชิญลงสนาม / เมื่อถูกทำลายจาก Avatar Zone กลับใต้สุด Deck"
     },

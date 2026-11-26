@@ -707,12 +707,12 @@
     if (isNew && Object.keys(sv).length >= max) {
       if (!(CardDB.isLoggedIn && CardDB.isLoggedIn())) {
         msg(`⚠️ โหมดไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — กรุณาล็อกอินเพื่อจัดเด็คเพิ่ม`);
-        if (typeof root.toast === 'function') root.toast(`⚠️ ไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — ล็อกอินเพื่อจัดเด็คเพิ่ม`);
+        toastMsg(`⚠️ ไม่ล็อกอินเก็บได้สูงสุด ${max} เด็ค — ล็อกอินเพื่อจัดเด็คเพิ่ม`);
         if (typeof window.openAuth === 'function') window.openAuth('login');
         return;
       }
       msg(`⚠️ บันทึกครบโควตา ${max} เด็คแล้ว (เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค)`);
-      if (typeof root.toast === 'function') root.toast(`⚠️ จำกัด ${max} เด็ค — เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค`);
+      toastMsg(`⚠️ จำกัด ${max} เด็ค — เลี้ยงกาแฟเพื่อปลดล็อก 40 เด็ค`);
       return;
     }
     sv[name] = { main: DB.deck.main, life: DB.deck.life };
@@ -723,14 +723,35 @@
     try { localStorage.setItem('bot_active_deck', name); } catch (e) { }
     byId('dbName').value = name;
     DK.sel = { kind: 'saved', id: name };
-    if (typeof root.toast === 'function') {
-      root.toast(`✓ บันทึกเด็ค "${name}" แล้ว`);
-    }
-    // เวลาเซฟเด็คให้ออกมาหน้าเด็คของฉันเลย
+    // แจ้งบันทึกสำเร็จ แล้วกลับหน้าเด็คทั้งหมด (กดตกลง / คลิกนอกกล่อง / Esc)
     closeDbDrawers();
+    showDeckSaved(name);
+  };
+  function toastMsg(t) {
+    if (typeof window.toast === 'function') window.toast(t, 2800);
+  }
+  function goDeckList() {
     BOT.showScreen('decks');
     window.openDeckList();
-  };
+  }
+  function showDeckSaved(name) {
+    const modal = byId('deckSavedModal');
+    if (!modal) { toastMsg(`✓ บันทึกเด็ค "${name}" แล้ว`); goDeckList(); return; }
+    byId('dsSub').textContent = `เด็ค "${name}"`;
+    modal.classList.remove('hidden');
+    byId('dsOk').focus();
+  }
+  function closeDeckSaved() {
+    const modal = byId('deckSavedModal');
+    if (!modal || modal.classList.contains('hidden')) return;
+    modal.classList.add('hidden');
+    goDeckList();
+  }
+  if (byId('deckSavedModal')) {
+    byId('dsOk').onclick = closeDeckSaved;
+    byId('deckSavedModal').addEventListener('click', e => { if (e.target.id === 'deckSavedModal') closeDeckSaved(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDeckSaved(); });
+  }
   byId('dbClearDeck').onclick = () => {
     const { m, l } = counts();
     if (!m && !l) { msg('เด็คว่างอยู่แล้ว'); return; }

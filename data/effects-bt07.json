@@ -1788,22 +1788,10 @@
     {
       "code": "BT07-065",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunity"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "controlImmune": true,
       "parseStatus": "auto",
-      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม (controlImmune บนใบสวม)"
     },
     {
       "code": "BT07-066",

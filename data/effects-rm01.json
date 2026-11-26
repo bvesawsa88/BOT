@@ -571,22 +571,10 @@
     {
       "code": "RM01-056",
       "name": "ปลอกคอซื่อสัตย์",
-      "abilities": [
-        {
-          "keyword": "ต่อเนื่อง",
-          "trigger": {
-            "on": "static"
-          },
-          "actions": [
-            {
-              "op": "grantControlImmunity"
-            }
-          ]
-        }
-      ],
+      "abilities": [],
       "parseStatus": "auto",
       "controlImmune": true,
-      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม"
+      "note": "Avatar ที่สวมใส่จะไม่ถูกเปลี่ยนการควบคุม (controlImmune บนใบสวม)"
     },
     {
       "code": "RM01-053",
@@ -1512,25 +1500,14 @@
           },
           "actions": [
             {
-              "op": "freeSummonSelf"
-            }
-          ]
-        },
-        {
-          "keyword": "อัตโนมัติ",
-          "trigger": {
-            "on": "destroyedFromAvatarZone"
-          },
-          "actions": [
-            {
-              "op": "returnSelfToDeck",
-              "pos": "bottom"
+              "op": "summonSelfFromHell"
             }
           ]
         }
       ],
       "parseStatus": "auto",
-      "note": "เมื่อถูกธรณีสูบ อัญเชิญลงสนาม / เมื่อถูกทำลายจาก Avatar Zone กลับใต้สุด Deck"
+      "note": "เมื่อถูกธรณีสูบ อัญเชิญลงสนาม / เมื่อถูกทำลายจาก Avatar Zone กลับใต้สุด Deck",
+      "destroyToDeckBottomInstead": true
     },
     {
       "code": "RM01-028",
